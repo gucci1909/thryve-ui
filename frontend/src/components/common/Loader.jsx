@@ -1,107 +1,89 @@
 // components/Loader.jsx
 "use client";
-import React from "react";
 import { motion } from "framer-motion";
 
 function Loader() {
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-gradient-to-br from-purple-50 to-white">
-      <div className="relative flex items-center justify-center">
-        {/* Vibrating "L" */}
+    <div className="flex h-screen w-full items-center justify-center bg-[#0029ff]">
+      <div className="relative flex flex-col items-center justify-center space-y-8">
+        {/* Logo with pulse animation */}
         <motion.div
-          animate={{
-            rotate: [0, 10, -10, 10, -10, 0],
-            scale: [1, 1.1, 1, 1.1, 1, 1],
-            x: [0, 5, -5, 5, -5, 0],
-          }}
+          className="relative"
+          initial={{ scale: 0.95 }}
+          animate={{ scale: 1 }}
           transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="relative z-10"
-        >
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="text-7xl font-bold text-purple-600"
-          >
-            L
-          </motion.span>
-        </motion.div>
-
-        {/* Pulsing circle background */}
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 0.2 }}
-          transition={{
-            duration: 1.5,
             repeat: Infinity,
             repeatType: "reverse",
+            duration: 1.5,
+            ease: "easeInOut",
           }}
-          className="absolute h-24 w-24 rounded-full bg-purple-300"
-        />
+        >
+          <h1 className="text-6xl font-bold text-white drop-shadow-lg">thryve</h1>
+          <div className="absolute inset-0 -z-10 rounded-full bg-white opacity-20 blur-xl" />
+        </motion.div>
 
-        {/* Floating dots */}
-        {[...Array(4)].map((_, i) => (
+        {/* Animated dots loader */}
+        <div className="flex items-center justify-center space-x-3">
+          {[...Array(3)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="h-3 w-3 rounded-full bg-white"
+              initial={{ y: 0, opacity: 0.5 }}
+              animate={{ 
+                y: [0, -10, 0],
+                opacity: [0.5, 1, 0.5]
+              }}
+              transition={{
+                duration: 1.2,
+                repeat: Infinity,
+                delay: i * 0.2,
+                ease: "easeInOut"
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Loading text with subtle animation */}
+        {/* <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-lg font-medium text-white/80"
+        >
+          Loading your experience...
+        </motion.div> */}
+
+        {/* Subtle background elements */}
+        <div className="absolute inset-0 overflow-hidden opacity-20">
           <motion.div
-            key={i}
-            initial={{ y: 0, opacity: 0 }}
+            className="absolute bottom-0 left-0 h-32 w-32 rounded-full bg-white"
             animate={{
-              y: [0, -20, 0],
-              opacity: [0, 1, 0],
+              x: [0, 100, 0],
+              y: [0, -50, 0],
             }}
             transition={{
-              duration: 2,
-              delay: i * 0.3,
+              duration: 8,
               repeat: Infinity,
+              repeatType: "reverse",
               ease: "easeInOut",
             }}
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              width: 8,
-              height: 8,
-              borderRadius: "50%",
-              backgroundColor: "#8b5cf6",
-              x: Math.cos((i * Math.PI) / 2) * 40,
-              y: Math.sin((i * Math.PI) / 2) * 40,
+          />
+          <motion.div
+            className="absolute top-0 right-0 h-40 w-40 rounded-full bg-white"
+            animate={{
+              x: [0, -80, 0],
+              y: [0, 60, 0],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              repeatType: "reverse",
+              ease: "easeInOut",
+              delay: 1,
             }}
           />
-        ))}
-
-        {/* Subtle glow */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.3 }}
-          transition={{ duration: 1, repeat: Infinity, repeatType: "reverse" }}
-          className="absolute inset-0 rounded-full bg-purple-400 blur-xl"
-        />
+        </div>
       </div>
-
-      {/* Loading text with wave animation */}
-      <motion.div
-        initial={{ y: 80 }}
-        animate={{ y: 60 }}
-        transition={{ duration: 0.5 }}
-        className="absolute bottom-20 flex space-x-1 text-purple-600"
-      >
-        {"Loading".split("").map((letter, i) => (
-          <motion.span
-            key={i}
-            animate={{ y: [0, -5, 0] }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              delay: i * 0.1,
-            }}
-          >
-            {letter}
-          </motion.span>
-        ))}
-      </motion.div>
     </div>
   );
 }

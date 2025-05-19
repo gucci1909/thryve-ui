@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Home, Calendar, PieChart, User, MessageCircle } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
-const BottomNav = ({ showNav, isAtTop }) => {
+const BottomNav = () => {
   const location = useLocation();
 
   const navItems = [
@@ -15,8 +15,7 @@ const BottomNav = ({ showNav, isAtTop }) => {
   ];
 
   return (
-    <div className="fixed right-0 bottom-0 left-0">
-      {/* Floating Chat Button - Always Visible */}
+    <div className="right-0 bottom-0 left-0">
       <motion.div
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -35,14 +34,11 @@ const BottomNav = ({ showNav, isAtTop }) => {
         </motion.span>
       </motion.div>
 
-      {/* Navigation Bar - Conditionally Visible */}
       <motion.div
         initial={{ y: 0 }}
         animate={{
           y: 0,
           opacity: 1,
-          // y: showNav ? 0 : 100,
-          // opacity: showNav ? 1 : 0,
         }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
         className="relative mx-auto max-w-md"

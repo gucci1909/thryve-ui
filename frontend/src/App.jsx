@@ -4,7 +4,7 @@ import SplashScreen from "./components/common/Splash";
 function App() {
   return (
     <div className="app-container">
-      <SplashScreen />
+      <SplashScreen/>
       <AllRoutes />
     </div>
   );

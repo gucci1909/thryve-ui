@@ -4,48 +4,14 @@ import BottomNav from "../components/home/BottomNav";
 import {
   FiMessageSquare,
   FiArrowRight,
-  FiUsers,
-  FiAward,
-  FiPlay,
-  FiVideo,
-  FiTrendingUp,
+  FiPlay
 } from "react-icons/fi";
 import { GiTargetDummy } from "react-icons/gi";
 import { AiOutlineQuestionCircle } from "react-icons/ai";
 import { BsBookmark } from "react-icons/bs";
 import { FaTrophy } from "react-icons/fa";
-import { useRef } from "react";
 
 export default function HomePage() {
-  const mainRef = useRef(null);
-
-  // const handleScroll = () => {
-  //   setIsScrolling(true);
-
-  //   // Check if at top of container
-  //   const atTop = mainRef.current?.scrollTop === 0;
-  //   setIsAtTop(atTop);
-
-  //   // Clear any existing timeout
-  //   if (scrollTimeoutRef.current) {
-  //     clearTimeout(scrollTimeoutRef.current);
-  //   }
-
-  //   // Set a new timeout to detect when scrolling stops
-  //   scrollTimeoutRef.current = setTimeout(() => {
-  //     setIsScrolling(false);
-  //   }, 200);
-  // };
-
-  // useEffect(() => {
-  //   // Cleanup timeout on unmount
-  //   return () => {
-  //     if (scrollTimeoutRef.current) {
-  //       clearTimeout(scrollTimeoutRef.current);
-  //     }
-  //   };
-  // }, []);
-
   const cardVariants = {
     offscreen: {
       y: 50,
@@ -64,12 +30,7 @@ export default function HomePage() {
 
   return (
     <div className="flex h-screen flex-col bg-gradient-to-b from-[#e6f2f8] to-[#cce6f5]">
-      <header
-        // initial={{ y: -20, opacity: 0 }}
-        // animate={{ y: 0, opacity: 1 }}
-        // transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full border-b border-[#006792]/20 bg-white/80 pt-4 pb-4 shadow-sm backdrop-blur-sm"
-      >
+      <header className="w-full border-b border-[#006792]/20 bg-white/80 pt-4 pb-4 shadow-sm backdrop-blur-sm">
         <div className="mb-3 flex justify-center">
           <motion.div
             className="relative"
@@ -77,7 +38,7 @@ export default function HomePage() {
             transition={{ type: "spring", stiffness: 400, damping: 10 }}
           >
             <motion.h1
-              className="bg-gradient-to-r from-[#006792] to-[#00a6fb] bg-clip-text text-2xl font-bold text-transparent"
+              className="text-primary bg-gradient-to-r bg-clip-text text-2xl font-bold text-transparent"
               animate={{
                 backgroundPosition: ["0% 50%", "100% 50%"],
               }}
@@ -212,7 +173,6 @@ export default function HomePage() {
       </header>
 
       <main
-        ref={mainRef}
         // onScroll={handleScroll}
         className="mt-5 flex-1 overflow-y-auto px-4 pb-20"
       >
