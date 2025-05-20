@@ -33,6 +33,11 @@ function AllRoutes() {
           />
           <Route path="/chat-box" element={<ChatBox />} />
           <Route path="/personalize-home" element={<PersonalizeHome />} />
+
+          <Route path="/check-in" element={<Home />} />
+          <Route path="/dashboard" element={<Home />} />
+          <Route path="/profile" element={<Home />} />
+
           <Route path="/" element={<DiscoverPage />} />
           <Route path="/*" element={<DiscoverPage />} />
         </Routes>

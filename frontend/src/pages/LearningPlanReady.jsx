@@ -206,7 +206,7 @@ function LearningPlanReadyScreen() {
             </div>
 
             <motion.button
-              onClick={() => navigate("/home")}
+              onClick={() => navigate("/personalize-home")}
               className="mt-10 w-full rounded-[14px] bg-[var(--primary-color)] px-8 py-5 text-lg font-bold text-white shadow-2xl transition-all duration-300 hover:shadow-[0_15px_30px_-5px_rgba(0,41,255,0.4)] focus:ring-2 focus:ring-white focus:ring-offset-4 focus:outline-none"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

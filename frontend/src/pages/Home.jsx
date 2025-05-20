@@ -25,138 +25,136 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-gradient-to-b from-[#e6f2f8] to-[#cce6f5]">
-      <header className="w-full border-b border-[#006792]/20 bg-white/80 pt-4 pb-4 shadow-sm backdrop-blur-sm">
-        <div className="mb-3 flex justify-center">
-          <motion.div
-            className="relative"
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
-          >
-            <motion.h1
-              className="text-primary bg-gradient-to-r bg-clip-text text-2xl font-bold text-transparent"
-              animate={{
-                backgroundPosition: ["0% 50%", "100% 50%"],
-              }}
-              transition={{
-                duration: 6,
-                repeat: Infinity,
-                repeatType: "reverse",
-                ease: "linear",
-              }}
-            >
-              Thryve
-            </motion.h1>
-            <motion.div
-              className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-[#006792] to-[#00a6fb]"
-              initial={{ width: 0 }}
-              whileInView={{ width: "100%" }}
-              transition={{ duration: 1, delay: 0.5 }}
-              viewport={{ once: true }}
+    <div className="flex h-screen flex-col bg-gradient-to-b from-[#f0f4ff] to-[#e6ecff]">
+      {/* Header */}
+      <div className="w-full bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_20%)] py-3 shadow-md">
+        {/* Top center-aligned logo + title */}
+        <div className="flex items-center justify-center">
+          <div className="flex items-center gap-2">
+            <img
+              src="/logo-thryve.png"
+              alt="Thryve Logo"
+              className="h-8 w-8 drop-shadow-md"
             />
-          </motion.div>
+            <h1 className="text-2xl font-semibold tracking-wide text-white drop-shadow-sm">
+              thryve
+            </h1>
+          </div>
         </div>
 
-        <div className="mx-auto my-4 h-px w-full bg-[#006792]/20" />
+        {/* Separator line */}
+        <div className="my-2 h-[1px] w-full bg-white/30" />
 
-        <div className="mt-2 flex items-center justify-between px-4">
-          <div className="flex items-center gap-3">
-            <motion.p
-              className="font-medium text-[#004d70]"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              Good Morning,{" "}
-              <span className="font-semibold text-[#006792]">Sunil</span>
-            </motion.p>
+        {/* Bottom row: greeting and trophy */}
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-4">
+          {/* Left: Menu + greeting */}
+          <div className="flex items-center gap-2 text-white">
+            {/* <Menu className="h-5 w-5" /> */}
+            <span className="text-sm font-medium">Good Morning, Sunil</span>
           </div>
-          <motion.div
-            initial={{ scale: 0, rotate: -15 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{
-              type: "spring",
-              stiffness: 500,
-              damping: 15,
-            }}
-            whileHover={{ y: -2 }}
-            className="relative"
-          >
+
+          {/* Right: Trophy + score */}
+          <div className="relative flex items-center gap-1 text-white">
             <motion.div
-              className="flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-br from-[#006792] to-[#004d70] py-1.5 pr-3.5 pl-2.5 text-sm font-bold text-white shadow-lg"
-              whileTap={{ scale: 0.95 }}
-              initial={{ boxShadow: "0 4px 14px rgba(0, 103, 146, 0.3)" }}
+              className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),black_20%)] px-3 py-1.5 text-sm font-bold text-white shadow-md"
+              initial={{ scale: 0.95, opacity: 0 }}
               animate={{
-                boxShadow: [
-                  "0 4px 14px rgba(0, 103, 146, 0.3)",
-                  "0 6px 18px rgba(0, 103, 146, 0.4)",
-                  "0 4px 14px rgba(0, 103, 146, 0.3)",
-                ],
+                scale: 1,
+                opacity: 1,
+                boxShadow: "0 4px 12px rgba(0, 41, 255, 0.25)",
               }}
               transition={{
-                duration: 3,
-                repeat: Infinity,
-                repeatType: "reverse",
-                ease: "easeInOut",
+                type: "spring",
+                stiffness: 400,
+                damping: 15,
+                delay: 0.2,
               }}
+              whileHover={{
+                y: -2,
+                boxShadow: "0 6px 16px rgba(0, 41, 255, 0.35)",
+              }}
+              whileTap={{ scale: 0.98 }}
             >
+              {/* Trophy icon with subtle shine */}
               <motion.div
-                animate={{ rotate: [0, 15, 0] }}
+                className="relative"
+                animate={{
+                  rotate: [0, 5, 0, -5, 0],
+                  y: [0, -2, 0],
+                }}
                 transition={{
-                  duration: 2,
+                  duration: 4,
                   repeat: Infinity,
                   repeatType: "loop",
                   ease: "easeInOut",
                 }}
               >
-                <FaTrophy className="text-yellow-300 drop-shadow-[0_1px_2px_rgba(255,215,0,0.4)]" />
+                <FaTrophy className="text-yellow-300" />
+                {/* <motion.div
+                  className="absolute top-0 left-0 h-full w-3 bg-white/40"
+                  initial={{ x: -10 }}
+                  animate={{ x: "100%" }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatDelay: 3,
+                    ease: "easeInOut",
+                  }}
+                  style={{
+                    transform: "skewX(-20deg)",
+                  }}
+                /> */}
               </motion.div>
-              <span className="text-shadow-sm">274</span>
 
-              {/* Shimmer effect - simplified */}
-              <motion.div
-                className="absolute top-0 left-0 h-full w-8 bg-white/30"
-                initial={{ x: -30 }}
-                animate={{ x: "220%" }}
-                transition={{
-                  delay: 1,
-                  duration: 2,
-                  repeat: Infinity,
-                  repeatDelay: 4,
-                  ease: "easeInOut",
+              {/* Score with subtle pulse */}
+              <motion.span
+                animate={{
+                  scale: [1, 1.05, 1],
                 }}
-                style={{
-                  transform: "skewX(-20deg)",
-                }}
-              />
+                // transition={{
+                //   duration: 3,
+                //   repeat: Infinity,
+                //   repeatType: "reverse",
+                //   ease: "easeInOut",
+                // }}
+              >
+                274
+              </motion.span>
+
+              {/* Subtle floating particles */}
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i}
+                  className="absolute h-1 w-1 rounded-full bg-yellow-300/80"
+                  initial={{
+                    opacity: 0,
+                    y: 0,
+                    x: 0,
+                  }}
+                  animate={{
+                    opacity: [0, 0.8, 0],
+                    y: [0, -8, -15],
+                    x: i % 2 === 0 ? [0, 3, 0] : [0, -3, 0],
+                  }}
+                  transition={{
+                    duration: 3,
+                    delay: i * 0.3,
+                    repeat: Infinity,
+                    repeatDelay: 5,
+                    ease: "easeOut",
+                  }}
+                />
+              ))}
             </motion.div>
 
-            {/* Particle effects - more stable */}
-            {[0, 1, 2].map((i) => (
-              <motion.div
-                key={i}
-                className="absolute top-0 h-1 w-1 rounded-full bg-yellow-300"
-                initial={{ opacity: 0 }}
-                animate={{
-                  y: [0, -10, -20, 0],
-                  x: [0, i % 2 === 0 ? 5 : -5, 0],
-                  opacity: [0, 0.8, 0],
-                }}
-                transition={{
-                  duration: 3,
-                  delay: i * 0.5,
-                  repeat: Infinity,
-                  repeatDelay: 4,
-                  ease: "easeOut",
-                }}
-              />
-            ))}
-
-            {/* Glow effect - more subtle */}
+            {/* Soft glow */}
             <motion.div
-              className="absolute inset-0 -z-10 rounded-full bg-[#006792]/20 blur-md"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1.1, opacity: 0.2 }}
+              className="absolute inset-0 -z-10 rounded-full bg-[var(--primary-color)]/20 blur-md"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{
+                scale: 1.1,
+                opacity: 0.3,
+              }}
               transition={{
                 duration: 3,
                 repeat: Infinity,
@@ -164,117 +162,85 @@ export default function HomePage() {
                 ease: "easeInOut",
               }}
             />
-          </motion.div>
+          </div>
         </div>
-      </header>
+      </div>
 
-      <main
-        // onScroll={handleScroll}
-        className="mt-5 flex-1 overflow-y-auto px-4 pb-20"
-      >
+      <main className="mt-4 flex-1 overflow-y-auto px-5 pb-24">
+        {/* Featured Card */}
         <motion.div
           initial="offscreen"
           whileInView="onscreen"
           viewport={{ once: true, amount: 0.2 }}
           variants={cardVariants}
         >
-          <div className="rounded-2xl bg-white p-5 shadow-md">
+          <div className="rounded-2xl border border-white/20 bg-white/95 p-6 shadow-[0_10px_40px_-15px_rgba(0,41,255,0.15)] backdrop-blur-md">
             <div className="flex items-start">
-              {/* <div className="mr-3 rounded-lg bg-[#006792]/10 p-2">
-                <FiVideo className="text-[#006792]" />
-              </div> */}
               <div className="flex-1">
-                <h2 className="text-lg font-semibold text-[#004d70]">
+                <h2 className="text-xl font-bold text-[var(--primary-color)]">
                   Leadership Video Guide
                 </h2>
 
-                {/* Video Thumbnail with Play Button */}
-                <div className="group relative mt-3 aspect-video w-full overflow-hidden rounded-lg bg-gradient-to-br from-[#006792] to-[#00a6fb]">
-                  {/* Thumbnail Image */}
-                  <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1579389083078-4e7018379f7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80')] bg-cover bg-center opacity-80 transition-opacity group-hover:opacity-60" />
+                {/* Video Thumbnail */}
+                <div className="group relative mt-4 aspect-video w-full overflow-hidden rounded-xl bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_30%)]">
+                  <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1579389083078-4e7018379f7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80')] bg-cover bg-center opacity-80 transition-opacity group-hover:opacity-70" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--primary-color)]/80 to-transparent" />
 
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#004d70]/80 to-transparent" />
-
-                  {/* Play Button */}
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform">
                     <motion.div
                       className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 shadow-lg backdrop-blur-sm transition-all group-hover:bg-white group-hover:shadow-xl"
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <FiPlay className="ml-1 text-2xl text-[#006792]" />
+                      <FiPlay className="ml-1 text-2xl text-[var(--primary-color)]" />
                     </motion.div>
                   </div>
 
-                  {/* Video Duration */}
                   <div className="absolute right-3 bottom-3 rounded bg-black/70 px-2 py-1 text-xs font-medium text-white">
                     8:24
                   </div>
                 </div>
 
-                <p className="mt-3 text-[#006792]/90">
+                <p className="mt-4 text-[color-mix(in_srgb,var(--primary-color),black_30%)]">
                   Watch this insightful video on effective leadership strategies
                   and team management. Learn key techniques from industry
                   experts.
                 </p>
 
-                <div className="mt-4 flex items-center justify-between">
+                <div className="mt-6 flex items-center justify-between">
                   <div className="flex space-x-4 text-xl">
-                    <button className="text-[#006792]/70 transition-colors hover:text-[#006792]">
+                    <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] transition-colors hover:text-[var(--primary-color)]">
                       <FiMessageSquare />
                     </button>
-                    <button className="text-[#006792]/70 transition-colors hover:text-[#006792]">
+                    <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] transition-colors hover:text-[var(--primary-color)]">
                       <GiTargetDummy />
                     </button>
-                    <button className="text-[#006792]/70 transition-colors hover:text-[#006792]">
+                    <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] transition-colors hover:text-[var(--primary-color)]">
                       <AiOutlineQuestionCircle />
                     </button>
-                    <button className="text-[#006792]/70 transition-colors hover:text-[#006792]">
+                    <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] transition-colors hover:text-[var(--primary-color)]">
                       <BsBookmark />
                     </button>
                   </div>
-                  <button className="flex items-center text-sm font-medium text-[#006792] transition-colors hover:text-[#004d70]">
-                    Watch Now <FiArrowRight className="ml-1" />
+                  <button className="flex items-center text-sm font-bold text-[var(--primary-color)] transition-colors hover:text-[color-mix(in_srgb,var(--primary-color),black_20%)]">
+                    Watch Now <FiArrowRight className="ml-1.5" />
                   </button>
                 </div>
               </div>
             </div>
           </div>
         </motion.div>
-        <div className="mt-6 space-y-6">
+
+        {/* Learning Modules */}
+        <div className="mt-7 space-y-5">
           {[
-            {
-              title: "Alignment with your Management",
-              content:
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi sit amet faucibus sapien, ac rutrum quam.",
-            },
-            {
-              title: "Managing High Performers",
-              content:
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi sit amet faucibus sapien, ac rutrum quam.",
-            },
-            {
-              title: "Growing your team",
-              content:
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi sit amet faucibus sapien, ac rutrum quam.",
-            },
-            {
-              title: "Alignment with your Management",
-              content:
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi sit amet faucibus sapien, ac rutrum quam.",
-            },
-            {
-              title: "Managing High Performers",
-              content:
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi sit amet faucibus sapien, ac rutrum quam.",
-            },
-            {
-              title: "Growing your team",
-              content:
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi sit amet faucibus sapien, ac rutrum quam.",
-            },
-          ].map((item, index) => (
+            "Alignment with your Management",
+            "Managing High Performers",
+            "Growing your team",
+            "Conflict Resolution",
+            "Strategic Decision Making",
+            "Team Motivation",
+          ].map((title, index) => (
             <motion.div
               key={index}
               initial="offscreen"
@@ -282,31 +248,34 @@ export default function HomePage() {
               viewport={{ once: true, amount: 0.2 }}
               variants={cardVariants}
             >
-              <div className="rounded-2xl bg-white p-5 shadow-md">
+              <div className="rounded-xl border border-white/20 bg-white/90 p-5 shadow-[0_5px_20px_-5px_rgba(0,41,255,0.1)] backdrop-blur-sm">
                 <div className="flex items-start">
                   <div className="flex-1">
-                    <h2 className="text-lg font-semibold text-[#004d70]">
-                      {item.title}
+                    <h2 className="text-lg font-bold text-[var(--primary-color)]">
+                      {title}
                     </h2>
-                    <p className="mt-1 text-[#006792]/90">{item.content}</p>
+                    <p className="mt-1.5 text-[color-mix(in_srgb,var(--primary-color),black_30%)]">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Morbi sit amet faucibus sapien.
+                    </p>
 
                     <div className="mt-4 flex items-center justify-between">
                       <div className="flex space-x-4 text-xl">
-                        <button className="text-[#006792]/70 hover:text-[#006792]">
+                        <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] hover:text-[var(--primary-color)]">
                           <FiMessageSquare />
                         </button>
-                        <button className="text-[#006792]/70 hover:text-[#006792]">
+                        <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] hover:text-[var(--primary-color)]">
                           <GiTargetDummy />
                         </button>
-                        <button className="text-[#006792]/70 hover:text-[#006792]">
+                        <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] hover:text-[var(--primary-color)]">
                           <AiOutlineQuestionCircle />
                         </button>
-                        <button className="text-[#006792]/70 hover:text-[#006792]">
+                        <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] hover:text-[var(--primary-color)]">
                           <BsBookmark />
                         </button>
                       </div>
-                      <button className="flex items-center text-sm font-medium text-[#006792] hover:text-[#004d70]">
-                        Explore <FiArrowRight className="ml-1" />
+                      <button className="flex items-center text-sm font-bold text-[var(--primary-color)] hover:text-[color-mix(in_srgb,var(--primary-color),black_20%)]">
+                        Explore <FiArrowRight className="ml-1.5" />
                       </button>
                     </div>
                   </div>
