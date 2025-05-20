@@ -32,7 +32,12 @@ function AllRoutes() {
             element={<LearningPlanReadyScreen />}
           />
           <Route path="/chat-box" element={<ChatBox />} />
+
           <Route path="/personalize-home" element={<PersonalizeHome />} />
+
+          <Route path="/personalize-check-in" element={<PersonalizeHome />} />
+          <Route path="/personalize-dashboard" element={<PersonalizeHome />} />
+          <Route path="/personalize-profile" element={<PersonalizeHome />} />
 
           <Route path="/check-in" element={<Home />} />
           <Route path="/dashboard" element={<Home />} />

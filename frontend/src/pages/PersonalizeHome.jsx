@@ -1,7 +1,8 @@
 "use client";
 import { motion } from "framer-motion";
+import { FiArrowRight, FiMessageSquare } from "react-icons/fi";
+import { BorderBeam } from "../components/magicui/border-beam";
 import BottomNav from "../components/home/BottomNav";
-import { FiMessageSquare, FiArrowRight, FiPlay } from "react-icons/fi";
 import { GiTargetDummy } from "react-icons/gi";
 import { AiOutlineQuestionCircle } from "react-icons/ai";
 import { BsBookmark } from "react-icons/bs";
@@ -26,7 +27,7 @@ export default function PersonalizeHome() {
 
   return (
     <div className="flex h-screen flex-col bg-gradient-to-b from-[#f0f4ff] to-[#e6ecff]">
-      {/* Header */}
+      {/* Header (unchanged) */}
       <div className="w-full bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_20%)] py-3 shadow-md">
         {/* Top center-aligned logo + title */}
         <div className="flex items-center justify-center">
@@ -91,19 +92,19 @@ export default function PersonalizeHome() {
               >
                 <FaTrophy className="text-yellow-300" />
                 {/* <motion.div
-                  className="absolute top-0 left-0 h-full w-3 bg-white/40"
-                  initial={{ x: -10 }}
-                  animate={{ x: "100%" }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    repeatDelay: 3,
-                    ease: "easeInOut",
-                  }}
-                  style={{
-                    transform: "skewX(-20deg)",
-                  }}
-                /> */}
+                      className="absolute top-0 left-0 h-full w-3 bg-white/40"
+                      initial={{ x: -10 }}
+                      animate={{ x: "100%" }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatDelay: 3,
+                        ease: "easeInOut",
+                      }}
+                      style={{
+                        transform: "skewX(-20deg)",
+                      }}
+                    /> */}
               </motion.div>
 
               {/* Score with subtle pulse */}
@@ -167,66 +168,110 @@ export default function PersonalizeHome() {
       </div>
 
       <main className="mt-4 flex-1 overflow-y-auto px-5 pb-24">
-        {/* Featured Card */}
+        {/* Growth Recommendations Card */}
         <motion.div
           initial="offscreen"
           whileInView="onscreen"
           viewport={{ once: true, amount: 0.2 }}
           variants={cardVariants}
         >
-          <div className="rounded-2xl border border-white/20 bg-white/95 p-6 shadow-[0_10px_40px_-15px_rgba(0,41,255,0.15)] backdrop-blur-md">
-            <div className="flex items-start">
-              <div className="flex-1">
-                <h2 className="text-xl font-bold text-[var(--primary-color)]">
-                  Leadership Video Guide
-                </h2>
+          <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-white/95 p-6 shadow-[0_10px_40px_-15px_rgba(0,41,255,0.15)] backdrop-blur-md">
+            {/* Border Beam Effect */}
+            <BorderBeam
+              size={150}
+              duration={10}
+              colorFrom="var(--primary-color)"
+              colorTo="color-mix(in_srgb,var(--primary-color),white_50%)"
+              className="z-0"
+            />
 
-                {/* Video Thumbnail */}
-                <div className="group relative mt-4 aspect-video w-full overflow-hidden rounded-xl bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_30%)]">
-                  <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1579389083078-4e7018379f7e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80')] bg-cover bg-center opacity-80 transition-opacity group-hover:opacity-70" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--primary-color)]/80 to-transparent" />
+            {/* Content */}
+            <div className="relative z-10">
+              <div className="flex items-start gap-4">
+                <div className="flex-1">
+                  <motion.h2
+                    className="text-xl font-bold text-[var(--primary-color)]"
+                    initial={{ x: -10 }}
+                    animate={{ x: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    Your Growth Recommendations
+                  </motion.h2>
 
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform">
-                    <motion.div
-                      className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 shadow-lg backdrop-blur-sm transition-all group-hover:bg-white group-hover:shadow-xl"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
+                  <motion.p
+                    className="mt-3 text-gray-700"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    Based on your recent activities and goals, we've curated
+                    these personalized recommendations to accelerate your
+                    leadership journey.
+                  </motion.p>
+
+                  <motion.div
+                    className="mt-6 flex items-center justify-between"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex space-x-4 text-xl">
+                        <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] hover:text-[var(--primary-color)]">
+                          <FiMessageSquare />
+                        </button>
+                        <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] hover:text-[var(--primary-color)]">
+                          <GiTargetDummy />
+                        </button>
+                        <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] hover:text-[var(--primary-color)]">
+                          <AiOutlineQuestionCircle />
+                        </button>
+                        <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] hover:text-[var(--primary-color)]">
+                          <BsBookmark />
+                        </button>
+                      </div>
+                      {/* <button className="flex items-center text-sm font-bold text-[var(--primary-color)] hover:text-[color-mix(in_srgb,var(--primary-color),black_20%)]">
+                        Explore <FiArrowRight className="ml-1.5" />
+                      </button> */}
+                    </div>
+                    <motion.button
+                      className="flex items-center gap-1 rounded-full bg-[var(--primary-color)] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
                     >
-                      <FiPlay className="ml-1 text-2xl text-[var(--primary-color)]" />
-                    </motion.div>
-                  </div>
-
-                  <div className="absolute right-3 bottom-3 rounded bg-black/70 px-2 py-1 text-xs font-medium text-white">
-                    8:24
-                  </div>
-                </div>
-
-                <p className="mt-4 text-[color-mix(in_srgb,var(--primary-color),black_30%)]">
-                  Watch this insightful video on effective leadership strategies
-                  and team management. Learn key techniques from industry
-                  experts.
-                </p>
-
-                <div className="mt-6 flex items-center justify-between">
-                  <div className="flex space-x-4 text-xl">
-                    <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] transition-colors hover:text-[var(--primary-color)]">
-                      <FiMessageSquare />
-                    </button>
-                    <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] transition-colors hover:text-[var(--primary-color)]">
-                      <GiTargetDummy />
-                    </button>
-                    <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] transition-colors hover:text-[var(--primary-color)]">
-                      <AiOutlineQuestionCircle />
-                    </button>
-                    <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] transition-colors hover:text-[var(--primary-color)]">
-                      <BsBookmark />
-                    </button>
-                  </div>
-                  <button className="flex items-center text-sm font-bold text-[var(--primary-color)] transition-colors hover:text-[color-mix(in_srgb,var(--primary-color),black_20%)]">
-                    Watch Now <FiArrowRight className="ml-1.5" />
-                  </button>
+                      Explore
+                      <FiArrowRight className="ml-1" />
+                    </motion.button>
+                  </motion.div>
                 </div>
               </div>
+
+              {/* Floating particles */}
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute h-1 w-1 rounded-full bg-[var(--primary-color)]/20"
+                  initial={{
+                    x: Math.random() * 100,
+                    y: Math.random() * 100,
+                    opacity: 0,
+                  }}
+                  animate={{
+                    y: [0, -20, 0],
+                    opacity: [0, 0.8, 0],
+                  }}
+                  transition={{
+                    duration: 4 + Math.random() * 3,
+                    delay: i * 0.3,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                  }}
+                  style={{
+                    left: `${10 + Math.random() * 80}%`,
+                    top: `${30 + Math.random() * 50}%`,
+                  }}
+                />
+              ))}
             </div>
           </div>
         </motion.div>
@@ -286,7 +331,12 @@ export default function PersonalizeHome() {
         </div>
       </main>
 
-      <BottomNav />
+      <BottomNav
+        homePath="/personalize-home"
+        checkinPath="/personalize-check-in"
+        dashboardPath="/personalize-dashboard"
+        profilePath="/personalize-profile"
+      />
     </div>
   );
 }

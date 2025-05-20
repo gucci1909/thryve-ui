@@ -3,15 +3,20 @@ import { motion } from "framer-motion";
 import { Home, Calendar, PieChart, User, MessageCircle } from "lucide-react";
 import { Link, useLocation } from "react-router";
 
-const BottomNav = () => {
+const BottomNav = ({
+  homePath = "/home",
+  checkinPath = "/check-in",
+  dashboardPath = "/dashboard",
+  profilePath = "/profile",
+}) => {
   const location = useLocation();
 
   const navItems = [
-    { name: "Home", path: "/home", icon: <Home size={22} /> },
-    { name: "Check-in", path: "/check-in", icon: <Calendar size={22} /> },
+    { name: "Home", path: homePath, icon: <Home size={22} /> },
+    { name: "Check-in", path: checkinPath, icon: <Calendar size={22} /> },
     { name: "", path: "", icon: null },
-    { name: "Dashboard", path: "/dashboard", icon: <PieChart size={22} /> },
-    { name: "Profile", path: "/profile", icon: <User size={22} /> },
+    { name: "Dashboard", path: dashboardPath, icon: <PieChart size={22} /> },
+    { name: "Profile", path: profilePath, icon: <User size={22} /> },
   ];
 
   return (
