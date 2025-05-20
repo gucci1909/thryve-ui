@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useState } from "react";
 import LoginBackground from "../components/onboarding/LoginBackground";
 
@@ -9,6 +9,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   return (
     <div className="relative flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_20%)] p-4">
@@ -136,12 +137,15 @@ const LoginPage = () => {
         {/* Sign Up Link */}
         <div className="mt-6 text-center text-sm text-gray-500">
           Don't have an account?{" "}
-          <Link
-            to="/signup"
+          <button
+            onClick={()=>{
+              console.log({1:true})
+              navigate("/signup");
+            }}
             className="font-medium text-[var(--primary-color)] hover:underline"
           >
             Sign up
-          </Link>
+          </button>
         </div>
       </motion.div>
     </div>

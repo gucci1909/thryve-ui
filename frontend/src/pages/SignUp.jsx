@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { User, Mail, Smartphone } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useState } from "react";
 import { WarpBackground } from "../components/magicui/warp-background";
 import { AvatarCircles } from "../components/magicui/avatar-circles";
@@ -39,6 +39,7 @@ const SignupPage = () => {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
+  const navigate = useNavigate();
 
   return (
     <WarpBackground>
@@ -176,7 +177,10 @@ const SignupPage = () => {
           {/* Register Button */}
           <div className="pt-2">
             <RainbowButton
-              type="submit"
+              // type="submit"
+              onClick={()=>{
+                navigate("/selection-page")
+              }}
               className="w-full py-3 text-sm font-medium"
             >
               Register

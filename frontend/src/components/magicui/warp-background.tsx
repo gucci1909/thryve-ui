@@ -86,7 +86,7 @@ export const WarpBackground: React.FC<WarpBackgroundProps> = ({
   return (
     <div
       className={cn(
-        "fixed inset-0 z-0 flex h-screen min-h-screen w-screen items-center justify-center bg-[radial-gradient(circle_at_80%,#0029ff_80%,transparent_60%)]",
+        "fixed inset-0 z-0 flex h-screen min-h-screen w-screen items-center justify-center overflow-auto bg-[radial-gradient(circle_at_80%,#0029ff_80%,transparent_60%)]",
         className,
       )}
       {...props}
