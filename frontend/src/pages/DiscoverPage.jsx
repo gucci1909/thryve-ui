@@ -50,7 +50,7 @@ const DiscoverPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_10%)]">
-      <section className="relative h-[450px] w-full overflow-hidden py-16">
+      <section className="relative h-[400px] w-full overflow-hidden py-16">
         {/* Orbiting Circles Background */}
         <div className="absolute inset-0 flex items-center justify-center">
           <OrbitingCircles

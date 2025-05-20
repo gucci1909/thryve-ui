@@ -47,7 +47,7 @@ const SignupPage = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="z-10 w-[90%] m-auto max-w-md rounded-2xl bg-white p-8 shadow-xl"
+        className="z-10 m-auto w-[90%] max-w-md rounded-2xl bg-white p-8 shadow-xl"
       >
         {/* Logo and Header */}
         <div className="mb-8 flex flex-col items-center">
@@ -69,11 +69,11 @@ const SignupPage = () => {
           <h2 className="text-2xl font-semibold text-gray-800">
             Register Yourself
           </h2>
-          <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+          {/* <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
             <span>Join</span>
             <AvatarCircles numPeople={99} avatarUrls={avatars} size="sm" />
             <span>users already thriving</span>
-          </div>
+          </div> */}
         </div>
 
         {/* Signup Form */}
@@ -178,8 +178,8 @@ const SignupPage = () => {
           <div className="pt-2">
             <RainbowButton
               // type="submit"
-              onClick={()=>{
-                navigate("/selection-page")
+              onClick={() => {
+                navigate("/selection-page");
               }}
               className="w-full py-3 text-sm font-medium"
             >
@@ -188,8 +188,14 @@ const SignupPage = () => {
           </div>
         </form>
 
+        <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
+          <span>Join</span>
+          <AvatarCircles numPeople={99} avatarUrls={avatars} size="sm" />
+          <span>users already thriving</span>
+        </div>
+
         {/* Login Link */}
-        <div className="mt-6 text-center text-sm text-gray-500">
+        <div className="mt-4 text-center text-sm text-gray-500">
           Already Registered?{" "}
           <Link
             to="/login"

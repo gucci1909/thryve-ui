@@ -79,7 +79,10 @@ export default function SelectionPage() {
           </motion.div>
 
           <motion.h2
-            className="cursor-default text-lg font-normal text-white/90 hover:cursor-[url('/pointer.cur'),_pointer]"
+            className="cursor-default text-lg text-white hover:cursor-[url('/pointer.cur'),_pointer]"
+            style={{
+              fontWeight: 900,
+            }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
@@ -90,22 +93,6 @@ export default function SelectionPage() {
       </div>
 
       {/* Testimonials Section with Light Background */}
-      <div className="relative w-full bg-gray-50 py-6">
-        <div className="mx-auto max-w-4xl px-4">
-          <h3 className="mb-6 text-center text-sm font-medium tracking-wider text-gray-500 uppercase">
-            Trusted by professionals worldwide
-          </h3>
-          <div className="relative flex w-full flex-col items-center justify-center overflow-hidden py-2">
-            <Marquee pauseOnHover className="[--duration:25s]">
-              {testimonials.map((testimonial, index) => (
-                <div key={index} className="mx-3">
-                  <TestimonialCard {...testimonial} />
-                </div>
-              ))}
-            </Marquee>
-          </div>
-        </div>
-      </div>
 
       {/* Main Content Section with Blue Gradient */}
       <div className="relative w-full bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_20%)] py-4">
@@ -176,6 +163,23 @@ export default function SelectionPage() {
                 </div>
               </Link>
             </motion.div>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative w-full bg-gray-50 py-6">
+        <div className="mx-auto max-w-4xl px-4">
+          <h3 className="mb-6 text-center text-sm font-medium tracking-wider text-gray-500 uppercase">
+            Trusted by professionals worldwide
+          </h3>
+          <div className="relative flex w-full flex-col items-center justify-center overflow-hidden py-2">
+            <Marquee pauseOnHover className="[--duration:25s]">
+              {testimonials.map((testimonial, index) => (
+                <div key={index} className="mx-3">
+                  <TestimonialCard {...testimonial} />
+                </div>
+              ))}
+            </Marquee>
           </div>
         </div>
       </div>
