@@ -118,19 +118,23 @@ export default function SelectionPage() {
             >
               <Link
                 to="/personalize"
-                className="group block rounded-lg border border-white/20 bg-white/10 p-6 shadow-lg backdrop-blur-sm transition-all hover:bg-white/20 hover:shadow-xl"
+                className="group flex h-full flex-col rounded-lg border border-white/20 bg-white/10 p-6 shadow-lg backdrop-blur-sm transition-all hover:bg-white/20 hover:shadow-xl"
               >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-white/20">
-                  <Wand2 className="h-5 w-5 text-white" />
+                <div className="flex items-start gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white/20">
+                    <Wand2 className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="mb-2 text-lg font-semibold text-white">
+                      Personalize Learning
+                    </h2>
+                    <p className="text-sm text-white/80">
+                      Complete a quick self-assessment to get tailored
+                      recommendations.
+                    </p>
+                  </div>
                 </div>
-                <h2 className="mb-2 text-lg font-semibold text-white">
-                  Personalize Learning
-                </h2>
-                <p className="mb-4 text-sm text-white/80">
-                  Complete a quick self-assessment to get tailored
-                  recommendations.
-                </p>
-                <div className="flex items-center text-sm font-medium text-white">
+                <div className="mt-auto flex items-center pt-4 text-sm font-medium text-white">
                   <span>Get started</span>
                   <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </div>
@@ -140,24 +144,28 @@ export default function SelectionPage() {
             {/* I'll do it later */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 1, y: 0 }}s
               transition={{ delay: 0.6 }}
             >
               <Link
                 to="/home"
-                className="group block rounded-lg border border-white/20 bg-white/10 p-6 shadow-lg backdrop-blur-sm transition-all hover:bg-white/20 hover:shadow-xl"
+                className="group flex h-full flex-col rounded-lg border border-white/20 bg-white/10 p-6 shadow-lg backdrop-blur-sm transition-all hover:bg-white/20 hover:shadow-xl"
               >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-white/20">
-                  <Stars className="h-5 w-5 text-white" />
+                <div className="flex items-start gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white/20">
+                    <Stars className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="mb-2 text-lg font-semibold text-white">
+                      I'll do it later
+                    </h2>
+                    <p className="text-sm text-white/80">
+                      Explore our generic learning feed. You can always
+                      personalize later.
+                    </p>
+                  </div>
                 </div>
-                <h2 className="mb-2 text-lg font-semibold text-white">
-                  I'll do it later
-                </h2>
-                <p className="mb-4 text-sm text-white/80">
-                  Explore our generic learning feed. You can always personalize
-                  later.
-                </p>
-                <div className="flex items-center text-sm font-medium text-white">
+                <div className="mt-auto flex items-center pt-4 text-sm font-medium text-white">
                   <span>Continue</span>
                   <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </div>

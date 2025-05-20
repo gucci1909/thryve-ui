@@ -26,7 +26,7 @@ function Personalize() {
     if (currentStep < steps.length) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      setTimeout(() => navigate("/home"), 8000);
+      setTimeout(() => navigate("/waiting"), 1000);
     }
   };
 
@@ -87,7 +87,7 @@ function Personalize() {
       {/* Tightly Spaced Main Content */}
       <div className="flex w-full max-w-4xl flex-1 flex-col px-3 py-2">
         {/* Combined Progress and Header - Even More Compact */}
-        <div className="mb-2 flex w-full justify-between py-2">
+        <div className="mb-2 flex w-full gap-4 py-2">
           {/* Compact Progress Circle */}
           <div className="flex items-center">
             <div className="relative">

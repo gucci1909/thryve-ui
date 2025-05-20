@@ -1,11 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import BottomNav from "../components/home/BottomNav";
-import {
-  FiMessageSquare,
-  FiArrowRight,
-  FiPlay
-} from "react-icons/fi";
+import { FiMessageSquare, FiArrowRight, FiPlay } from "react-icons/fi";
 import { GiTargetDummy } from "react-icons/gi";
 import { AiOutlineQuestionCircle } from "react-icons/ai";
 import { BsBookmark } from "react-icons/bs";

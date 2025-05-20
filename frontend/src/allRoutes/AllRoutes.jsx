@@ -5,12 +5,16 @@ import { Route, Routes } from "react-router-dom";
 const Loader = lazy(() => import("../components/common/Loader.jsx"));
 const Home = lazy(() => import("../pages/Home.jsx"));
 const DiscoverPage = lazy(() => import("../pages/DiscoverPage.jsx"));
-const AssessmentPage = lazy(() => import("../pages/Assessment.jsx"));
 const Personalize = lazy(() => import("../pages/Personalize.jsx"));
 const Login = lazy(() => import("../pages/Login.jsx"));
 const SignUp = lazy(() => import("../pages/SignUp.jsx"));
 const SelectionPage = lazy(() => import("../pages/SelectionPage.jsx"));
 const WaitingScreen = lazy(() => import("../pages/WaitingScreen.jsx"));
+const LearningPlanReadyScreen = lazy(
+  () => import("../pages/LearningPlanReady.jsx"),
+);
+const ChatBox = lazy(() => import("../pages/ChatBox.jsx"));
+const PersonalizeHome = lazy(() => import("../pages/PersonalizeHome.jsx"));
 
 function AllRoutes() {
   return (
@@ -22,8 +26,13 @@ function AllRoutes() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/selection-page" element={<SelectionPage />} />
-          <Route path="/assessment-page" element={<AssessmentPage />} />
           <Route path="/waiting" element={<WaitingScreen />} />
+          <Route
+            path="/learning-plan-ready"
+            element={<LearningPlanReadyScreen />}
+          />
+          <Route path="/chat-box" element={<ChatBox />} />
+          <Route path="/personalize-home" element={<PersonalizeHome />} />
           <Route path="/" element={<DiscoverPage />} />
           <Route path="/*" element={<DiscoverPage />} />
         </Routes>
