@@ -1,175 +1,257 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { BorderBeam } from "../magicui/border-beam";
-import { BoxReveal } from "../magicui/box-reveal";
 import questions from "./leadership_questions.json";
+import { cn } from "../../lib/utils";
+import { RippleButton } from "../magicui/ripple-button";
 
 export default function LeadershipAssessment({ initialData, onNext }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState(initialData || {});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
 
   const currentQuestion = questions.questions[currentQuestionIndex];
   const isLastQuestion =
     currentQuestionIndex === questions.questions.length - 1;
+  const progressPercentage =
+    ((currentQuestionIndex + 1) / questions.questions.length) * 100;
 
   const handleOptionSelect = (questionId, value) => {
+    setSelectedOption(value);
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
-  };
 
-  const handleNext = () => {
-    if (isLastQuestion) {
-      setIsSubmitting(true);
-      setTimeout(() => onNext({ leadership: answers }), 1000);
-    } else {
-      setCurrentQuestionIndex((prev) => prev + 1);
-    }
+    // Auto-advance after selection
+    setTimeout(() => {
+      setSelectedOption(null);
+      if (!isLastQuestion) {
+        setCurrentQuestionIndex((prev) => prev + 1);
+        // } else {
+        // setIsSubmitting(true);
+        // setTimeout(() => onNext({ leadership: answers }), 800);
+      }
+    }, 400);
   };
 
   const handlePrevious = () => {
-    setCurrentQuestionIndex((prev) => prev - 1);
+    setCurrentQuestionIndex((prev) => Math.max(0, prev - 1));
   };
 
   return (
-    <div className="relative w-full max-w-3xl rounded-2xl bg-white p-8 shadow-xl">
-      {/* Border Beam Effect */}
+    <div className="relative w-full max-w-3xl rounded-xl bg-white p-4 shadow-xl sm:p-6">
       <BorderBeam
         size={150}
         duration={10}
         colorFrom="#0029ff"
         colorTo="#3b82f6"
-        className="rounded-2xl"
+        className="rounded-xl"
       />
 
-      {/* Assessment Header */}
-      <BoxReveal boxColor="#0029ff" duration={0.6}>
-        <h2 className="mb-2 text-2xl font-bold text-gray-900">
+      {/* Compact Header */}
+      <div className="mb-4">
+        <motion.h2
+          className="text-lg font-bold text-gray-900 sm:text-xl"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
           {questions.assessmentTitle}
-        </h2>
-      </BoxReveal>
-      <BoxReveal boxColor="#3b82f6" duration={0.6} delay={0.2}>
-        <p className="mb-8 text-gray-600">{questions.instructions}</p>
-      </BoxReveal>
+        </motion.h2>
+        <motion.p
+          className="text-sm text-gray-600"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          {questions.instructions}
+        </motion.p>
+      </div>
 
-      {/* Progress Indicator */}
-      <BoxReveal boxColor="#2563eb" duration={0.6} delay={0.4}>
-        <div className="mb-8 w-full">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">
-              Question {currentQuestionIndex + 1} of{" "}
-              {questions.questions.length}
-            </span>
-            <span className="text-sm font-medium text-gray-500">
-              {currentQuestion.category}
-            </span>
-          </div>
-          <div className="mt-2 h-2 w-full rounded-full bg-gray-200">
-            <motion.div
-              className="h-full rounded-full bg-[var(--primary-color)]"
-              initial={{ width: 0 }}
-              animate={{
-                width: `${((currentQuestionIndex + 1) / questions.questions.length) * 100}%`,
-              }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-            />
-          </div>
+      {/* Full-width Progress Bar */}
+      <div className="mb-6 w-full">
+        <div className="flex items-center justify-between text-xs text-gray-600">
+          <span>Progress</span>
+          <span>
+            {currentQuestionIndex + 1}/{questions.questions.length}
+          </span>
         </div>
-      </BoxReveal>
+        <motion.div
+          className="mt-1 h-1.5 w-full rounded-full bg-gray-200"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+        >
+          <motion.div
+            className="h-full rounded-full bg-[var(--primary-color)]"
+            initial={{ width: 0 }}
+            animate={{ width: `${progressPercentage}%` }}
+            transition={{ duration: 0.6, type: "spring" }}
+          />
+        </motion.div>
+      </div>
 
-      {/* Question */}
-      <BoxReveal boxColor="#1d4ed8" duration={0.6} delay={0.6}>
-        <h3 className="mb-6 text-xl font-semibold text-gray-800">
-          {currentQuestion.text}
-        </h3>
-      </BoxReveal>
+      {/* Question with smooth transitions */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentQuestionIndex}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.3 }}
+          className="mb-6"
+        >
+          <h3 className="text-md font-semibold text-gray-800 sm:text-lg">
+            {currentQuestion.text}
+          </h3>
+        </motion.div>
+      </AnimatePresence>
 
-      {/* Options */}
-      <div className="space-y-4">
-        {currentQuestion.options.map((option) => (
-          <BoxReveal
-            key={option.value}
-            boxColor="#0029ff"
-            duration={0.4}
-            delay={0.2 * option.value}
-          >
+      {/* Answer Options Grid */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <AnimatePresence>
+          {currentQuestion.options.map((option) => (
             <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="relative"
+              key={option.value}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: option.value * 0.1 }}
+              layout
             >
-              <button
-                type="button"
+              <RippleButton
                 onClick={() =>
                   handleOptionSelect(currentQuestion.id, option.value)
                 }
-                className={`w-full rounded-xl border-2 p-4 text-left transition-all ${
+                rippleColor="rgba(0, 41, 255, 0.15)"
+                className={cn(
+                  "w-full border-2 p-3 transition-all duration-150 sm:p-4",
                   answers[currentQuestion.id] === option.value
-                    ? "border-[var(--primary-color)] bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
+                    ? "border-[#0029ff] bg-[#f0f4ff] text-[#0029ff] shadow-sm"
+                    : "border-[#d6e0ff] bg-white text-[#0029ff] hover:border-[#0029ff] hover:bg-[#f5f8ff]",
+                  selectedOption === option.value
+                    ? "ring-opacity-50 ring-2 ring-[#0029ff]"
+                    : "",
+                )}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
               >
-                <span className="font-medium text-gray-800">{option.text}</span>
-              </button>
-              {answers[currentQuestion.id] === option.value && (
-                <div className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary-color)] text-white">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-              )}
+                <motion.div
+                  animate={{
+                    scale: selectedOption === option.value ? [1, 1.02, 1] : 1,
+                  }}
+                  transition={{ duration: 0.2 }}
+                  className="flex items-center"
+                >
+                  <span className="font-medium">{option.text}</span>
+                  {/* {answers[currentQuestion.id] === option.value && (
+                    <motion.div
+                      className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-[var(--primary-color)] text-white"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 500 }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-3 w-3"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </motion.div>
+                  )} */}
+                </motion.div>
+              </RippleButton>
             </motion.div>
-          </BoxReveal>
-        ))}
+          ))}
+        </AnimatePresence>
       </div>
 
-      {/* Navigation Buttons */}
-      <div className="mt-8 flex justify-between">
-        <BoxReveal boxColor="#3b82f6" duration={0.6} delay={0.8}>
-          <button
-            type="button"
-            onClick={handlePrevious}
-            disabled={currentQuestionIndex === 0}
-            className="rounded-lg px-6 py-2 text-gray-700 disabled:opacity-50"
-          >
-            Previous
-          </button>
-        </BoxReveal>
-        <BoxReveal boxColor="#0029ff" duration={0.6} delay={0.8}>
-          <button
-            type="button"
-            onClick={handleNext}
-            disabled={!answers[currentQuestion.id]}
-            className="rounded-lg bg-[var(--primary-color)] px-6 py-2 text-white disabled:opacity-50"
-          >
-            {isLastQuestion ? "Complete Assessment" : "Next"}
-          </button>
-        </BoxReveal>
-      </div>
+      {/* Navigation - Only Previous Button */}
+      <motion.div
+        className="mt-6 flex justify-between"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+      >
+        <RippleButton
+          onClick={handlePrevious}
+          disabled={currentQuestionIndex === 0}
+          rippleColor="rgba(var(--primary-color-rgb))"
+          className={cn(
+            "border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[color-mix(in_srgb,var(--primary-color),white_95%)]",
+            currentQuestionIndex === 0 ? "opacity-50" : "",
+          )}
+        >
+          ← Previous
+        </RippleButton>
 
-      {/* Loading State */}
-      {isSubmitting && (
+        {isLastQuestion && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <RippleButton
+              onClick={() => {
+                onNext({ leadership: answers });
+              }}
+              disabled={!answers[currentQuestion.id]}
+              rippleColor="rgba(0, 41, 255, 0.3)"
+              className={cn(
+                "bg-[#0029ff] text-white hover:bg-[#001fcc]",
+                !answers[currentQuestion.id]
+                  ? "cursor-not-allowed opacity-50"
+                  : "",
+              )}
+              whileHover={{
+                scale: !answers[currentQuestion.id] ? 1 : 1.03,
+                boxShadow: !answers[currentQuestion.id]
+                  ? "none"
+                  : "0 2px 8px rgba(0, 41, 255, 0.2)",
+              }}
+            >
+              Complete Assessment →
+            </RippleButton>
+          </motion.div>
+        )}
+      </motion.div>
+
+      {/* Loading Overlay */}
+      {/* {isSubmitting && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="absolute inset-0 flex items-center justify-center rounded-2xl bg-white/80 backdrop-blur-sm"
+          className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/90 backdrop-blur-sm"
         >
-          <div className="flex flex-col items-center">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-[var(--primary-color)] border-t-transparent" />
-            <p className="mt-4 text-gray-700">Processing your results...</p>
-          </div>
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring" }}
+            className="flex flex-col items-center"
+          >
+            <div className="relative h-10 w-10">
+              <motion.div
+                className="absolute inset-0 rounded-full border-4 border-[var(--primary-color)] border-t-transparent"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              />
+            </div>
+            <motion.p
+              className="mt-3 text-sm font-medium text-gray-700"
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              Analyzing your leadership style...
+            </motion.p>
+          </motion.div>
         </motion.div>
-      )}
+      )} */}
     </div>
   );
 }

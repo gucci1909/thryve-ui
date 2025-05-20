@@ -40,132 +40,181 @@ function Personalize() {
     <div className="relative flex min-h-screen w-full flex-col items-center overflow-hidden">
       {/* V-Shaped Background */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div 
+        <div
           className="absolute inset-0 bg-gray-50"
-          style={{ clipPath: 'polygon(0 0, 100% 0, 100% 40%, 0 60%)' }}
+          style={{ clipPath: "polygon(0 0, 100% 0, 100% 40%, 0 60%)" }}
         />
-        <div 
+        <div
           className="absolute inset-0 bg-[var(--primary-color)]"
-          style={{ clipPath: 'polygon(0 60%, 100% 40%, 100% 100%, 0 100%)' }}
+          style={{ clipPath: "polygon(0 60%, 100% 40%, 100% 100%, 0 100%)" }}
         />
       </div>
 
-      {/* Content */}
-      <div className="flex w-full max-w-4xl flex-col items-center p-4">
-        {/* Header with Aurora Text */}
-        <motion.div
-          className="mb-2 mt-8 text-center"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <AuroraText
-            className="text-md font-bold"
-            colors={["#0029ff", "#3b82f6", "#2563eb", "#1d4ed8"]}
-            speed={1.5}
+      {/* Header Bar - More Compact */}
+      {/* Ultra-Compact Header Bar */}
+      <div className="w-full bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_20%)] px-3 py-1.5">
+        <div className="relative z-10 mx-auto flex h-10 max-w-4xl flex-row items-center justify-between">
+          <motion.div
+            className="flex items-center gap-2"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
           >
-            Personalize Your Experience
-          </AuroraText>
-          <p className="mt-2 text-gray-600">
-            Complete {currentStep} of {steps.length} steps
-          </p>
-        </motion.div>
-
-        {/* Progress Container */}
-        <div className="w-full">
-          {/* Progress Bar */}
-          <div className="mb-8 flex items-center gap-4">
-            <AnimatedCircularProgressBar
-              value={progressPercentage}
-              max={100}
-              min={0}
-              gaugePrimaryColor="var(--primary-color)"
-              gaugeSecondaryColor="rgba(0, 41, 255, 0.1)"
-              className="h-14 w-14"
+            <img
+              src="/logo-thryve.png"
+              alt="Thryve Logo"
+              className="h-8 w-8 drop-shadow-sm"
             />
+            <h1 className="text-lg font-semibold tracking-tight text-white drop-shadow-sm">
+              thryve
+            </h1>
+          </motion.div>
 
-            <div className="flex-1">
-              <div className="hidden md:flex">
-                {steps.map((step) => (
-                  <div key={step.id} className="relative flex-1">
-                    <div className="flex flex-col items-center">
-                      <div
-                        className={`flex h-8 w-8 items-center justify-center rounded-full ${currentStep >= step.id ? "bg-[var(--primary-color)] text-white" : "border-2 border-gray-300"}`}
-                      >
-                        {currentStep > step.id ? <FiCheck size={16} /> : step.id}
-                      </div>
-                      <span
-                        className={`mt-2 text-xs ${currentStep >= step.id ? "font-medium text-[var(--primary-color)]" : "text-gray-500"}`}
-                      >
-                        {step.name}
-                      </span>
-                    </div>
-                    {step.id < steps.length && (
-                      <div
-                        className={`absolute top-4 left-[calc(50%+16px)] h-0.5 w-[calc(100%-32px)] ${currentStep > step.id ? "bg-[var(--primary-color)]" : "bg-gray-200"}`}
-                      ></div>
-                    )}
-                  </div>
-                ))}
+          <motion.h2
+            className="cursor-default text-lg text-white hover:cursor-[url('/pointer.cur'),_pointer]"
+            style={{
+              fontWeight: 900,
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.3 }}
+          >
+            Welcome, Sunil to Thryve!
+          </motion.h2>
+        </div>
+      </div>
+
+      {/* Tightly Spaced Main Content */}
+      <div className="flex w-full max-w-4xl flex-1 flex-col px-3 py-2">
+        {/* Combined Progress and Header - Even More Compact */}
+        <div className="mb-2 flex w-full justify-between py-2">
+          {/* Compact Progress Circle */}
+          <div className="flex items-center">
+            <div className="relative">
+              <AnimatedCircularProgressBar
+                value={progressPercentage}
+                max={100}
+                min={0}
+                gaugePrimaryColor="var(--primary-color)"
+                gaugeSecondaryColor="rgba(0, 41, 255, 0.1)"
+                className="h-14 w-14"
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-md font-bold text-[var(--primary-color)]">
+                  {Math.round(progressPercentage)}%
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Mobile Progress */}
-          <div className="mb-6 flex justify-center gap-2 md:hidden">
-            {steps.map((step) => (
-              <div
-                key={step.id}
-                className={`h-2 w-8 rounded-full ${currentStep >= step.id ? "bg-[var(--primary-color)]" : "bg-gray-200"}`}
-              />
+          {/* Condensed Header */}
+          <motion.div
+            className="flex flex-col"
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <AuroraText
+              className="text-md leading-tight font-bold"
+              colors={["#0029ff", "#3b82f6"]}
+              speed={1.5}
+            >
+              Personalize Your Experience
+            </AuroraText>
+            <p className="text-md mt-0.5 text-gray-600">
+              Step {currentStep} of {steps.length}
+            </p>
+          </motion.div>
+
+          {/* Empty div for balance */}
+          {/* <div className="w-10"></div> */}
+        </div>
+
+        {/* Minimalist Step Indicators */}
+        <div className="mb-3 flex justify-center gap-1.5">
+          {steps.map((step) => (
+            <div
+              key={step.id}
+              className={`h-1 w-3 rounded-full ${currentStep >= step.id ? "bg-[var(--primary-color)]" : "bg-gray-200"}`}
+            />
+          ))}
+        </div>
+
+        {/* Desktop Step Indicators - Below */}
+        <div className="mb-4 hidden w-full md:block">
+          <div className="relative flex">
+            {steps.map((step, index) => (
+              <div key={step.id} className="flex-1">
+                <div className="flex flex-col items-center">
+                  <div
+                    className={`flex h-6 w-6 items-center justify-center rounded-full text-xs ${currentStep >= step.id ? "bg-[var(--primary-color)] text-white" : "border border-gray-300"}`}
+                  >
+                    {currentStep > step.id ? <FiCheck size={12} /> : step.id}
+                  </div>
+                  <span
+                    className={`mt-1 text-xs ${currentStep >= step.id ? "font-medium text-[var(--primary-color)]" : "text-gray-500"}`}
+                  >
+                    {step.name}
+                  </span>
+                </div>
+                {index < steps.length - 1 && (
+                  <div
+                    className={`absolute top-3 left-[calc(50%+12px)] h-0.5 w-[calc(100%-24px)] ${currentStep > step.id ? "bg-[var(--primary-color)]" : "bg-gray-200"}`}
+                  />
+                )}
+              </div>
             ))}
           </div>
-
-          {/* Step Content */}
         </div>
-        <AnimatePresence>
-          <motion.div
-            key={currentStep}
-            initial={{ opacity: 0, x: currentStep > 1 ? 50 : -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: currentStep > 1 ? -50 : 50 }}
-            transition={{ duration: 0.3 }}
-            className="h-full w-full"
-          >
-            {currentStep === 1 && (
-              <LeadershipAssessment
-                initialData={formData.leadership}
-                onNext={handleNext}
-              />
-            )}
-            {currentStep === 2 && (
-              <RoleInformationForm
-                initialData={formData.roleInfo}
-                onNext={handleNext}
-                onBack={handleBack}
-              />
-            )}
-            {currentStep === 3 && (
-              <PsychographicProfile
-                initialData={formData.psychographic}
-                onNext={handleNext}
-                onBack={handleBack}
-              />
-            )}
-            {currentStep === 4 && <ProcessingLoader />}
-          </motion.div>
-        </AnimatePresence>
 
-        {/* Navigation Hint */}
+        {/* Step Content - Better Spacing */}
+        <div className="w-full flex-1">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, x: currentStep > 1 ? 50 : -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: currentStep > 1 ? -50 : 50 }}
+              transition={{ duration: 0.3 }}
+              className="h-full"
+            >
+              {currentStep === 1 && (
+                <LeadershipAssessment
+                  initialData={formData.leadership}
+                  onNext={handleNext}
+                />
+              )}
+              {currentStep === 2 && (
+                <RoleInformationForm
+                  initialData={formData.roleInfo}
+                  onNext={handleNext}
+                  onBack={handleBack}
+                />
+              )}
+              {currentStep === 3 && (
+                <PsychographicProfile
+                  initialData={formData.psychographic}
+                  onNext={handleNext}
+                  onBack={handleBack}
+                />
+              )}
+              {currentStep === 4 && <ProcessingLoader />}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Navigation Hint - More Subtle */}
         {currentStep <= steps.length && (
           <motion.div
-            className="mt-6 text-sm text-gray-500"
+            className="mt-4 text-xs text-gray-500"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
-            <AuroraText colors={["#0029ff", "#3b82f6"]} speed={2}>
-              {currentStep === steps.length ? "Almost there!" : "Keep going!"}
+            <AuroraText colors={["#0029ff", "#3b82f6"]} speed={2} size="sm">
+              {currentStep === steps.length
+                ? "Finalizing..."
+                : "Continue to next step"}
             </AuroraText>
           </motion.div>
         )}
