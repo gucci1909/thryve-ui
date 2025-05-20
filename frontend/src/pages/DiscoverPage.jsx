@@ -77,7 +77,7 @@ const DiscoverPage = () => {
         {/* Centered Content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
           <motion.div
-            className="mb-8 flex items-center justify-center gap-4"
+            className="mb-8 flex items-center justify-center gap-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
@@ -96,7 +96,7 @@ const DiscoverPage = () => {
               <img
                 src="/logo-thryve.png"
                 alt="Thryve Logo"
-                className="h-16 w-auto object-contain drop-shadow-lg"
+                className="h-12 w-auto object-contain drop-shadow-lg"
               />
             </motion.div>
 
