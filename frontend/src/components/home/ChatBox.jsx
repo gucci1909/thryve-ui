@@ -184,7 +184,7 @@ export default function ChatBox({ onClose }) {
       const res = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
         method: "POST",
         headers: {
-          "xi-api-key": "sk_cceab93ca33c2ed420b6a70873173ad0b51df20eeb89d4d7",
+          "xi-api-key": `${import.meta.env.VITE_API_KEY}`,
         },
         body: form,
       });
