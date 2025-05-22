@@ -50,7 +50,7 @@ const SignupPage = () => {
         className="z-10 m-auto w-[90%] max-w-md rounded-2xl bg-white p-8 shadow-xl"
       >
         {/* Logo and Header */}
-        <div className="mb-8 flex flex-col items-center">
+         <div className="mb-8 flex flex-col items-center">
           <motion.div
             initial={{ scale: 0.9 }}
             animate={{ scale: 1 }}
@@ -60,20 +60,147 @@ const SignupPage = () => {
             <img
               src="/logo-thryve.png"
               alt="Thryve Logo"
-              className="h-12 w-auto bg-[var(--primary-color)]"
+              className="h-8 w-auto bg-[var(--primary-color)]"
             />
-            <h1 className="text-3xl font-bold text-[var(--primary-color)]">
+            <h1 className="text-lg font-bold text-[var(--primary-color)]">
               thryve
             </h1>
           </motion.div>
-          <h2 className="text-2xl font-semibold text-gray-800">
-            Register Yourself
-          </h2>
-          {/* <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
-            <span>Join</span>
-            <AvatarCircles numPeople={99} avatarUrls={avatars} size="sm" />
-            <span>users already thriving</span>
-          </div> */}
+
+          <motion.h2
+            initial={{ y: -10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="flex flex-col items-center gap-2 text-center"
+          >
+            <motion.span
+              className="relative inline-block overflow-hidden"
+              initial={{ scale: 0.96, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{
+                duration: 0.8,
+                ease: [0.22, 1, 0.36, 1],
+                delay: 0.3,
+              }}
+            >
+              {/* Text with gradient shine animation */}
+              <motion.span
+                className="relative inline-block overflow-hidden rounded-lg px-3 py-1.5"
+                initial={{
+                  scale: 0.96,
+                  opacity: 0,
+                  backgroundColor: "rgba(236, 244, 255, 0)",
+                }}
+                animate={{
+                  scale: 1,
+                  opacity: 1,
+                  backgroundColor: "rgba(236, 244, 255, 0.4)",
+                }}
+                transition={{
+                  duration: 0.8,
+                  ease: [0.22, 1, 0.36, 1],
+                  delay: 0.3,
+                }}
+              >
+                <motion.span
+                  className="text-md relative z-10 font-semibold"
+                  initial={{
+                    backgroundPosition: "100% 50%",
+                    letterSpacing: "-0.02em",
+                  }}
+                  animate={{
+                    backgroundPosition: "0% 50%",
+                    letterSpacing: "0.01em",
+                  }}
+                  transition={{
+                    duration: 1.2,
+                    delay: 0.4,
+                    ease: [0.83, 0, 0.17, 1],
+                  }}
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(90deg, #3b82f6, #93c5fd, #3b82f6)",
+                    backgroundSize: "200% auto",
+                    backgroundClip: "text",
+                    WebkitBackgroundClip: "text",
+                    color: "transparent",
+                  }}
+                >
+                  Register Yourself
+                </motion.span>
+
+                {/* Soft rounded underline effect */}
+                <motion.span
+                  className="absolute right-3 bottom-1 left-3 h-1 rounded-full bg-blue-100"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{
+                    delay: 0.7,
+                    duration: 0.6,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                />
+
+                {/* Floating bubble decoration */}
+                <motion.div
+                  className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-blue-200 opacity-70"
+                  initial={{ y: 5, x: 5, opacity: 0 }}
+                  animate={{ y: 0, x: 0, opacity: 0.7 }}
+                  transition={{
+                    delay: 1,
+                    duration: 0.6,
+                    ease: "backOut",
+                  }}
+                />
+              </motion.span>
+
+              {/* Animated underline bar */}
+              <motion.span
+                className="absolute bottom-0 left-0 h-0.5 w-full origin-left bg-gradient-to-r from-[var(--primary-color)] to-blue-400"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{
+                  delay: 0.7,
+                  duration: 0.6,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+              />
+
+              {/* Floating particles decoration */}
+              <motion.div
+                className="absolute -top-2 -right-2 h-2 w-2 rounded-full bg-[var(--primary-color)] opacity-70"
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 0.7 }}
+                transition={{
+                  delay: 1,
+                  duration: 0.4,
+                  ease: "backOut",
+                }}
+              />
+            </motion.span>
+
+            <motion.div
+              className="flex items-center"
+              initial={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: "auto" }}
+              transition={{ delay: 0.8 }}
+            >
+              <span className="h-px w-8 bg-gray-300" />
+              <motion.span
+                className="px-2 text-xs font-medium tracking-wider text-[var(--primary-color)] uppercase"
+                initial={{ letterSpacing: "0.5em", opacity: 0 }}
+                animate={{ letterSpacing: "0.2em", opacity: 1 }}
+                transition={{
+                  delay: 0.9,
+                  duration: 0.5,
+                  ease: "backOut",
+                }}
+              >
+                Elevate Your Leadership
+              </motion.span>
+              <span className="h-px w-8 bg-gray-300" />
+            </motion.div>
+          </motion.h2>
         </div>
 
         {/* Signup Form */}

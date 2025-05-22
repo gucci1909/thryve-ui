@@ -7,21 +7,25 @@ import { AnimatedCircularProgressBar } from "../components/magicui/animated-circ
 import LeadershipAssessment from "../components/skillsassessment/LeadershipAssessment";
 import RoleInformationForm from "../components/skillsassessment/RoleInformationForm";
 import PsychographicProfile from "../components/skillsassessment/PsychographicProfile";
-import ProcessingLoader from "../components/skillsassessment/ProcessingLoader";
+import Feedback from "../components/skillsassessment/Feedback";
 
 function Personalize() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({});
+  const [progressPercentage, setProgressPercentage] = useState(0);
   const navigate = useNavigate();
 
   const steps = [
     { id: 1, name: "Leadership", component: LeadershipAssessment },
     { id: 2, name: "Role Info", component: RoleInformationForm },
     { id: 3, name: "Profile", component: PsychographicProfile },
+    { id: 4, name: "feedback", component: Feedback },
   ];
 
   const handleNext = (data) => {
     setFormData((prev) => ({ ...prev, ...data }));
+    const newPercentage = (currentStep / steps.length) * 100;
+    setProgressPercentage(newPercentage);
 
     if (currentStep < steps.length) {
       setCurrentStep((prev) => prev + 1);
@@ -31,10 +35,12 @@ function Personalize() {
   };
 
   const handleBack = () => {
-    if (currentStep > 1) setCurrentStep((prev) => prev - 1);
+    if (currentStep > 1) {
+      setCurrentStep((prev) => prev - 1);
+      const newPercentage = ((currentStep - 2) / steps.length) * 100;
+      setProgressPercentage(newPercentage);
+    }
   };
-
-  const progressPercentage = ((currentStep - 1) / steps.length) * 100;
 
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center overflow-hidden">
@@ -125,9 +131,6 @@ function Personalize() {
               Step {currentStep} of {steps.length}
             </p>
           </motion.div>
-
-          {/* Empty div for balance */}
-          {/* <div className="w-10"></div> */}
         </div>
 
         {/* Minimalist Step Indicators */}
@@ -182,6 +185,7 @@ function Personalize() {
                 <LeadershipAssessment
                   initialData={formData.leadership}
                   onNext={handleNext}
+                  setProgressPercentage={setProgressPercentage}
                 />
               )}
               {currentStep === 2 && (
@@ -196,28 +200,19 @@ function Personalize() {
                   initialData={formData.psychographic}
                   onNext={handleNext}
                   onBack={handleBack}
+                  setProgressPercentage={setProgressPercentage}
                 />
               )}
-              {currentStep === 4 && <ProcessingLoader />}
+              {currentStep === 4 && (
+                <Feedback
+                  initialData={formData.psychographic}
+                  onNext={handleNext}
+                  onBack={handleBack}
+                />
+              )}
             </motion.div>
           </AnimatePresence>
         </div>
-
-        {/* Navigation Hint - More Subtle */}
-        {currentStep <= steps.length && (
-          <motion.div
-            className="mt-4 text-xs text-gray-500"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            <AuroraText colors={["#0029ff", "#3b82f6"]} speed={2} size="sm">
-              {currentStep === steps.length
-                ? "Finalizing..."
-                : "Continue to next step"}
-            </AuroraText>
-          </motion.div>
-        )}
       </div>
     </div>
   );

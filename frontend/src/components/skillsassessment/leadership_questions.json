@@ -1,124 +1,158 @@
 {
   "assessmentTitle": "Leadership Skills Assessment",
-  "instructions": "Answer honestly to get an accurate baseline of your current skills.",
-  "questions": [
+  "instructions": "Each question maps to behavioral dimensions that influence leadership style (based on well-established frameworks like Lewin's styles, Goleman's emotional intelligence styles, and situational leadership).",
+  "assessment": [
     {
-      "id": 1,
-      "category": "Communication",
-      "text": "How comfortable are you with delivering constructive feedback to team members?",
-      "options": [
-        { "value": 1, "text": "I avoid giving critical feedback" },
-        { "value": 2, "text": "I struggle but try my best" },
-        { "value": 3, "text": "I can do it but find it challenging" },
-        { "value": 4, "text": "I'm fairly comfortable with it" },
-        { "value": 5, "text": "I excel at providing balanced feedback" }
-      ]
-    },
-    {
-      "id": 2,
-      "category": "Decision Making",
-      "text": "When faced with an important decision under pressure, how do you typically respond?",
-      "options": [
-        { "value": 1, "text": "I often freeze or postpone deciding" },
+      "category": "Decision-Making & Delegation",
+      "questions": [
         {
-          "value": 2,
-          "text": "I make quick decisions without enough analysis"
+          "id": "DM1",
+          "text": "I prefer to make decisions independently without consulting others.",
+          "response": null
         },
-        { "value": 3, "text": "I seek input but struggle with the final call" },
-        { "value": 4, "text": "I balance analysis with timely decisions" },
         {
-          "value": 5,
-          "text": "I systematically evaluate options and decide confidently"
-        }
-      ]
-    },
-    {
-      "id": 3,
-      "category": "Team Development",
-      "text": "How effectively do you identify and nurture talent within your team?",
-      "options": [
-        { "value": 1, "text": "I rarely focus on talent development" },
-        { "value": 2, "text": "I occasionally recognize strengths" },
-        { "value": 3, "text": "I recognize talent but don't have a system" },
-        { "value": 4, "text": "I regularly provide growth opportunities" },
-        {
-          "value": 5,
-          "text": "I have a structured approach to developing each team member"
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "category": "Emotional Intelligence",
-      "text": "How well do you manage your emotions during workplace conflicts?",
-      "options": [
-        { "value": 1, "text": "I often react emotionally" },
-        { "value": 2, "text": "I try to stay calm but sometimes fail" },
-        { "value": 3, "text": "I maintain composure but get stressed" },
-        { "value": 4, "text": "I stay composed in most situations" },
-        {
-          "value": 5,
-          "text": "I effectively manage emotions and help others do the same"
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "category": "Strategic Thinking",
-      "text": "How do you approach long-term planning and goal setting?",
-      "options": [
-        { "value": 1, "text": "I focus only on immediate tasks" },
-        { "value": 2, "text": "I think ahead but not systematically" },
-        { "value": 3, "text": "I set goals but struggle with strategy" },
-        { "value": 4, "text": "I create solid plans for the future" },
-        {
-          "value": 5,
-          "text": "I excel at connecting daily work to long-term vision"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "category": "Change Management",
-      "text": "How do you handle implementing significant changes within your team?",
-      "options": [
-        { "value": 1, "text": "I struggle with change myself" },
-        { "value": 2, "text": "I announce changes with little preparation" },
-        { "value": 3, "text": "I explain changes but don't address concerns" },
-        { "value": 4, "text": "I prepare the team for change" },
-        {
-          "value": 5,
-          "text": "I systematically manage change with full team engagement"
-        }
-      ]
-    },
-    {
-      "id": 7,
-      "category": "Time Management",
-      "text": "How effectively do you prioritize and manage your workload?",
-      "options": [
-        { "value": 1, "text": "I often feel overwhelmed and miss deadlines" },
-        {
-          "value": 2,
-          "text": "I complete urgent tasks but struggle with planning"
+          "id": "DM2",
+          "text": "I regularly seek team input before making final decisions.",
+          "response": null
         },
-        { "value": 3, "text": "I manage my time adequately but could improve" },
-        { "value": 4, "text": "I effectively prioritize most tasks" },
         {
-          "value": 5,
-          "text": "I have excellent systems for time management and delegation"
+          "id": "DM3",
+          "text": "I enjoy delegating tasks and trust others to handle them.",
+          "response": null
+        },
+        {
+          "id": "DM4",
+          "text": "I struggle to delegate important responsibilities.",
+          "response": null
+        }
+      ]
+    },
+    {
+      "category": "Emotional Intelligence & Empathy",
+      "questions": [
+        {
+          "id": "EI1",
+          "text": "I often tune into my team's emotional state and adjust accordingly.",
+          "response": null
+        },
+        {
+          "id": "EI2",
+          "text": "I give regular, constructive feedback with empathy.",
+          "response": null
+        },
+        {
+          "id": "EI3",
+          "text": "I prioritize results over relationships when needed.",
+          "response": null
+        },
+        {
+          "id": "EI4",
+          "text": "I stay calm and composed during conflict.",
+          "response": null
+        }
+      ]
+    },
+    {
+      "category": "Vision & Strategy",
+      "questions": [
+        {
+          "id": "VS1",
+          "text": "I frequently communicate a clear, long-term vision.",
+          "response": null
+        },
+        {
+          "id": "VS2",
+          "text": "I focus more on short-term tasks than strategic goals.",
+          "response": null
+        },
+        {
+          "id": "VS3",
+          "text": "I encourage innovation even when it involves risk.",
+          "response": null
+        },
+        {
+          "id": "VS4",
+          "text": "I prefer tried-and-tested approaches over experimentation.",
+          "response": null
+        }
+      ]
+    },
+    {
+      "category": "Team Development & Coaching",
+      "questions": [
+        {
+          "id": "TD1",
+          "text": "I actively mentor or coach members of my team.",
+          "response": null
+        },
+        {
+          "id": "TD2",
+          "text": "I design opportunities for others to grow and stretch.",
+          "response": null
+        },
+        {
+          "id": "TD3",
+          "text": "I am energized by helping others realize their potential.",
+          "response": null
+        },
+        {
+          "id": "TD4",
+          "text": "I often find myself solving problems rather than enabling others.",
+          "response": null
+        }
+      ]
+    },
+    {
+      "category": "Adaptability & Influence",
+      "questions": [
+        {
+          "id": "AI1",
+          "text": "I change my leadership approach based on who I'm working with.",
+          "response": null
+        },
+        {
+          "id": "AI2",
+          "text": "I can influence others even without formal authority.",
+          "response": null
+        },
+        {
+          "id": "AI3",
+          "text": "I adapt quickly when things don't go as planned.",
+          "response": null
+        },
+        {
+          "id": "AI4",
+          "text": "I prefer a structured, consistent leadership routine.",
+          "response": null
         }
       ]
     }
   ],
-  "scoring": {
-    "minScore": 7,
-    "maxScore": 35,
-    "interpretation": {
-      "7-14": "Emerging Leadership Skills",
-      "15-21": "Developing Leadership Skills",
-      "22-28": "Competent Leadership Skills",
-      "29-35": "Advanced Leadership Skills"
+  "scaleOptions": [
+    {
+      "value": 1,
+      "label": "Strongly Disagree",
+      "emoji": "😠"
+    },
+    {
+      "value": 2,
+      "label": "Disagree",
+      "emoji": "🙁"
+    },
+    {
+      "value": 3,
+      "label": "Neutral",
+      "emoji": "😐"
+    },
+    {
+      "value": 4,
+      "label": "Agree",
+      "emoji": "🙂"
+    },
+    {
+      "value": 5,
+      "label": "Strongly Agree",
+      "emoji": "😄"
     }
-  }
+  ]
 }

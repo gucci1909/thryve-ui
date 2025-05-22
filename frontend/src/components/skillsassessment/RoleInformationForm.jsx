@@ -5,12 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BorderBeam } from "../magicui/border-beam";
 import { cn } from "../../lib/utils";
 import { RippleButton } from "../magicui/ripple-button";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  Check,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown, Check } from "lucide-react";
 import { Listbox } from "@headlessui/react";
 
 const RoleInformationForm = ({ initialData, onNext, onBack }) => {
@@ -152,130 +147,117 @@ const RoleInformationForm = ({ initialData, onNext, onBack }) => {
   );
 
   return (
-    <div className="relative w-full max-w-3xl rounded-xl bg-white p-4 shadow-xl sm:p-6">
-      <BorderBeam
-        size={150}
-        duration={10}
-        colorFrom="#0029ff"
-        colorTo="#3b82f6"
-        className="rounded-xl"
-      />
+    <>
+      <div className="relative w-full max-w-3xl rounded-xl bg-white p-4 shadow-xl sm:p-6">
+        <BorderBeam
+          size={150}
+          duration={10}
+          colorFrom="#0029ff"
+          colorTo="#3b82f6"
+          className="rounded-xl"
+        />
 
-      {/* Header */}
-      <div className="mb-6">
-        <motion.h2
-          className="text-lg font-bold text-gray-900 sm:text-xl"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          Role Information
-        </motion.h2>
-        <motion.p
-          className="text-sm text-gray-600"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-        >
-          Tell us about your current role and challenges
-        </motion.p>
-      </div>
-
-      <form onSubmit={handleSubmit}>
-        <div className="space-y-5">
-          {/* Role Dropdown */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
+        {/* Header */}
+        <div className="mb-6">
+          <motion.h2
+            className="text-lg font-bold text-gray-900 sm:text-xl"
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            Role Information
+          </motion.h2>
+          <motion.p
+            className="text-sm text-gray-600"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.3, delay: 0.1 }}
           >
-            <CustomSelect
-              value={selectedRole}
-              onChange={handleRoleChange}
-              options={roles}
-              label="Your Role"
-              placeholder="Select your role"
-            />
-          </motion.div>
-
-          {/* Team Size Dropdown */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-          >
-            <CustomSelect
-              value={selectedTeamSize}
-              onChange={handleTeamSizeChange}
-              options={teamSizes}
-              label="Team Size"
-              placeholder="Select team size"
-            />
-          </motion.div>
-
-          {/* Industry Dropdown */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.3 }}
-          >
-            <CustomSelect
-              value={selectedIndustry}
-              onChange={handleIndustryChange}
-              options={industries}
-              label="Industry"
-              placeholder="Select industry"
-            />
-          </motion.div>
-
-          {/* Challenges Textarea */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.4 }}
-          >
-            <label
-              htmlFor="challenges"
-              className="mb-2 block text-sm font-medium text-gray-700"
-            >
-              Top Challenges
-            </label>
-            <div className="relative">
-              <motion.textarea
-                id="challenges"
-                name="challenges"
-                value={formData.challenges}
-                onChange={handleChange}
-                placeholder="Write at least 2 problem areas that you are facing at your current role (one per line)"
-                rows={4}
-                className={`w-full rounded-lg border px-4 py-3 text-gray-700 placeholder-gray-400 ${"border-[#d6e0ff] bg-white focus:border-[#0029ff] focus:ring-[#0029ff]/50"} shadow-sm transition-all duration-200 focus:ring-2 focus:outline-none`}
-                required
-                whileFocus={{
-                  scale: 1.005,
-                  boxShadow: "0px 2px 8px rgba(0, 41, 255, 0.1)",
-                }}
-                whileHover={{
-                  borderColor: "#93c5fd",
-                }}
-              />
-              {/* {errors.challenges && (
-                <motion.div
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -5 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute -bottom-5 left-0 flex items-center text-xs text-red-500"
-                >
-                  <AlertCircle className="mr-1 h-3 w-3" />
-                  Please list at least 2 challenges
-                </motion.div>
-              )} */}
-            </div>
-          </motion.div>
+            Tell us about your current role and challenges
+          </motion.p>
         </div>
 
-        {/* Navigation Buttons */}
-        <motion.div
+        <form onSubmit={handleSubmit}>
+          <div className="space-y-5">
+            {/* Role Dropdown */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+            >
+              <CustomSelect
+                value={selectedRole}
+                onChange={handleRoleChange}
+                options={roles}
+                label="Your Role"
+                placeholder="Select your role"
+              />
+            </motion.div>
+
+            {/* Team Size Dropdown */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+            >
+              <CustomSelect
+                value={selectedTeamSize}
+                onChange={handleTeamSizeChange}
+                options={teamSizes}
+                label="Team Size"
+                placeholder="Select team size"
+              />
+            </motion.div>
+
+            {/* Industry Dropdown */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.3 }}
+            >
+              <CustomSelect
+                value={selectedIndustry}
+                onChange={handleIndustryChange}
+                options={industries}
+                label="Industry"
+                placeholder="Select industry"
+              />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.4 }}
+            >
+              <label
+                htmlFor="challenges"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
+                Top Challenges
+              </label>
+              <div className="relative">
+                <motion.textarea
+                  id="challenges"
+                  name="challenges"
+                  value={formData.challenges}
+                  onChange={handleChange}
+                  placeholder="Write at least 2 problem areas that you are facing at your current role (one per line)"
+                  rows={4}
+                  className={`w-full rounded-lg border px-4 py-3 text-gray-700 placeholder-gray-400 ${"border-[#d6e0ff] bg-white focus:border-[#0029ff] focus:ring-[#0029ff]/50"} shadow-sm transition-all duration-200 focus:ring-2 focus:outline-none`}
+                  required
+                  whileFocus={{
+                    scale: 1.005,
+                    boxShadow: "0px 2px 8px rgba(0, 41, 255, 0.1)",
+                  }}
+                  whileHover={{
+                    borderColor: "#93c5fd",
+                  }}
+                />
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Navigation Buttons */}
+          {/* <motion.div
           className="mt-8 flex justify-between"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -304,68 +286,120 @@ const RoleInformationForm = ({ initialData, onNext, onBack }) => {
             Continue
             <ChevronRight className="h-4 w-4" />
           </RippleButton>
-        </motion.div>
-      </form>
+        </motion.div> */}
+        </form>
 
-      {/* Loading Overlay */}
-      <AnimatePresence>
-        {isSubmitting && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/90 backdrop-blur-sm"
-          >
+        {/* Loading Overlay */}
+        <AnimatePresence>
+          {isSubmitting && (
             <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="flex flex-col items-center rounded-xl border border-[#d6e0ff] bg-white px-8 py-6 shadow-lg"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/90 backdrop-blur-sm"
             >
-              <div className="relative mb-4 h-12 w-12">
-                <motion.div
-                  className="absolute inset-0 rounded-full border-[3px] border-[#0029ff] border-t-transparent"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                />
-              </div>
-              <motion.p
-                className="mb-6 text-sm font-medium text-gray-700"
-                initial={{ y: 10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="flex flex-col items-center rounded-xl border border-[#d6e0ff] bg-white px-8 py-6 shadow-lg"
               >
-                Processing your information...
-              </motion.p>
-
-              <div className="flex w-full gap-4">
-                <RippleButton
-                  onClick={onBack}
-                  rippleColor="rgba(0, 41, 255, 0.15)"
-                  className="flex-1 rounded-lg border border-[#0029ff] py-2 font-medium text-[#0029ff] transition-all duration-200 hover:bg-[#f5f8ff]"
+                <div className="relative mb-4 h-12 w-12">
+                  <motion.div
+                    className="absolute inset-0 rounded-full border-[3px] border-[#0029ff] border-t-transparent"
+                    animate={{ rotate: 360 }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                  />
+                </div>
+                <motion.p
+                  className="mb-6 text-sm font-medium text-gray-700"
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
                 >
-                  Cancel
-                </RippleButton>
+                  Processing your information...
+                </motion.p>
 
-                <RippleButton
-                  disabled={true}
-                  className="flex-1 cursor-not-allowed rounded-lg bg-[#0029ff] py-2 font-medium text-white opacity-80"
-                >
-                  <div className="flex items-center justify-center gap-2">
-                    <motion.span
-                      animate={{ opacity: [0.6, 1, 0.6] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    >
-                      Processing...
-                    </motion.span>
-                  </div>
-                </RippleButton>
-              </div>
+                <div className="flex w-full gap-4">
+                  <RippleButton
+                    onClick={onBack}
+                    rippleColor="rgba(0, 41, 255, 0.15)"
+                    className="flex-1 rounded-lg border border-[#0029ff] py-2 font-medium text-[#0029ff] transition-all duration-200 hover:bg-[#f5f8ff]"
+                  >
+                    Cancel
+                  </RippleButton>
+
+                  <RippleButton
+                    disabled={true}
+                    className="flex-1 cursor-not-allowed rounded-lg bg-[#0029ff] py-2 font-medium text-white opacity-80"
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <motion.span
+                        animate={{ opacity: [0.6, 1, 0.6] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      >
+                        Processing...
+                      </motion.span>
+                    </div>
+                  </RippleButton>
+                </div>
+              </motion.div>
             </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div className="relative">
+        <div className="relative min-h-auto pb-24">
+          <motion.div
+            className="fixed right-0 bottom-0 left-0 z-50 border-t border-gray-100 bg-white/90 px-6 py-4 backdrop-blur-sm"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <div className="mx-auto flex max-w-3xl justify-between">
+              <RippleButton
+                type="button"
+                onClick={onBack}
+                rippleColor="rgba(0, 41, 255, 0.15)"
+                className={cn(
+                  "flex w-[90px] flex-row items-center justify-center gap-1 border border-[#0029ff] text-[#0029ff] hover:bg-[#f5f8ff]",
+                  isSubmitting ? "cursor-not-allowed opacity-80" : "",
+                )}
+                whileHover={{ scale: isSubmitting ? 1 : 1.03 }}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Back
+              </RippleButton>
+
+              <RippleButton
+                type="submit"
+                disabled={isSubmitting}
+                onClick={(e) => handleSubmit(e)}
+                rippleColor="rgba(0, 41, 255, 0.3)"
+                className={cn(
+                  "flex w-[120px] items-center justify-center gap-1 bg-[#0029ff] text-white hover:bg-[#001fcc]",
+                  isSubmitting ? "cursor-not-allowed opacity-80" : "",
+                )}
+                whileHover={{
+                  scale: isSubmitting ? 1 : 1.03,
+                  boxShadow: isSubmitting
+                    ? "none"
+                    : "0 2px 8px rgba(0, 41, 255, 0.2)",
+                }}
+              >
+                Continue
+                <ChevronRight className="h-4 w-4" />
+              </RippleButton>
+            </div>
           </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+        </div>
+      </div>
+    </>
   );
 };
 
