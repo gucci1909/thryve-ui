@@ -14,6 +14,9 @@ const LearningPlanReadyScreen = lazy(
   () => import("../pages/LearningPlanReady.jsx"),
 );
 const PersonalizeHome = lazy(() => import("../pages/PersonalizeHome.jsx"));
+const LeaderShipAnalysis = lazy(
+  () => import("../pages/LeaderShipAnalysis.jsx"),
+);
 
 function AllRoutes() {
   return (
@@ -41,6 +44,10 @@ function AllRoutes() {
           <Route path="/dashboard" element={<Home />} />
           <Route path="/profile" element={<Home />} />
           <Route path="/chat-box" element={<Home />} />
+          <Route
+            path="/leadership-swot-analysis"
+            element={<LeaderShipAnalysis />}
+          />
 
           <Route path="/" element={<DiscoverPage />} />
           <Route path="/*" element={<DiscoverPage />} />

@@ -30,7 +30,7 @@ function Personalize() {
     if (currentStep < steps.length) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      setTimeout(() => navigate("/waiting"), 1000);
+      setTimeout(() => navigate("/leadership-swot-analysis"), 1000);
     }
   };
 

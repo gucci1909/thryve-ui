@@ -52,6 +52,10 @@ export default function LeadershipAssessment({
   const progressPercentage = (answeredQuestions / totalQuestions) * 100;
 
   const handlePrevious = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
     if (currentCategoryIndex > 0) {
       setCurrentCategoryIndex((prev) => prev - 1);
     }
@@ -60,10 +64,18 @@ export default function LeadershipAssessment({
   const handleNext = () => {
     if (!isLastCategory) {
       setCurrentCategoryIndex((prev) => prev + 1);
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
     } else {
       // When completing this section, set progress to 25% (this step's full value)
       setProgressPercentage(25);
       onNext({ leadership: answers });
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
     }
   };
 
@@ -246,7 +258,7 @@ export default function LeadershipAssessment({
                     disabled={!allQuestionsAnswered}
                     rippleColor="rgba(0, 41, 255, 0.3)"
                     className={cn(
-                      "bg-[#0029ff] text-white hover:bg-[#001fcc]",
+                      "min-w-[180px] bg-[#0029ff] px-6 py-2 text-white hover:bg-[#001fcc]", // Added padding and min-width
                       !allQuestionsAnswered
                         ? "cursor-not-allowed opacity-50"
                         : "",
