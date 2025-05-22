@@ -73,7 +73,7 @@ function WaitingScreen({ userName = "Sunil" }) {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
           >
-            Welcome, Sunil to Thryve!
+            Welcome, Sunil
           </motion.h2>
         </div>
       </div>

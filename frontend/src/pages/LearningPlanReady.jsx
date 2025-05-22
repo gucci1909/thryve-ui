@@ -145,7 +145,7 @@ function LearningPlanReadyScreen() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
           >
-            Welcome, Sunil to Thryve!
+            Welcome, Sunil
           </motion.h2>
         </div>
       </div>
@@ -185,20 +185,20 @@ function LearningPlanReadyScreen() {
                 Your personalized
               </motion.p>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <motion.p
-                  className="text-2xl leading-snug font-bold tracking-tight text-[var(--primary-color)]"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
+                  className="text-xl font-bold text-[var(--primary-color)]"
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
                 >
                   Learning Plan has been
                 </motion.p>
                 <motion.p
-                  className="bg-gradient-to-r from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_30%)] bg-clip-text text-3xl leading-tight font-extrabold text-[var(--primary-color)] text-transparent"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
+                  className="bg-gradient-to-r from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_30%)] bg-clip-text text-2xl font-extrabold text-transparent"
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.2 }}
                 >
                   generated
                 </motion.p>
