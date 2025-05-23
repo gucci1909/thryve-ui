@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { BorderBeam } from "../magicui/border-beam";
 import questions from "./leadership_questions.json";
 import { cn } from "../../lib/utils";
@@ -13,70 +13,74 @@ export default function LeadershipAssessment({
   onNext,
   setProgressPercentage,
 }) {
-  const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0);
-  const [answers, setAnswers] = useState(initialData || {});
-  const [allQuestionsAnswered, setAllQuestionsAnswered] = useState(false);
+  // Flatten all questions into a single array
+  const allQuestions = questions.assessment.flatMap((category) =>
+    category.questions.map((question) => ({
+      ...question,
+      category: category.category,
+    })),
+  );
 
-  const currentCategory = questions.assessment[currentCategoryIndex];
-  const isLastCategory =
-    currentCategoryIndex === questions.assessment.length - 1;
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState(initialData || {});
+  const [isComplete, setIsComplete] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(
+    questions.assessment[0].category,
+  );
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const currentQuestion = allQuestions[currentQuestionIndex];
+  const isLastQuestion = currentQuestionIndex === allQuestions.length - 1;
+  const isFirstQuestion = currentQuestionIndex === 0;
 
   // Calculate progress
-  const totalQuestions = questions.assessment.reduce(
-    (acc, category) => acc + category.questions.length,
-    0,
-  );
+  const progressPercentage = (currentQuestionIndex / allQuestions.length) * 100;
 
   const handleOptionSelect = (questionId, value) => {
     const newAnswers = { ...answers, [questionId]: value };
     setAnswers(newAnswers);
 
-    // Calculate and update progress percentage (scaled to 25% of total progress)
-    const answeredQuestions = Object.keys(newAnswers).length;
-    const sectionProgress = (answeredQuestions / totalQuestions) * 100;
-    const scaledProgress = sectionProgress * 0.25; // Since this is 1 of 4 steps
+    // Update progress (scaled to 25% of total progress)
+    const scaledProgress =
+      ((currentQuestionIndex + 1) / allQuestions.length) * 25;
     setProgressPercentage(scaledProgress);
+
+    // Auto-advance to next question if not last
+    if (!isLastQuestion) {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentQuestionIndex((prev) => prev + 1);
+        // Update current category for the progress bar
+        const nextCategory = allQuestions[currentQuestionIndex + 1].category;
+        setSelectedCategory(nextCategory);
+        setIsTransitioning(false);
+      }, 800);
+    } else {
+      setIsComplete(true);
+    }
   };
-
-  // Check if all questions in current category are answered
-  useEffect(() => {
-    const categoryQuestions = currentCategory.questions.map((q) => q.id);
-    const answeredInCategory = categoryQuestions.every((id) =>
-      answers.hasOwnProperty(id),
-    );
-    setAllQuestionsAnswered(answeredInCategory);
-  }, [currentCategoryIndex, answers]);
-
-  // Calculate current progress for display (not scaled)
-  const answeredQuestions = Object.keys(answers).length;
-  const progressPercentage = (answeredQuestions / totalQuestions) * 100;
 
   const handlePrevious = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-    if (currentCategoryIndex > 0) {
-      setCurrentCategoryIndex((prev) => prev - 1);
+    if (!isFirstQuestion) {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentQuestionIndex((prev) => prev - 1);
+        const prevCategory = allQuestions[currentQuestionIndex - 1].category;
+        setSelectedCategory(prevCategory);
+        setIsTransitioning(false);
+      }, 500);
     }
   };
 
-  const handleNext = () => {
-    if (!isLastCategory) {
-      setCurrentCategoryIndex((prev) => prev + 1);
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    } else {
-      // When completing this section, set progress to 25% (this step's full value)
-      setProgressPercentage(25);
-      onNext({ leadership: answers });
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    }
+  // Calculate category progress for the indicator
+  const getCategoryProgress = () => {
+    const categoryQuestions = allQuestions.filter(
+      (q) => q.category === selectedCategory,
+    );
+    const answeredInCategory = categoryQuestions.filter(
+      (q) => answers[q.id],
+    ).length;
+    return (answeredInCategory / categoryQuestions.length) * 100;
   };
 
   return (
@@ -113,19 +117,13 @@ export default function LeadershipAssessment({
         {/* Category Indicator */}
         <div className="mb-4">
           <h3 className="text-md font-semibold text-gray-800 sm:text-lg">
-            {currentCategory.category}
+            {selectedCategory}
           </h3>
           <div className="mt-1 h-1 w-full rounded-full bg-gray-200">
             <div
               className="h-full rounded-full bg-[#0029ff] transition-all duration-300"
               style={{
-                width: `${
-                  (Object.keys(answers).filter((id) =>
-                    currentCategory.questions.some((q) => q.id === id),
-                  ).length /
-                    currentCategory.questions.length) *
-                  100
-                }%`,
+                width: `${getCategoryProgress()}%`,
               }}
             />
           </div>
@@ -136,7 +134,7 @@ export default function LeadershipAssessment({
           <div className="flex items-center justify-between text-xs text-gray-600">
             <span>Overall Progress</span>
             <span>
-              {answeredQuestions}/{totalQuestions}
+              {currentQuestionIndex + 1} of {allQuestions.length}
             </span>
           </div>
           <motion.div
@@ -158,65 +156,46 @@ export default function LeadershipAssessment({
           </motion.div>
         </div>
 
-        {/* Questions List */}
-        <div className="space-y-6">
-          {" "}
-          {/* Increased spacing */}
-          {currentCategory.questions.map((question) => (
+        {/* Single Question */}
+        <motion.div
+          key={currentQuestion.id}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+          className="rounded-xl border border-gray-100 pt-4 pr-6 pb-8 pl-6 shadow-md"
+        >
+          <motion.div
+            className="mb-4 flex items-center gap-3"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+          >
             <motion.div
-              key={question.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="rounded-xl border border-gray-100 pt-4 pr-6 pb-8 pl-6 shadow-md" // Larger padding and rounded corners
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-[#0029ff] to-[#3b82f6] text-sm font-medium text-white shadow-sm"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
-              <h4 className="mb-1 text-base font-medium text-gray-800 sm:text-lg">
-                {" "}
-                {/* Larger text */}
-                {question.text}
-              </h4>
-
-              <div className="px-2">
-                {" "}
-                {/* Added horizontal padding */}
-                <EmojiSlider
-                  questionId={question.id}
-                  value={answers[question.id]}
-                  onChange={handleOptionSelect}
-                />
-              </div>
+              {currentQuestionIndex + 1}
             </motion.div>
-          ))}
-        </div>
+            <h4 className="mt-0.5 text-base leading-tight font-medium text-gray-800 sm:text-lg">
+              {currentQuestion.text}
+            </h4>
+          </motion.div>
+
+          <div className="px-2">
+            <EmojiSlider
+              questionId={currentQuestion.id}
+              value={answers[currentQuestion.id]}
+              onChange={handleOptionSelect}
+              disabled={isTransitioning}
+            />
+          </div>
+        </motion.div>
       </div>
 
       {/* Navigation Buttons */}
-      {/* Show only Next button for first category when all questions are answered */}
-      {currentCategoryIndex === 0 && allQuestionsAnswered && (
-        <div className="relative">
-          <div className="relative min-h-auto pb-24">
-            <motion.div
-              className="fixed right-0 bottom-0 left-0 z-50 border-t border-gray-100 bg-white/90 px-6 py-4 backdrop-blur-sm"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <div className="mx-auto flex max-w-3xl justify-end">
-                {" "}
-                {/* Changed to justify-end to align single button to right */}
-                <RippleButton
-                  onClick={handleNext}
-                  rippleColor="rgba(0, 41, 255, 0.3)"
-                  className="bg-[var(--primary-color)] text-white hover:bg-[#001fcc]"
-                >
-                  Next Section →
-                </RippleButton>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      )}
-      {currentCategoryIndex > 0 && (
+      {!isFirstQuestion && (
         <div className="relative">
           <div className="relative min-h-auto pb-24">
             <motion.div
@@ -226,45 +205,29 @@ export default function LeadershipAssessment({
               transition={{ delay: 0.4 }}
             >
               <div className="mx-auto flex max-w-3xl justify-between">
-                <RippleButton
-                  onClick={handlePrevious}
-                  disabled={currentCategoryIndex === 0}
-                  rippleColor="rgba(var(--primary-color-rgb))"
-                  className={cn(
-                    "border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[color-mix(in_srgb,var(--primary-color),white_95%)]",
-                    currentCategoryIndex === 0 ? "opacity-50" : "",
-                  )}
-                >
-                  ← Previous Section
-                </RippleButton>
-
-                {!isLastCategory ? (
+                {/* Previous Button - only shown after first question */}
+                {!isFirstQuestion && (
                   <RippleButton
-                    onClick={handleNext}
-                    disabled={!allQuestionsAnswered}
-                    rippleColor="rgba(0, 41, 255, 0.3)"
+                    onClick={handlePrevious}
+                    rippleColor="rgba(var(--primary-color-rgb))"
                     className={cn(
-                      "bg-[#0029ff] text-white hover:bg-[#001fcc]",
-                      !allQuestionsAnswered
-                        ? "cursor-not-allowed opacity-50"
-                        : "",
+                      "border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[color-mix(in_srgb,var(--primary-color),white_95%)]",
+                      isTransitioning ? "cursor-not-allowed opacity-50" : "",
                     )}
+                    disabled={isTransitioning}
                   >
-                    Next Section →
+                    ← Previous
                   </RippleButton>
-                ) : (
+                )}
+
+                {/* Complete Assessment Button (only shows when all questions answered) */}
+                {isComplete && (
                   <RippleButton
                     onClick={() => onNext({ leadership: answers })}
-                    disabled={!allQuestionsAnswered}
                     rippleColor="rgba(0, 41, 255, 0.3)"
-                    className={cn(
-                      "min-w-[180px] bg-[#0029ff] px-6 py-2 text-white hover:bg-[#001fcc]", // Added padding and min-width
-                      !allQuestionsAnswered
-                        ? "cursor-not-allowed opacity-50"
-                        : "",
-                    )}
+                    className="min-w-[90px] bg-[#0029ff] px-6 py-2 text-white hover:bg-[#001fcc]"
                   >
-                    Complete Assessment →
+                    Submit →
                   </RippleButton>
                 )}
               </div>

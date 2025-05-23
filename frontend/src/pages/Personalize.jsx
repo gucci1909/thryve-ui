@@ -28,6 +28,7 @@ function Personalize() {
     setProgressPercentage(newPercentage);
 
     if (currentStep < steps.length) {
+      console.log({f:formData});
       setCurrentStep((prev) => prev + 1);
     } else {
       setTimeout(() => navigate("/leadership-swot-analysis"), 1000);

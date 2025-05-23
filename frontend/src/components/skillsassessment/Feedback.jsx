@@ -18,7 +18,8 @@ const Feedback = ({ onNext, onBack }) => {
   };
 
   const addTeamMember = () => {
-    setTeamMembers([...teamMembers, { name: "", email: "" }]);
+    // Add new member to the beginning of the array
+    setTeamMembers([{ name: "", email: "" }, ...teamMembers]);
   };
 
   const removeTeamMember = (index) => {
@@ -50,7 +51,7 @@ const Feedback = ({ onNext, onBack }) => {
         />
 
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-2">
           <motion.h2
             className="text-lg font-bold text-gray-900 sm:text-xl"
             initial={{ opacity: 0, y: -10 }}
@@ -62,7 +63,7 @@ const Feedback = ({ onNext, onBack }) => {
         </div>
 
         <motion.p
-          className="mb-6 text-sm text-gray-700"
+          className="mb-3 text-sm text-gray-700"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.2 }}
@@ -71,52 +72,8 @@ const Feedback = ({ onNext, onBack }) => {
         </motion.p>
 
         <form onSubmit={handleSubmit}>
-          <div className="space-y-6">
-            {teamMembers.map((member, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-                className="space-y-4 rounded-lg border border-gray-200 p-4"
-              >
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-gray-700">
-                    Team Member Name
-                  </h3>
-                  {teamMembers.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeTeamMember(index)}
-                      className="text-xs text-gray-500 hover:text-red-500"
-                    >
-                      Remove
-                    </button>
-                  )}
-                </div>
-                
-                <div>
-                  <input
-                    type="text"
-                    value={member.name}
-                    onChange={(e) => handleMemberChange(index, 'name', e.target.value)}
-                    className="w-full rounded-lg border border-gray-200 px-4 py-2 text-gray-700 placeholder-gray-400 shadow-sm transition-all duration-200 focus:border-[var(--primary-color)] focus:ring-2 focus:ring-[var(--primary-color)]/50 focus:outline-none"
-                    placeholder="Enter team member name"
-                  />
-                </div>
-                
-                <div>
-                  <input
-                    type="email"
-                    value={member.email}
-                    onChange={(e) => handleMemberChange(index, 'email', e.target.value)}
-                    className="w-full rounded-lg border border-gray-200 px-4 py-2 text-gray-700 placeholder-gray-400 shadow-sm transition-all duration-200 focus:border-[var(--primary-color)] focus:ring-2 focus:ring-[var(--primary-color)]/50 focus:outline-none"
-                    placeholder="Enter email address"
-                  />
-                </div>
-              </motion.div>
-            ))}
-
+          <div className="space-y-3">
+            {/* Add Team Member Button - Placed at the top */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -130,6 +87,56 @@ const Feedback = ({ onNext, onBack }) => {
                 + Add another team member
               </button>
             </motion.div>
+
+            {/* Team Members List - New members will appear at the top */}
+            <AnimatePresence initial={false}>
+              {teamMembers.map((member, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-4 rounded-lg border border-gray-200 p-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-medium text-gray-700">
+                      Team Member {index + 1}
+                    </h3>
+                    {teamMembers.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeTeamMember(index)}
+                        className="text-xs text-gray-500 hover:text-red-500"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <input
+                      type="text"
+                      value={member.name}
+                      onChange={(e) => handleMemberChange(index, 'name', e.target.value)}
+                      className="w-full rounded-lg border border-gray-200 px-4 py-2 text-gray-700 placeholder-gray-400 shadow-sm transition-all duration-200 focus:border-[var(--primary-color)] focus:ring-2 focus:ring-[var(--primary-color)]/50 focus:outline-none"
+                      placeholder="Enter team member name"
+                      autoFocus={index === 0} // Auto-focus the first field of new members
+                    />
+                  </div>
+                  
+                  <div>
+                    <input
+                      type="email"
+                      value={member.email}
+                      onChange={(e) => handleMemberChange(index, 'email', e.target.value)}
+                      className="w-full rounded-lg border border-gray-200 px-4 py-2 text-gray-700 placeholder-gray-400 shadow-sm transition-all duration-200 focus:border-[var(--primary-color)] focus:ring-2 focus:ring-[var(--primary-color)]/50 focus:outline-none"
+                      placeholder="Enter email address"
+                    />
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </form>
 
