@@ -23,12 +23,13 @@ function Personalize() {
   ];
 
   const handleNext = (data) => {
+    console.log({ d: data });
     setFormData((prev) => ({ ...prev, ...data }));
     const newPercentage = (currentStep / steps.length) * 100;
     setProgressPercentage(newPercentage);
 
     if (currentStep < steps.length) {
-      console.log({f:formData});
+      console.log({ f: formData });
       setCurrentStep((prev) => prev + 1);
     } else {
       setTimeout(() => navigate("/leadership-swot-analysis"), 1000);
