@@ -49,44 +49,6 @@
           "text": "Assertive (Challenging and pushing)"
         }
       ]
-    },
-    {
-      "id": "leadershipStyle",
-      "text": "What is your leadership style?",
-      "options": [
-        {
-          "value": "democratic",
-          "text": "Democratic (Participative)"
-        },
-        {
-          "value": "autocratic",
-          "text": "Autocratic (Authoritative)"
-        },
-        {
-          "value": "laissezFaire",
-          "text": "Laissez-Faire (Hands-off)"
-        },
-        {
-          "value": "transformational",
-          "text": "Transformational (Visionary)"
-        },
-        {
-          "value": "transactional",
-          "text": "Transactional (Reward-based)"
-        },
-        {
-          "value": "bureaucratic",
-          "text": "Bureaucratic (Rule-based)"
-        },
-        {
-          "value": "servant",
-          "text": "Servant (Team-first)"
-        },
-        {
-          "value": "coachStyle",
-          "text": "Coach-style (Developmental)"
-        }
-      ]
     }
   ]
 }

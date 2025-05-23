@@ -21,7 +21,7 @@ function LeadershipAnalysis() {
   };
 
   const handleSubmit = () => {
-    navigate("/waiting");
+    navigate("/learning-plan-ready");
   };
 
   return (
@@ -313,7 +313,7 @@ function LeadershipAnalysis() {
                 onClick={handleSubmit}
                 className="min-w-[180px] rounded-lg bg-[var(--primary-color)] px-6 py-3 font-medium text-white shadow-md transition-all hover:bg-[color-mix(in_srgb,var(--primary-color),black_10%)] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-opacity-50"
               >
-                Submit Analysis →
+                Go Ahead →
               </button>
             </div>
           </motion.div>

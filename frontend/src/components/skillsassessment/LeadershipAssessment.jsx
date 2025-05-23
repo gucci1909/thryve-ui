@@ -56,7 +56,7 @@ export default function LeadershipAssessment({
         setIsTransitioning(false);
       }, 800);
     } else {
-      setIsComplete(true);
+      onNext({ leadership: answers });
     }
   };
 
@@ -114,46 +114,109 @@ export default function LeadershipAssessment({
           </motion.p>
         </div>
 
-        {/* Category Indicator */}
-        <div className="mb-4">
-          <h3 className="text-md font-semibold text-gray-800 sm:text-lg">
-            {selectedCategory}
-          </h3>
-          <div className="mt-1 h-1 w-full rounded-full bg-gray-200">
-            <div
-              className="h-full rounded-full bg-[#0029ff] transition-all duration-300"
-              style={{
-                width: `${getCategoryProgress()}%`,
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Progress Bar */}
         <div className="mb-6 w-full">
-          <div className="flex items-center justify-between text-xs text-gray-600">
-            <span>Overall Progress</span>
-            <span>
-              {currentQuestionIndex + 1} of {allQuestions.length}
+          {/* Main Progress Bar - Smooth and fluid */}
+          <div className="mb-2 flex items-center justify-between text-sm">
+            <span className="font-medium text-gray-700">
+              Question {currentQuestionIndex + 1} of {allQuestions.length}
+            </span>
+            <span className="font-semibold text-[#0029ff]">
+              {Math.round(
+                ((currentQuestionIndex + 1) / allQuestions.length) * 100,
+              )}
+              % Complete
             </span>
           </div>
-          <motion.div
-            className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-200"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4 }}
-          >
+
+          <div className="relative mb-6 h-2 w-full overflow-hidden rounded-full bg-gray-200">
+            {/* Animated background shimmer */}
             <motion.div
-              className="h-full rounded-full"
-              style={{
-                backgroundColor: "var(--primary-color)",
-                width: `${progressPercentage}%`,
+              className="absolute inset-0 bg-gradient-to-r from-gray-100/50 to-gray-200/50"
+              animate={{
+                backgroundPosition: ["0% 0%", "100% 100%"],
               }}
-              initial={{ width: 0 }}
-              animate={{ width: `${progressPercentage}%` }}
-              transition={{ duration: 0.6, type: "spring" }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "linear",
+              }}
             />
-          </motion.div>
+
+            {/* Smooth progress indicator */}
+            <motion.div
+              className="absolute h-full rounded-full bg-gradient-to-r from-[#0029ff] to-[#3b82f6] shadow-[inset_0_1px_2px_rgba(255,255,255,0.2)]"
+              initial={{ width: "0%" }}
+              animate={{
+                width: `${((currentQuestionIndex + 1) / allQuestions.length) * 100}%`,
+              }}
+              transition={{
+                type: "spring",
+                damping: 20,
+                stiffness: 100,
+                mass: 0.5,
+              }}
+              key={`progress-${currentQuestionIndex}`}
+            />
+
+            {/* Subtle glow effect */}
+            <motion.div
+              className="absolute top-0 left-0 h-full w-full opacity-0"
+              animate={{
+                opacity: [0, 0.2, 0],
+                background:
+                  "linear-gradient(90deg, transparent 0%, rgba(0,41,255,0.3) 50%, transparent 100%)",
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                repeatDelay: 3,
+              }}
+            />
+          </div>
+
+          {/* Category Progress - Subtle and smooth */}
+          <div className="mb-4">
+            <div className="mb-1 flex items-center justify-between text-xs text-gray-600">
+              <span className="font-medium text-gray-700">
+                {selectedCategory}
+              </span>
+              <span className="text-[#3b82f6]">
+                {Math.round(getCategoryProgress())}% Complete
+              </span>
+            </div>
+            <div className="relative h-1 w-full overflow-hidden rounded-full bg-gray-200/50">
+              <motion.div
+                className="relative h-full overflow-hidden rounded-full"
+                initial={{ width: 0 }}
+                animate={{
+                  width: `${getCategoryProgress()}%`,
+                }}
+                transition={{
+                  duration: 0.8,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                key={`category-${selectedCategory}`}
+              >
+                {/* Main gradient with better color stops */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#60a5fa] via-[#3b82f6] to-[#2563eb]" />
+
+                {/* Animated shimmer overlay */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-white/30 via-white/10 to-white/30"
+                  initial={{ x: "-100%" }}
+                  animate={{ x: "100%" }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                />
+
+                {/* Subtle inner glow */}
+                <div className="absolute inset-0 rounded-full shadow-[inset_0_1px_3px_rgba(255,255,255,0.4)]" />
+              </motion.div>
+            </div>
+          </div>
         </div>
 
         {/* Single Question */}
@@ -221,7 +284,7 @@ export default function LeadershipAssessment({
                 )}
 
                 {/* Complete Assessment Button (only shows when all questions answered) */}
-                {isComplete && (
+                {/* {isComplete && (
                   <RippleButton
                     onClick={() => onNext({ leadership: answers })}
                     rippleColor="rgba(0, 41, 255, 0.3)"
@@ -229,7 +292,7 @@ export default function LeadershipAssessment({
                   >
                     Submit →
                   </RippleButton>
-                )}
+                )} */}
               </div>
             </motion.div>
           </div>

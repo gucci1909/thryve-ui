@@ -32,7 +32,7 @@ function Personalize() {
       console.log({ f: formData });
       setCurrentStep((prev) => prev + 1);
     } else {
-      setTimeout(() => navigate("/leadership-swot-analysis"), 1000);
+      setTimeout(() => navigate("/waiting"), 1000);
     }
   };
 

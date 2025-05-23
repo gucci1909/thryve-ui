@@ -115,6 +115,7 @@ export default function SelectionPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
+              className="relative"
             >
               <Link
                 to="/personalize"
@@ -126,49 +127,34 @@ export default function SelectionPage() {
                   </div>
                   <div>
                     <h2 className="mb-2 text-lg font-semibold text-white">
-                      Personalize Learning
+                      Personalize Your Experience
                     </h2>
                     <p className="text-sm text-white/80">
                       Complete a quick self-assessment to get tailored
-                      recommendations.
+                      recommendations designed just for you.
                     </p>
-                  </div>
-                </div>
-                <div className="mt-auto flex items-center pt-4 text-sm font-medium text-white">
-                  <span>Get started</span>
-                  <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </div>
-              </Link>
-            </motion.div>
 
-            {/* I'll do it later */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}s
-              transition={{ delay: 0.6 }}
-            >
-              <Link
-                to="/home"
-                className="group flex h-full flex-col rounded-lg border border-white/20 bg-white/10 p-6 shadow-lg backdrop-blur-sm transition-all hover:bg-white/20 hover:shadow-xl"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white/20">
-                    <Stars className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="mb-2 text-lg font-semibold text-white">
-                      I'll do it later
-                    </h2>
-                    <p className="text-sm text-white/80">
-                      Explore our generic learning feed. You can always
-                      personalize later.
-                    </p>
+                    <div className="mt-auto flex items-center pt-6 text-sm font-medium text-white">
+                      <span>Get Started Now</span>
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </div>
                   </div>
                 </div>
-                <div className="mt-auto flex items-center pt-4 text-sm font-medium text-white">
-                  <span>Continue</span>
-                  <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </div>
+
+                {/* Secondary option as a link at the bottom */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                  className="mt-4 border-t border-white/10 pt-4"
+                >
+                  <Link
+                    to="/home"
+                    className="group flex items-center justify-center text-sm font-medium text-white underline decoration-white underline-offset-2 transition-colors duration-300 hover:text-white hover:decoration-white focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none"
+                  >
+                    <span>I'll personalize later</span>
+                  </Link>
+                </motion.div>
               </Link>
             </motion.div>
           </div>

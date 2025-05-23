@@ -24,7 +24,7 @@ function WaitingScreen({ userName = "Sunil" }) {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(progressInterval);
-          navigate("/learning-plan-ready");
+          navigate("/leadership-swot-analysis");
           return 100;
         }
         return prev + 1;
