@@ -1,11 +1,12 @@
-import generateLeadershipAssessment from "../../helper/leadership-report/generateLeadershipAssessment.js";
-import { leadershipReportSchema } from "../../validators/leadership-report.js";
+import generateLeadershipAssessment from '../../helper/leadership-report/generateLeadershipAssessment.js';
+import { leadershipReportSchema } from '../../validators/leadership-report.js';
 import { getDb } from '../../config/db.js';
 
 export const leadershipReportControllers = async (req, res) => {
   try {
     const db = getDb();
     const leadershipReportsCollection = db.collection('leadership-reports');
+    const usersCollection = db.collection('users');
 
     // Validate request body
     leadershipReportSchema.parse(req.body);
@@ -19,25 +20,30 @@ export const leadershipReportControllers = async (req, res) => {
       userEmail: req.user.email,
       assessment: leadershipAssessment,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
     // Save report to database
     const result = await leadershipReportsCollection.insertOne(reportDocument);
+
+    await usersCollection.updateOne(
+      { _id: req.user.id },
+      { $set: { personalized: true, updatedAt: new Date() } },
+    );
 
     // Return success response with saved report
     return res.status(200).json({
       status: 'OK',
       data: {
         reportId: result.insertedId,
-        ...leadershipAssessment
-      }
+        ...leadershipAssessment,
+      },
     });
   } catch (error) {
     console.error('Leadership Report Error:', error);
-    return res.status(400).json({ 
-      status: 'Not OK', 
-      error: error.errors || 'Failed to generate or save leadership report' 
+    return res.status(400).json({
+      status: 'Not OK',
+      error: error.errors || 'Failed to generate or save leadership report',
     });
   }
 };
