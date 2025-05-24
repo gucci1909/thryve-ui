@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { AnimatedCircularProgressBar } from "../components/magicui/animated-circular-progress-bar";
 import { AuroraText } from "../components/magicui/aurora-text";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 const AI_THINKING_MESSAGES = [
   "Analyzing your leadership patterns",
@@ -14,7 +14,9 @@ const AI_THINKING_MESSAGES = [
   "Finalizing personalized recommendations",
 ];
 
-function WaitingScreen({ userName = "Sunil" }) {
+function WaitingScreen() {
+  const location = useLocation();
+  const formData = location.state?.formData;
   const [progress, setProgress] = useState(0);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const navigate = useNavigate();
@@ -24,7 +26,7 @@ function WaitingScreen({ userName = "Sunil" }) {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(progressInterval);
-          navigate("/leadership-swot-analysis");
+          navigate("/leadership-swot-analysis", { state: { formData } });
           return 100;
         }
         return prev + 1;

@@ -23,16 +23,41 @@ function Personalize() {
   ];
 
   const handleNext = (data) => {
-    console.log({ d: data });
     setFormData((prev) => ({ ...prev, ...data }));
     const newPercentage = (currentStep / steps.length) * 100;
     setProgressPercentage(newPercentage);
 
     if (currentStep < steps.length) {
-      console.log({ f: formData });
       setCurrentStep((prev) => prev + 1);
     } else {
-      setTimeout(() => navigate("/waiting"), 1000);
+      const normalizedFormData = {
+        ...formData,
+        roleInfo: {
+          ...formData.roleInfo,
+          challenges: Array.isArray(formData.roleInfo.challenges)
+            ? formData.roleInfo.challenges
+            : formData.roleInfo.challenges
+                ?.split(",")
+                .map((item) => item.trim())
+                .filter(Boolean),
+        },
+      };
+      setTimeout(() => {
+        navigate("/waiting", {
+          state: {
+            formData: {
+              meta: {
+                include: ["leadership", "roleInfo", "psychographic"],
+              },
+              sections: {
+                leadership: normalizedFormData.leadership,
+                roleInfo: normalizedFormData.roleInfo,
+                psychographic: normalizedFormData.psychographic,
+              },
+            },
+          },
+        });
+      }, 1000);
     }
   };
 

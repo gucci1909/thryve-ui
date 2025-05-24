@@ -4,24 +4,25 @@
   "assessment": [
     {
       "category": "Decision-Making & Delegation",
+      "categoryID": "DecisionMakingDelegation",
       "questions": [
         {
-          "id": "DM1",
+          "id": "independentDecisions",
           "text": "I prefer to make decisions independently without consulting others.",
           "response": null
         },
         {
-          "id": "DM2",
+          "id": "seekTeamInput",
           "text": "I regularly seek team input before making final decisions.",
           "response": null
         },
         {
-          "id": "DM3",
+          "id": "delegateTasks",
           "text": "I enjoy delegating tasks and trust others to handle them.",
           "response": null
         },
         {
-          "id": "DM4",
+          "id": "struggleDelegation",
           "text": "I struggle to delegate important responsibilities.",
           "response": null
         }
@@ -29,24 +30,25 @@
     },
     {
       "category": "Emotional Intelligence & Empathy",
+      "categoryID": "EmotionalIntelligenceEmpathy",
       "questions": [
         {
-          "id": "EI1",
+          "id": "tuneIntoTeam",
           "text": "I often tune into my team's emotional state and adjust accordingly.",
           "response": null
         },
         {
-          "id": "EI2",
+          "id": "constructiveFeedback",
           "text": "I give regular, constructive feedback with empathy.",
           "response": null
         },
         {
-          "id": "EI3",
+          "id": "resultsOverRelationships",
           "text": "I prioritize results over relationships when needed.",
           "response": null
         },
         {
-          "id": "EI4",
+          "id": "stayCalmInConflict",
           "text": "I stay calm and composed during conflict.",
           "response": null
         }
@@ -54,24 +56,25 @@
     },
     {
       "category": "Vision & Strategy",
+      "categoryID": "VisionStrategy",
       "questions": [
         {
-          "id": "VS1",
+          "id": "communicateVision",
           "text": "I frequently communicate a clear, long-term vision.",
           "response": null
         },
         {
-          "id": "VS2",
+          "id": "shortTermFocus",
           "text": "I focus more on short-term tasks than strategic goals.",
           "response": null
         },
         {
-          "id": "VS3",
+          "id": "encourageInnovation",
           "text": "I encourage innovation even when it involves risk.",
           "response": null
         },
         {
-          "id": "VS4",
+          "id": "preferTestedApproaches",
           "text": "I prefer tried-and-tested approaches over experimentation.",
           "response": null
         }
@@ -79,24 +82,25 @@
     },
     {
       "category": "Team Development & Coaching",
+      "categoryID": "TeamDevelopmentCoaching",
       "questions": [
         {
-          "id": "TD1",
+          "id": "mentoring",
           "text": "I actively mentor or coach members of my team.",
           "response": null
         },
         {
-          "id": "TD2",
+          "id": "designGrowthOpportunities",
           "text": "I design opportunities for others to grow and stretch.",
           "response": null
         },
         {
-          "id": "TD3",
+          "id": "energizedByHelping",
           "text": "I am energized by helping others realize their potential.",
           "response": null
         },
         {
-          "id": "TD4",
+          "id": "solveInsteadEnable",
           "text": "I often find myself solving problems rather than enabling others.",
           "response": null
         }
@@ -104,24 +108,25 @@
     },
     {
       "category": "Adaptability & Influence",
+      "categoryID": "AdaptabilityInfluence",
       "questions": [
         {
-          "id": "AI1",
+          "id": "changeApproach",
           "text": "I change my leadership approach based on who I'm working with.",
           "response": null
         },
         {
-          "id": "AI2",
+          "id": "influenceWithoutAuthority",
           "text": "I can influence others even without formal authority.",
           "response": null
         },
         {
-          "id": "AI3",
+          "id": "adaptToChange",
           "text": "I adapt quickly when things don't go as planned.",
           "response": null
         },
         {
-          "id": "AI4",
+          "id": "preferStructure",
           "text": "I prefer a structured, consistent leadership routine.",
           "response": null
         }

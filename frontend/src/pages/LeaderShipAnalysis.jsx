@@ -1,22 +1,59 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuroraText } from "../components/magicui/aurora-text";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 function LeadershipAnalysis() {
+  const location = useLocation();
+  const formData = location.state?.formData;
   const navigate = useNavigate();
   const [expandedSections, setExpandedSections] = useState({
     strengths: true,
     weaknesses: false,
     opportunities: false,
-    threats: false
+    threats: false,
   });
+  const [reportData, setReportData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchLeadershipReport = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/onboarding/leadership-report`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setReportData(data);
+      } catch (err) {
+        console.error("Error fetching leadership report:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeadershipReport();
+  }, [formData]);
 
   const toggleSection = (section) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
@@ -24,9 +61,45 @@ function LeadershipAnalysis() {
     navigate("/learning-plan-ready");
   };
 
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center justify-center text-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-[var(--primary-color)] border-t-transparent"></div>
+          <p className="mt-4 text-lg font-medium text-gray-700">
+            Analyzing your leadership style...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="rounded-xl bg-white p-8 shadow-md">
+          <h2 className="mb-4 text-2xl font-bold text-red-600">Error</h2>
+          <p className="text-gray-700">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 rounded-lg bg-[var(--primary-color)] px-4 py-2 text-white"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!reportData) {
+    return null;
+  }
+
+  const primaryPersona = reportData.persona[0];
+
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center overflow-hidden bg-gray-50">
-      {/* V-Shaped Background - Enhanced with subtle gradient */}
+      {/* V-Shaped Background */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div
           className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100"
@@ -38,8 +111,8 @@ function LeadershipAnalysis() {
         />
       </div>
 
-      {/* Header Bar - Enhanced with subtle shadow */}
-      <div className="w-full bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_20%)] px-3 py-1.5 shadow-sm">
+      {/* Header Bar */}
+      <div className="w-full bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_20%)] px-3 py-1.5">
         <div className="relative z-10 mx-auto flex h-10 max-w-4xl flex-row items-center justify-between">
           <motion.div
             className="flex items-center gap-2"
@@ -71,20 +144,20 @@ function LeadershipAnalysis() {
         </div>
       </div>
 
-      {/* Main Content - Enhanced spacing and visual hierarchy */}
+      {/* Main Content */}
       <div className="flex w-full max-w-4xl flex-1 flex-col px-4 py-6">
-        {/* Hero Section with SVG - Made more prominent */}
+        {/* Hero Section */}
         <div className="mb-8 flex w-full flex-col items-center">
           <div className="mb-6 flex h-48 w-full items-center justify-center rounded-xl bg-white/90 p-6 shadow-sm backdrop-blur-sm">
-            <img 
-              src="/a.svg" 
-              alt="Leadership Icon" 
+            <img
+              src="/a.svg"
+              alt="Leadership Icon"
               className="h-full w-full object-contain"
             />
           </div>
-          
+
           <AuroraText
-            className="text-3xl font-bold leading-tight"
+            className="text-3xl leading-tight font-bold"
             colors={["#0029ff", "#3b82f6"]}
             speed={1.5}
           >
@@ -93,25 +166,22 @@ function LeadershipAnalysis() {
           <div className="mt-2 h-1 w-24 rounded-full bg-gradient-to-r from-[var(--primary-color)] to-blue-400" />
         </div>
 
-        {/* Leadership Type Card - Enhanced with subtle animation */}
-        <motion.div 
+        {/* Leadership Type Card */}
+        <motion.div
           className="mb-8 w-full rounded-xl bg-white p-6 shadow-md"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
           <h2 className="mb-3 text-2xl font-bold text-[var(--primary-color)]">
-            Visionary Leader
+            {primaryPersona.label} Leader
           </h2>
-          <p className="text-lg text-gray-700 leading-relaxed">
-            You inspire and motivate your team through a shared vision and high
-            expectations. Your leadership style fosters innovation and encourages
-            team members to reach their full potential, driving collective
-            success through a clear, compelling direction.
+          <p className="text-lg leading-relaxed text-gray-700">
+            {primaryPersona.summary}
           </p>
         </motion.div>
 
-        {/* SWOT Analysis Section - With accordion functionality */}
+        {/* SWOT Analysis Section */}
         <div className="w-full">
           <h3 className="mb-6 text-center text-2xl font-bold text-[var(--primary-color)]">
             SWOT Analysis
@@ -121,9 +191,9 @@ function LeadershipAnalysis() {
             {/* Strengths & Weaknesses */}
             <div className="space-y-6">
               {/* Strengths Accordion */}
-              <div className="rounded-xl border border-green-200 bg-green-50 overflow-hidden shadow-sm">
+              <div className="overflow-hidden rounded-xl border border-green-200 bg-green-50 shadow-sm">
                 <button
-                  onClick={() => toggleSection('strengths')}
+                  onClick={() => toggleSection("strengths")}
                   className="flex w-full items-center justify-between p-4 text-left"
                 >
                   <h4 className="text-lg font-semibold text-green-800">
@@ -135,28 +205,24 @@ function LeadershipAnalysis() {
                     <ChevronDown className="h-5 w-5 text-green-600" />
                   )}
                 </button>
-                
+
                 <AnimatePresence>
                   {expandedSections.strengths && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
+                      animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <ul className="px-4 pb-4 space-y-3">
-                        <li className="flex items-start">
-                          <span className="mr-2 text-green-500">•</span>
-                          <span className="text-green-800">Empowers others, encourages growth</span>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="mr-2 text-green-500">•</span>
-                          <span className="text-green-800">Inspires with purpose</span>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="mr-2 text-green-500">•</span>
-                          <span className="text-green-800">High emotional intelligence</span>
-                        </li>
+                      <ul className="space-y-3 px-4 pb-4">
+                        {reportData.insights.strengths.map(
+                          (strength, index) => (
+                            <li key={index} className="flex items-start">
+                              <span className="mr-2 text-green-500">•</span>
+                              <span className="text-green-800">{strength}</span>
+                            </li>
+                          ),
+                        )}
                       </ul>
                     </motion.div>
                   )}
@@ -164,9 +230,9 @@ function LeadershipAnalysis() {
               </div>
 
               {/* Weaknesses Accordion */}
-              <div className="rounded-xl border border-red-200 bg-red-50 overflow-hidden shadow-sm">
+              <div className="overflow-hidden rounded-xl border border-red-200 bg-red-50 shadow-sm">
                 <button
-                  onClick={() => toggleSection('weaknesses')}
+                  onClick={() => toggleSection("weaknesses")}
                   className="flex w-full items-center justify-between p-4 text-left"
                 >
                   <h4 className="text-lg font-semibold text-red-800">
@@ -178,28 +244,24 @@ function LeadershipAnalysis() {
                     <ChevronDown className="h-5 w-5 text-red-600" />
                   )}
                 </button>
-                
+
                 <AnimatePresence>
                   {expandedSections.weaknesses && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
+                      animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <ul className="px-4 pb-4 space-y-3">
-                        <li className="flex items-start">
-                          <span className="mr-2 text-red-500">•</span>
-                          <span className="text-red-800">May over-index on consensus, delaying decisions</span>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="mr-2 text-red-500">•</span>
-                          <span className="text-red-800">Struggles with underperformers needing direction</span>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="mr-2 text-red-500">•</span>
-                          <span className="text-red-800">May avoid confrontation to preserve harmony</span>
-                        </li>
+                      <ul className="space-y-3 px-4 pb-4">
+                        {reportData.insights.weaknesses.map(
+                          (weakness, index) => (
+                            <li key={index} className="flex items-start">
+                              <span className="mr-2 text-red-500">•</span>
+                              <span className="text-red-800">{weakness}</span>
+                            </li>
+                          ),
+                        )}
                       </ul>
                     </motion.div>
                   )}
@@ -210,9 +272,9 @@ function LeadershipAnalysis() {
             {/* Opportunities & Threats */}
             <div className="space-y-6">
               {/* Opportunities Accordion */}
-              <div className="rounded-xl border border-blue-200 bg-blue-50 overflow-hidden shadow-sm">
+              <div className="overflow-hidden rounded-xl border border-blue-200 bg-blue-50 shadow-sm">
                 <button
-                  onClick={() => toggleSection('opportunities')}
+                  onClick={() => toggleSection("opportunities")}
                   className="flex w-full items-center justify-between p-4 text-left"
                 >
                   <h4 className="text-lg font-semibold text-blue-800">
@@ -224,28 +286,26 @@ function LeadershipAnalysis() {
                     <ChevronDown className="h-5 w-5 text-blue-600" />
                   )}
                 </button>
-                
+
                 <AnimatePresence>
                   {expandedSections.opportunities && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
+                      animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <ul className="px-4 pb-4 space-y-3">
-                        <li className="flex items-start">
-                          <span className="mr-2 text-blue-500">•</span>
-                          <span className="text-blue-800">Build succession pipelines</span>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="mr-2 text-blue-500">•</span>
-                          <span className="text-blue-800">Lead change with buy-in</span>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="mr-2 text-blue-500">•</span>
-                          <span className="text-blue-800">Develop next-gen leaders</span>
-                        </li>
+                      <ul className="space-y-3 px-4 pb-4">
+                        {reportData.insights.opportunities.map(
+                          (opportunity, index) => (
+                            <li key={index} className="flex items-start">
+                              <span className="mr-2 text-blue-500">•</span>
+                              <span className="text-blue-800">
+                                {opportunity}
+                              </span>
+                            </li>
+                          ),
+                        )}
                       </ul>
                     </motion.div>
                   )}
@@ -253,9 +313,9 @@ function LeadershipAnalysis() {
               </div>
 
               {/* Threats Accordion */}
-              <div className="rounded-xl border border-yellow-200 bg-yellow-50 overflow-hidden shadow-sm">
+              <div className="overflow-hidden rounded-xl border border-yellow-200 bg-yellow-50 shadow-sm">
                 <button
-                  onClick={() => toggleSection('threats')}
+                  onClick={() => toggleSection("threats")}
                   className="flex w-full items-center justify-between p-4 text-left"
                 >
                   <h4 className="text-lg font-semibold text-yellow-800">
@@ -267,28 +327,22 @@ function LeadershipAnalysis() {
                     <ChevronDown className="h-5 w-5 text-yellow-600" />
                   )}
                 </button>
-                
+
                 <AnimatePresence>
                   {expandedSections.threats && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
+                      animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <ul className="px-4 pb-4 space-y-3">
-                        <li className="flex items-start">
-                          <span className="mr-2 text-yellow-500">•</span>
-                          <span className="text-yellow-800">Risk of burnout from being overly available</span>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="mr-2 text-yellow-500">•</span>
-                          <span className="text-yellow-800">Unclear accountability if over-democratizing</span>
-                        </li>
-                        <li className="flex items-start">
-                          <span className="mr-2 text-yellow-500">•</span>
-                          <span className="text-yellow-800">Resistance from results-driven stakeholders</span>
-                        </li>
+                      <ul className="space-y-3 px-4 pb-4">
+                        {reportData.insights.threats.map((threat, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="mr-2 text-yellow-500">•</span>
+                            <span className="text-yellow-800">{threat}</span>
+                          </li>
+                        ))}
                       </ul>
                     </motion.div>
                   )}
@@ -299,11 +353,11 @@ function LeadershipAnalysis() {
         </div>
       </div>
 
-      {/* Enhanced Submit Button - Fixed at bottom with animation */}
+      {/* Submit Button */}
       <div className="relative">
         <div className="relative min-h-auto pb-24">
           <motion.div
-            className="fixed right-0 bottom-0 left-0 z-50 border-t border-gray-100 bg-white/90 px-6 py-4 backdrop-blur-sm shadow-lg"
+            className="fixed right-0 bottom-0 left-0 z-50 border-t border-gray-100 bg-white/90 px-6 py-4 shadow-lg backdrop-blur-sm"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
@@ -311,7 +365,7 @@ function LeadershipAnalysis() {
             <div className="mx-auto flex max-w-3xl justify-end">
               <button
                 onClick={handleSubmit}
-                className="min-w-[180px] rounded-lg bg-[var(--primary-color)] px-6 py-3 font-medium text-white shadow-md transition-all hover:bg-[color-mix(in_srgb,var(--primary-color),black_10%)] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-opacity-50"
+                className="focus:ring-opacity-50 min-w-[180px] rounded-lg bg-[var(--primary-color)] px-6 py-3 font-medium text-white shadow-md transition-all hover:bg-[color-mix(in_srgb,var(--primary-color),black_10%)] hover:shadow-lg focus:ring-2 focus:ring-[var(--primary-color)] focus:outline-none"
               >
                 Go Ahead →
               </button>

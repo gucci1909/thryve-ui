@@ -18,10 +18,14 @@ export default function LeadershipAssessment({
     category.questions.map((question) => ({
       ...question,
       category: category.category,
+      categoryID: category.categoryID,
     })),
   );
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [leadershipAnswers, setLeadershipAnswers] = useState({
+    leadership: {},
+  });
   const [answers, setAnswers] = useState(initialData || {});
   const [isComplete, setIsComplete] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(
@@ -37,6 +41,32 @@ export default function LeadershipAssessment({
   const progressPercentage = (currentQuestionIndex / allQuestions.length) * 100;
 
   const handleOptionSelect = (questionId, value) => {
+    const currentQuestion = allQuestions[currentQuestionIndex];
+    const { categoryID, id } = currentQuestion;
+
+    // Use functional update to get the latest state
+    setLeadershipAnswers((prev) => {
+      const updated = {
+        ...prev,
+        leadership: {
+          ...prev.leadership,
+          [categoryID]: {
+            ...prev.leadership?.[categoryID],
+            [id]: value,
+          },
+        },
+      };
+
+      // If this is the last question, call onNext with the updated value
+      if (currentQuestionIndex === allQuestions.length - 1) {
+        setTimeout(() => {
+          onNext({ leadership: updated.leadership });
+        }, 800);
+      }
+
+      return updated;
+    });
+
     const newAnswers = { ...answers, [questionId]: value };
     setAnswers(newAnswers);
 
@@ -50,13 +80,10 @@ export default function LeadershipAssessment({
       setIsTransitioning(true);
       setTimeout(() => {
         setCurrentQuestionIndex((prev) => prev + 1);
-        // Update current category for the progress bar
         const nextCategory = allQuestions[currentQuestionIndex + 1].category;
         setSelectedCategory(nextCategory);
         setIsTransitioning(false);
       }, 800);
-    } else {
-      onNext({ leadership: answers });
     }
   };
 
