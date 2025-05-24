@@ -1,15 +1,14 @@
 import express from 'express';
 import apiLimiter from '../../middleware/rateLimiter.js';
-import { leadershipReportControllers } from '../../controllers/leadership-report/leadership-report.controller.js';
-import authenticate from '../../middleware/authenticate.js';
+import { signupController } from '../../controllers/signup/signup.controller.js';
 
 const router = express.Router();
 
-router.use(apiLimiter, authenticate);
+router.use(apiLimiter);
 
 /**
  * @swagger
- * /api/onboarding/leadership-report:
+ * /api/onboarding/login:
  *   post:
  *     summary: Generate Leadership Report
  *     description: Validates leadership report input and returns a persona-based leadership analysis.
@@ -133,6 +132,6 @@ router.use(apiLimiter, authenticate);
  *                   items:
  *                     type: object
  */
-router.post('/leadership-report', leadershipReportControllers);
+router.post('/signup', signupController);   
 
 export default router;

@@ -5,10 +5,13 @@ import yargs from 'yargs/yargs';
 import helmet from 'helmet';
 import swaggerJsdoc from 'swagger-jsdoc';
 import healthRoutes from './api/health/health.js';
-import leaderShipRoutes from "./api/leadership-report/leadership-report.js"
+import leaderShipRoutes from "./api/leadership-report/leadership-report.js";
+import userRoutes from "./api/register/signup.js";
+import authRoutes from "./api/register/login.js";
 import { hideBin } from 'yargs/helpers';
 import swaggerUi from 'swagger-ui-express';
 import logger from './utils/logger.js';
+import { connectToDb } from './config/db.js';
 
 const argv = yargs(hideBin(process.argv))
   .option('envFilePath', {
@@ -82,9 +85,11 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api', healthRoutes);
 
 app.use('/api/onboarding', leaderShipRoutes);
-
+app.use('/api/users', userRoutes);
+app.use('/api/auth', authRoutes);
 
 app.listen(PORT, async () => {
+  await connectToDb();
   logger.info(`Server started on port ${PORT} in ${argv.mode} mode`);
 
   console.info(
