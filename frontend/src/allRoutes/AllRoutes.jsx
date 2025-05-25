@@ -3,6 +3,8 @@ import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 
 const Loader = lazy(() => import("../components/common/Loader.jsx"));
+const PrivateRoute = lazy(() => import("../hooks/PrivateRoute.jsx"));
+const PublicRoute = lazy(() => import("../hooks/PublicRoute.jsx"));
 const Home = lazy(() => import("../pages/Home.jsx"));
 const DiscoverPage = lazy(() => import("../pages/DiscoverPage.jsx"));
 const Personalize = lazy(() => import("../pages/Personalize.jsx"));
@@ -24,8 +26,22 @@ function AllRoutes() {
       <AnimatePresence>
         <Routes>
           <Route path="/personalize" element={<Personalize />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <PublicRoute>
+                <SignUp />
+              </PublicRoute>
+            }
+          />
           <Route path="/selection-page" element={<SelectionPage />} />
           <Route path="/waiting" element={<WaitingScreen />} />
           <Route
@@ -33,24 +49,108 @@ function AllRoutes() {
             element={<LearningPlanReadyScreen />}
           />
 
-          <Route path="/personalize-home" element={<PersonalizeHome />} />
-          <Route path="/personalize-check-in" element={<PersonalizeHome />} />
-          <Route path="/personalize-dashboard" element={<PersonalizeHome />} />
-          <Route path="/personalize-profile" element={<PersonalizeHome />} />
-          <Route path="/personalize-chat-box" element={<PersonalizeHome />} />
+          <Route
+            path="/personalize-home"
+            element={
+              <PrivateRoute>
+                <PersonalizeHome />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/personalize-check-in"
+            element={
+              <PrivateRoute>
+                <PersonalizeHome />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/personalize-dashboard"
+            element={
+              <PrivateRoute>
+                <PersonalizeHome />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/personalize-profile"
+            element={
+              <PrivateRoute>
+                <PersonalizeHome />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/personalize-chat-box"
+            element={
+              <PrivateRoute>
+                <PersonalizeHome />
+              </PrivateRoute>
+            }
+          />
 
-          <Route path="/home" element={<Home />} />
-          <Route path="/check-in" element={<Home />} />
-          <Route path="/dashboard" element={<Home />} />
-          <Route path="/profile" element={<Home />} />
-          <Route path="/chat-box" element={<Home />} />
+          <Route
+            path="/home"
+            element={
+              <PrivateRoute>
+                <Home />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/check-in"
+            element={
+              <PrivateRoute>
+                <Home />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <Home />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <Home />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/chat-box"
+            element={
+              <PrivateRoute>
+                <Home />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/leadership-swot-analysis"
             element={<LeaderShipAnalysis />}
           />
 
-          <Route path="/" element={<DiscoverPage />} />
-          <Route path="/*" element={<DiscoverPage />} />
+          <Route
+            path="/"
+            element={
+              <PublicRoute>
+                <DiscoverPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/*"
+            element={
+              <PrivateRoute>
+                <SelectionPage />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </AnimatePresence>
     </Suspense>

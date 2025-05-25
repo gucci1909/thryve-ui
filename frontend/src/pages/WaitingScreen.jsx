@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { AnimatedCircularProgressBar } from "../components/magicui/animated-circular-progress-bar";
 import { AuroraText } from "../components/magicui/aurora-text";
 import { useLocation, useNavigate } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import { reportDatafunc } from "../store/userSlice";
 
 const AI_THINKING_MESSAGES = [
   "Analyzing your leadership patterns",
@@ -12,38 +14,132 @@ const AI_THINKING_MESSAGES = [
   "Evaluating communication strengths",
   "Calculating emotional intelligence score",
   "Finalizing personalized recommendations",
+  "Assessing strategic thinking capabilities",
+  "Measuring team collaboration potential",
+  "Evaluating conflict resolution approaches",
+  "Analyzing adaptability quotient",
+  "Processing innovation mindset metrics",
+  "Calculating resilience factors",
+  "Evaluating mentorship capabilities",
+  "Analyzing problem-solving methodology",
+  "Measuring organizational impact",
+  "Processing stakeholder management style",
+  "Evaluating change management aptitude",
+  "Calculating growth potential indicators",
+  "Analyzing decision consistency patterns",
+  "Measuring leadership authenticity",
+  "Processing cultural intelligence factors",
+  "Evaluating time management efficiency",
+  "Analyzing resource optimization skills",
+  "Calculating influence and persuasion metrics",
+  "Evaluating crisis management readiness",
+  "Processing long-term vision alignment"
 ];
+
+const MIN_PROGRESS_DURATION = 15000; // 15 seconds minimum
+const MAX_PROGRESS_DURATION = 30000; // 30 seconds maximum
+const MESSAGE_CHANGE_INTERVAL = 4000; // 4 seconds per message
 
 function WaitingScreen() {
   const location = useLocation();
+  const dispatch = useDispatch();
+  const firstName = useSelector((state) => state.user.firstName);
   const formData = location.state?.formData;
+  const token = useSelector((state) => state.user.token);
   const [progress, setProgress] = useState(0);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [apiCompleted, setApiCompleted] = useState(false);
+  const [reportData, setReportData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [startTime] = useState(Date.now());
 
   useEffect(() => {
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
+    const fetchLeadershipReport = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/onboarding/leadership-report`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(formData),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setReportData(data.data);
+        dispatch(reportDatafunc(data.data));
+        setApiCompleted(true);
+      } catch (err) {
+        console.error("Error fetching leadership report:", err);
+        setError(err.message);
+        setApiCompleted(true); // Even on error, we consider the API call complete
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeadershipReport();
+  }, [formData, token]);
+
+  useEffect(() => {
+    let progressInterval;
+    let messageInterval;
+
+    const updateProgress = () => {
+      const elapsed = Date.now() - startTime;
+      let targetProgress;
+
+      if (apiCompleted) {
+        // If API is done, gradually move to 100%
+        targetProgress = 100;
+      } else {
+        // Calculate progress based on elapsed time, with slower progression
+        const progressRatio = Math.min(elapsed / MIN_PROGRESS_DURATION, 1);
+        targetProgress = Math.min(progressRatio * 75, 75); // Cap at 75% until API completes
+
+        // If taking longer than expected, slow down the progress even more
+        if (elapsed > MIN_PROGRESS_DURATION) {
+          const extraTime = elapsed - MIN_PROGRESS_DURATION;
+          const extraProgress = (extraTime / (MAX_PROGRESS_DURATION - MIN_PROGRESS_DURATION)) * 15;
+          targetProgress = Math.min(75 + extraProgress, 90); // Never exceed 90% before API completes
+        }
+      }
+
+      setProgress(prev => {
+        // Smoothly transition to the target progress with slower easing
+        const newProgress = prev + (targetProgress - prev) * 0.05; // Reduced from 0.1 to 0.05 for smoother transition
+
+        if (apiCompleted && newProgress >= 99.5) {
           clearInterval(progressInterval);
-          navigate("/leadership-swot-analysis", { state: { formData } });
+          setTimeout(() => {
+            navigate("/leadership-swot-analysis", { state: { formData, reportData } });
+          }, 1000); // Add a small delay before navigation
           return 100;
         }
-        return prev + 1;
+        return newProgress;
       });
-    }, 150);
+    };
 
-    const messageInterval = setInterval(() => {
-      setCurrentMessageIndex(
-        (prev) => (prev + 1) % AI_THINKING_MESSAGES.length,
-      );
-    }, 3000);
+    progressInterval = setInterval(updateProgress, 100);
+    messageInterval = setInterval(() => {
+      setCurrentMessageIndex((prev) => (prev + 1) % AI_THINKING_MESSAGES.length);
+    }, MESSAGE_CHANGE_INTERVAL);
 
     return () => {
       clearInterval(progressInterval);
       clearInterval(messageInterval);
     };
-  }, [navigate]);
+  }, [navigate, apiCompleted, startTime, formData, reportData]);
 
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-gradient-to-b from-[#f8f9ff] to-[#e6ecff]">
@@ -75,7 +171,7 @@ function WaitingScreen() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
           >
-            Welcome, Sunil
+            Welcome, {firstName}
           </motion.h2>
         </div>
       </div>
@@ -87,7 +183,7 @@ function WaitingScreen() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          style={{ height: "80vh" }} // fixed height
+          style={{ height: "80vh" }}
         >
           {/* Header */}
           <div className="text-center">
@@ -119,7 +215,7 @@ function WaitingScreen() {
               />
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
                 <span className="text-2xl font-bold text-[var(--primary-color)]">
-                  {progress}%
+                  {Math.round(progress)}%
                 </span>
                 <span className="text-xs text-gray-400">COMPLETE</span>
               </div>
@@ -127,18 +223,18 @@ function WaitingScreen() {
 
             {/* AI Thinking Messages */}
             <div className="w-full max-w-md space-y-2">
-              <AnimatedList delay={3000}>
+              <AnimatedList delay={MESSAGE_CHANGE_INTERVAL}>
                 {AI_THINKING_MESSAGES.map((message, index) => (
                   <motion.div
                     key={index}
-                    className={`rounded-lg px-4 py-2 text-center text-sm font-medium transition-all ${
-                      index === currentMessageIndex
+                    className={`rounded-lg px-4 py-2 text-center text-sm font-medium transition-all duration-300 ${index === currentMessageIndex
                         ? "bg-[var(--primary-color)] text-white shadow"
                         : "bg-gray-100 text-gray-600"
-                    }`}
+                      }`}
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.3 }}
                   >
                     {message}
                   </motion.div>

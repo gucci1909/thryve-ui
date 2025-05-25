@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import { FaTrophy } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 function Header() {
+  const firstName = useSelector((state) => state.user.firstName);
   return (
     <div className="w-full bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_20%)] py-3 shadow-md">
       {/* Top center-aligned logo + title */}
@@ -26,7 +28,7 @@ function Header() {
         {/* Left: Menu + greeting */}
         <div className="flex items-center gap-2 text-white">
           {/* <Menu className="h-5 w-5" /> */}
-          <span className="text-sm font-medium">Good Morning, Sunil</span>
+          <span className="text-sm font-medium">Good Morning, {firstName}</span>
         </div>
 
         {/* Right: Trophy + score */}

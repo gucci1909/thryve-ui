@@ -5,8 +5,13 @@ import { BorderBeam } from "../magicui/border-beam";
 import { GiTargetDummy } from "react-icons/gi";
 import { AiOutlineQuestionCircle } from "react-icons/ai";
 import { BsBookmark } from "react-icons/bs";
+import { useSelector } from "react-redux";
 
 function PersonalizeHomePage() {
+
+  const reportData = useSelector((state) => state.user.reportData);
+  console.log({ reportData });
+  
   const cardVariants = {
     offscreen: {
       y: 50,
@@ -46,88 +51,115 @@ function PersonalizeHomePage() {
             <div className="flex items-start gap-4">
               <div className="flex-1">
                 <motion.h2
-                  className="text-xl font-bold text-[var(--primary-color)]"
+                  className="bg-gradient-to-r from-[var(--primary-color)] to-blue-400 bg-clip-text text-2xl font-bold text-transparent"
                   initial={{ x: -10 }}
                   animate={{ x: 0 }}
                   transition={{ delay: 0.2 }}
                 >
-                  Your Growth Recommendations
+                  Leadership Action Plan
                 </motion.h2>
 
                 <motion.p
-                  className="mt-3 text-gray-700"
+                  className="mt-3 text-gray-600"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4 }}
                 >
-                  Based on your recent activities and goals, we've curated these
-                  personalized recommendations to accelerate your leadership
-                  journey.
+                  Your personalized roadmap for leadership excellence, crafted from your unique strengths and growth opportunities.
                 </motion.p>
 
-                <motion.div
-                  className="mt-6 flex items-center justify-between"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex space-x-4 text-xl">
-                      <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] hover:text-[var(--primary-color)]">
-                        <FiMessageSquare />
-                      </button>
-                      <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] hover:text-[var(--primary-color)]">
-                        <GiTargetDummy />
-                      </button>
-                      <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] hover:text-[var(--primary-color)]">
-                        <AiOutlineQuestionCircle />
-                      </button>
-                      <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] hover:text-[var(--primary-color)]">
-                        <BsBookmark />
-                      </button>
-                    </div>
-                    {/* <button className="flex items-center text-sm font-bold text-[var(--primary-color)] hover:text-[color-mix(in_srgb,var(--primary-color),black_20%)]">
-                        Explore <FiArrowRight className="ml-1.5" />
-                      </button> */}
-                  </div>
-                  <motion.button
-                    className="flex items-center gap-1 rounded-full bg-[var(--primary-color)] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md"
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
+                {/* Recommendations Grid */}
+                <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+                  {/* Continue Doing */}
+                  <motion.div
+                    className="group relative overflow-hidden rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm transition-all hover:shadow-lg"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    whileHover={{ scale: 1.02 }}
                   >
-                    Explore
-                    <FiArrowRight className="ml-1" />
-                  </motion.button>
-                </motion.div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-100/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                    <div className="relative">
+                      <div className="mb-3 flex items-center gap-2">
+                        <span className="rounded-full bg-emerald-100 p-1.5">
+                          <svg className="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </span>
+                        <h3 className="font-semibold text-emerald-700">Continue Doing</h3>
+                      </div>
+                      <p className="text-sm leading-relaxed text-gray-600">{reportData?.recommendations["do-more"]}</p>
+                    </div>
+                  </motion.div>
+
+                  {/* Start Doing */}
+                  <motion.div
+                    className="group relative overflow-hidden rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm transition-all hover:shadow-lg"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-100/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                    <div className="relative">
+                      <div className="mb-3 flex items-center gap-2">
+                        <span className="rounded-full bg-blue-100 p-1.5">
+                          <svg className="h-4 w-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
+                        </span>
+                        <h3 className="font-semibold text-blue-700">Start Doing</h3>
+                      </div>
+                      <p className="text-sm leading-relaxed text-gray-600">{reportData?.recommendations.start}</p>
+                    </div>
+                  </motion.div>
+
+                  {/* Do Less */}
+                  <motion.div
+                    className="group relative overflow-hidden rounded-xl border border-amber-100 bg-gradient-to-br from-amber-50 to-white p-5 shadow-sm transition-all hover:shadow-lg"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.7 }}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-amber-100/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                    <div className="relative">
+                      <div className="mb-3 flex items-center gap-2">
+                        <span className="rounded-full bg-amber-100 p-1.5">
+                          <svg className="h-4 w-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
+                          </svg>
+                        </span>
+                        <h3 className="font-semibold text-amber-700">Do Less</h3>
+                      </div>
+                      <p className="text-sm leading-relaxed text-gray-600">{reportData?.recommendations["do-less"]}</p>
+                    </div>
+                  </motion.div>
+
+                  {/* Stop Doing */}
+                  <motion.div
+                    className="group relative overflow-hidden rounded-xl border border-red-100 bg-gradient-to-br from-red-50 to-white p-5 shadow-sm transition-all hover:shadow-lg"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8 }}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-red-100/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                    <div className="relative">
+                      <div className="mb-3 flex items-center gap-2">
+                        <span className="rounded-full bg-red-100 p-1.5">
+                          <svg className="h-4 w-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </span>
+                        <h3 className="font-semibold text-red-700">Stop Doing</h3>
+                      </div>
+                      <p className="text-sm leading-relaxed text-gray-600">{reportData?.recommendations.stop}</p>
+                    </div>
+                  </motion.div>
+                </div>
               </div>
             </div>
-
-            {/* Floating particles */}
-            {[...Array(5)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute h-1 w-1 rounded-full bg-[var(--primary-color)]/20"
-                initial={{
-                  x: Math.random() * 100,
-                  y: Math.random() * 100,
-                  opacity: 0,
-                }}
-                animate={{
-                  y: [0, -20, 0],
-                  opacity: [0, 0.8, 0],
-                }}
-                transition={{
-                  duration: 4 + Math.random() * 3,
-                  delay: i * 0.3,
-                  repeat: Infinity,
-                  repeatType: "reverse",
-                }}
-                style={{
-                  left: `${10 + Math.random() * 80}%`,
-                  top: `${30 + Math.random() * 50}%`,
-                }}
-              />
-            ))}
           </div>
         </div>
       </motion.div>

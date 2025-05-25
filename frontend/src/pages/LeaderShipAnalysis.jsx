@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuroraText } from "../components/magicui/aurora-text";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useSelector } from "react-redux";
 
 function LeadershipAnalysis() {
-  const location = useLocation();
-  const formData = location.state?.formData;
+  const reportData = useSelector((state) => state.user.reportData);
+  const firstName = useSelector((state) => state.user.firstName);
   const navigate = useNavigate();
   const [expandedSections, setExpandedSections] = useState({
     strengths: true,
@@ -14,41 +15,18 @@ function LeadershipAnalysis() {
     opportunities: false,
     threats: false,
   });
-  const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchLeadershipReport = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/onboarding/leadership-report`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-          },
-        );
+    if (reportData) {
+      setLoading(false);
+    } else {
+      setError("No report data found");
+    }
+  }, [reportData]);
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
 
-        const data = await response.json();
-        setReportData(data);
-      } catch (err) {
-        console.error("Error fetching leadership report:", err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLeadershipReport();
-  }, [formData]);
 
   const toggleSection = (section) => {
     setExpandedSections((prev) => ({
@@ -58,7 +36,7 @@ function LeadershipAnalysis() {
   };
 
   const handleSubmit = () => {
-    navigate("/learning-plan-ready");
+    navigate("/personalize-home");
   };
 
   if (loading) {
@@ -139,7 +117,7 @@ function LeadershipAnalysis() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
           >
-            Welcome, Sunil
+            Welcome, {firstName}
           </motion.h2>
         </div>
       </div>

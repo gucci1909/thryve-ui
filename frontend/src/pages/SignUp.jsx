@@ -1,11 +1,15 @@
 "use client";
 import { motion } from "framer-motion";
-import { User, Mail, Smartphone } from "lucide-react";
+import { User, Mail, Eye, EyeOff, Lock } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
 import { WarpBackground } from "../components/magicui/warp-background";
 import { AvatarCircles } from "../components/magicui/avatar-circles";
 import { RainbowButton } from "../components/magicui/rainbow-button";
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+import { useDispatch } from "react-redux";
+import { login } from "../store/userSlice";
 
 const avatars = [
   {
@@ -36,10 +40,86 @@ const avatars = [
 
 const SignupPage = () => {
   const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [mobile, setMobile] = useState("");
+  const dispatch = useDispatch();
+  const [phone, setPhone] = useState("");
+  const [phoneCountryCode, setPhoneCountryCode] = useState("+91");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+
+  // Form validation
+  const isFormValid = firstName && email && phone && password &&
+    email.includes('@') && password.length >= 6;
+
+  const handlePhoneChange = (value) => {
+    const digitsOnly = value?.replace(/\D/g, "") || "";
+
+    // Extract national digits (without country code)
+    let nationalDigits;
+    if (digitsOnly.startsWith("1")) {
+      nationalDigits = digitsOnly.slice(1); // US/Canada
+    } else if (digitsOnly.startsWith("91")) {
+      nationalDigits = digitsOnly.slice(2); // India
+    } else {
+      nationalDigits = digitsOnly;
+    }
+
+    // Extract country code
+    let countryCode = "";
+    if (value?.startsWith("+1")) {
+      countryCode = "+1";
+    } else if (value?.startsWith("+91")) {
+      countryCode = "+91";
+    } else {
+      const match = value?.match(/^\+\d{1,3}/);
+      countryCode = match ? match[0] : "";
+    }
+
+    setPhoneCountryCode(countryCode);
+    setPhone(nationalDigits);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const formData = {
+      firstName,
+      email,
+      phoneCountryCode,
+      phoneNumber: phone,
+      password
+    };
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/users/signup`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error("Signup failed");
+      } else {
+        const { token, user: { id, email, firstName } } = data;
+        dispatch(login({ token, _id: id, email, firstName }));
+        navigate("/selection-page");
+      }
+
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error);
+      alert(error.message || "Signup failed");
+      setIsLoading(false);
+    }
+  };
 
   return (
     <WarpBackground>
@@ -50,7 +130,7 @@ const SignupPage = () => {
         className="z-10 m-auto w-[90%] max-w-md rounded-2xl bg-white p-8 shadow-xl"
       >
         {/* Logo and Header */}
-         <div className="mb-8 flex flex-col items-center">
+        <div className="mb-8 flex flex-col items-center">
           <motion.div
             initial={{ scale: 0.9 }}
             animate={{ scale: 1 }}
@@ -179,6 +259,7 @@ const SignupPage = () => {
               />
             </motion.span>
 
+            {/* Animated underline bar */}
             <motion.div
               className="flex items-center"
               initial={{ opacity: 0, width: 0 }}
@@ -204,7 +285,7 @@ const SignupPage = () => {
         </div>
 
         {/* Signup Form */}
-        <form className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* First Name Input */}
           <div>
             <label
@@ -224,30 +305,6 @@ const SignupPage = () => {
                 onChange={(e) => setFirstName(e.target.value)}
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]"
                 placeholder="John"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Last Name Input */}
-          <div>
-            <label
-              htmlFor="lastName"
-              className="mb-2 block text-sm font-medium text-gray-700"
-            >
-              Last Name
-            </label>
-            <div className="relative">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <User className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                id="lastName"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]"
-                placeholder="Doe"
                 required
               />
             </div>
@@ -277,26 +334,60 @@ const SignupPage = () => {
             </div>
           </div>
 
-          {/* Mobile Input */}
+          {/* Password Input */}
           <div>
             <label
-              htmlFor="mobile"
+              htmlFor="password"
               className="mb-2 block text-sm font-medium text-gray-700"
             >
-              Mobile
+              Password
             </label>
             <div className="relative">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <Smartphone className="h-5 w-5 text-gray-400" />
+                <Lock className="h-5 w-5 text-gray-400" />
               </div>
               <input
-                type="tel"
-                id="mobile"
-                value={mobile}
-                onChange={(e) => setMobile(e.target.value)}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]"
-                placeholder="+1 (123) 456-7890"
+                type={showPassword ? "text" : "password"}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 pr-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]"
+                placeholder="••••••••"
                 required
+                minLength={6}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                ) : (
+                  <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Phone Input */}
+          <div>
+            <label
+              htmlFor="phone"
+              className="mb-2 block text-sm font-medium text-gray-700"
+            >
+              Phone Number
+            </label>
+            <div className="relative">
+              <PhoneInput
+                international
+                defaultCountry="IN"
+                value={phoneCountryCode + phone}
+                limitMaxLength={true}
+                onChange={handlePhoneChange}
+
+                countryCallingCodeEditable={false}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]"
               />
             </div>
           </div>
@@ -304,13 +395,38 @@ const SignupPage = () => {
           {/* Register Button */}
           <div className="pt-2">
             <RainbowButton
-              // type="submit"
-              onClick={() => {
-                navigate("/selection-page");
-              }}
-              className="w-full py-3 text-sm font-medium"
+              type="submit"
+              disabled={!isFormValid || isLoading}
+              className={`w-full py-3 text-sm font-medium relative ${!isFormValid || isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
             >
-              Register
+              {isLoading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  <span>Registering...</span>
+                </div>
+              ) : (
+                "Register"
+              )}
             </RainbowButton>
           </div>
         </form>

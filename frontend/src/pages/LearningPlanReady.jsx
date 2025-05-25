@@ -10,6 +10,7 @@ import {
 } from "react-icons/fi";
 import { BsLightningCharge, BsRobot } from "react-icons/bs";
 import { RiBrainFill } from "react-icons/ri";
+import { useSelector } from "react-redux";
 import { Globe } from "../components/magicui/globe1"; // Make sure to import your Globe component
 
 // Circle Component
@@ -111,6 +112,7 @@ const LearningPlanBackground = () => {
 
 function LearningPlanReadyScreen() {
   const navigate = useNavigate();
+  const firstName = useSelector((state) => state.user.firstName);
 
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-gradient-to-b from-[#f8f9ff] to-[#e6ecff]">
@@ -145,7 +147,7 @@ function LearningPlanReadyScreen() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
           >
-            Welcome, Sunil
+            Welcome, {firstName}
           </motion.h2>
         </div>
       </div>

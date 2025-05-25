@@ -2,6 +2,7 @@ import { Marquee } from "../components/magicui/marquee";
 import { ArrowRight, Stars, Wand2 } from "lucide-react";
 import { Link } from "react-router";
 import { motion } from "framer-motion";
+import { useSelector } from "react-redux";
 
 const testimonials = [
   {
@@ -57,6 +58,7 @@ const TestimonialCard = ({ name, role, quote, img }) => {
 };
 
 export default function SelectionPage() {
+  const firstName = useSelector((state) => state.user.firstName);
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center justify-center">
       {/* Header Section with Blue Gradient */}
@@ -87,7 +89,7 @@ export default function SelectionPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
           >
-            Welcome, Sunil
+            Welcome, {firstName}
           </motion.h2>
         </div>
       </div>

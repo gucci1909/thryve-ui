@@ -22,6 +22,7 @@ export default function ChatBox({ onClose }) {
   const canvasRef = useRef(null);
   const animationFrameRef = useRef(null);
   const audioContextRef = useRef(null);
+  const firstName = useSelector((state) => state.user.firstName);
 
   /* ====================================================== */
   /* ===========  Chat / scenario-response logic  ========== */
@@ -30,7 +31,7 @@ export default function ChatBox({ onClose }) {
   const startScenarioChat = (scenario) => {
     setSelectedScenario(scenario);
     setMessages([
-      { id: 1, text: "Hi Sunil, how can I help you today?", sender: "bot" },
+      { id: 1, text: `Hi ${firstName}, how can I help you today?`, sender: "bot" },
       { id: 2, text: scenario.question, sender: "user" },
     ]);
     setActiveView("chat");
@@ -46,7 +47,7 @@ export default function ChatBox({ onClose }) {
   const startCustomChat = () => {
     setSelectedScenario(null);
     setMessages([
-      { id: 1, text: "Hi Sunil, how can I help you today?", sender: "bot" },
+      { id: 1, text: `Hi ${firstName}, how can I help you today?`, sender: "bot" },
       {
         id: 2,
         text: "Please describe your scenario in your own words.",
@@ -248,7 +249,7 @@ export default function ChatBox({ onClose }) {
         <div className="flex-1 overflow-y-auto p-4">
           <div className="mb-6 text-center">
             <h3 className="text-lg font-medium text-gray-800">
-              Great Sunil! Choose your scenario!
+              Great {firstName}! Choose your scenario!
             </h3>
           </div>
 

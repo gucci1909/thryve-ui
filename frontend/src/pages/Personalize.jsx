@@ -8,11 +8,13 @@ import LeadershipAssessment from "../components/skillsassessment/LeadershipAsses
 import RoleInformationForm from "../components/skillsassessment/RoleInformationForm";
 import PsychographicProfile from "../components/skillsassessment/PsychographicProfile";
 import Feedback from "../components/skillsassessment/Feedback";
+import { useSelector } from "react-redux";
 
 function Personalize() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({});
   const [progressPercentage, setProgressPercentage] = useState(0);
+  const firstName = useSelector((state) => state.user.firstName);
   const navigate = useNavigate();
 
   const steps = [
@@ -37,9 +39,9 @@ function Personalize() {
           challenges: Array.isArray(formData.roleInfo.challenges)
             ? formData.roleInfo.challenges
             : formData.roleInfo.challenges
-                ?.split(",")
-                .map((item) => item.trim())
-                .filter(Boolean),
+              ?.split(",")
+              .map((item) => item.trim())
+              .filter(Boolean),
         },
       };
       setTimeout(() => {
@@ -112,7 +114,7 @@ function Personalize() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.3 }}
           >
-            Welcome, Sunil
+            Welcome, {firstName}
           </motion.h2>
         </div>
       </div>

@@ -135,4 +135,6 @@ router.use(apiLimiter, authenticate);
  */
 router.post('/leadership-report', leadershipReportControllers);
 
+// router.get('/leadership-report/recommendations', leadershipReportRecommendationControllers);
+
 export default router;
