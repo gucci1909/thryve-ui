@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuroraText } from "../components/magicui/aurora-text";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -10,6 +10,9 @@ function LeadershipAnalysis() {
   const reportData = useSelector((state) => state.user.reportData);
   const firstName = useSelector((state) => state.user.firstName);
   const navigate = useNavigate();
+  const location = useLocation();
+  const formData = location.state?.formData;
+  console.log({formData});
   const [expandedSections, setExpandedSections] = useState({
     strengths: true,
     weaknesses: false,
@@ -53,7 +56,11 @@ function LeadershipAnalysis() {
               </p>
 
               <RainbowButton
-                onClick={() => navigate("/waiting")}
+                onClick={() => 
+                  
+                  navigate("/waiting", { state: { formData } })
+                
+                }
                 className="focus:ring-opacity-50 w-full max-w-xs bg-[var(--primary-color)] px-6 py-2 text-sm font-medium transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-[var(--primary-color)] focus:outline-none"
               >
                 Retry Analysis

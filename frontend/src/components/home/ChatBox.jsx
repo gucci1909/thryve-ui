@@ -3,8 +3,26 @@ import { motion } from "framer-motion";
 import { MessageCircle, Send, ChevronLeft, Mic, MicOff } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import scenariosData from "./chatbox.json";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router";
 
 export default function ChatBox({ onClose }) {
+
+   const location = useLocation();
+  const dispatch = useDispatch();
+  // const firstName = useSelector((state) => state.user.firstName);
+  const formData = location.state?.formData;
+
+  console.log(formData);
+  const token = useSelector((state) => state.user.token);
+  const [progress, setProgress] = useState(0);
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [apiCompleted, setApiCompleted] = useState(false);
+  const [reportData, setReportData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const [startTime] = useState(Date.now());
   /* ---------------- Text / scenario state ---------------- */
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
@@ -57,7 +75,7 @@ export default function ChatBox({ onClose }) {
     setActiveView("chat");
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const trimmed = inputValue.trim();
     if (!trimmed) return;
 
@@ -69,23 +87,41 @@ export default function ChatBox({ onClose }) {
     setMessages([...messages, newMessage]);
     setInputValue("");
 
-    /* ------- find canned response if any -------- */
-    const normalized = trimmed.toLowerCase();
-    let response = scenariosData.fallbackResponse;
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/chat-box`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          question: trimmed,
+          userId: userId
+        })
+      });
 
-    for (const scenario of scenariosData.scenarios) {
-      if (scenario.keywords.some((kw) => normalized.includes(kw))) {
-        response = scenario.response;
-        break;
+      if (!response.ok) {
+        throw new Error('Failed to get response from chat API');
       }
-    }
 
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        { id: prev.length + 1, text: response, sender: "bot" },
-      ]);
-    }, 1000);
+      const data = await response.json();
+
+      // Add the bot's response to the messages
+      setMessages(prev => [...prev, {
+        id: prev.length + 1,
+        text: data.response,
+        sender: "bot"
+      }]);
+
+    } catch (error) {
+      console.error('Chat error:', error);
+      // Add error message to chat
+      setMessages(prev => [...prev, {
+        id: prev.length + 1,
+        text: "Sorry, I encountered an error. Please try again.",
+        sender: "bot"
+      }]);
+    }
   };
 
   const goBackToScenarios = () => {
@@ -289,16 +325,14 @@ export default function ChatBox({ onClose }) {
                 key={m.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`flex ${
-                  m.sender === "user" ? "justify-end" : "justify-start"
-                }`}
+                className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"
+                  }`}
               >
                 <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                    m.sender === "user"
-                      ? "bg-[var(--primary-color)] text-white"
-                      : "bg-white text-gray-800 shadow-sm"
-                  }`}
+                  className={`max-w-[80%] rounded-2xl px-4 py-2 ${m.sender === "user"
+                    ? "bg-[var(--primary-color)] text-white"
+                    : "bg-white text-gray-800 shadow-sm"
+                    }`}
                 >
                   {m.text}
                 </div>
@@ -315,10 +349,10 @@ export default function ChatBox({ onClose }) {
                 rows={3}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={(e) => {
+                onKeyDown={async (e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
-                    handleSend();
+                    await handleSend();
                   }
                 }}
                 placeholder="Type your message..."
@@ -331,11 +365,10 @@ export default function ChatBox({ onClose }) {
                 type="button"
                 onClick={isRecording ? stopRecording : startRecording}
                 disabled={isProcessing}
-                className={`rounded-full p-2 ${
-                  isRecording
-                    ? "bg-red-500 text-white"
-                    : "text-[var(--primary-color)] hover:bg-gray-200"
-                } transition-colors`}
+                className={`rounded-full p-2 ${isRecording
+                  ? "bg-red-500 text-white"
+                  : "text-[var(--primary-color)] hover:bg-gray-200"
+                  } transition-colors`}
               >
                 {isProcessing ? (
                   <span className="processing">…</span>

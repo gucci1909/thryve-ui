@@ -1,21 +1,66 @@
 "use client";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, AlertCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { login } from "../store/userSlice";
 import LoginBackground from "../components/onboarding/LoginBackground";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
+  const dispatch = useDispatch();
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState("");
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+  });
   const navigate = useNavigate();
 
+  const validateField = (field, value) => {
+    let error = "";
+    switch (field) {
+      case "email":
+        if (!value) {
+          error = "Email is required";
+        } else if (!/\S+@\S+\.\S+/.test(value)) {
+          error = "Please enter a valid email address";
+        }
+        break;
+      case "password":
+        if (!value) {
+          error = "Password is required";
+        }
+        break;
+      default:
+        break;
+    }
+    return error;
+  };
+
+  const validateForm = () => {
+    const newErrors = {
+      email: validateField("email", email),
+      password: validateField("password", password),
+    };
+
+    setErrors(newErrors);
+    return Object.values(newErrors).every((error) => error === "");
+  };
+
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent form from submitting normally
-    
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
+    setApiError(""); // Clear any previous API errors
+
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
@@ -23,20 +68,30 @@ const LoginPage = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
-        }
+        },
       );
 
       const data = await response.json();
 
       if (!response.ok) {
+        setApiError("Invalid email or password");
         throw new Error(data.message || "Login failed");
+      } else {
+        const {
+          token,
+          user: { id, email, firstName, personalized },
+        } = data;
+        console.log({ personalized });
+        if (personalized) {
+          dispatch(login({ token, _id: id, email, firstName, personalized }));
+          navigate("/personalize-home");
+        } else {
+          dispatch(login({ token, _id: id, email, firstName, personalized: false }));
+          navigate("/home");
+        }
       }
-
-      // Handle successful login
-      // TODO: Add your login success logic here (e.g., setting auth token, user data)
     } catch (error) {
       console.error("Login failed:", error);
-      // TODO: Add proper error handling UI
     } finally {
       setIsLoading(false);
     }
@@ -75,6 +130,13 @@ const LoginPage = () => {
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
+          {apiError && (
+            <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+              <AlertCircle className="h-5 w-5 text-red-600" />
+              <span>{apiError}</span>
+            </div>
+          )}
+
           {/* Email Input */}
           <div>
             <label
@@ -91,12 +153,21 @@ const LoginPage = () => {
                 type="email"
                 id="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setErrors((prev) => ({
+                    ...prev,
+                    email: validateField("email", e.target.value),
+                  }));
+                }}
+                className={`block w-full rounded-lg border ${errors.email ? "border-red-500" : "border-gray-300"
+                  } bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
                 placeholder="name@company.com"
-                required
               />
             </div>
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+            )}
           </div>
 
           {/* Password Input */}
@@ -115,10 +186,16 @@ const LoginPage = () => {
                 type={showPassword ? "text" : "password"}
                 id="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pr-10 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setErrors((prev) => ({
+                    ...prev,
+                    password: validateField("password", e.target.value),
+                  }));
+                }}
+                className={`block w-full rounded-lg border ${errors.password ? "border-red-500" : "border-gray-300"
+                  } bg-gray-50 p-2.5 pr-10 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
                 placeholder="••••••••"
-                required
               />
               <button
                 type="button"
@@ -132,6 +209,9 @@ const LoginPage = () => {
                 )}
               </button>
             </div>
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+            )}
             <div className="mt-2 flex flex-col items-end text-sm text-gray-600 dark:text-gray-400">
               <span>Difficulty signing in?</span>
               <Link
@@ -153,7 +233,7 @@ const LoginPage = () => {
             {isLoading ? (
               <div className="flex items-center justify-center gap-2">
                 <svg
-                  className="animate-spin h-5 w-5 text-white"
+                  className="h-5 w-5 animate-spin text-white"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -196,9 +276,8 @@ const LoginPage = () => {
         <div className="mt-6 text-center text-sm text-gray-500">
           Don't have an account?{" "}
           <Link
-            // Try adding e.preventDefault() to ensure no parent event interferes
-            to={"/signup"}
-            className="z-10 font-medium text-[var(--primary-color)] cursor-pointer"
+            to="/signup"
+            className="z-10 cursor-pointer font-medium text-[var(--primary-color)]"
           >
             Sign up
           </Link>

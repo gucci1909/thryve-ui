@@ -18,6 +18,7 @@ const userSlice = createSlice({
       state._id = action.payload._id;
       state.email = action.payload.email;
       state.firstName = action.payload.firstName;
+      state.personalize = action.payload.personalized;
 
       localStorage.setItem("token", action.payload.token);
       localStorage.setItem("_id", JSON.stringify(action.payload._id));
@@ -26,6 +27,11 @@ const userSlice = createSlice({
         "firstName",
         JSON.stringify(action.payload.firstName),
       );
+      if (!action.payload.personalized) {
+        localStorage.setItem("personalize", "false");
+      } else {
+        localStorage.setItem("personalize", "true");
+      }
     },
     logout: (state) => {
       state.token = null;

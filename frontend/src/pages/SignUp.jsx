@@ -1,8 +1,8 @@
 "use client";
 import { motion } from "framer-motion";
 import { User, Mail, Eye, EyeOff, Lock, AlertCircle } from "lucide-react";
-import { Link, useNavigate } from "react-router";
-import { useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router";
+import { useState, useEffect } from "react";
 import { WarpBackground } from "../components/magicui/warp-background";
 import { AvatarCircles } from "../components/magicui/avatar-circles";
 import { RainbowButton } from "../components/magicui/rainbow-button";
@@ -39,6 +39,10 @@ const avatars = [
 ];
 
 const SignupPage = () => {
+  const [searchParams] = useSearchParams();
+  const inviteCode = searchParams.get('invite-code');
+  const [companyInfo, setCompanyInfo] = useState(null);
+  const [inviteCodeError, setInviteCodeError] = useState("");
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const dispatch = useDispatch();
@@ -55,6 +59,36 @@ const SignupPage = () => {
     phone: ""
   });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const verifyInviteCode = async () => {
+      if (!inviteCode) return;
+
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/companies/verify-key`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ inviteCode }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setInviteCodeError(data.error || 'Invalid invite code');
+          return;
+        }
+
+        setCompanyInfo(data.company);
+      } catch (error) {
+        console.error('Error verifying invite code:', error);
+        setInviteCodeError('Failed to verify invite code');
+      }
+    };
+
+    verifyInviteCode();
+  }, [inviteCode]);
 
   const validateField = (field, value) => {
     let error = "";
@@ -115,7 +149,7 @@ const SignupPage = () => {
 
     setPhoneCountryCode(countryCode);
     setPhone(nationalDigits);
-    
+
     // Only validate phone field
     setErrors(prev => ({
       ...prev,
@@ -137,7 +171,7 @@ const SignupPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -150,7 +184,8 @@ const SignupPage = () => {
       email,
       phoneCountryCode,
       phoneNumber: phone,
-      password
+      password,
+      inviteCode: companyInfo.inviteCode || null
     };
 
     try {
@@ -346,6 +381,7 @@ const SignupPage = () => {
 
         {/* Signup Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+
           {apiError && (
             <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
               <AlertCircle className="h-5 w-5 text-red-600" />
@@ -376,9 +412,8 @@ const SignupPage = () => {
                     firstName: validateField("firstName", e.target.value)
                   }));
                 }}
-                className={`block w-full rounded-lg border ${
-                  errors.firstName ? 'border-red-500' : 'border-gray-300'
-                } bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
+                className={`block w-full rounded-lg border ${errors.firstName ? 'border-red-500' : 'border-gray-300'
+                  } bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
                 placeholder="John"
               />
             </div>
@@ -410,9 +445,8 @@ const SignupPage = () => {
                     email: validateField("email", e.target.value)
                   }));
                 }}
-                className={`block w-full rounded-lg border ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
-                } bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
+                className={`block w-full rounded-lg border ${errors.email ? 'border-red-500' : 'border-gray-300'
+                  } bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
                 placeholder="name@company.com"
               />
             </div>
@@ -444,9 +478,8 @@ const SignupPage = () => {
                     password: validateField("password", e.target.value)
                   }));
                 }}
-                className={`block w-full rounded-lg border ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
-                } bg-gray-50 p-2.5 pl-10 pr-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
+                className={`block w-full rounded-lg border ${errors.password ? 'border-red-500' : 'border-gray-300'
+                  } bg-gray-50 p-2.5 pl-10 pr-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
                 placeholder="••••••••"
               />
               <button
@@ -482,9 +515,8 @@ const SignupPage = () => {
                 limitMaxLength={true}
                 onChange={handlePhoneChange}
                 countryCallingCodeEditable={false}
-                className={`block w-full rounded-lg border ${
-                  errors.phone ? 'border-red-500' : 'border-gray-300'
-                } bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
+                className={`block w-full rounded-lg border ${errors.phone ? 'border-red-500' : 'border-gray-300'
+                  } bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
               />
             </div>
             {errors.phone && (

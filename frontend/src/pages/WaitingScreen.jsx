@@ -45,6 +45,8 @@ function WaitingScreen() {
   const dispatch = useDispatch();
   const firstName = useSelector((state) => state.user.firstName);
   const formData = location.state?.formData;
+
+  console.log(formData);
   const token = useSelector((state) => state.user.token);
   const [progress, setProgress] = useState(0);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
@@ -121,9 +123,9 @@ function WaitingScreen() {
 
         if (apiCompleted && newProgress >= 99.5) {
           clearInterval(progressInterval);
-          const data = {error: true};
+          console.log({ navi: formData });
           setTimeout(() => {
-            navigate("/leadership-swot-analysis", { state: { formData, data } });
+            navigate("/leadership-swot-analysis", { state: { formData, reportData } });
           }, 1000); // Add a small delay before navigation
           return 100;
         }
@@ -229,8 +231,8 @@ function WaitingScreen() {
                   <motion.div
                     key={index}
                     className={`rounded-lg px-4 py-2 text-center text-sm font-medium transition-all duration-300 ${index === currentMessageIndex
-                        ? "bg-[var(--primary-color)] text-white shadow"
-                        : "bg-gray-100 text-gray-600"
+                      ? "bg-[var(--primary-color)] text-white shadow"
+                      : "bg-gray-100 text-gray-600"
                       }`}
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
