@@ -1,6 +1,7 @@
 import generateLeadershipAssessment from '../../helper/leadership-report/generateLeadershipAssessment.js';
 import { leadershipReportSchema } from '../../validators/leadership-report.js';
 import { getDb } from '../../config/db.js';
+import { ObjectId } from 'mongodb';
 
 export const leadershipReportControllers = async (req, res) => {
   try {
@@ -26,10 +27,22 @@ export const leadershipReportControllers = async (req, res) => {
     // Save report to database
     const result = await leadershipReportsCollection.insertOne(reportDocument);
 
-    await usersCollection.updateOne(
-      { _id: req.user.id },
-      { $set: { personalized: true, updatedAt: new Date() } },
+    console.log({ f: req.user.id });
+
+    const updateResult = await usersCollection.updateOne(
+      { _id: new ObjectId(req.user.id) },
+      {
+        $set: {
+          personalized: true,
+          updatedAt: new Date(),
+        },
+      },
     );
+
+    // Check if user was actually updated
+    if (updateResult.matchedCount === 0) {
+      console.warn('No user found with id:', req.user.id);
+    }
 
     // Return success response with saved report
     return res.status(200).json({

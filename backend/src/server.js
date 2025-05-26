@@ -11,6 +11,8 @@ import authRoutes from "./api/register/login.js";
 import { hideBin } from 'yargs/helpers';
 import swaggerUi from 'swagger-ui-express';
 import logger from './utils/logger.js';
+import chatBoxRoutes from './api/chat-box/chat-box.js';
+import companyRoutes from './api/companies/companies.js';
 import { connectToDb } from './config/db.js';
 
 const argv = yargs(hideBin(process.argv))
@@ -87,6 +89,9 @@ app.use('/api', healthRoutes);
 app.use('/api/onboarding', leaderShipRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
+
+app.use('/api/companies',  companyRoutes);
+app.use('/api/chat-box', chatBoxRoutes);
 
 app.listen(PORT, async () => {
   await connectToDb();
