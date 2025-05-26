@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { FiArrowRight, FiMessageSquare } from "react-icons/fi";
 import { BorderBeam } from "../magicui/border-beam";
@@ -8,10 +8,45 @@ import { BsBookmark } from "react-icons/bs";
 import { useSelector } from "react-redux";
 
 function PersonalizeHomePage() {
+  const [reportData, setReportData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const token = useSelector((state) => state.user.token);
 
-  const reportData = useSelector((state) => state.user.reportData);
-  console.log({ reportData });
-  
+  useEffect(() => {
+    const fetchLeadershipReport = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/onboarding/leadership-report`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch leadership report");
+        }
+
+        const data = await response.json();
+        setReportData(data.data.assessment);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching leadership report:", error);
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+
+    if (token) {
+      fetchLeadershipReport();
+    }
+  }, [token]);
+
   const cardVariants = {
     offscreen: {
       y: 50,
@@ -27,6 +62,37 @@ function PersonalizeHomePage() {
       },
     },
   };
+
+  if (loading) {
+    return (
+      <div className="flex h-screen flex-col items-center justify-center gap-6 bg-[var(--background-color)]">
+        {/* Modern fluid loader */}
+        <div className="relative h-20 w-20">
+          {/* Animated border with gradient */}
+          <div className="absolute inset-0 animate-[spin_1.5s_linear_infinite] rounded-full border-4 border-transparent border-t-[var(--primary-color)] border-r-[var(--primary-color)]"></div>
+
+          {/* Center pulse effect */}
+          <div className="absolute inset-4 animate-[pulse_2s_ease-in-out_infinite] rounded-full bg-[var(--primary-color)] opacity-20"></div>
+        </div>
+
+        {/* Loading text with progress animation */}
+        <div className="text-center">
+          <p className="mb-2 text-lg font-medium text-[var(--text-color)]">
+            Loading your content
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-red-500">Error: {error}</div>
+      </div>
+    );
+  }
+
   return (
     <main className="mt-4 flex-1 overflow-y-auto px-5 pb-24">
       {/* Growth Recommendations Card */}
@@ -65,7 +131,8 @@ function PersonalizeHomePage() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4 }}
                 >
-                  Your personalized roadmap for leadership excellence, crafted from your unique strengths and growth opportunities.
+                  Your personalized roadmap for leadership excellence, crafted
+                  from your unique strengths and growth opportunities.
                 </motion.p>
 
                 {/* Recommendations Grid */}
@@ -82,13 +149,27 @@ function PersonalizeHomePage() {
                     <div className="relative">
                       <div className="mb-3 flex items-center gap-2">
                         <span className="rounded-full bg-emerald-100 p-1.5">
-                          <svg className="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                          <svg
+                            className="h-4 w-4 text-emerald-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M5 13l4 4L19 7"
+                            />
                           </svg>
                         </span>
-                        <h3 className="font-semibold text-emerald-700">Continue Doing</h3>
+                        <h3 className="font-semibold text-emerald-700">
+                          Continue Doing
+                        </h3>
                       </div>
-                      <p className="text-sm leading-relaxed text-gray-600">{reportData?.recommendations["do-more"]}</p>
+                      <p className="text-sm leading-relaxed text-gray-600">
+                        {reportData?.recommendations["do-more"]}
+                      </p>
                     </div>
                   </motion.div>
 
@@ -104,13 +185,27 @@ function PersonalizeHomePage() {
                     <div className="relative">
                       <div className="mb-3 flex items-center gap-2">
                         <span className="rounded-full bg-blue-100 p-1.5">
-                          <svg className="h-4 w-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          <svg
+                            className="h-4 w-4 text-blue-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                            />
                           </svg>
                         </span>
-                        <h3 className="font-semibold text-blue-700">Start Doing</h3>
+                        <h3 className="font-semibold text-blue-700">
+                          Start Doing
+                        </h3>
                       </div>
-                      <p className="text-sm leading-relaxed text-gray-600">{reportData?.recommendations.start}</p>
+                      <p className="text-sm leading-relaxed text-gray-600">
+                        {reportData?.recommendations.start}
+                      </p>
                     </div>
                   </motion.div>
 
@@ -126,13 +221,27 @@ function PersonalizeHomePage() {
                     <div className="relative">
                       <div className="mb-3 flex items-center gap-2">
                         <span className="rounded-full bg-amber-100 p-1.5">
-                          <svg className="h-4 w-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4" />
+                          <svg
+                            className="h-4 w-4 text-amber-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M20 12H4"
+                            />
                           </svg>
                         </span>
-                        <h3 className="font-semibold text-amber-700">Do Less</h3>
+                        <h3 className="font-semibold text-amber-700">
+                          Do Less
+                        </h3>
                       </div>
-                      <p className="text-sm leading-relaxed text-gray-600">{reportData?.recommendations["do-less"]}</p>
+                      <p className="text-sm leading-relaxed text-gray-600">
+                        {reportData?.recommendations["do-less"]}
+                      </p>
                     </div>
                   </motion.div>
 
@@ -148,13 +257,27 @@ function PersonalizeHomePage() {
                     <div className="relative">
                       <div className="mb-3 flex items-center gap-2">
                         <span className="rounded-full bg-red-100 p-1.5">
-                          <svg className="h-4 w-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                          <svg
+                            className="h-4 w-4 text-red-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M6 18L18 6M6 6l12 12"
+                            />
                           </svg>
                         </span>
-                        <h3 className="font-semibold text-red-700">Stop Doing</h3>
+                        <h3 className="font-semibold text-red-700">
+                          Stop Doing
+                        </h3>
                       </div>
-                      <p className="text-sm leading-relaxed text-gray-600">{reportData?.recommendations.stop}</p>
+                      <p className="text-sm leading-relaxed text-gray-600">
+                        {reportData?.recommendations.stop}
+                      </p>
                     </div>
                   </motion.div>
                 </div>

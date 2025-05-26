@@ -3,26 +3,10 @@ import { motion } from "framer-motion";
 import { MessageCircle, Send, ChevronLeft, Mic, MicOff } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import scenariosData from "./chatbox.json";
-import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router";
+import { useLocation, useSelector } from "react-redux";
 
 export default function ChatBox({ onClose }) {
-
-   const location = useLocation();
-  const dispatch = useDispatch();
-  // const firstName = useSelector((state) => state.user.firstName);
-  const formData = location.state?.formData;
-
-  console.log(formData);
   const token = useSelector((state) => state.user.token);
-  const [progress, setProgress] = useState(0);
-  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
-  const [apiCompleted, setApiCompleted] = useState(false);
-  const [reportData, setReportData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
-  const [startTime] = useState(Date.now());
   /* ---------------- Text / scenario state ---------------- */
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
@@ -49,7 +33,11 @@ export default function ChatBox({ onClose }) {
   const startScenarioChat = (scenario) => {
     setSelectedScenario(scenario);
     setMessages([
-      { id: 1, text: `Hi ${firstName}, how can I help you today?`, sender: "bot" },
+      {
+        id: 1,
+        text: `Hi ${firstName}, how can I help you today?`,
+        sender: "bot",
+      },
       { id: 2, text: scenario.question, sender: "user" },
     ]);
     setActiveView("chat");
@@ -65,7 +53,11 @@ export default function ChatBox({ onClose }) {
   const startCustomChat = () => {
     setSelectedScenario(null);
     setMessages([
-      { id: 1, text: `Hi ${firstName}, how can I help you today?`, sender: "bot" },
+      {
+        id: 1,
+        text: `Hi ${firstName}, how can I help you today?`,
+        sender: "bot",
+      },
       {
         id: 2,
         text: "Please describe your scenario in your own words.",
@@ -88,39 +80,47 @@ export default function ChatBox({ onClose }) {
     setInputValue("");
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/chat-box`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/chat-box`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            question: trimmed,
+            userId: userId,
+          }),
         },
-        body: JSON.stringify({
-          question: trimmed,
-          userId: userId
-        })
-      });
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to get response from chat API');
+        throw new Error("Failed to get response from chat API");
       }
 
       const data = await response.json();
 
       // Add the bot's response to the messages
-      setMessages(prev => [...prev, {
-        id: prev.length + 1,
-        text: data.response,
-        sender: "bot"
-      }]);
-
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: prev.length + 1,
+          text: data.response,
+          sender: "bot",
+        },
+      ]);
     } catch (error) {
-      console.error('Chat error:', error);
+      console.error("Chat error:", error);
       // Add error message to chat
-      setMessages(prev => [...prev, {
-        id: prev.length + 1,
-        text: "Sorry, I encountered an error. Please try again.",
-        sender: "bot"
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: prev.length + 1,
+          text: "Sorry, I encountered an error. Please try again.",
+          sender: "bot",
+        },
+      ]);
     }
   };
 
@@ -325,14 +325,16 @@ export default function ChatBox({ onClose }) {
                 key={m.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"
-                  }`}
+                className={`flex ${
+                  m.sender === "user" ? "justify-end" : "justify-start"
+                }`}
               >
                 <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-2 ${m.sender === "user"
-                    ? "bg-[var(--primary-color)] text-white"
-                    : "bg-white text-gray-800 shadow-sm"
-                    }`}
+                  className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                    m.sender === "user"
+                      ? "bg-[var(--primary-color)] text-white"
+                      : "bg-white text-gray-800 shadow-sm"
+                  }`}
                 >
                   {m.text}
                 </div>
@@ -365,10 +367,11 @@ export default function ChatBox({ onClose }) {
                 type="button"
                 onClick={isRecording ? stopRecording : startRecording}
                 disabled={isProcessing}
-                className={`rounded-full p-2 ${isRecording
-                  ? "bg-red-500 text-white"
-                  : "text-[var(--primary-color)] hover:bg-gray-200"
-                  } transition-colors`}
+                className={`rounded-full p-2 ${
+                  isRecording
+                    ? "bg-red-500 text-white"
+                    : "text-[var(--primary-color)] hover:bg-gray-200"
+                } transition-colors`}
               >
                 {isProcessing ? (
                   <span className="processing">…</span>

@@ -1,7 +1,8 @@
 import express from 'express';
 import apiLimiter from '../../middleware/rateLimiter.js';
-import { leadershipReportControllers } from '../../controllers/leadership-report/leadership-report.controller.js';
+import { leadershipReportControllers, leadershipReportRecommendationController } from '../../controllers/leadership-report/leadership-report.controller.js';
 import authenticate from '../../middleware/authenticate.js';
+
 
 const router = express.Router();
 
@@ -135,6 +136,6 @@ router.use(apiLimiter, authenticate);
  */
 router.post('/leadership-report', leadershipReportControllers);
 
-// router.get('/leadership-report/recommendations', leadershipReportRecommendationControllers);
+router.get('/leadership-report', leadershipReportRecommendationController);
 
 export default router;

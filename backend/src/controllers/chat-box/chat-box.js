@@ -117,3 +117,49 @@ export const chatBoxController = async (req, res) => {
         await session.endSession();
     }
 };
+
+export const chatBoxGetAllTextController = async(req, res) => {
+    const db = getDb();
+    
+    try {
+        // Get user ID from the authenticated token
+        const userId = req.user.id;
+        
+        if (!userId) {
+            return res.status(400).json({ 
+                success: false,
+                error: 'User ID not found in token' 
+            });
+        }
+
+        // Find chat messages for the user
+        const chatCollection = db.collection('chats');
+        const userChat = await chatCollection.findOne({ user_id: userId });
+
+        if (!userChat) {
+            return res.status(200).json({
+                success: true,
+                messages: [],
+                message: 'No chat history found for this user'
+            });
+        }
+
+        // Sort messages by timestamp
+        const sortedMessages = userChat.messages.sort((a, b) => 
+            new Date(a.timestamp) - new Date(b.timestamp)
+        );
+
+        res.status(200).json({
+            success: true,
+            messages: sortedMessages
+        });
+
+    } catch (error) {
+        console.error('Error fetching chat history:', error);
+        res.status(500).json({
+            success: false,
+            error: 'An error occurred while fetching chat history',
+            details: error.message
+        });
+    }
+};

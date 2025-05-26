@@ -1,7 +1,7 @@
 import express from 'express';
 import apiLimiter from '../../middleware/rateLimiter.js';
 import authenticate from '../../middleware/authenticate.js';
-import { chatBoxController } from '../../controllers/chat-box/chat-box.js';
+import { chatBoxController, chatBoxGetAllTextController } from '../../controllers/chat-box/chat-box.js';
 const router = express.Router();
 
 router.use(apiLimiter, authenticate);
@@ -48,5 +48,7 @@ router.use(apiLimiter, authenticate);
  *         description: Server error
  */
 router.post('/send-message', chatBoxController);
+
+router.get('/get-message', chatBoxGetAllTextController);
 
 export default router;
