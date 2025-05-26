@@ -185,7 +185,7 @@ const SignupPage = () => {
       phoneCountryCode,
       phoneNumber: phone,
       password,
-      inviteCode: companyInfo.inviteCode || null
+      inviteCode: companyInfo?.inviteCode || null
     };
 
     try {
