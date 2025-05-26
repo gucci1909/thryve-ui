@@ -1,7 +1,7 @@
 import express from 'express';
 import apiLimiter from '../../middleware/rateLimiter.js';
 import authenticate from '../../middleware/authenticate.js';
-import { companiesController } from '../../controllers/companies/companies.js';
+import { companiesController, companyVerifyKeyController } from '../../controllers/companies/companies.js';
 const router = express.Router();
 
 router.use(apiLimiter);
@@ -25,5 +25,7 @@ router.use(apiLimiter);
  *                   example: OK
  */
 router.get('/insert-data', companiesController);
+
+router.post('/verify-key', companyVerifyKeyController);
 
 export default router;

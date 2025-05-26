@@ -125,3 +125,34 @@ These elements contribute to Doyensys being recognized as a Great Place to Work 
     res.status(500).json({ error: 'Failed to insert companies' });
   }
 };
+
+export const companyVerifyKeyController = async (req, res) => {
+  try {
+    const { inviteCode } = req.body;
+
+    if (!inviteCode) {
+      return res.status(400).json({ error: 'Invite code is required' });
+    }
+
+    const db = await getDb();
+    const companiesCollection = db.collection('companies');
+
+    const company = await companiesCollection.findOne({ INVITE_CODE: inviteCode });
+
+    if (!company) {
+      return res.status(404).json({ error: 'Invalid invite code' });
+    }
+
+    res.status(200).json({
+      success: true,
+      company: {
+        name: company.COMPANY_NAME,
+        aboutText: company.ABOUT_TEXT,
+        inviteCode: company.INVITE_CODE,
+      },
+    });
+  } catch (error) {
+    console.error('Verification Error:', error);
+    res.status(500).json({ error: 'Failed to verify invite code' });
+  }
+};
