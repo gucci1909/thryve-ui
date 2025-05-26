@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AuroraText } from "../components/magicui/aurora-text";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useSelector } from "react-redux";
+import { RainbowButton } from "../components/magicui/rainbow-button";
 
 function LeadershipAnalysis() {
   const reportData = useSelector((state) => state.user.reportData);
@@ -26,8 +27,6 @@ function LeadershipAnalysis() {
     }
   }, [reportData]);
 
-
-
   const toggleSection = (section) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -39,14 +38,28 @@ function LeadershipAnalysis() {
     navigate("/personalize-home");
   };
 
-  if (loading) {
+  if (loading || !reportData?.persona) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="flex flex-col items-center justify-center text-center">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-[var(--primary-color)] border-t-transparent"></div>
-          <p className="mt-4 text-lg font-medium text-gray-700">
-            Analyzing your leadership style...
-          </p>
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+        <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-lg">
+          <div className="flex flex-col items-center justify-center text-center">
+            <p className="text-lg font-medium text-[var(--primary-color)]">
+              Unable to load your leadership analysis
+            </p>
+
+            <div className="mt-6 flex w-full flex-col items-center gap-4">
+              <p className="text-sm text-gray-500">
+                The analysis couldn't be completed. Please try again.
+              </p>
+
+              <RainbowButton
+                onClick={() => navigate("/waiting")}
+                className="focus:ring-opacity-50 w-full max-w-xs bg-[var(--primary-color)] px-6 py-2 text-sm font-medium transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-[var(--primary-color)] focus:outline-none"
+              >
+                Retry Analysis
+              </RainbowButton>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -67,10 +80,6 @@ function LeadershipAnalysis() {
         </div>
       </div>
     );
-  }
-
-  if (!reportData) {
-    return null;
   }
 
   const primaryPersona = reportData.persona[0];

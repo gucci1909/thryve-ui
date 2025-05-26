@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { User, Mail, Eye, EyeOff, Lock } from "lucide-react";
+import { User, Mail, Eye, EyeOff, Lock, AlertCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
 import { WarpBackground } from "../components/magicui/warp-background";
@@ -47,11 +47,47 @@ const SignupPage = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [apiError, setApiError] = useState("");
+  const [errors, setErrors] = useState({
+    firstName: "",
+    email: "",
+    password: "",
+    phone: ""
+  });
   const navigate = useNavigate();
 
-  // Form validation
-  const isFormValid = firstName && email && phone && password &&
-    email.includes('@') && password.length >= 6;
+  const validateField = (field, value) => {
+    let error = "";
+    switch (field) {
+      case "firstName":
+        if (!value.trim()) {
+          error = "First name is required";
+        }
+        break;
+      case "email":
+        if (!value) {
+          error = "Email is required";
+        } else if (!/\S+@\S+\.\S+/.test(value)) {
+          error = "Please enter a valid email address";
+        }
+        break;
+      case "password":
+        if (!value) {
+          error = "Password is required";
+        } else if (value.length < 6) {
+          error = "Password must be at least 6 characters";
+        }
+        break;
+      case "phone":
+        if (!value) {
+          error = "Phone number is required";
+        }
+        break;
+      default:
+        break;
+    }
+    return error;
+  };
 
   const handlePhoneChange = (value) => {
     const digitsOnly = value?.replace(/\D/g, "") || "";
@@ -79,11 +115,35 @@ const SignupPage = () => {
 
     setPhoneCountryCode(countryCode);
     setPhone(nationalDigits);
+    
+    // Only validate phone field
+    setErrors(prev => ({
+      ...prev,
+      phone: validateField("phone", nationalDigits)
+    }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {
+      firstName: validateField("firstName", firstName),
+      email: validateField("email", email),
+      password: validateField("password", password),
+      phone: validateField("phone", phone)
+    };
+
+    setErrors(newErrors);
+    return Object.values(newErrors).every(error => error === "");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
+    setApiError(""); // Clear any previous API errors
 
     const formData = {
       firstName,
@@ -106,7 +166,7 @@ const SignupPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error("Signup failed");
+        setApiError("Email is already registered");
       } else {
         const { token, user: { id, email, firstName } } = data;
         dispatch(login({ token, _id: id, email, firstName }));
@@ -116,7 +176,7 @@ const SignupPage = () => {
       setIsLoading(false);
     } catch (error) {
       console.error(error);
-      alert(error.message || "Signup failed");
+      setApiError(error.message);
       setIsLoading(false);
     }
   };
@@ -286,6 +346,13 @@ const SignupPage = () => {
 
         {/* Signup Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {apiError && (
+            <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+              <AlertCircle className="h-5 w-5 text-red-600" />
+              <span>{apiError}</span>
+            </div>
+          )}
+
           {/* First Name Input */}
           <div>
             <label
@@ -302,12 +369,22 @@ const SignupPage = () => {
                 type="text"
                 id="firstName"
                 value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]"
+                onChange={(e) => {
+                  setFirstName(e.target.value);
+                  setErrors(prev => ({
+                    ...prev,
+                    firstName: validateField("firstName", e.target.value)
+                  }));
+                }}
+                className={`block w-full rounded-lg border ${
+                  errors.firstName ? 'border-red-500' : 'border-gray-300'
+                } bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
                 placeholder="John"
-                required
               />
             </div>
+            {errors.firstName && (
+              <p className="mt-1 text-sm text-red-500">{errors.firstName}</p>
+            )}
           </div>
 
           {/* Email Input */}
@@ -326,12 +403,22 @@ const SignupPage = () => {
                 type="email"
                 id="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setErrors(prev => ({
+                    ...prev,
+                    email: validateField("email", e.target.value)
+                  }));
+                }}
+                className={`block w-full rounded-lg border ${
+                  errors.email ? 'border-red-500' : 'border-gray-300'
+                } bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
                 placeholder="name@company.com"
-                required
               />
             </div>
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+            )}
           </div>
 
           {/* Password Input */}
@@ -350,11 +437,17 @@ const SignupPage = () => {
                 type={showPassword ? "text" : "password"}
                 id="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pl-10 pr-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setErrors(prev => ({
+                    ...prev,
+                    password: validateField("password", e.target.value)
+                  }));
+                }}
+                className={`block w-full rounded-lg border ${
+                  errors.password ? 'border-red-500' : 'border-gray-300'
+                } bg-gray-50 p-2.5 pl-10 pr-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
                 placeholder="••••••••"
-                required
-                minLength={6}
               />
               <button
                 type="button"
@@ -368,6 +461,9 @@ const SignupPage = () => {
                 )}
               </button>
             </div>
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+            )}
           </div>
 
           {/* Phone Input */}
@@ -385,20 +481,23 @@ const SignupPage = () => {
                 value={phoneCountryCode + phone}
                 limitMaxLength={true}
                 onChange={handlePhoneChange}
-
                 countryCallingCodeEditable={false}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]"
+                className={`block w-full rounded-lg border ${
+                  errors.phone ? 'border-red-500' : 'border-gray-300'
+                } bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
               />
             </div>
+            {errors.phone && (
+              <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
+            )}
           </div>
 
           {/* Register Button */}
           <div className="pt-2">
             <RainbowButton
               type="submit"
-              disabled={!isFormValid || isLoading}
-              className={`w-full py-3 text-sm font-medium relative ${!isFormValid || isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
+              disabled={isLoading}
+              className="w-full py-3 text-sm font-medium relative"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center gap-2">
