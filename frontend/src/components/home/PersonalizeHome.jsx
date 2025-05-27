@@ -1,10 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { FiArrowRight, FiMessageSquare } from "react-icons/fi";
 import { BorderBeam } from "../magicui/border-beam";
-import { GiTargetDummy } from "react-icons/gi";
-import { AiOutlineQuestionCircle } from "react-icons/ai";
-import { BsBookmark } from "react-icons/bs";
 import { useSelector } from "react-redux";
 
 function PersonalizeHomePage() {
@@ -12,6 +8,26 @@ function PersonalizeHomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const token = useSelector((state) => state.user.token);
+
+  // Function to extract YouTube video ID
+  const getYouTubeVideoId = (url) => {
+    if (!url) return null;
+    
+    // Handle different YouTube URL formats
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
+  // Function to get YouTube thumbnail URL
+  const getYouTubeThumbnail = (url) => {
+    const videoId = getYouTubeVideoId(url);
+    if (!videoId) return 'https://placehold.co/600x400/png?text=Video+Thumbnail';
+    
+    // Try multiple thumbnail qualities
+    return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+  };
 
   useEffect(() => {
     const fetchLeadershipReport = async () => {
@@ -287,59 +303,119 @@ function PersonalizeHomePage() {
         </div>
       </motion.div>
 
-      {/* Learning Modules */}
-      <div className="mt-7 space-y-5">
-        {[
-          "Alignment with your Management",
-          "Managing High Performers",
-          "Growing your team",
-          "Conflict Resolution",
-          "Strategic Decision Making",
-          "Team Motivation",
-        ].map((title, index) => (
-          <motion.div
-            key={index}
-            initial="offscreen"
-            whileInView="onscreen"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={cardVariants}
-          >
-            <div className="rounded-xl border border-white/20 bg-white/90 p-5 shadow-[0_5px_20px_-5px_rgba(0,41,255,0.1)] backdrop-blur-sm">
-              <div className="flex items-start">
-                <div className="flex-1">
-                  <h2 className="text-lg font-bold text-[var(--primary-color)]">
-                    {title}
-                  </h2>
-                  <p className="mt-1.5 text-[color-mix(in_srgb,var(--primary-color),black_30%)]">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                    Morbi sit amet faucibus sapien.
-                  </p>
+      {/* Learning Plan Section */}
+      <motion.div
+        initial="offscreen"
+        whileInView="onscreen"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={cardVariants}
+        className="mt-8"
+      >
+        <h2 className="mb-6 text-2xl font-bold text-[var(--primary-color)]">
+          Your Learning Journey
+        </h2>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          {reportData?.learning_plan?.map((plan, index) => (
+            <motion.div
+              key={index}
+              className="group relative overflow-hidden rounded-xl border border-white/20 bg-white p-6 shadow-lg transition-all hover:shadow-xl"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 * index }}
+              whileHover={{ scale: 1.02 }}
+            >
+              {/* Gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary-color)]/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="flex space-x-4 text-xl">
-                      <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] hover:text-[var(--primary-color)]">
-                        <FiMessageSquare />
-                      </button>
-                      <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] hover:text-[var(--primary-color)]">
-                        <GiTargetDummy />
-                      </button>
-                      <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] hover:text-[var(--primary-color)]">
-                        <AiOutlineQuestionCircle />
-                      </button>
-                      <button className="text-[color-mix(in_srgb,var(--primary-color),white_40%)] hover:text-[var(--primary-color)]">
-                        <BsBookmark />
-                      </button>
+              {/* Content */}
+              <div className="relative z-10">
+                <h3 className="text-xl font-semibold text-[var(--primary-color)]">
+                  {plan.title}
+                </h3>
+                <p className="mt-3 text-gray-600">{plan.content}</p>
+
+                {/* Video Preview Section */}
+                <div className="mt-4 overflow-hidden rounded-lg border border-gray-100">
+                  <motion.div
+                    className="relative aspect-video w-full cursor-pointer bg-black/5"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    onClick={() => window.open(plan.video, '_blank')}
+                  >
+                    {/* YouTube Thumbnail */}
+                    <img
+                      src={getYouTubeThumbnail(plan.video)}
+                      alt={plan.title}
+                      className="absolute inset-0 h-full w-full object-cover opacity-90 transition-opacity duration-300 hover:opacity-100"
+                      onError={(e) => {
+                        e.target.src = 'https://placehold.co/600x400/png?text=Video+Thumbnail';
+                      }}
+                    />
+                    
+                    {/* Play Button Overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform duration-300 group-hover:scale-110">
+                        <svg
+                          className="h-6 w-6 translate-x-0.5 text-[var(--primary-color)]"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
                     </div>
-                    <button className="flex items-center text-sm font-bold text-[var(--primary-color)] hover:text-[color-mix(in_srgb,var(--primary-color),black_20%)]">
-                      Explore <FiArrowRight className="ml-1.5" />
-                    </button>
-                  </div>
+                  </motion.div>
+                </div>
+
+                {/* Action Bar */}
+                <div className="mt-4 flex items-center justify-between">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center gap-2 rounded-full bg-[var(--primary-color)] px-4 py-2 text-sm font-medium text-white shadow-md transition-colors hover:bg-[color-mix(in_srgb,var(--primary-color),black_10%)]"
+                    onClick={() => window.open(plan.video, '_blank')}
+                  >
+                    Watch Now
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      />
+                    </svg>
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="rounded-full bg-gray-100 p-2 text-[var(--primary-color)] hover:bg-gray-200"
+                  >
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                      />
+                    </svg>
+                  </motion.button>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
     </main>
   );
 }
