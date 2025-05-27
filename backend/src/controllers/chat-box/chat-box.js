@@ -19,10 +19,8 @@ dotenv.config({ path: argv.envFilePath });
 
 export const chatBoxController = async (req, res) => {
   const db = getDb();
-  const session = await db.client.startSession();
 
   try {
-    session.startTransaction();
 
     const { question, userId } = req.body;
 
@@ -102,8 +100,7 @@ export const chatBoxController = async (req, res) => {
               $each: [userMessage, serverMessage],
             },
           },
-        },
-        { session },
+        }
       );
     } else {
       // Create new conversation
@@ -113,12 +110,9 @@ export const chatBoxController = async (req, res) => {
           chat_context: [userMessage, serverMessage],
           created_at: currentTimestamp,
           updated_at: currentTimestamp,
-        },
-        { session },
+        }
       );
     }
-
-    await session.commitTransaction();
 
     res.status(200).json({
       success: true,
@@ -129,15 +123,12 @@ export const chatBoxController = async (req, res) => {
       },
     });
   } catch (error) {
-    await session.abortTransaction();
     console.error('Chat box error:', error);
     res.status(500).json({
       error: 'An error occurred while processing your request',
       details: error.message,
     });
-  } finally {
-    await session.endSession();
-  }
+  } 
 };
 
 export const chatBoxGetAllTextController = async (req, res) => {
