@@ -52,7 +52,7 @@ const RoleInformationForm = ({ initialData, onNext, onBack }) => {
     "VP",
   ];
   const teamSizes = ["1-5", "6-20", "20-50", "50+"];
-  const industries = ["Banking", "Finance", "Health Care", "Retail"];
+  const industries = ["Banking", "Finance", "Health Care", "Retail", "Technology", "Professional Services"];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
