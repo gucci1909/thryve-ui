@@ -9,6 +9,7 @@ export const leadershipReportControllers = async (req, res) => {
     const leadershipReportsCollection = db.collection('leadership-reports');
     const usersCollection = db.collection('users');
 
+
     // Validate request body
     leadershipReportSchema.parse(req.body);
 
@@ -26,8 +27,6 @@ export const leadershipReportControllers = async (req, res) => {
 
     // Save report to database
     const result = await leadershipReportsCollection.insertOne(reportDocument);
-
-    console.log({ f: req.user.id });
 
     const updateResult = await usersCollection.updateOne(
       { _id: new ObjectId(req.user.id) },

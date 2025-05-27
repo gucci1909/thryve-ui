@@ -3,163 +3,207 @@ import dotenv from 'dotenv';
 import yargs from 'yargs/yargs';
 import { hideBin } from 'yargs/helpers';
 import fetch from 'node-fetch';
+import { ObjectId } from 'mongodb';
+import { getCoachPrompt } from './chat-box-prompt-template.js';
 
 const argv = yargs(hideBin(process.argv))
-    .option('envFilePath', {
-        alias: 'e',
-        describe: 'Path to the .env file',
-        type: 'string',
-        demandOption: true,
-    })
-    .parse();
+  .option('envFilePath', {
+    alias: 'e',
+    describe: 'Path to the .env file',
+    type: 'string',
+    demandOption: true,
+  })
+  .parse();
 
 dotenv.config({ path: argv.envFilePath });
 
-
 export const chatBoxController = async (req, res) => {
-    const db = getDb();
-    const session = await db.client.startSession();
+  const db = getDb();
+  const session = await db.client.startSession();
 
-    try {
-        session.startTransaction();
+  try {
+    session.startTransaction();
 
-        const { question, userId } = req.body;
+    const { question, userId } = req.body;
 
-        if (!question || !userId) {
-            return res.status(400).json({ error: 'Question and userId are required' });
-        }
-
-        const currentTimestamp = new Date();
-
-        // Prepare user message
-        const userMessage = {
-            requestFrom: "user",
-            text: question,
-            timestamp: currentTimestamp
-        };
-
-        // Get ChatGPT response
-        const response = await fetch(process.env.OpenAIAPI, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${process.env.OpenAIAPIKEY}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                model: "gpt-4",
-                messages: [
-                    {
-                        role: "user",
-                        content: question
-                    }
-                ],
-                temperature: 0.7
-            })
-        });
-
-        const data = await response.json();
-
-        if (!data.choices || !data.choices[0]) {
-            throw new Error('Invalid response from OpenAI');
-        }
-
-        // Prepare server message
-        const serverMessage = {
-            requestFrom: "server",
-            text: data.choices[0].message.content,
-            timestamp: new Date()
-        };
-
-        // Find existing conversation or create new one
-        const chatCollection = db.collection('chats');
-        const existingChat = await chatCollection.findOne({ user_id: userId });
-
-        if (existingChat) {
-            // Update existing conversation
-            await chatCollection.updateOne(
-                { user_id: userId },
-                {
-                    $push: {
-                        messages: {
-                            $each: [userMessage, serverMessage]
-                        }
-                    }
-                },
-                { session }
-            );
-        } else {
-            // Create new conversation
-            await chatCollection.insertOne({
-                user_id: userId,
-                messages: [userMessage, serverMessage]
-            }, { session });
-        }
-
-        await session.commitTransaction();
-
-        res.status(200).json({
-            success: true,
-            response: serverMessage.text,
-            conversation: {
-                userMessage,
-                serverMessage
-            }
-        });
-
-    } catch (error) {
-        await session.abortTransaction();
-        console.error('Chat box error:', error);
-        res.status(500).json({
-            error: 'An error occurred while processing your request',
-            details: error.message
-        });
-    } finally {
-        await session.endSession();
+    if (!question || !userId) {
+      return res.status(400).json({ error: 'Question and userId are required' });
     }
+
+    // Get user's company ID from users collection
+    const usersCollection = db.collection('users');
+    const companiesCollection = db.collection('companies');
+    const leadershipReportsCollection = db.collection('leadership-reports');
+    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+
+    if (!user || !user.companyId) {
+      throw new Error('User or company ID not found');
+    }
+
+    const currentTimestamp = new Date();
+
+    // Prepare user message
+    const userMessage = {
+      from: 'user',
+      chat_text: question,
+      timestamp: currentTimestamp,
+      messageType: 'question',
+    };
+
+    // Get ChatGPT response
+
+    const chatCollection = db.collection('chats');
+    const existingChat = await chatCollection.findOne({ user_id: userId });
+    const company = await companiesCollection.findOne({ INVITE_CODE: user.companyId });
+
+    const leadershipReport = await leadershipReportsCollection.findOne({ userId: userId });
+
+    const response = await fetch(process.env.OpenAIAPI, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.OpenAIAPIKEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4',
+        messages: [
+          {
+            role: 'system',
+            content: getCoachPrompt(question, leadershipReport, company, existingChat || {}),
+          },
+        ],
+        temperature: 0.7,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!data.choices || !data.choices[0]) {
+      throw new Error('Invalid response from OpenAI');
+    }
+
+    const value = getCoachPrompt(question, leadershipReport, company, existingChat || {});
+    console.log('\n===== 🧠 Prompt Value Start =====\n');
+    console.dir(value, { depth: null, colors: true });
+    console.log('\n===== 🧠 Prompt Value End =====\n');
+
+    // Prepare server message
+    const serverMessage = {
+      from: 'aicoach',
+      chat_text: JSON.parse(data.choices[0].message.content).chat_text,
+      timestamp: new Date(),
+      messageType: 'response',
+    };
+
+    // Find existing conversation or create new one
+
+    if (existingChat) {
+      // Update existing conversation
+      await chatCollection.updateOne(
+        { user_id: userId },
+        {
+          $push: {
+            chat_context: {
+              $each: [userMessage, serverMessage],
+            },
+          },
+        },
+        { session },
+      );
+    } else {
+      // Create new conversation
+      await chatCollection.insertOne(
+        {
+          user_id: userId,
+          chat_context: [userMessage, serverMessage],
+          created_at: currentTimestamp,
+          updated_at: currentTimestamp,
+        },
+        { session },
+      );
+    }
+
+    await session.commitTransaction();
+
+    res.status(200).json({
+      success: true,
+      response: serverMessage.text,
+      conversation: {
+        userMessage,
+        serverMessage,
+      },
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    console.error('Chat box error:', error);
+    res.status(500).json({
+      error: 'An error occurred while processing your request',
+      details: error.message,
+    });
+  } finally {
+    await session.endSession();
+  }
 };
 
-export const chatBoxGetAllTextController = async(req, res) => {
-    const db = getDb();
-    
-    try {
-        // Get user ID from the authenticated token
-        const userId = req.user.id;
-        
-        if (!userId) {
-            return res.status(400).json({ 
-                success: false,
-                error: 'User ID not found in token' 
-            });
-        }
+export const chatBoxGetAllTextController = async (req, res) => {
+  const db = getDb();
 
-        // Find chat messages for the user
-        const chatCollection = db.collection('chats');
-        const userChat = await chatCollection.findOne({ user_id: userId });
+  try {
+    // Get user ID from the authenticated token
+    const userId = req.user.id;
 
-        if (!userChat) {
-            return res.status(200).json({
-                success: true,
-                messages: [],
-                message: 'No chat history found for this user'
-            });
-        }
-
-        // Sort messages by timestamp
-        const sortedMessages = userChat.messages.sort((a, b) => 
-            new Date(a.timestamp) - new Date(b.timestamp)
-        );
-
-        res.status(200).json({
-            success: true,
-            messages: sortedMessages
-        });
-
-    } catch (error) {
-        console.error('Error fetching chat history:', error);
-        res.status(500).json({
-            success: false,
-            error: 'An error occurred while fetching chat history',
-            details: error.message
-        });
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        error: 'User ID not found in token',
+      });
     }
+
+    // Find chat messages for the user
+    const chatCollection = db.collection('chats');
+    const userChat = await chatCollection.findOne({ user_id: userId });
+
+    if (!userChat) {
+      return res.status(200).json({
+        success: true,
+        chat_context: [],
+        message: 'No chat history found for this user',
+      });
+    }
+
+    // Sort messages by timestamp and format them
+    const sortedMessages = userChat?.messages
+      .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+      .map((msg) => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp),
+      }));
+
+    // Group messages by question-response pairs
+    const groupedMessages = [];
+    for (let i = 0; i < sortedMessages.length; i += 2) {
+      const question = sortedMessages[i];
+      const response = sortedMessages[i + 1];
+      if (question && response) {
+        groupedMessages.push({
+          question,
+          response,
+          timestamp: question.timestamp,
+        });
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      chat_context: sortedMessages,
+      groupedConversations: groupedMessages,
+    });
+  } catch (error) {
+    console.error('Error fetching chat history:', error);
+    res.status(500).json({
+      success: false,
+      error: 'An error occurred while fetching chat history',
+      details: error.message,
+    });
+  }
 };
