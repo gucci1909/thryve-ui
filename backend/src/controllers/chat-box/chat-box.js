@@ -82,11 +82,6 @@ export const chatBoxController = async (req, res) => {
       throw new Error('Invalid response from OpenAI');
     }
 
-    const value = getCoachPrompt(question, leadershipReport, company, existingChat || {});
-    console.log('\n===== 🧠 Prompt Value Start =====\n');
-    console.dir(value, { depth: null, colors: true });
-    console.log('\n===== 🧠 Prompt Value End =====\n');
-
     // Prepare server message
     const serverMessage = {
       from: 'aicoach',
@@ -149,13 +144,12 @@ export const chatBoxGetAllTextController = async (req, res) => {
   const db = getDb();
 
   try {
-    // Get user ID from the authenticated token
     const userId = req.user.id;
 
     if (!userId) {
       return res.status(400).json({
         success: false,
-        error: 'User ID not found in token',
+        error: 'User ID is required',
       });
     }
 
@@ -171,32 +165,9 @@ export const chatBoxGetAllTextController = async (req, res) => {
       });
     }
 
-    // Sort messages by timestamp and format them
-    const sortedMessages = userChat?.messages
-      .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
-      .map((msg) => ({
-        ...msg,
-        timestamp: new Date(msg.timestamp),
-      }));
-
-    // Group messages by question-response pairs
-    const groupedMessages = [];
-    for (let i = 0; i < sortedMessages.length; i += 2) {
-      const question = sortedMessages[i];
-      const response = sortedMessages[i + 1];
-      if (question && response) {
-        groupedMessages.push({
-          question,
-          response,
-          timestamp: question.timestamp,
-        });
-      }
-    }
-
     res.status(200).json({
       success: true,
-      chat_context: sortedMessages,
-      groupedConversations: groupedMessages,
+      chat_context: userChat.chat_context || [],
     });
   } catch (error) {
     console.error('Error fetching chat history:', error);

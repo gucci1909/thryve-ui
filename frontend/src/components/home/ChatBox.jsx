@@ -3,15 +3,17 @@ import { motion } from "framer-motion";
 import { MessageCircle, Send, ChevronLeft, Mic, MicOff } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import scenariosData from "./chatbox.json";
-import { useLocation, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 export default function ChatBox({ onClose }) {
   const token = useSelector((state) => state.user.token);
+  const userId = useSelector((state) => state.user._id);
   /* ---------------- Text / scenario state ---------------- */
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
-  const [activeView, setActiveView] = useState("scenarios");
+  const [activeView, setActiveView] = useState("chat");
   const [selectedScenario, setSelectedScenario] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   /* ---------------- Audio-recording state ---------------- */
   const [isRecording, setIsRecording] = useState(false);
@@ -26,28 +28,65 @@ export default function ChatBox({ onClose }) {
   const audioContextRef = useRef(null);
   const firstName = useSelector((state) => state.user.firstName);
 
-  /* ====================================================== */
-  /* ===========  Chat / scenario-response logic  ========== */
-  /* ====================================================== */
+  // Load chat history when component mounts or when switching to chat view
+  useEffect(() => {
+    if (activeView === "chat") {
+      loadChatHistory();
+    }
+  }, [activeView]);
 
-  const startScenarioChat = (scenario) => {
+  const loadChatHistory = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/chat-box/get-message`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to load chat history");
+      }
+
+      const data = await response.json();
+      if (data.success && data.chat_context) {
+        const formattedMessages = data.chat_context.map((msg, index) => ({
+          id: index + 1,
+          text: msg.chat_text,
+          sender: msg.from === "user" ? "user" : "bot",
+          timestamp: new Date(msg.timestamp)
+        }));
+        setMessages(formattedMessages);
+      }
+    } catch (error) {
+      console.error("Error loading chat history:", error);
+    }
+  };
+
+  const startScenarioChat = async (scenario) => {
     setSelectedScenario(scenario);
     setMessages([
       {
         id: 1,
         text: `Hi ${firstName}, how can I help you today?`,
         sender: "bot",
+        timestamp: new Date(),
       },
-      { id: 2, text: scenario.question, sender: "user" },
+      {
+        id: 2,
+        text: scenario.question,
+        sender: "user",
+        timestamp: new Date(),
+      },
     ]);
     setActiveView("chat");
 
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        { id: 3, text: scenario.response, sender: "bot" },
-      ]);
-    }, 800);
+    // Send the scenario question to the backend
+    await handleSend(scenario.question);
   };
 
   const startCustomChat = () => {
@@ -67,21 +106,23 @@ export default function ChatBox({ onClose }) {
     setActiveView("chat");
   };
 
-  const handleSend = async () => {
-    const trimmed = inputValue.trim();
+  const handleSend = async (questionText = null) => {
+    const trimmed =  inputValue.trim();
     if (!trimmed) return;
 
+    setIsLoading(true);
     const newMessage = {
       id: messages.length + 1,
       text: trimmed,
       sender: "user",
+      timestamp: new Date(),
     };
-    setMessages([...messages, newMessage]);
+    setMessages((prev) => [...prev, newMessage]);
     setInputValue("");
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/chat-box`,
+        `${import.meta.env.VITE_API_BASE_URL}/chat-box/send-message`,
         {
           method: "POST",
           headers: {
@@ -92,7 +133,7 @@ export default function ChatBox({ onClose }) {
             question: trimmed,
             userId: userId,
           }),
-        },
+        }
       );
 
       if (!response.ok) {
@@ -101,26 +142,30 @@ export default function ChatBox({ onClose }) {
 
       const data = await response.json();
 
-      // Add the bot's response to the messages
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: prev.length + 1,
-          text: data.response,
-          sender: "bot",
-        },
-      ]);
+      if (data.success && data.conversation) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: prev.length + 1,
+            text: data.conversation.serverMessage.chat_text,
+            sender: "bot",
+            timestamp: new Date(data.conversation.serverMessage.timestamp),
+          },
+        ]);
+      }
     } catch (error) {
       console.error("Chat error:", error);
-      // Add error message to chat
       setMessages((prev) => [
         ...prev,
         {
           id: prev.length + 1,
           text: "Sorry, I encountered an error. Please try again.",
           sender: "bot",
+          timestamp: new Date(),
         },
       ]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -265,14 +310,6 @@ export default function ChatBox({ onClose }) {
       {/* ---- Header ---- */}
       <div className="flex items-center justify-between border-b border-white/20 bg-white px-4 py-3 shadow-sm">
         <div className="flex items-center gap-2">
-          {activeView === "chat" && (
-            <button
-              onClick={goBackToScenarios}
-              className="mr-2 rounded-full p-1 text-gray-500 hover:bg-gray-100"
-            >
-              <ChevronLeft size={18} />
-            </button>
-          )}
           <MessageCircle className="text-[var(--primary-color)]" size={20} />
           <h2 className="font-medium text-[var(--primary-color)]">
             {activeView === "scenarios" ? "Choose Scenario" : "Coach Chat"}
@@ -336,13 +373,22 @@ export default function ChatBox({ onClose }) {
                       : "bg-white text-gray-800 shadow-sm"
                   }`}
                 >
-                  {m.text}
+                  <div>{m.text}</div>
+                  <div className="mt-1 text-xs opacity-70">
+                    {new Date(m.timestamp).toLocaleTimeString()}
+                  </div>
                 </div>
               </motion.div>
             ))}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="max-w-[80%] rounded-2xl bg-white px-4 py-2 text-gray-800 shadow-sm">
+                  <div className="typing-indicator">...</div>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* ---- Input / audio area ---- */}
           {/* ---- Input / audio area ---- */}
           <div className="sticky bottom-16 z-20 border-t border-gray-200 bg-white p-3">
             <div className="flex items-center gap-2 rounded-b-xl bg-gray-100 px-4 py-2">
