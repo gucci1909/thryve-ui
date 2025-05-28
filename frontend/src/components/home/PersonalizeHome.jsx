@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { BorderBeam } from "../magicui/border-beam";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 
 function PersonalizeHomePage() {
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const token = useSelector((state) => state.user.token);
 
   // Function to extract YouTube video ID
