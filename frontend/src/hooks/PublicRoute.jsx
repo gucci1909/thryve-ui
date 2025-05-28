@@ -6,8 +6,6 @@ const PublicRoute = ({ children }) => {
   const personalize = useSelector((state) => state.user.personalize);
   const location = useLocation();
 
-  console.log({ d: location.pathname });
-
   if (
     token &&
     (location.pathname === "/selection-page" ||
