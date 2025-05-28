@@ -19,11 +19,7 @@ const PublicRoute = ({ children }) => {
   }
 
   if (token && location.pathname === "/signup") {
-     if (personalize) {
-      return <Navigate to="/personalize-home" />;
-    } else {
-      return <Navigate to="/home" />;
-    }
+    return <Navigate to="/selection-page" />;
   }
 
   if (token) {
