@@ -14,6 +14,7 @@ import logger from './utils/logger.js';
 import chatBoxRoutes from './api/chat-box/chat-box.js';
 import companyRoutes from './api/companies/companies.js';
 import { connectToDb } from './config/db.js';
+import { v4 as uuidv4 } from 'uuid';
 
 const argv = yargs(hideBin(process.argv))
   .option('envFilePath', {
@@ -65,7 +66,31 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
-  logger.info(`Request to ${req.path}`);
+  req.id = uuidv4();
+  next();
+});
+
+app.use((req, res, next) => {
+  const requestLogger = logger.withRequestContext(req);
+  
+  // Log request
+  requestLogger.info('Incoming request');
+
+  // Log response
+  res.on('finish', () => {
+    requestLogger.info('Request completed', {
+      statusCode: res.statusCode,
+      responseTime: Date.now() - req._startTime,
+      contentLength: res.get('Content-Length'),
+    });
+  });
+
+  // Log errors
+  res.on('error', (error) => {
+    requestLogger.error('Response error', error);
+  });
+
+  req._startTime = Date.now();
   next();
 });
 
