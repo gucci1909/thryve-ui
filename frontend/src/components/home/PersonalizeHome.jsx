@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { BorderBeam } from "../magicui/border-beam";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
+import { logout } from "../../store/userSlice";
 
 function PersonalizeHomePage() {
   const [reportData, setReportData] = useState(null);

@@ -6,7 +6,7 @@ import { AnimatedCircularProgressBar } from "../components/magicui/animated-circ
 import { AuroraText } from "../components/magicui/aurora-text";
 import { useLocation, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { reportDatafunc } from "../store/userSlice";
+import { logout, reportDatafunc } from "../store/userSlice";
 
 const AI_THINKING_MESSAGES = [
   "Analyzing your leadership patterns",

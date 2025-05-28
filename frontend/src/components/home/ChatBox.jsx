@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import scenariosData from "./chatbox.json";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
+import { logout } from "../../store/userSlice";
 
 export default function ChatBox({ onClose }) {
   const token = useSelector((state) => state.user.token);
