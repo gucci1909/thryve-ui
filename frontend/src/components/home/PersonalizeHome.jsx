@@ -12,19 +12,21 @@ function PersonalizeHomePage() {
   // Function to extract YouTube video ID
   const getYouTubeVideoId = (url) => {
     if (!url) return null;
-    
+
     // Handle different YouTube URL formats
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const regExp =
+      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
     const match = url.match(regExp);
-    
-    return (match && match[2].length === 11) ? match[2] : null;
+
+    return match && match[2].length === 11 ? match[2] : null;
   };
 
   // Function to get YouTube thumbnail URL
   const getYouTubeThumbnail = (url) => {
     const videoId = getYouTubeVideoId(url);
-    if (!videoId) return 'https://placehold.co/600x400/png?text=Video+Thumbnail';
-    
+    if (!videoId)
+      return "https://placehold.co/600x400/png?text=Video+Thumbnail";
+
     // Try multiple thumbnail qualities
     return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
   };
@@ -43,6 +45,14 @@ function PersonalizeHomePage() {
             },
           },
         );
+
+        // Access status code
+        const statusCode = response.status;
+        if (statusCode === 401) {
+          dispatch(logout());
+          navigate("/");
+          return;
+        }
 
         if (!response.ok) {
           throw new Error("Failed to fetch leadership report");
@@ -340,7 +350,7 @@ function PersonalizeHomePage() {
                     className="relative aspect-video w-full cursor-pointer bg-black/5"
                     whileHover={{ scale: 1.05 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                    onClick={() => window.open(plan.video, '_blank')}
+                    onClick={() => window.open(plan.video, "_blank")}
                   >
                     {/* YouTube Thumbnail */}
                     <img
@@ -348,10 +358,11 @@ function PersonalizeHomePage() {
                       alt={plan.title}
                       className="absolute inset-0 h-full w-full object-cover opacity-90 transition-opacity duration-300 hover:opacity-100"
                       onError={(e) => {
-                        e.target.src = 'https://placehold.co/600x400/png?text=Video+Thumbnail';
+                        e.target.src =
+                          "https://placehold.co/600x400/png?text=Video+Thumbnail";
                       }}
                     />
-                    
+
                     {/* Play Button Overlay */}
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform duration-300 group-hover:scale-110">
@@ -373,7 +384,7 @@ function PersonalizeHomePage() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className="flex items-center gap-2 rounded-full bg-[var(--primary-color)] px-4 py-2 text-sm font-medium text-white shadow-md transition-colors hover:bg-[color-mix(in_srgb,var(--primary-color),black_10%)]"
-                    onClick={() => window.open(plan.video, '_blank')}
+                    onClick={() => window.open(plan.video, "_blank")}
                   >
                     Watch Now
                     <svg

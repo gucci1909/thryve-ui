@@ -4,6 +4,7 @@ import BottomNav from "../components/home/BottomNav";
 import Header from "../components/home/Header";
 import PersonalizeHomePage from "../components/home/PersonalizeHome";
 import ChatBox from "../components/home/ChatBox";
+import Profile from "../components/home/Profile";
 
 export default function PersonalizeHome() {
   const location = useLocation();
@@ -16,7 +17,7 @@ export default function PersonalizeHome() {
       {location.pathname === "/personalize-dashboard" && (
         <PersonalizeHomePage />
       )}
-      {location.pathname === "/personalize-profile" && <PersonalizeHomePage />}
+      {location.pathname === "/personalize-profile" && <Profile />}
 
       {location.pathname === "/personalize-chat-box" && <ChatBox />}
 

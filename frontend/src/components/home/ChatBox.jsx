@@ -3,11 +3,14 @@ import { motion } from "framer-motion";
 import { MessageCircle, Send, ChevronLeft, Mic, MicOff } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import scenariosData from "./chatbox.json";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 
 export default function ChatBox({ onClose }) {
   const token = useSelector((state) => state.user.token);
   const userId = useSelector((state) => state.user._id);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   /* ---------------- Text / scenario state ---------------- */
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
@@ -40,13 +43,21 @@ export default function ChatBox({ onClose }) {
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/chat-box/get-message`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
-          }
-        }
+          },
+        },
       );
+
+      // Access status code
+      const statusCode = response.status;
+      if (statusCode === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
 
       if (!response.ok) {
         throw new Error("Failed to load chat history");
@@ -58,7 +69,7 @@ export default function ChatBox({ onClose }) {
           id: index + 1,
           text: msg.chat_text,
           sender: msg.from === "user" ? "user" : "bot",
-          timestamp: new Date(msg.timestamp)
+          timestamp: new Date(msg.timestamp),
         }));
         setMessages(formattedMessages);
       }
@@ -107,7 +118,7 @@ export default function ChatBox({ onClose }) {
   };
 
   const handleSend = async (questionText = null) => {
-    const trimmed =  inputValue.trim();
+    const trimmed = inputValue.trim();
     if (!trimmed) return;
 
     setIsLoading(true);
@@ -133,9 +144,17 @@ export default function ChatBox({ onClose }) {
             question: trimmed,
             userId: userId,
           }),
-        }
+        },
       );
 
+      // Access status code
+      const statusCode = response.status;
+      if (statusCode === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
+      
       if (!response.ok) {
         throw new Error("Failed to get response from chat API");
       }
@@ -270,6 +289,14 @@ export default function ChatBox({ onClose }) {
         },
         body: form,
       });
+
+      // Access status code
+      const statusCode = res.status;
+      if (statusCode === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
 
       if (!res.ok) {
         const err = await res.json();

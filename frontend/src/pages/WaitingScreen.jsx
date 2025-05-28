@@ -33,7 +33,7 @@ const AI_THINKING_MESSAGES = [
   "Analyzing resource optimization skills",
   "Calculating influence and persuasion metrics",
   "Evaluating crisis management readiness",
-  "Processing long-term vision alignment"
+  "Processing long-term vision alignment",
 ];
 
 const MIN_PROGRESS_DURATION = 15000; // 15 seconds minimum
@@ -70,8 +70,15 @@ function WaitingScreen() {
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(formData),
-          }
+          },
         );
+
+        // Access status code
+        const statusCode = response.status;
+        if (statusCode === 401) {
+          dispatch(logout());
+          navigate("/");
+        }
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -112,12 +119,13 @@ function WaitingScreen() {
         // If taking longer than expected, slow down the progress even more
         if (elapsed > MIN_PROGRESS_DURATION) {
           const extraTime = elapsed - MIN_PROGRESS_DURATION;
-          const extraProgress = (extraTime / (MAX_PROGRESS_DURATION - MIN_PROGRESS_DURATION)) * 15;
+          const extraProgress =
+            (extraTime / (MAX_PROGRESS_DURATION - MIN_PROGRESS_DURATION)) * 15;
           targetProgress = Math.min(75 + extraProgress, 90); // Never exceed 90% before API completes
         }
       }
 
-      setProgress(prev => {
+      setProgress((prev) => {
         // Smoothly transition to the target progress with slower easing
         const newProgress = prev + (targetProgress - prev) * 0.05; // Reduced from 0.1 to 0.05 for smoother transition
 
@@ -125,7 +133,9 @@ function WaitingScreen() {
           clearInterval(progressInterval);
           console.log({ navi: formData });
           setTimeout(() => {
-            navigate("/leadership-swot-analysis", { state: { formData, reportData } });
+            navigate("/leadership-swot-analysis", {
+              state: { formData, reportData },
+            });
           }, 1000); // Add a small delay before navigation
           return 100;
         }
@@ -135,7 +145,9 @@ function WaitingScreen() {
 
     progressInterval = setInterval(updateProgress, 100);
     messageInterval = setInterval(() => {
-      setCurrentMessageIndex((prev) => (prev + 1) % AI_THINKING_MESSAGES.length);
+      setCurrentMessageIndex(
+        (prev) => (prev + 1) % AI_THINKING_MESSAGES.length,
+      );
     }, MESSAGE_CHANGE_INTERVAL);
 
     return () => {
@@ -230,10 +242,11 @@ function WaitingScreen() {
                 {AI_THINKING_MESSAGES.map((message, index) => (
                   <motion.div
                     key={index}
-                    className={`rounded-lg px-4 py-2 text-center text-sm font-medium transition-all duration-300 ${index === currentMessageIndex
-                      ? "bg-[var(--primary-color)] text-white shadow"
-                      : "bg-gray-100 text-gray-600"
-                      }`}
+                    className={`rounded-lg px-4 py-2 text-center text-sm font-medium transition-all duration-300 ${
+                      index === currentMessageIndex
+                        ? "bg-[var(--primary-color)] text-white shadow"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -5 }}

@@ -38,6 +38,8 @@ const userSlice = createSlice({
       state._id = null;
       state.email = null;
       state.firstName = null;
+      state.reportData = null;
+      state.personalize = null;
 
       localStorage.removeItem("token");
       localStorage.removeItem("_id");
