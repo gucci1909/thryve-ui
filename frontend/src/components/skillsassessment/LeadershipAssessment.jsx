@@ -58,7 +58,8 @@ export default function LeadershipAssessment({
       };
 
       // If this is the last question, call onNext with the updated value
-      if (currentQuestionIndex === allQuestions.length - 1) {
+      if (currentQuestionIndex === allQuestions.length - 1 && !isComplete) {
+        setIsComplete(true);
         setTimeout(() => {
           onNext({ leadership: updated.leadership });
         }, 800);

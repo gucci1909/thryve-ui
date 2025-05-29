@@ -8,6 +8,7 @@
 /* index.css or global.css */
 :root {
   --primary-color: #0029ff;
+   --primary: var(--primary-color); /* Add this line to match ShinyButton's variable */
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);

@@ -18,6 +18,8 @@ const argv = yargs(hideBin(process.argv))
 dotenv.config({ path: argv.envFilePath });
 
 export const chatBoxController = async (req, res) => {
+    // debugger;
+
   const db = getDb();
 
   try {
@@ -34,7 +36,7 @@ export const chatBoxController = async (req, res) => {
     const leadershipReportsCollection = db.collection('leadership-reports');
     const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
 
-    if (!user || !user.companyId) {
+    if (!user) {
       throw new Error('User or company ID not found');
     }
 
@@ -48,11 +50,15 @@ export const chatBoxController = async (req, res) => {
       messageType: 'question',
     };
 
-    // Get ChatGPT response
-
     const chatCollection = db.collection('chats');
     const existingChat = await chatCollection.findOne({ user_id: userId });
-    const company = await companiesCollection.findOne({ INVITE_CODE: user.companyId });
+
+
+    if(user?.companyId){
+
+    }
+
+    const company = await companiesCollection.findOne({ INVITE_CODE: user?.companyId });
 
     const leadershipReport = await leadershipReportsCollection.findOne({ userId: userId });
 
@@ -67,7 +73,7 @@ export const chatBoxController = async (req, res) => {
         messages: [
           {
             role: 'system',
-            content: getCoachPrompt(question, leadershipReport, company, existingChat || {}),
+            content: getCoachPrompt(question, leadershipReport || {}, company || {}, existingChat || {}),
           },
         ],
         temperature: 0.7,

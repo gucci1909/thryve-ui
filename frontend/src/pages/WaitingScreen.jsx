@@ -7,6 +7,7 @@ import { AuroraText } from "../components/magicui/aurora-text";
 import { useLocation, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, reportDatafunc } from "../store/userSlice";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const AI_THINKING_MESSAGES = [
   "Analyzing your leadership patterns",
@@ -45,8 +46,6 @@ function WaitingScreen() {
   const dispatch = useDispatch();
   const firstName = useSelector((state) => state.user.firstName);
   const formData = location.state?.formData;
-
-  console.log(formData);
   const token = useSelector((state) => state.user.token);
   const [progress, setProgress] = useState(0);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
@@ -78,6 +77,7 @@ function WaitingScreen() {
         if (statusCode === 401) {
           dispatch(logout());
           navigate("/");
+          return;
         }
 
         if (!response.ok) {
@@ -228,14 +228,25 @@ function WaitingScreen() {
                 gaugeSecondaryColor="rgba(0, 41, 255, 0.1)"
                 className="h-40 w-40"
               />
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
-                <span className="text-2xl font-bold text-[var(--primary-color)]">
-                  {Math.round(progress)}%
-                </span>
-                <span className="text-xs text-gray-400">COMPLETE</span>
+              <div className="absolute inset-0 m-auto flex flex-col items-center justify-center gap-1">
+                <motion.div
+                  animate={{
+                    rotate: 360, // Rotate 360 degrees
+                  }}
+                  transition={{
+                    duration: 5, // Duration of one rotation in seconds
+                    repeat: Infinity, // Infinite rotation
+                    ease: "linear", // Smooth linear rotation
+                  }}
+                >
+                  <DotLottieReact
+                    src="https://lottie.host/208e2bad-58e7-483f-8e67-e9c314ffef65/uy4hC8Z5Xg.lottie"
+                    loop
+                    autoplay
+                  />
+                </motion.div>
               </div>
             </div>
-
             {/* AI Thinking Messages */}
             <div className="w-full max-w-md space-y-2">
               <AnimatedList delay={MESSAGE_CHANGE_INTERVAL}>

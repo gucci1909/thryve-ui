@@ -5,6 +5,7 @@ import { Route, Routes } from "react-router-dom";
 const Loader = lazy(() => import("../components/common/Loader.jsx"));
 const PrivateRoute = lazy(() => import("../hooks/PrivateRoute.jsx"));
 const PublicRoute = lazy(() => import("../hooks/PublicRoute.jsx"));
+const LogOut = lazy(() => import("../hooks/LogOut.jsx"));
 const Home = lazy(() => import("../pages/Home.jsx"));
 const DiscoverPage = lazy(() => import("../pages/DiscoverPage.jsx"));
 const Personalize = lazy(() => import("../pages/Personalize.jsx"));
@@ -44,6 +45,7 @@ function AllRoutes() {
           />
           <Route path="/selection-page" element={<SelectionPage />} />
           <Route path="/waiting" element={<WaitingScreen />} />
+          <Route path="/logout" element={<LogOut/>}/>
           <Route
             path="/learning-plan-ready"
             element={<LearningPlanReadyScreen />}

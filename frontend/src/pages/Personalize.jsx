@@ -36,14 +36,16 @@ function Personalize() {
         ...formData,
         roleInfo: {
           ...formData.roleInfo,
-          challenges: Array.isArray(formData.roleInfo.challenges)
-            ? formData.roleInfo.challenges
-            : formData.roleInfo.challenges
+          challenges: Array.isArray(formData?.roleInfo?.challenges)
+            ? formData?.roleInfo?.challenges
+            : formData?.roleInfo?.challenges
               ?.split(",")
               .map((item) => item.trim())
               .filter(Boolean),
         },
       };
+
+      console.log({n:normalizedFormData});
       setTimeout(() => {
         navigate("/waiting", {
           state: {

@@ -1,10 +1,18 @@
 "use client";
 import { motion } from "framer-motion";
-import { MessageCircle, Send, ChevronLeft, Mic, MicOff } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
+import {
+  MessageCircle,
+  Send,
+  Mic,
+  MicOff,
+  Sparkles,
+} from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import scenariosData from "./chatbox.json";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
+import { ShinyButton } from "../../components/magicui/shiny-button";
 import { logout } from "../../store/userSlice";
 
 export default function ChatBox({ onClose }) {
@@ -32,6 +40,8 @@ export default function ChatBox({ onClose }) {
   const audioContextRef = useRef(null);
   const firstName = useSelector((state) => state.user.firstName);
 
+  const [isRoleplay, setIsRoleplay] = useState(false);
+
   // Load chat history when component mounts or when switching to chat view
   useEffect(() => {
     if (activeView === "chat") {
@@ -40,87 +50,78 @@ export default function ChatBox({ onClose }) {
   }, [activeView]);
 
   const loadChatHistory = async () => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/chat-box/get-message`,
+    // try {
+    if (isRoleplay) {
+      setMessages((prev) => [
+        ...prev,
         {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+          id: 1,
+          text: "I want to engage in a roleplay on giving constructive feedback",
+          sender: "user",
+          timestamp: new Date(),
         },
-      );
-
-      // Access status code
-      const statusCode = response.status;
-      if (statusCode === 401) {
-        dispatch(logout());
-        navigate("/");
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error("Failed to load chat history");
-      }
-
-      const data = await response.json();
-      if (data.success && data.chat_context) {
-        const formattedMessages = data.chat_context.map((msg, index) => ({
-          id: index + 1,
-          text: msg.chat_text,
-          sender: msg.from === "user" ? "user" : "bot",
-          timestamp: new Date(msg.timestamp),
-        }));
-        setMessages(formattedMessages);
-      }
-    } catch (error) {
-      console.error("Error loading chat history:", error);
+      ]);
     }
+    //   const response = await fetch(
+    //     `${import.meta.env.VITE_API_BASE_URL}/chat-box/get-message`,
+    //     {
+    //       method: "GET",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //     },
+    //   );
+
+    //   // Access status code
+    //   const statusCode = response.status;
+    //   if (statusCode === 401) {
+    //     dispatch(logout());
+    //     navigate("/");
+    //     return;
+    //   }
+
+    //   if (!response.ok) {
+    //     throw new Error("Failed to load chat history");
+    //   }
+
+    //   const data = await response.json();
+    //   if (data.success && data.chat_context) {
+    //     const formattedMessages = data.chat_context.map((msg, index) => ({
+    //       id: index + 1,
+    //       text: msg.chat_text,
+    //       sender: msg.from === "user" ? "user" : "bot",
+    //       timestamp: new Date(msg.timestamp),
+    //     }));
+    //     setMessages(formattedMessages);
+    //   }
+    // } catch (error) {
+    //   console.error("Error loading chat history:", error);
+    // }
   };
 
-  const startScenarioChat = async (scenario) => {
-    setSelectedScenario(scenario);
-    setMessages([
-      {
-        id: 1,
-        text: `Hi ${firstName}, how can I help you today?`,
-        sender: "bot",
-        timestamp: new Date(),
-      },
-      {
-        id: 2,
-        text: scenario.question,
-        sender: "user",
-        timestamp: new Date(),
-      },
-    ]);
-    setActiveView("chat");
+  const startScenarioChat = (scenario) => {
+    // Add the scenario question to messages
 
-    // Send the scenario question to the backend
-    await handleSend(scenario.question);
+    // Set loading to true and change view
+    setIsRoleplay(true);
+    setActiveView("chat");
+    setIsLoading(true);
+
+    // Send the question to handleSend
+    // handleSend(scenario.question);
   };
 
   const startCustomChat = () => {
     setSelectedScenario(null);
-    setMessages([
-      {
-        id: 1,
-        text: `Hi ${firstName}, how can I help you today?`,
-        sender: "bot",
-      },
-      {
-        id: 2,
-        text: "Please describe your scenario in your own words.",
-        sender: "bot",
-      },
-    ]);
+    // setMessages();
     setActiveView("chat");
   };
 
   const handleSend = async (questionText = null) => {
     const trimmed = inputValue.trim();
-    if (!trimmed) return;
+
+    if (questionText) if (!trimmed) return;
 
     setIsLoading(true);
     const newMessage = {
@@ -155,7 +156,7 @@ export default function ChatBox({ onClose }) {
         navigate("/");
         return;
       }
-      
+
       if (!response.ok) {
         throw new Error("Failed to get response from chat API");
       }
@@ -329,6 +330,27 @@ export default function ChatBox({ onClose }) {
     };
   }, []);
 
+  const animationProps = {
+    initial: { "--x": "100%", scale: 0.8 },
+    animate: { "--x": "-100%", scale: 1 },
+    whileTap: { scale: 0.95 },
+    transition: {
+      repeat: Infinity,
+      repeatType: "loop",
+      repeatDelay: 1,
+      type: "spring",
+      stiffness: 20,
+      damping: 15,
+      mass: 2,
+      scale: {
+        type: "spring",
+        stiffness: 200,
+        damping: 5,
+        mass: 0.5,
+      },
+    },
+  };
+
   /* ====================================================== */
   /* ========================== UI ======================== */
   /* ====================================================== */
@@ -339,143 +361,307 @@ export default function ChatBox({ onClose }) {
       <div className="flex items-center justify-between border-b border-white/20 bg-white px-4 py-3 shadow-sm">
         <div className="flex items-center gap-2">
           <MessageCircle className="text-[var(--primary-color)]" size={20} />
-          <h2 className="font-medium text-[var(--primary-color)]">
+          <motion.h2
+            className="font-medium text-[var(--primary-color)]"
+            key={activeView}
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
             {activeView === "scenarios" ? "Choose Scenario" : "Coach Chat"}
-          </h2>
+          </motion.h2>
         </div>
       </div>
 
-      {/* ---- Scenario list ---- */}
-      {activeView === "scenarios" ? (
-        <div className="flex-1 overflow-y-auto p-4">
-          <div className="mb-6 text-center">
-            <h3 className="text-lg font-medium text-gray-800">
-              Great {firstName}! Choose your scenario!
-            </h3>
-          </div>
-
-          <div className="space-y-3">
-            {scenariosData.scenarios.slice(0, 6).map((sc) => (
-              <motion.div
-                key={sc.id}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
-                onClick={() => startScenarioChat(sc)}
-              >
-                <h4 className="font-medium text-[var(--primary-color)]">
-                  {sc.title}
-                </h4>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="mt-6 text-center">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="rounded-full bg-[var(--primary-color)] px-6 py-2 text-white shadow-md"
-              onClick={startCustomChat}
+      {/* ---- Animated View Transition ---- */}
+      <AnimatePresence mode="wait">
+        {activeView === "scenarios" ? (
+          <motion.div
+            key="scenarios-view"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 10 }}
+            transition={{
+              type: "spring",
+              damping: 25,
+              stiffness: 400,
+              mass: 0.5,
+            }}
+            className="relative mx-auto flex h-[calc(100vh-100px)] max-w-md flex-col pt-4 pb-[100px]"
+          >
+            <motion.div
+              className="mb-6 text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
             >
-              Define your own scenario
-            </motion.button>
-          </div>
-        </div>
-      ) : (
-        <>
-          {/* ---- Message list ---- */}
-          <div className="flex-1 space-y-4 overflow-y-auto p-4 pb-32">
-            {messages.map((m) => (
+              <motion.h3
+                className="mb-3 text-xl font-semibold text-gray-800"
+                initial={{ y: -10 }}
+                animate={{ y: 0 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <span className="bg-gradient-to-r from-[var(--primary-color)] to-purple-500 bg-clip-text text-transparent">
+                  {firstName}
+                </span>
+                <span className="text-gray-600">, choose your scenario!</span>
+              </motion.h3>
               <motion.div
-                key={m.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`flex ${
-                  m.sender === "user" ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                    m.sender === "user"
-                      ? "bg-[var(--primary-color)] text-white"
-                      : "bg-white text-gray-800 shadow-sm"
-                  }`}
-                >
-                  <div>{m.text}</div>
-                  <div className="mt-1 text-xs opacity-70">
-                    {new Date(m.timestamp).toLocaleTimeString()}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="max-w-[80%] rounded-2xl bg-white px-4 py-2 text-gray-800 shadow-sm">
-                  <div className="typing-indicator">...</div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* ---- Input / audio area ---- */}
-          <div className="sticky bottom-16 z-20 border-t border-gray-200 bg-white p-3">
-            <div className="flex items-center gap-2 rounded-b-xl bg-gray-100 px-4 py-2">
-              {/* Multiline, scroll-after-max-height textarea */}
-              <textarea
-                rows={3}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={async (e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    await handleSend();
-                  }
-                }}
-                placeholder="Type your message..."
-                disabled={isRecording || isProcessing}
-                className="max-h-40 flex-1 resize-none overflow-y-auto border-none bg-transparent text-gray-800 outline-none"
+                className="mx-auto h-0.5 w-16 rounded-full bg-gradient-to-r from-[var(--primary-color)] to-purple-300"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
               />
+            </motion.div>
 
-              {/* Mic / stop button - always visible */}
-              <button
-                type="button"
-                onClick={isRecording ? stopRecording : startRecording}
-                disabled={isProcessing}
-                className={`rounded-full p-2 ${
-                  isRecording
-                    ? "bg-red-500 text-white"
-                    : "text-[var(--primary-color)] hover:bg-gray-200"
-                } transition-colors`}
-              >
-                {isProcessing ? (
-                  <span className="processing">…</span>
-                ) : isRecording ? (
-                  <MicOff size={18} />
-                ) : (
-                  <Mic size={18} />
-                )}
-              </button>
+            <motion.div
+              className="flex w-full flex-1 flex-col gap-3 overflow-y-auto pr-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ staggerChildren: 0.05 }}
+            >
+              {scenariosData.scenarios.slice(0, 6).map((sc) => (
+                <motion.div
+                  key={sc.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{
+                    scale: 1.02,
+                    boxShadow:
+                      "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                  className="group relative min-h-[70px] cursor-pointer overflow-hidden rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all"
+                  onClick={() => {
+                    console.log({ f: sc.question });
+                    startScenarioChat(sc);
+                  }}
+                >
+                  <motion.div className="absolute inset-0 bg-gradient-to-r from-[var(--primary-color)/10] to-purple-100 opacity-0 transition-opacity group-hover:opacity-100" />
+                  <div className="relative flex h-full items-center gap-3">
+                    <motion.div
+                      className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-xs font-medium text-amber-900 shadow-inner"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      RP
+                    </motion.div>
+                    <h4 className="text-lg font-medium text-gray-700 transition-colors group-hover:text-[var(--primary-color)]">
+                      {sc.title}
+                    </h4>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
 
-              {/* Send button */}
-              <button
-                onClick={handleSend}
-                disabled={!inputValue.trim() || isRecording || isProcessing}
-                className="rounded-full bg-[var(--primary-color)] p-2 text-white disabled:opacity-50"
+            <motion.div
+              className="text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <motion.button
+                whileHover={{
+                  scale: 1.02,
+                  background:
+                    "linear-gradient(to right, var(--primary-color), #8b5cf6)",
+                }}
+                whileTap={{ scale: 0.98 }}
+                className="bottom-14 w-full rounded-full bg-gradient-to-r from-[var(--primary-color)] to-purple-500 px-5 py-3 font-medium text-white shadow-md transition-all"
+                onClick={startCustomChat}
               >
-                <Send size={18} />
-              </button>
+                Define your own scenario
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        ) : (
+          /* ---- Chat View ---- */
+          <motion.div
+            key="chat-view"
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            transition={{
+              type: "spring",
+              damping: 25,
+              stiffness: 400,
+              mass: 0.5,
+            }}
+            className="flex h-full flex-col"
+          >
+            {/* Scrollable Messages Area */}
+            <motion.div
+              className="flex-1 space-y-4 overflow-y-auto p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+            >
+              {messages.map((m) => (
+                <motion.div
+                  key={m.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: "spring", stiffness: 500 }}
+                  className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                      m.sender === "user"
+                        ? "bg-[var(--primary-color)] text-white"
+                        : "bg-white text-gray-800 shadow-sm"
+                    }`}
+                  >
+                    <div>{m.text}</div>
+                    <div className="mt-1 text-xs opacity-70">
+                      {new Date(m.timestamp).toLocaleTimeString()}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+
+              {isLoading && (
+                <motion.div
+                  className="flex justify-start"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <div className="max-w-[80%] rounded-2xl bg-white px-4 py-2 text-gray-800 shadow-sm">
+                    <div className="typing-indicator flex gap-1">
+                      <motion.span
+                        animate={{ y: [0, -5, 0] }}
+                        transition={{ repeat: Infinity, duration: 0.6 }}
+                      >
+                        .
+                      </motion.span>
+                      <motion.span
+                        animate={{ y: [0, -5, 0] }}
+                        transition={{
+                          repeat: Infinity,
+                          duration: 0.6,
+                          delay: 0.2,
+                        }}
+                      >
+                        .
+                      </motion.span>
+                      <motion.span
+                        animate={{ y: [0, -5, 0] }}
+                        transition={{
+                          repeat: Infinity,
+                          duration: 0.6,
+                          delay: 0.4,
+                        }}
+                      >
+                        .
+                      </motion.span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </motion.div>
+
+            {/* Bottom Container with Button and Input */}
+            <div className="relative z-10 h-[242px]">
+              <motion.div
+                className="flex justify-center p-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <ShinyButton
+                  onClick={goBackToScenarios}
+                  className="group flex items-center justify-center gap-2 bg-gradient-to-r from-[var(--primary-color)] to-blue-600 px-6 py-3"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  animate={{
+                    ...animationProps.animate,
+                    boxShadow: [
+                      "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                      "0 10px 15px -3px rgb(0 0 0 / 0.2)",
+                      "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                    ],
+                  }}
+                  transition={{
+                    ...animationProps.transition,
+                    boxShadow: {
+                      duration: 2,
+                      repeat: Infinity,
+                      repeatType: "reverse",
+                      ease: "easeInOut",
+                    },
+                    scale: { type: "spring", stiffness: 400, damping: 10 },
+                  }}
+                >
+                  <Sparkles
+                    className="transition-transform group-hover:rotate-12"
+                    size={20}
+                  />
+                  <span className="font-medium">Role-play Scenario</span>
+                </ShinyButton>
+              </motion.div>
+
+              {/* Input area (keep bottom-14 as required) */}
+              <motion.div
+                className="sticky bottom-14 border-t border-gray-200 bg-white p-3"
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                <div className="flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2">
+                  <textarea
+                    rows={3}
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={async (e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        await handleSend();
+                      }
+                    }}
+                    placeholder="Type your message..."
+                    disabled={isRecording || isProcessing}
+                    className="max-h-40 flex-1 resize-none overflow-y-auto border-none bg-transparent text-gray-800 outline-none"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={isRecording ? stopRecording : startRecording}
+                    disabled={isProcessing}
+                    className={`rounded-full p-2 ${
+                      isRecording
+                        ? "bg-red-500 text-white"
+                        : "text-[var(--primary-color)] hover:bg-gray-200"
+                    } transition-colors`}
+                  >
+                    {isProcessing ? (
+                      <span className="processing">…</span>
+                    ) : isRecording ? (
+                      <MicOff size={18} />
+                    ) : (
+                      <Mic size={18} />
+                    )}
+                  </button>
+
+                  <button
+                    onClick={handleSend}
+                    disabled={!inputValue.trim() || isRecording || isProcessing}
+                    className="rounded-full bg-[var(--primary-color)] p-2 text-white disabled:opacity-50"
+                  >
+                    <Send size={18} />
+                  </button>
+                </div>
+
+                <canvas
+                  ref={canvasRef}
+                  width="300"
+                  height="40"
+                  className={`voice-visualizer ${isRecording ? "active" : ""} mt-2`}
+                />
+              </motion.div>
             </div>
-
-            {/* Hidden canvas for visualiser */}
-            <canvas
-              ref={canvasRef}
-              width="300"
-              height="40"
-              className={`voice-visualizer ${isRecording ? "active" : ""} mt-2`}
-            />
-          </div>
-        </>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }

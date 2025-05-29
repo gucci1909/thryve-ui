@@ -5,7 +5,7 @@
       "title": "Giving constructive feedback",
       "keywords": ["feedback"],
       "response": "Deliver feedback early, frequently, and with specific examples.",
-      "question": "What's the best way to give feedback to my team?"
+      "question": "I want to engage in a roleplay on giving constructive feedback"
     },
     {
       "id": "effective-1on1",
@@ -13,69 +13,6 @@
       "keywords": ["effective"],
       "response": "You should schedule fixed time and have a document where you capture notes.",
       "question": "How can I have effective 1:1s?"
-    },
-    {
-      "id": "career-growth",
-      "title": "Career development discussions",
-      "keywords": ["career"],
-      "response": "Have regular discussions about aspirations and opportunities to grow.",
-      "question": "How should I handle a conversation about someone's career path?"
-    },
-    {
-      "id": "goal-setting",
-      "title": "Setting team goals",
-      "keywords": ["goals"],
-      "response": "Set clear, measurable goals and revisit them every month.",
-      "question": "How do I set meaningful goals for my team?"
-    },
-    {
-      "id": "motivation",
-      "title": "Team motivation",
-      "keywords": ["motivation"],
-      "response": "Understand individual drivers and recognize effort regularly.",
-      "question": "How do I keep my team motivated during tough times?"
-    },
-    {
-      "id": "conflict-resolution",
-      "title": "Resolving team conflicts",
-      "keywords": ["conflict"],
-      "response": "Address conflicts quickly and privately by focusing on facts and outcomes.",
-      "question": "There is some conflict between two team members. What should I do?"
-    },
-    {
-      "id": "trust-building",
-      "title": "Building team trust",
-      "keywords": ["trust"],
-      "response": "Build trust by being consistent, honest, and following through on commitments.",
-      "question": "How do I build trust with my new team?"
-    },
-    {
-      "id": "delegation",
-      "title": "Effective delegation",
-      "keywords": ["delegation"],
-      "response": "Delegate based on strengths, not just bandwidth. Provide clarity on ownership.",
-      "question": "What's a good approach to delegation?"
-    },
-    {
-      "id": "productive-meetings",
-      "title": "Productive meetings",
-      "keywords": ["meetings"],
-      "response": "Ensure meetings have an agenda and clear action items to avoid time waste.",
-      "question": "How can I make meetings more productive?"
-    },
-    {
-      "id": "performance-review",
-      "title": "Performance reviews",
-      "keywords": ["performance"],
-      "response": "Use data and examples to have objective discussions about performance.",
-      "question": "How do I review someone's performance fairly?"
-    },
-    {
-      "id": "disagreement",
-      "title": "Disagreeing with Sr. Management",
-      "keywords": ["disagree"],
-      "response": "Present alternative solutions with data support, and express disagreement respectfully while showing alignment with company goals.",
-      "question": "How should I disagree with senior leadership?"
     }
   ],
   "fallbackResponse": "This is a demo of how the AI Coach will function. I will respond to your question in a few weeks 😊",

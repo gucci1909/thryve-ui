@@ -62,13 +62,22 @@ const RoleInformationForm = ({ initialData, onNext, onBack }) => {
     }));
   };
 
+  const isFormValid = () => {
+    return (
+      selectedRole !== "" &&
+      selectedTeamSize !== "" &&
+      selectedIndustry !== ""
+    );
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    if (!isFormValid()) {
+      return;
+    }
 
-    const challengeCount = formData.challenges
-      .split("\n")
-      .filter((line) => line.trim().length > 0).length;
-
+    setIsSubmitting(true);
     setTimeout(() => {
       onNext({
         roleInfo: formData,
@@ -189,7 +198,7 @@ const RoleInformationForm = ({ initialData, onNext, onBack }) => {
                 value={selectedRole}
                 onChange={handleRoleChange}
                 options={roles}
-                label="Your Role"
+                label={<span>Your Role <span className="text-red-500">*</span></span>}
                 placeholder="Select your role"
               />
             </motion.div>
@@ -204,7 +213,7 @@ const RoleInformationForm = ({ initialData, onNext, onBack }) => {
                 value={selectedTeamSize}
                 onChange={handleTeamSizeChange}
                 options={teamSizes}
-                label="Team Size"
+                label={<span>Team Size <span className="text-red-500">*</span></span>}
                 placeholder="Select team size"
               />
             </motion.div>
@@ -219,7 +228,7 @@ const RoleInformationForm = ({ initialData, onNext, onBack }) => {
                 value={selectedIndustry}
                 onChange={handleIndustryChange}
                 options={industries}
-                label="Industry"
+                label={<span>Industry <span className="text-red-500">*</span></span>}
                 placeholder="Select industry"
               />
             </motion.div>
@@ -232,7 +241,8 @@ const RoleInformationForm = ({ initialData, onNext, onBack }) => {
                 htmlFor="challenges"
                 className="mb-2 block text-sm font-medium text-gray-700"
               >
-                Top Challenges
+                Top Challenges <span className="text-red-500">*</span>
+                <span className="ml-1 text-xs text-gray-500">(minimum 2 challenges required)</span>
               </label>
               <div className="relative">
                 <motion.textarea
@@ -290,7 +300,7 @@ const RoleInformationForm = ({ initialData, onNext, onBack }) => {
         </form>
 
         {/* Loading Overlay */}
-        <AnimatePresence>
+        {/* <AnimatePresence>
           {isSubmitting && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -350,7 +360,7 @@ const RoleInformationForm = ({ initialData, onNext, onBack }) => {
               </motion.div>
             </motion.div>
           )}
-        </AnimatePresence>
+        </AnimatePresence> */}
       </div>
 
       <div className="relative">
@@ -378,16 +388,16 @@ const RoleInformationForm = ({ initialData, onNext, onBack }) => {
 
               <RippleButton
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !isFormValid()}
                 onClick={(e) => handleSubmit(e)}
                 rippleColor="rgba(0, 41, 255, 0.3)"
                 className={cn(
                   "flex w-[120px] items-center justify-center gap-1 bg-[#0029ff] text-white hover:bg-[#001fcc]",
-                  isSubmitting ? "cursor-not-allowed opacity-80" : "",
+                  (isSubmitting || !isFormValid()) ? "cursor-not-allowed opacity-50" : "",
                 )}
                 whileHover={{
-                  scale: isSubmitting ? 1 : 1.03,
-                  boxShadow: isSubmitting
+                  scale: (isSubmitting || !isFormValid()) ? 1 : 1.03,
+                  boxShadow: (isSubmitting || !isFormValid())
                     ? "none"
                     : "0 2px 8px rgba(0, 41, 255, 0.2)",
                 }}
