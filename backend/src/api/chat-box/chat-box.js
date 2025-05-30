@@ -2,6 +2,7 @@ import express from 'express';
 import apiLimiter from '../../middleware/rateLimiter.js';
 import authenticate from '../../middleware/authenticate.js';
 import { chatBoxController, chatBoxGetAllTextController } from '../../controllers/chat-box/chat-box.js';
+import { rolePlayController } from '../../controllers/role-play/role-play.js';
 const router = express.Router();
 
 router.use(apiLimiter, authenticate);
@@ -100,5 +101,8 @@ router.post('/send-message', chatBoxController);
  *         description: Server error
  */
 router.get('/get-message', chatBoxGetAllTextController);
+
+
+router.post('/send-role-play-message', rolePlayController);
 
 export default router;

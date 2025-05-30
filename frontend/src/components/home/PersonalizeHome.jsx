@@ -4,11 +4,13 @@ import { BorderBeam } from "../magicui/border-beam";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { logout } from "../../store/userSlice";
+import YouTube from "react-youtube"; // Add this import
 
 function PersonalizeHomePage() {
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeVideo, setActiveVideo] = useState(null); // Track which video is playing
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector((state) => state.user.token);
@@ -33,6 +35,21 @@ function PersonalizeHomePage() {
 
     // Try multiple thumbnail qualities
     return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+  };
+
+  // YouTube player options
+  const opts = {
+    height: "100%",
+    width: "100%",
+    playerVars: {
+      autoplay: 1,
+      modestbranding: 1,
+      rel: 0,
+    },
+  };
+
+  const handleVideoClick = (index) => {
+    setActiveVideo(activeVideo === index ? null : index);
   };
 
   useEffect(() => {
@@ -350,36 +367,47 @@ function PersonalizeHomePage() {
 
                 {/* Video Preview Section */}
                 <div className="mt-4 overflow-hidden rounded-lg border border-gray-100">
-                  <motion.div
-                    className="relative aspect-video w-full cursor-pointer bg-black/5"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                    onClick={() => window.open(plan.video, "_blank")}
-                  >
-                    {/* YouTube Thumbnail */}
-                    <img
-                      src={getYouTubeThumbnail(plan.video)}
-                      alt={plan.title}
-                      className="absolute inset-0 h-full w-full object-cover opacity-90 transition-opacity duration-300 hover:opacity-100"
-                      onError={(e) => {
-                        e.target.src =
-                          "https://placehold.co/600x400/png?text=Video+Thumbnail";
-                      }}
-                    />
-
-                    {/* Play Button Overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform duration-300 group-hover:scale-110">
-                        <svg
-                          className="h-6 w-6 translate-x-0.5 text-[var(--primary-color)]"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
-                      </div>
+                  {activeVideo === index ? (
+                    // YouTube Player when active
+                    <div className="aspect-video w-full">
+                      <YouTube
+                        videoId={getYouTubeVideoId(plan.video)}
+                        opts={opts}
+                        className="h-full w-full"
+                      />
                     </div>
-                  </motion.div>
+                  ) : (
+                    // Thumbnail when not active
+                    <motion.div
+                      className="relative aspect-video w-full cursor-pointer bg-black/5"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                      onClick={() => handleVideoClick(index)}
+                    >
+                      <img
+                        src={getYouTubeThumbnail(plan.video)}
+                        alt={plan.title}
+                        className="absolute inset-0 h-full w-full object-cover opacity-90 transition-opacity duration-300 hover:opacity-100"
+                        onError={(e) => {
+                          e.target.src =
+                            "https://placehold.co/600x400/png?text=Video+Thumbnail";
+                        }}
+                      />
+
+                      {/* Play Button Overlay */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform duration-300 group-hover:scale-110">
+                          <svg
+                            className="h-6 w-6 translate-x-0.5 text-[var(--primary-color)]"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
                 </div>
 
                 {/* Action Bar */}
@@ -388,9 +416,9 @@ function PersonalizeHomePage() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className="flex items-center gap-2 rounded-full bg-[var(--primary-color)] px-4 py-2 text-sm font-medium text-white shadow-md transition-colors hover:bg-[color-mix(in_srgb,var(--primary-color),black_10%)]"
-                    onClick={() => window.open(plan.video, "_blank")}
+                    onClick={() => handleVideoClick(index)}
                   >
-                    Watch Now
+                    {activeVideo === index ? "Close Player" : "Watch Now"}
                     <svg
                       className="h-4 w-4"
                       fill="none"
@@ -401,7 +429,7 @@ function PersonalizeHomePage() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth="2"
-                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                        d={activeVideo === index ? "M6 18L18 6M6 6l12 12" : "M14 5l7 7m0 0l-7 7m7-7H3"}
                       />
                     </svg>
                   </motion.button>

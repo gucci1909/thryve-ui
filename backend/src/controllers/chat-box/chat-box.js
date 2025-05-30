@@ -18,7 +18,6 @@ const argv = yargs(hideBin(process.argv))
 dotenv.config({ path: argv.envFilePath });
 
 export const chatBoxController = async (req, res) => {
-    // debugger;
 
   const db = getDb();
 

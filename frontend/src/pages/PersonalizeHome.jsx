@@ -5,6 +5,7 @@ import Header from "../components/home/Header";
 import PersonalizeHomePage from "../components/home/PersonalizeHome";
 import ChatBox from "../components/home/ChatBox";
 import Profile from "../components/home/Profile";
+import CheckIn from "../components/home/CheckIn";
 
 export default function PersonalizeHome() {
   const location = useLocation();
@@ -13,7 +14,7 @@ export default function PersonalizeHome() {
       <Header />
 
       {location.pathname === "/personalize-home" && <PersonalizeHomePage />}
-      {location.pathname === "/personalize-check-in" && <PersonalizeHomePage />}
+      {location.pathname === "/personalize-check-in" && <CheckIn />}
       {location.pathname === "/personalize-dashboard" && (
         <PersonalizeHomePage />
       )}
