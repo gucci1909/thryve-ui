@@ -44,8 +44,7 @@ function Personalize() {
               .filter(Boolean),
         },
       };
-
-      console.log({n:normalizedFormData});
+      
       setTimeout(() => {
         navigate("/waiting", {
           state: {

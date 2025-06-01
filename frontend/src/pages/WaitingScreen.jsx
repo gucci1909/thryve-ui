@@ -131,7 +131,7 @@ function WaitingScreen() {
 
         if (apiCompleted && newProgress >= 99.5) {
           clearInterval(progressInterval);
-          console.log({ navi: formData });
+          
           setTimeout(() => {
             navigate("/leadership-swot-analysis", {
               state: { formData, reportData },

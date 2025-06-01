@@ -12,7 +12,7 @@ function LeadershipAnalysis() {
   const navigate = useNavigate();
   const location = useLocation();
   const formData = location.state?.formData;
-  console.log({formData});
+  
   const [expandedSections, setExpandedSections] = useState({
     strengths: true,
     weaknesses: false,

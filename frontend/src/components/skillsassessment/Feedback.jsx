@@ -6,10 +6,17 @@ import { BorderBeam } from "../magicui/border-beam";
 import { cn } from "../../lib/utils";
 import { RippleButton } from "../magicui/ripple-button";
 import { ChevronLeft } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { logout } from "../../store/userSlice";
 
 const Feedback = ({ onNext, onBack }) => {
   const [teamMembers, setTeamMembers] = useState([{ name: "", email: "" }]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+    const token = useSelector((state) => state.user.token);
+
 
   const handleMemberChange = (index, field, value) => {
     const updatedMembers = [...teamMembers];
@@ -30,13 +37,47 @@ const Feedback = ({ onNext, onBack }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    setTimeout(() => {
-      onNext({ feedbackRequests: teamMembers });
-    }, 800);
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/invite-team/add-team-members`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ feedbackRequests: teamMembers }),
+        }
+      );
+
+      // Handle unauthorized access
+      if (response.status === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // Wait for a short delay to show the loading state
+      setTimeout(() => {
+        onNext({ feedbackRequests: data.data.teamMembers });
+      }, 800);
+      
+    } catch (err) {
+      console.error("Error adding team members:", err);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

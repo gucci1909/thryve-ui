@@ -81,7 +81,6 @@ const LoginPage = () => {
           token,
           user: { id, email, firstName, personalized },
         } = data;
-        console.log({ personalized });
         if (personalized) {
           dispatch(login({ token, _id: id, email, firstName, personalized }));
           navigate("/personalize-home");
