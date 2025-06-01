@@ -50,6 +50,8 @@ const Chat = memo(
           transition={{ delay: 0.1 }}
           style={{
             marginBottom: "45px",
+            display: "flex",
+            flexDirection: "column-reverse", // This makes it start from bottom
           }}
         >
           <div className="space-y-4">

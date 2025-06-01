@@ -12,6 +12,7 @@ import {
   FiPlayCircle,
   FiAlertTriangle,
   FiCheckCircle,
+  FiFeather 
 } from "react-icons/fi";
 import { FaBullseye } from "react-icons/fa";
 import { Button } from "flowbite-react";
@@ -34,36 +35,6 @@ const CheckIn = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector((state) => state.user.token);
-
-  // Initialize with mock data
-  useEffect(() => {
-    setReflections([
-      {
-        id: "1",
-        date: "28-05-2025",
-        highlight: "Completed the dashboard redesign ahead of schedule",
-        improvement:
-          "Could have communicated updates to the team more frequently",
-        category: "team",
-      },
-      {
-        id: "2",
-        date: "27-05-2025",
-        highlight: "Productive meeting with the design team",
-        improvement:
-          "Should have prepared more concrete examples for the discussion",
-        category: "manager",
-      },
-      {
-        id: "3",
-        date: "26-05-2025",
-        highlight: "Fixed critical bug in the authentication flow",
-        improvement:
-          "Need to improve test coverage to catch such issues earlier",
-        category: "workspace",
-      },
-    ]);
-  }, []);
 
   // Fetch goals from API
   const fetchGoals = async () => {
@@ -377,53 +348,78 @@ const CheckIn = () => {
                 className="m-auto mb-6 flex flex-col items-center justify-center"
               >
                 <div className="relative inline-block">
-                  <h2 className="relative z-10 text-xl font-bold text-[var(--primary-color)]">
+                  <h2 className="relative z-10 text-xl font-bold text-[#0029ff]">
                     Daily Reflections
                   </h2>
-                  {/* <div className="absolute bottom-0 left-0 -z-0 h-2 w-full bg-[color-mix(in_srgb,var(--primary-color),white_70%)] opacity-60" /> */}
+                  <div className="mt-1 h-1 w-45 bg-gradient-to-r from-[#0029ff] to-transparent" />
                 </div>
-                <div className="mt-1 h-1 w-45 bg-gradient-to-r from-[var(--primary-color)] to-transparent" />
               </motion.div>
-              <div className="space-y-4">
-                {reflections.map((reflection) => (
-                  <motion.div
-                    key={reflection.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm"
+
+              {reflections.length === 0 ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4 }}
+                  className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-white p-8 text-center"
+                >
+                  <FiFeather className="mb-3 text-4xl text-[#0029ff] opacity-70" />
+                  <h3 className="mb-1 text-lg font-medium text-gray-700">
+                    No reflections yet
+                  </h3>
+                  <p className="max-w-md text-sm text-gray-500">
+                    Your daily reflections will appear here. Start by adding
+                    your first reflection to track your progress and thoughts.
+                  </p>
+                  {/* <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="mt-4 rounded-lg bg-[#0029ff] px-4 py-2 text-sm font-medium text-white shadow-sm"
                   >
-                    <div className="mb-2 flex items-start justify-between">
-                      <span className="text-sm font-medium text-gray-500">
-                        {reflection.date}
-                      </span>
-                      <span
-                        className={`rounded-full px-2 py-1 text-xs ${getCategoryColor(
-                          reflection.category,
-                        )}`}
-                      >
-                        {reflection.category}
-                      </span>
-                    </div>
-                    <div className="mb-3">
-                      <h4 className="mb-1 text-sm font-semibold text-gray-700">
-                        Key Highlight
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        {reflection.highlight}
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="mb-1 text-sm font-semibold text-gray-700">
-                        Could Improve
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        {reflection.improvement}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+                    Add Reflection
+                  </motion.button> */}
+                </motion.div>
+              ) : (
+                <div className="space-y-4">
+                  {reflections.map((reflection) => (
+                    <motion.div
+                      key={reflection.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm"
+                    >
+                      <div className="mb-2 flex items-start justify-between">
+                        <span className="text-sm font-medium text-gray-500">
+                          {reflection.date}
+                        </span>
+                        <span
+                          className={`rounded-full px-2 py-1 text-xs ${getCategoryColor(
+                            reflection.category,
+                          )}`}
+                        >
+                          {reflection.category}
+                        </span>
+                      </div>
+                      <div className="mb-3">
+                        <h4 className="mb-1 text-sm font-semibold text-gray-700">
+                          Key Highlight
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          {reflection.highlight}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="mb-1 text-sm font-semibold text-gray-700">
+                          Could Improve
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          {reflection.improvement}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </div>
           </motion.div>
         ) : (

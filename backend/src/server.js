@@ -15,6 +15,7 @@ import chatBoxRoutes from './api/chat-box/chat-box.js';
 import companyRoutes from './api/companies/companies.js';
 import goalRoutes from './api/goals/goals.js';
 import inviteTeamRoutes from './api/invite-team/invite-team.js';
+import feedRoutes from './api/feed/explore.js';
 import { connectToDb } from './config/db.js';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -122,6 +123,8 @@ app.use('/api/chat-box', chatBoxRoutes);
 
 app.use('/api/goals-list', goalRoutes);
 app.use('/api/invite-team', inviteTeamRoutes);
+
+app.use('/api/feed', feedRoutes);
 
 app.listen(PORT, async () => {
   await connectToDb();

@@ -1,21 +1,35 @@
-import { useEffect, useState } from "react";
+"use client";
+import { useEffect, useState, useCallback, memo } from "react";
 import { motion } from "framer-motion";
 import { BorderBeam } from "../magicui/border-beam";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { logout } from "../../store/userSlice";
-import YouTube from "react-youtube"; // Add this import
+import YouTube from "react-youtube";
+import {
+  FiArrowLeft,
+  FiBookmark,
+  FiEdit,
+  FiCheck,
+  FiX,
+  FiPlay,
+} from "react-icons/fi";
+import { useDebounce } from "../hook/useDebounce";
 
 function PersonalizeHomePage() {
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeVideo, setActiveVideo] = useState(null); // Track which video is playing
+  const [activeVideo, setActiveVideo] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [activeActionView, setActiveActionView] = useState(null);
+  const [singlePlan, setSinglePlan] = useState({});
+  const [note, setNote] = useState("");
+  const [showNoteInput, setShowNoteInput] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector((state) => state.user.token);
 
-  // Function to extract YouTube video ID
   const getYouTubeVideoId = (url) => {
     if (!url) return null;
 
@@ -27,7 +41,6 @@ function PersonalizeHomePage() {
     return match && match[2].length === 11 ? match[2] : null;
   };
 
-  // Function to get YouTube thumbnail URL
   const getYouTubeThumbnail = (url) => {
     const videoId = getYouTubeVideoId(url);
     if (!videoId)
@@ -37,7 +50,6 @@ function PersonalizeHomePage() {
     return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
   };
 
-  // YouTube player options
   const opts = {
     height: "100%",
     width: "100%",
@@ -45,11 +57,115 @@ function PersonalizeHomePage() {
       autoplay: 1,
       modestbranding: 1,
       rel: 0,
+      controls: 1,
+      origin: window.location.origin,
+      enablejsapi: 1
     },
   };
 
   const handleVideoClick = (index) => {
     setActiveVideo(activeVideo === index ? null : index);
+  };
+
+  const handleActionViewClick = (action_view, plan) => {
+    setActiveActionView(action_view);
+    setSinglePlan(plan);
+    setShowNoteInput(false);
+    setNote("");
+  };
+
+  const addNote = async (title, noteText) => {
+    if (!noteText.trim()) return;
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/feed/add-notes`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ title, note: noteText }),
+        },
+      );
+
+      if (response.status === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to add note");
+      }
+
+      setReportData((prev) => ({
+        ...prev,
+        learning_plan: prev.learning_plan.map((plan) =>
+          plan.title === title
+            ? {
+                ...plan,
+                notes: [noteText],
+              }
+            : plan,
+        ),
+
+        
+      }));
+
+        setSinglePlan(prev => ({
+        ...prev,
+        notes: [noteText]
+      }));
+      
+      // Reset note input and hide it
+      setNote("");
+      setShowNoteInput(false);
+    } catch (error) {
+      console.error("Error adding note:", error);
+    }
+  };
+
+  const handleSaveStatus = async (title, saved) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/feed/change-status-saved`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ title, saved }),
+        },
+      );
+
+      if (response.status === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to update save status");
+      }
+
+      setReportData((prev) => ({
+        ...prev,
+        learning_plan: prev.learning_plan.map((plan) =>
+          plan.title === title ? { ...plan, saved } : plan,
+        ),
+      }));
+
+         setSinglePlan(prev => ({
+        ...prev,
+        saved: saved
+      }));
+      
+    } catch (error) {
+      console.error("Error updating save status:", error);
+    }
   };
 
   useEffect(() => {
@@ -67,7 +183,6 @@ function PersonalizeHomePage() {
           },
         );
 
-        // Access status code
         const statusCode = response.status;
         if (statusCode === 401) {
           dispatch(logout());
@@ -110,24 +225,47 @@ function PersonalizeHomePage() {
     },
   };
 
+  // Create debounced function with 500ms delay
+  const debouncedAddNote = useDebounce(addNote, 500);
+
+  // Handle textarea changes
+  const handleNoteChange = (e) => {
+    const newNote = e.target.value;
+    setNote(newNote);
+    
+    debouncedAddNote(singlePlan.title, newNote);
+  };
+
+  // Memoized Video Player Component
+  const VideoPlayer = memo(({ videoId, opts, onClose }) => (
+    <div className="aspect-video w-full">
+      <YouTube
+        videoId={videoId}
+        opts={opts}
+        className="h-full w-full"
+        onError={(e) => console.error("YouTube Error:", e)}
+      />
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
+        >
+          <FiX className="h-5 w-5" />
+        </button>
+      )}
+    </div>
+  ));
+
   if (loading) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center gap-6 bg-[var(--background-color)]">
-        {/* Modern fluid loader */}
+      <div className="flex h-screen flex-col items-center justify-center gap-6">
         <div className="relative h-20 w-20">
-          {/* Animated border with gradient */}
-          <div className="absolute inset-0 animate-[spin_1.5s_linear_infinite] rounded-full border-4 border-transparent border-t-[var(--primary-color)] border-r-[var(--primary-color)]"></div>
-
-          {/* Center pulse effect */}
-          <div className="absolute inset-4 animate-[pulse_2s_ease-in-out_infinite] rounded-full bg-[var(--primary-color)] opacity-20"></div>
+          <div className="absolute inset-0 animate-[spin_1.5s_linear_infinite] rounded-full border-4 border-transparent border-t-[#0029ff] border-r-[#0029ff]"></div>
+          <div className="absolute inset-4 animate-[pulse_2s_ease-in-out_infinite] rounded-full bg-[#0029ff] opacity-20"></div>
         </div>
-
-        {/* Loading text with progress animation */}
-        <div className="text-center">
-          <p className="mb-2 text-lg font-medium text-[var(--text-color)]">
-            Loading your content
-          </p>
-        </div>
+        <p className="text-lg font-medium text-gray-700">
+          Loading your content
+        </p>
       </div>
     );
   }
@@ -142,323 +280,403 @@ function PersonalizeHomePage() {
 
   return (
     <main className="mt-4 flex-1 overflow-y-auto px-5 pb-24">
-      {/* Growth Recommendations Card */}
-      <motion.div
-        initial="offscreen"
-        whileInView="onscreen"
-        viewport={{ once: true, amount: 0.2 }}
-        variants={cardVariants}
-      >
-        <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-white/95 p-6 shadow-[0_10px_40px_-15px_rgba(0,41,255,0.15)] backdrop-blur-md">
-          {/* Border Beam Effect */}
-          <BorderBeam
-            size={150}
-            duration={10}
-            colorFrom="var(--primary-color)"
-            colorTo="color-mix(in_srgb,var(--primary-color),white_50%)"
-            className="z-0"
-          />
+      {activeActionView === "single_feed" ? (
+        <motion.div className="relative rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <button
+            onClick={() => handleActionViewClick(null, {})}
+            className="absolute top-6 left-6 flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-200"
+          >
+            <FiArrowLeft className="h-4 w-4" />
+            Back
+          </button>
 
-          {/* Content */}
-          <div className="relative z-10">
-            <div className="flex items-start gap-4">
-              <div className="flex-1">
-                <motion.h2
-                  className="bg-gradient-to-r from-[var(--primary-color)] to-blue-400 bg-clip-text text-2xl font-bold text-transparent"
-                  initial={{ x: -10 }}
-                  animate={{ x: 0 }}
-                  transition={{ delay: 0.2 }}
+          <div className="mt-10">
+            <h3 className="text-2xl font-bold text-[#0029ff]">
+              {singlePlan.title}
+            </h3>
+            <p className="mt-3 text-gray-600">{singlePlan.content}</p>
+
+            {/* Video Player */}
+            <div className="relative mt-6 overflow-hidden rounded-lg border border-gray-200">
+              {isPlaying ? (
+                <div className="aspect-video w-full">
+                  <YouTube
+                    videoId={getYouTubeVideoId(singlePlan.video)}
+                    opts={opts}
+                    className="h-full w-full"
+                    onError={(e) => console.error("YouTube Error:", e)}
+                  />
+                </div>
+              ) : (
+                <div
+                  className="relative aspect-video w-full cursor-pointer"
+                  onClick={() => setIsPlaying(true)}
                 >
-                  Leadership Action Plan
-                </motion.h2>
+                  <img
+                    src={getYouTubeThumbnail(singlePlan.video)}
+                    alt={singlePlan.title}
+                    className="h-full w-full object-cover opacity-90 transition-opacity duration-300 hover:opacity-100"
+                    onError={(e) => {
+                      e.target.src =
+                        "https://placehold.co/600x400/png?text=Video+Thumbnail";
+                    }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                    <FiPlay className="h-10 w-10 text-white" />
+                  </div>
+                </div>
+              )}
+            </div>
 
-                <motion.p
-                  className="mt-3 text-gray-600"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
+            {/* Notes Section */}
+            {singlePlan.notes?.length > 0 ? (
+              <motion.div 
+                className="mt-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              >
+                <h4 className="mb-2 text-sm font-semibold text-gray-700">
+                  Your Note
+                </h4>
+                <motion.div 
+                  className="rounded-lg bg-gray-50 p-4"
+                  initial={{ scale: 0.95 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
                 >
-                  Your personalized roadmap for leadership excellence, crafted
-                  from your unique strengths and growth opportunities.
-                </motion.p>
+                  <p className="text-gray-700">{singlePlan.notes[0]}</p>
+                </motion.div>
+              </motion.div>
+            ) : showNoteInput ? (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                className="mt-6"
+              >
+                <h4 className="mb-2 text-sm font-semibold text-gray-700">
+                  Add Note
+                </h4>
+                <textarea
+                  value={note}
+                  onChange={handleNoteChange}
+                  placeholder="Write your note here..."
+                  className="w-full rounded-lg border border-gray-200 p-3 text-sm text-gray-600 focus:border-[#0029ff] focus:outline-none"
+                  rows={3}
+                />
+              </motion.div>
+            ) : null}
 
-                {/* Recommendations Grid */}
-                <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-                  {/* Continue Doing */}
-                  <motion.div
-                    className="group relative overflow-hidden rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm transition-all hover:shadow-lg"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-100/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                    <div className="relative">
-                      <div className="mb-3 flex items-center gap-2">
-                        <span className="rounded-full bg-emerald-100 p-1.5">
-                          <svg
-                            className="h-4 w-4 text-emerald-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                        </span>
-                        <h3 className="font-semibold text-emerald-700">
-                          Continue Doing
-                        </h3>
-                      </div>
-                      <p className="text-sm leading-relaxed text-gray-600">
-                        {reportData?.recommendations["do-more"]}
-                      </p>
-                    </div>
-                  </motion.div>
+            {/* Action Bar */}
+            <div className="mt-8 flex items-center gap-4">
+              <button
+                onClick={() =>
+                  handleSaveStatus(singlePlan.title, !singlePlan.saved)
+                }
+                className="flex items-center gap-1 rounded-full bg-gray-100 p-2 text-[#0029ff] hover:bg-gray-200"
+              >
+                <FiBookmark
+                  className={`h-5 w-5 ${singlePlan.saved ? "fill-current" : ""}`}
+                />
+              </button>
 
-                  {/* Start Doing */}
-                  <motion.div
-                    className="group relative overflow-hidden rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm transition-all hover:shadow-lg"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-100/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                    <div className="relative">
-                      <div className="mb-3 flex items-center gap-2">
-                        <span className="rounded-full bg-blue-100 p-1.5">
-                          <svg
-                            className="h-4 w-4 text-blue-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                            />
-                          </svg>
-                        </span>
-                        <h3 className="font-semibold text-blue-700">
-                          Start Doing
-                        </h3>
-                      </div>
-                      <p className="text-sm leading-relaxed text-gray-600">
-                        {reportData?.recommendations.start}
-                      </p>
-                    </div>
-                  </motion.div>
+              {!singlePlan.notes?.length && !showNoteInput && (
+                <button
+                  onClick={() => setShowNoteInput(true)}
+                  className="flex items-center gap-1 rounded-full bg-gray-100 p-2 text-[#0029ff] hover:bg-gray-200"
+                >
+                  <FiEdit className="h-5 w-5" />
+                </button>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      ) : (
+        <>
+          <motion.div
+            initial="offscreen"
+            whileInView="onscreen"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={cardVariants}
+          >
+            <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-white/95 p-6 shadow-[0_10px_40px_-15px_rgba(0,41,255,0.15)] backdrop-blur-md">
+              <BorderBeam
+                size={150}
+                duration={10}
+                colorFrom="#0029ff"
+                colorTo="color-mix(in_srgb,#0029ff,white_50%)"
+                className="z-0"
+              />
 
-                  {/* Do Less */}
-                  <motion.div
-                    className="group relative overflow-hidden rounded-xl border border-amber-100 bg-gradient-to-br from-amber-50 to-white p-5 shadow-sm transition-all hover:shadow-lg"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.7 }}
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-amber-100/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                    <div className="relative">
-                      <div className="mb-3 flex items-center gap-2">
-                        <span className="rounded-full bg-amber-100 p-1.5">
-                          <svg
-                            className="h-4 w-4 text-amber-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M20 12H4"
-                            />
-                          </svg>
-                        </span>
-                        <h3 className="font-semibold text-amber-700">
-                          Do Less
-                        </h3>
-                      </div>
-                      <p className="text-sm leading-relaxed text-gray-600">
-                        {reportData?.recommendations["do-less"]}
-                      </p>
-                    </div>
-                  </motion.div>
+              <div className="relative z-10">
+                <div className="flex items-start gap-4">
+                  <div className="flex-1">
+                    <motion.h2
+                      className="bg-gradient-to-r from-[#0029ff] to-blue-400 bg-clip-text text-2xl font-bold text-transparent"
+                      initial={{ x: -10 }}
+                      animate={{ x: 0 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      Leadership Action Plan
+                    </motion.h2>
 
-                  {/* Stop Doing */}
-                  <motion.div
-                    className="group relative overflow-hidden rounded-xl border border-red-100 bg-gradient-to-br from-red-50 to-white p-5 shadow-sm transition-all hover:shadow-lg"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8 }}
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-red-100/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                    <div className="relative">
-                      <div className="mb-3 flex items-center gap-2">
-                        <span className="rounded-full bg-red-100 p-1.5">
-                          <svg
-                            className="h-4 w-4 text-red-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
-                        </span>
-                        <h3 className="font-semibold text-red-700">
-                          Stop Doing
-                        </h3>
-                      </div>
-                      <p className="text-sm leading-relaxed text-gray-600">
-                        {reportData?.recommendations.stop}
-                      </p>
+                    <motion.p
+                      className="mt-3 text-gray-600"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.4 }}
+                    >
+                      Your personalized roadmap for leadership excellence.
+                    </motion.p>
+
+                    <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+                      {/* Continue Doing */}
+                      <motion.div
+                        className="group relative overflow-hidden rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm transition-all hover:shadow-lg"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        whileHover={{ scale: 1.02 }}
+                      >
+                        <div className="relative">
+                          <div className="mb-3 flex items-center gap-2">
+                            <span className="rounded-full bg-emerald-100 p-1.5">
+                              <svg
+                                className="h-4 w-4 text-emerald-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                            </span>
+                            <h3 className="font-semibold text-emerald-700">
+                              Continue Doing
+                            </h3>
+                          </div>
+                          <p className="text-sm leading-relaxed text-gray-600">
+                            {reportData?.recommendations["do-more"]}
+                          </p>
+                        </div>
+                      </motion.div>
+
+                      {/* Start Doing */}
+                      <motion.div
+                        className="group relative overflow-hidden rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm transition-all hover:shadow-lg"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6 }}
+                        whileHover={{ scale: 1.02 }}
+                      >
+                        <div className="relative">
+                          <div className="mb-3 flex items-center gap-2">
+                            <span className="rounded-full bg-blue-100 p-1.5">
+                              <svg
+                                className="h-4 w-4 text-blue-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                                />
+                              </svg>
+                            </span>
+                            <h3 className="font-semibold text-blue-700">
+                              Start Doing
+                            </h3>
+                          </div>
+                          <p className="text-sm leading-relaxed text-gray-600">
+                            {reportData?.recommendations.start}
+                          </p>
+                        </div>
+                      </motion.div>
+
+                      {/* Do Less */}
+                      <motion.div
+                        className="group relative overflow-hidden rounded-xl border border-amber-100 bg-gradient-to-br from-amber-50 to-white p-5 shadow-sm transition-all hover:shadow-lg"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.7 }}
+                        whileHover={{ scale: 1.02 }}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-amber-100/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                        <div className="relative">
+                          <div className="mb-3 flex items-center gap-2">
+                            <span className="rounded-full bg-amber-100 p-1.5">
+                              <svg
+                                className="h-4 w-4 text-amber-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M20 12H4"
+                                />
+                              </svg>
+                            </span>
+                            <h3 className="font-semibold text-amber-700">
+                              Do Less
+                            </h3>
+                          </div>
+                          <p className="text-sm leading-relaxed text-gray-600">
+                            {reportData?.recommendations["do-less"]}
+                          </p>
+                        </div>
+                      </motion.div>
+
+                      {/* Stop Doing */}
+                      <motion.div
+                        className="group relative overflow-hidden rounded-xl border border-red-100 bg-gradient-to-br from-red-50 to-white p-5 shadow-sm transition-all hover:shadow-lg"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.8 }}
+                        whileHover={{ scale: 1.02 }}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-red-100/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />{" "}
+                        <div className="relative">
+                          <div className="mb-3 flex items-center gap-2">
+                            <span className="rounded-full bg-red-100 p-1.5">
+                              <svg
+                                className="h-4 w-4 text-red-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                            </span>
+                            <h3 className="font-semibold text-red-700">
+                              Stop Doing
+                            </h3>
+                          </div>
+                          <p className="text-sm leading-relaxed text-gray-600">
+                            {reportData?.recommendations.stop}
+                          </p>
+                        </div>
+                      </motion.div>
                     </div>
-                  </motion.div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </motion.div>
+          </motion.div>
 
-      {/* Learning Plan Section */}
-      <motion.div
-        initial="offscreen"
-        whileInView="onscreen"
-        viewport={{ once: true, amount: 0.2 }}
-        variants={cardVariants}
-        className="mt-8"
-      >
-        <h2 className="mb-6 text-2xl font-bold text-[var(--primary-color)]">
-          Your Learning Journey
-        </h2>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {reportData?.learning_plan?.map((plan, index) => (
-            <motion.div
-              key={index}
-              className="group relative overflow-hidden rounded-xl border border-white/20 bg-white p-6 shadow-lg transition-all hover:shadow-xl"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 * index }}
-              whileHover={{ scale: 1.02 }}
-            >
-              {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary-color)]/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-
-              {/* Content */}
-              <div className="relative z-10">
-                <h3 className="text-xl font-semibold text-[var(--primary-color)]">
-                  {plan.title}
-                </h3>
-                <p className="mt-3 text-gray-600">{plan.content}</p>
-
-                {/* Video Preview Section */}
-                <div className="mt-4 overflow-hidden rounded-lg border border-gray-100">
-                  {activeVideo === index ? (
-                    // YouTube Player when active
-                    <div className="aspect-video w-full">
-                      <YouTube
-                        videoId={getYouTubeVideoId(plan.video)}
-                        opts={opts}
-                        className="h-full w-full"
-                      />
+          <motion.div
+            initial="offscreen"
+            whileInView="onscreen"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={cardVariants}
+            className="mt-8"
+          >
+            <h2 className="mb-6 text-2xl font-bold text-[#0029ff]">
+              Your Learning Journey
+            </h2>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {reportData?.learning_plan?.map((plan, index) => (
+                <motion.div
+                  key={index}
+                  className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 * index }}
+                  whileHover={{ scale: 1.01 }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary-color)]/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div className="relative z-10">
+                    <div className="flex items-start justify-between">
+                      <h3 className="text-lg font-semibold text-[#0029ff]">
+                        {plan.title}
+                      </h3>
+                      <button
+                        onClick={() =>
+                          handleSaveStatus(plan.title, !plan.saved)
+                        }
+                        className="rounded-full p-1 text-[#0029ff] hover:bg-gray-100"
+                      >
+                        <FiBookmark
+                          className={`h-5 w-5 ${plan.saved ? "fill-current" : ""}`}
+                        />
+                      </button>
                     </div>
-                  ) : (
-                    // Thumbnail when not active
-                    <motion.div
-                      className="relative aspect-video w-full cursor-pointer bg-black/5"
-                      whileHover={{ scale: 1.05 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                      onClick={() => handleVideoClick(index)}
-                    >
-                      <img
-                        src={getYouTubeThumbnail(plan.video)}
-                        alt={plan.title}
-                        className="absolute inset-0 h-full w-full object-cover opacity-90 transition-opacity duration-300 hover:opacity-100"
-                        onError={(e) => {
-                          e.target.src =
-                            "https://placehold.co/600x400/png?text=Video+Thumbnail";
-                        }}
-                      />
+                    <p className="mt-2 line-clamp-2 text-sm text-gray-600">
+                      {plan.content}
+                    </p>
 
-                      {/* Play Button Overlay */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform duration-300 group-hover:scale-110">
-                          <svg
-                            className="h-6 w-6 translate-x-0.5 text-[var(--primary-color)]"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
+                    <div className="mt-4 overflow-hidden rounded-lg border border-gray-200">
+                      <div className="aspect-video w-full bg-gray-100">
+                        {activeVideo === index ? (
+                          <div className="aspect-video w-full">
+                            <YouTube
+                              videoId={getYouTubeVideoId(plan.video)}
+                              opts={opts}
+                              className="h-full w-full"
+                              onError={(e) => console.error("YouTube Error:", e)}
+                            />
+                          </div>
+                        ) : (
+                          <div
+                            className="relative h-full w-full cursor-pointer"
+                            onClick={() => handleVideoClick(index)}
                           >
-                            <path d="M8 5v14l11-7z" />
-                          </svg>
-                        </div>
+                            <img
+                              src={getYouTubeThumbnail(plan.video)}
+                              alt={plan.title}
+                              className="absolute inset-0 h-full w-full object-cover opacity-90 transition-opacity duration-300 hover:opacity-100"
+                              onError={(e) => {
+                                e.target.src =
+                                  "https://placehold.co/600x400/png?text=Video+Thumbnail";
+                              }}
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                              <FiPlay className="h-10 w-10 text-white" />
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </motion.div>
-                  )}
-                </div>
+                    </div>
 
-                {/* Action Bar */}
-                <div className="mt-4 flex items-center justify-between">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="flex items-center gap-2 rounded-full bg-[var(--primary-color)] px-4 py-2 text-sm font-medium text-white shadow-md transition-colors hover:bg-[color-mix(in_srgb,var(--primary-color),black_10%)]"
-                    onClick={() => handleVideoClick(index)}
-                  >
-                    {activeVideo === index ? "Close Player" : "Watch Now"}
-                    <svg
-                      className="h-4 w-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d={activeVideo === index ? "M6 18L18 6M6 6l12 12" : "M14 5l7 7m0 0l-7 7m7-7H3"}
-                      />
-                    </svg>
-                  </motion.button>
-
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="rounded-full bg-gray-100 p-2 text-[var(--primary-color)] hover:bg-gray-200"
-                  >
-                    <svg
-                      className="h-5 w-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-                      />
-                    </svg>
-                  </motion.button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
+                    <div className="mt-4 flex items-center justify-between">
+                      <button
+                        onClick={() =>
+                          handleActionViewClick("single_feed", plan)
+                        }
+                        className="rounded-full bg-[#0029ff] px-4 py-2 text-sm font-medium text-white hover:bg-[#001fcc]"
+                      >
+                        Explore Plan
+                      </button>
+                      {plan.notes?.length > 0 && (
+                        <div className="text-sm text-gray-500">
+                          <FiCheck className="inline h-4 w-4 text-green-500" />{" "}
+                          Noted
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </>
+      )}
     </main>
   );
 }
