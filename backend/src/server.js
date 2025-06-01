@@ -5,14 +5,16 @@ import yargs from 'yargs/yargs';
 import helmet from 'helmet';
 import swaggerJsdoc from 'swagger-jsdoc';
 import healthRoutes from './api/health/health.js';
-import leaderShipRoutes from "./api/leadership-report/leadership-report.js";
-import userRoutes from "./api/register/signup.js";
-import authRoutes from "./api/register/login.js";
+import leaderShipRoutes from './api/leadership-report/leadership-report.js';
+import userRoutes from './api/register/signup.js';
+import authRoutes from './api/register/login.js';
 import { hideBin } from 'yargs/helpers';
 import swaggerUi from 'swagger-ui-express';
 import logger from './utils/logger.js';
 import chatBoxRoutes from './api/chat-box/chat-box.js';
 import companyRoutes from './api/companies/companies.js';
+import goalRoutes from './api/goals/goals.js';
+import inviteTeamRoutes from './api/invite-team/invite-team.js';
 import { connectToDb } from './config/db.js';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -26,7 +28,7 @@ const argv = yargs(hideBin(process.argv))
   .option('mode', {
     alias: 'm',
     describe: 'Application mode (e.g., development, production)',
-    type: 'string'
+    type: 'string',
   })
   .parse();
 
@@ -72,7 +74,7 @@ app.use((req, res, next) => {
 
 app.use((req, res, next) => {
   const requestLogger = logger.withRequestContext(req);
-  
+
   // Log request
   requestLogger.info('Incoming request');
 
@@ -115,8 +117,11 @@ app.use('/api/onboarding', leaderShipRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 
-app.use('/api/companies',  companyRoutes);
+app.use('/api/companies', companyRoutes);
 app.use('/api/chat-box', chatBoxRoutes);
+
+app.use('/api/goals-list', goalRoutes);
+app.use('/api/invite-team', inviteTeamRoutes);
 
 app.listen(PORT, async () => {
   await connectToDb();
