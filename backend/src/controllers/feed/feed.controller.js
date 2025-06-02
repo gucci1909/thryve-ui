@@ -103,3 +103,101 @@ export const addGoalNotes = async (req, res) => {
         });
     }
 };
+
+export const editGoalNote = async (req, res) => {
+    try {
+        const db = getDb();
+        const leadershipReportsCollection = db.collection('leadership-reports');
+        const userId = req.user.id;
+        const { title, updatedNote } = req.body;
+
+        if (!title || !updatedNote) {
+            return res.status(400).json({
+                status: 'Not OK',
+                error: 'Title and updated note are required'
+            });
+        }
+
+        // Update the note in the learning plan
+        const result = await leadershipReportsCollection.updateOne(
+            {
+                userId: userId,
+                'assessment.learning_plan.title': title
+            },
+            {
+                $set: {
+                    'assessment.learning_plan.$.notes': [updatedNote],
+                    updatedAt: new Date()
+                }
+            }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({
+                status: 'Not OK',
+                error: 'Learning plan not found'
+            });
+        }
+
+        return res.status(200).json({
+            status: 'OK',
+            message: 'Note updated successfully'
+        });
+
+    } catch (error) {
+        console.error('Edit Note Error:', error);
+        return res.status(500).json({
+            status: 'Not OK',
+            error: 'Failed to update note'
+        });
+    }
+};
+
+export const deleteGoalNote = async (req, res) => {
+    try {
+        const db = getDb();
+        const leadershipReportsCollection = db.collection('leadership-reports');
+        const userId = req.user.id;
+        const { title } = req.body;
+
+        if (!title) {
+            return res.status(400).json({
+                status: 'Not OK',
+                error: 'Title is required'
+            });
+        }
+
+        // Remove all notes from the learning plan
+        const result = await leadershipReportsCollection.updateOne(
+            {
+                userId: userId,
+                'assessment.learning_plan.title': title
+            },
+            {
+                $set: {
+                    'assessment.learning_plan.$.notes': [],
+                    updatedAt: new Date()
+                }
+            }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({
+                status: 'Not OK',
+                error: 'Learning plan not found'
+            });
+        }
+
+        return res.status(200).json({
+            status: 'OK',
+            message: 'Note deleted successfully'
+        });
+
+    } catch (error) {
+        console.error('Delete Note Error:', error);
+        return res.status(500).json({
+            status: 'Not OK',
+            error: 'Failed to delete note'
+        });
+    }
+};

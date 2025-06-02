@@ -7,7 +7,13 @@ const goalSchema = z.object({
   title: z.string().min(1, "Title is required"),
   value: z.string().min(1, "Value is required"),
   deadline: z.string().datetime("Invalid date format"),
-  current_status: z.enum(["started", "deprecated", "completed"])
+  current_status: z.enum(["not-started", "started", "deprecated", "completed"])
+});
+
+// Add reflection schema
+const reflectionSchema = z.object({
+  content: z.string().min(1, "Reflection content is required"),
+  date: z.string().datetime("Invalid date format").optional(),
 });
 
 // Get all goals for a user
@@ -49,13 +55,12 @@ export const addGoal = async (req, res) => {
     const db = getDb();
     const goalsCollection = db.collection('goals');
 
-    goalSchema.parse(req.body);
-
-    // Create goal document
+    // Create goal document with default status as not-started
     const goalDocument = {
       userId: req.user.id,
       userEmail: req.user.email,
       ...req.body,
+      current_status: "not-started", // Set default status
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -96,7 +101,7 @@ export const changeGoalStatus = async (req, res) => {
     }
 
     // Validate status
-    if (!["started", "deprecated", "completed"].includes(current_status)) {
+    if (!["not-started", "started", "deprecated", "completed"].includes(current_status)) {
       return res.status(400).json({
         status: 'Not OK',
         error: 'Invalid status value'
@@ -168,6 +173,79 @@ export const deleteGoal = async (req, res) => {
     return res.status(500).json({
       status: 'Not OK',
       error: 'Failed to delete goal'
+    });
+  }
+};
+
+// Add new reflection
+export const addReflection = async (req, res) => {
+  try {
+    const db = getDb();
+    const reflectionsCollection = db.collection('reflections');
+
+    reflectionSchema.parse(req.body);
+
+    // Create reflection document
+    const reflectionDocument = {
+      userId: req.user.id,
+      userEmail: req.user.email,
+      content: req.body.content,
+      date: req.body.date || new Date().toISOString(),
+      createdAt: new Date(),
+    };
+
+    // Save reflection to database
+    const result = await reflectionsCollection.insertOne(reflectionDocument);
+
+    return res.status(200).json({
+      status: 'OK',
+      data: {
+        reflectionId: result.insertedId,
+        ...reflectionDocument
+      },
+    });
+
+  } catch (error) {
+    console.error('Add Reflection Error:', error);
+    return res.status(400).json({
+      status: 'Not OK',
+      error: error.errors || 'Failed to add reflection'
+    });
+  }
+};
+
+// Get all reflections for a user
+export const getReflections = async (req, res) => {
+  try {
+    const db = getDb();
+    const reflectionsCollection = db.collection('reflections');
+
+    // Get user ID from authenticated token
+    const userId = req.user.id;
+
+    if (!userId) {
+      return res.status(400).json({
+        status: 'Not OK',
+        error: 'User ID not found in token'
+      });
+    }
+
+    // Find all reflections for the user, sorted by date descending
+    const userReflections = await reflectionsCollection
+      .find({ userId })
+      .sort({ date: -1 })
+      .toArray();
+
+    return res.status(200).json({
+      status: 'OK',
+      data: userReflections
+    });
+
+  } catch (error) {
+    console.error('Get Reflections Error:', error);
+    return res.status(500).json({
+      status: 'Not OK',
+      error: 'Failed to fetch reflections'
     });
   }
 };

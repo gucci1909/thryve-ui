@@ -31,6 +31,8 @@ const CheckIn = () => {
   const [reflections, setReflections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [newReflection, setNewReflection] = useState("");
+  const [showReflectionInput, setShowReflectionInput] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -68,6 +70,38 @@ const CheckIn = () => {
       console.error("Error fetching goals:", error);
       setError(error.message);
       setLoading(false);
+    }
+  };
+
+  // Fetch reflections from API
+  const fetchReflections = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/goals-list/reflections`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (response.status === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch reflections");
+      }
+
+      const data = await response.json();
+      setReflections(data.data);
+    } catch (error) {
+      console.error("Error fetching reflections:", error);
+      setError(error.message);
     }
   };
 
@@ -112,6 +146,46 @@ const CheckIn = () => {
         console.error("Error adding goal:", error);
         setError(error.message);
       }
+    }
+  };
+
+  // Add new reflection
+  const addReflection = async () => {
+    if (!newReflection.trim()) return;
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/goals-list/add-reflection`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            content: newReflection,
+            date: new Date().toISOString(),
+          }),
+        },
+      );
+
+      if (response.status === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to add reflection");
+      }
+
+      const data = await response.json();
+      setReflections([data.data, ...reflections]);
+      setNewReflection("");
+      setShowReflectionInput(false);
+    } catch (error) {
+      console.error("Error adding reflection:", error);
+      setError(error.message);
     }
   };
 
@@ -189,43 +263,48 @@ const CheckIn = () => {
   useEffect(() => {
     if (token) {
       fetchGoals();
+      fetchReflections();
     }
   }, [token]);
 
   const getStatusButtons = (goal) => {
     const statuses = ["started", "deprecated", "completed"];
-    return statuses
-      .filter((status) => status !== goal.current_status)
-      .map((status) => (
-        <button
-          key={status}
-          onClick={() => changeGoalStatus(goal._id, status)}
-          className="mx-1 rounded px-3 py-1 text-xs capitalize"
-          style={{
-            backgroundColor:
-              status === "completed"
-                ? "#e6ffed"
-                : status === "deprecated"
-                  ? "#ffebee"
-                  : "#e3f2fd",
-            color:
-              status === "completed"
-                ? "#135c2d"
-                : status === "deprecated"
-                  ? "#b71c1c"
-                  : "#0d47a1",
-            border: `1px solid ${
-              status === "completed"
-                ? "#9be9a8"
-                : status === "deprecated"
-                  ? "#ffcdd2"
-                  : "#bbdefb"
-            }`,
-          }}
-        >
-          {status}
-        </button>
-      ));
+    return (
+      <div className="flex flex-wrap gap-1 mt-4">
+        {statuses
+          .filter((status) => status !== goal.current_status)
+          .map((status) => (
+            <button
+              key={status}
+              onClick={() => changeGoalStatus(goal._id, status)}
+              className="rounded px-2 py-1 text-xs capitalize"
+              style={{
+                backgroundColor:
+                  status === "completed"
+                    ? "#e6ffed"
+                    : status === "deprecated"
+                      ? "#ffebee"
+                      : "#e3f2fd",
+                color:
+                  status === "completed"
+                    ? "#135c2d"
+                    : status === "deprecated"
+                      ? "#b71c1c"
+                      : "#0d47a1",
+                border: `1px solid ${
+                  status === "completed"
+                    ? "#9be9a8"
+                    : status === "deprecated"
+                      ? "#ffcdd2"
+                      : "#bbdefb"
+                }`,
+              }}
+            >
+              {status}
+            </button>
+          ))}
+      </div>
+    );
   };
 
   const getCategoryColor = (category) => {
@@ -256,11 +335,12 @@ const CheckIn = () => {
 
     return Math.round(percentage);
   };
+   
 
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
+        <div className="text-center flex flex-col justify-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
           <p className="mt-2">Loading goals...</p>
         </div>
@@ -274,10 +354,10 @@ const CheckIn = () => {
         {view === "main" ? (
           <motion.div
             key="main"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            // initial={{ opacity: 0, y: 20 }}
+            // animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            // transition={{ duration: 0.3 }}
             className="mx-auto max-w-3xl space-y-6"
           >
             {/* Your Goals Card */}
@@ -341,86 +421,130 @@ const CheckIn = () => {
 
             {/* Daily Reflections */}
             <div>
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="m-auto mb-6 flex flex-col items-center justify-center"
-              >
-                <div className="relative inline-block">
-                  <h2 className="relative z-10 text-xl font-bold text-[#0029ff]">
-                    Daily Reflections
-                  </h2>
-                  <div className="mt-1 h-1 w-45 bg-gradient-to-r from-[#0029ff] to-transparent" />
-                </div>
-              </motion.div>
+      <motion.div
+        // initial={{ opacity: 0, y: -10 }}
+        // animate={{ opacity: 1, y: 0 }}
+        // transition={{ duration: 0.3 }}
+        className="m-auto mb-6 flex flex-col items-center justify-center"
+      >
+        <div className="relative inline-block">
+          <h2 className="relative z-10 text-xl font-bold text-[#0029ff]">
+            Daily Reflections
+          </h2>
+          <div className="mt-1 h-1 w-45 bg-gradient-to-r from-[#0029ff] to-transparent" />
+        </div>
+      </motion.div>
 
-              {reflections.length === 0 ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.4 }}
-                  className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-white p-8 text-center"
-                >
-                  <FiFeather className="mb-3 text-4xl text-[#0029ff] opacity-70" />
-                  <h3 className="mb-1 text-lg font-medium text-gray-700">
-                    No reflections yet
-                  </h3>
-                  <p className="max-w-md text-sm text-gray-500">
-                    Your daily reflections will appear here. Start by adding
-                    your first reflection to track your progress and thoughts.
-                  </p>
-                  {/* <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="mt-4 rounded-lg bg-[#0029ff] px-4 py-2 text-sm font-medium text-white shadow-sm"
-                  >
-                    Add Reflection
-                  </motion.button> */}
-                </motion.div>
-              ) : (
-                <div className="space-y-4">
-                  {reflections.map((reflection) => (
-                    <motion.div
-                      key={reflection.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm"
-                    >
-                      <div className="mb-2 flex items-start justify-between">
-                        <span className="text-sm font-medium text-gray-500">
-                          {reflection.date}
-                        </span>
-                        <span
-                          className={`rounded-full px-2 py-1 text-xs ${getCategoryColor(
-                            reflection.category,
-                          )}`}
-                        >
-                          {reflection.category}
-                        </span>
-                      </div>
-                      <div className="mb-3">
-                        <h4 className="mb-1 text-sm font-semibold text-gray-700">
-                          Key Highlight
-                        </h4>
-                        <p className="text-sm text-gray-600">
-                          {reflection.highlight}
-                        </p>
-                      </div>
-                      <div>
-                        <h4 className="mb-1 text-sm font-semibold text-gray-700">
-                          Could Improve
-                        </h4>
-                        <p className="text-sm text-gray-600">
-                          {reflection.improvement}
-                        </p>
-                      </div>
-                    </motion.div>
-                  ))}
+      {/* Add Reflection Button when there are existing reflections */}
+      {!showReflectionInput && reflections.length > 0 && (
+        <motion.button
+          onClick={() => setShowReflectionInput(true)}
+          className="mb-4 w-full rounded-xl border-2 border-dashed border-[#0029ff]/30 bg-white p-4 text-center text-[#0029ff] transition-all hover:border-[#0029ff]/50 hover:bg-[#0029ff]/5"
+        >
+          <div className="flex items-center justify-center gap-2">
+            <FiFeather className="h-5 w-5" />
+            <span>Add Daily Reflection</span>
+          </div>
+        </motion.button>
+      )}
+
+      {/* Empty State */}
+      {reflections.length === 0 && !showReflectionInput && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4 }}
+          className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-white p-8 text-center"
+        >
+          <FiFeather className="mb-3 text-4xl text-[#0029ff] opacity-70" />
+          <h3 className="mb-1 text-lg font-medium text-gray-700">
+            No reflections yet
+          </h3>
+          <p className="max-w-md text-sm text-gray-500 mb-4">
+            Your daily reflections will appear here. Start by adding
+            your first reflection to track your progress and thoughts.
+          </p>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setShowReflectionInput(true)}
+            className="flex items-center gap-2 rounded-lg bg-[#0029ff] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#0029ff]/90"
+          >
+            <FiPlus className="h-4 w-4" />
+            Add Your First Reflection
+          </motion.button>
+        </motion.div>
+      )}
+
+      {/* Reflection Input */}
+      {showReflectionInput && (
+        <div className="mb-4 rounded-xl border border-[#0029ff]/20 bg-white p-4 shadow-lg">
+          <textarea
+            value={newReflection}
+            onChange={(e) => setNewReflection(e.target.value)}
+            placeholder="Write your reflection for today..."
+            className="min-h-[100px] w-full resize-y rounded-lg border border-gray-200 p-3 text-gray-700 focus:border-[#0029ff] focus:ring-1 focus:outline-none"
+          />
+          <div className="mt-3 flex justify-end gap-2">
+            <button
+              onClick={() => {
+                setShowReflectionInput(false);
+                setNewReflection("");
+              }}
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={addReflection}
+              className="flex items-center gap-2 rounded-lg bg-[#0029ff] px-4 py-2 text-sm text-white hover:bg-[#0029ff]/90"
+            >
+              <FiFeather className="h-4 w-4" />
+              Add Reflection
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Reflections List */}
+      {reflections.length > 0 && (
+        <div className="space-y-4">
+          <AnimatePresence>
+            {reflections.map((reflection) => (
+              <motion.div
+                key={reflection.reflectionId}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm mx-2 sm:mx-0"
+              >
+                <div className="mb-2 text-sm text-gray-500">
+                  <div className="sm:hidden">
+                    {new Date(reflection.date).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric"
+                    })}
+                  </div>
+                  <div className="hidden sm:block">
+                    {new Date(reflection.date).toLocaleDateString("en-US", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </div>
                 </div>
-              )}
-            </div>
+                <p className="text-gray-700 text-sm sm:text-base break-words">
+                  {reflection.content}
+                </p>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
+    </div>
           </motion.div>
         ) : (
           <motion.div
@@ -589,7 +713,9 @@ const CheckIn = () => {
                           ? "bg-teal-300"
                           : goal.current_status === "deprecated"
                             ? "bg-pink-300"
-                            : "bg-violet-300"
+                            : goal.current_status === "not-started"
+                              ? "bg-gray-300"
+                              : "bg-violet-300"
                       }`}
                     >
                       <div
@@ -637,7 +763,7 @@ const CheckIn = () => {
                         </div>
 
                         {/* Status section */}
-                        <div className="flex items-center justify-between rounded-md bg-white/70 p-2">
+                        <div className="flex flex-col rounded-md bg-white/70 p-2">
                           <div className="flex items-center gap-2">
                             {goal.current_status === "completed" ? (
                               <div className="flex items-center gap-1">
@@ -653,6 +779,13 @@ const CheckIn = () => {
                                   {goal.current_status}
                                 </span>
                               </div>
+                            ) : goal.current_status === "not-started" ? (
+                              <div className="flex items-center gap-1">
+                                <FiTarget className="h-4 w-4 text-gray-500" />
+                                <span className="text-xs font-medium tracking-wide text-gray-700 uppercase sm:text-sm">
+                                  {goal.current_status}
+                                </span>
+                              </div>
                             ) : (
                               <div className="flex items-center gap-1">
                                 <FiPlayCircle className="h-4 w-4 text-violet-500" />
@@ -662,11 +795,8 @@ const CheckIn = () => {
                               </div>
                             )}
                           </div>
-                          {/* Status buttons */}
-                          {/* <div className="flex-shrink-0"> */}
                           {getStatusButtons(goal)}
                         </div>
-                        {/* </div> */}
                       </div>
                     </motion.div>
                   ))}

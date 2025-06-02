@@ -10,9 +10,11 @@ import {
   FiArrowLeft,
   FiBookmark,
   FiEdit,
+  FiEdit2,
   FiCheck,
   FiX,
   FiPlay,
+  FiTrash2,
 } from "react-icons/fi";
 import { useDebounce } from "../hook/useDebounce";
 
@@ -26,6 +28,8 @@ function PersonalizeHomePage() {
   const [singlePlan, setSinglePlan] = useState({});
   const [note, setNote] = useState("");
   const [showNoteInput, setShowNoteInput] = useState(false);
+  const [isEditingNote, setIsEditingNote] = useState(false);
+  const [editedNote, setEditedNote] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector((state) => state.user.token);
@@ -168,6 +172,100 @@ function PersonalizeHomePage() {
     }
   };
 
+  const handleEditNote = async (title, updatedNote) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/feed/edit-note`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ title, updatedNote }),
+        },
+      );
+
+      if (response.status === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to edit note");
+      }
+
+      setReportData((prev) => ({
+        ...prev,
+        learning_plan: prev.learning_plan.map((plan) =>
+          plan.title === title
+            ? {
+                ...plan,
+                notes: [updatedNote],
+              }
+            : plan
+        ),
+      }));
+
+      setSinglePlan((prev) => ({
+        ...prev,
+        notes: [updatedNote],
+      }));
+
+      setIsEditingNote(false);
+    } catch (error) {
+      console.error("Error editing note:", error);
+    }
+  };
+
+  const handleDeleteNote = async (title) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/feed/delete-note`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ title }),
+        },
+      );
+
+      if (response.status === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to delete note");
+      }
+
+      setReportData((prev) => ({
+        ...prev,
+        learning_plan: prev.learning_plan.map((plan) =>
+          plan.title === title
+            ? {
+                ...plan,
+                notes: [],
+              }
+            : plan
+        ),
+      }));
+
+      setSinglePlan((prev) => ({
+        ...prev,
+        notes: [],
+      }));
+
+      setShowNoteInput(false);
+    } catch (error) {
+      console.error("Error deleting note:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchLeadershipReport = async () => {
       try {
@@ -291,9 +389,17 @@ function PersonalizeHomePage() {
           </button>
 
           <div className="mt-10">
-            <h3 className="text-2xl font-bold text-[#0029ff]">
-              {singlePlan.title}
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-2xl font-bold text-[#0029ff]">
+                {singlePlan.title}
+              </h3>
+              <button
+                onClick={() => handleSaveStatus(singlePlan.title, !singlePlan.saved)}
+                className="flex items-center gap-1 rounded-full bg-gray-100 p-2 text-[#0029ff] hover:bg-gray-200"
+              >
+                <FiBookmark className={`h-5 w-5 ${singlePlan.saved ? "fill-current" : ""}`} />
+              </button>
+            </div>
             <p className="mt-3 text-gray-600">{singlePlan.content}</p>
 
             {/* Video Player */}
@@ -336,16 +442,70 @@ function PersonalizeHomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
               >
-                <h4 className="mb-2 text-sm font-semibold text-gray-700">
-                  Your Note
-                </h4>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-semibold text-gray-700">
+                    Your Note
+                  </h4>
+                  <div className="flex items-center gap-2">
+                    {!isEditingNote ? (
+                      <>
+                        <button
+                          onClick={() => {
+                            setIsEditingNote(true);
+                            setEditedNote(singlePlan.notes[0]);
+                          }}
+                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                          title="Edit note"
+                        >
+                          <FiEdit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteNote(singlePlan.title)}
+                          className="p-1.5 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                          title="Delete note"
+                        >
+                          <FiTrash2 className="w-4 h-4" />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => handleEditNote(singlePlan.title, editedNote)}
+                          className="p-1.5 text-green-600 hover:bg-green-50 rounded-full transition-colors"
+                          title="Save changes"
+                        >
+                          <FiCheck className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsEditingNote(false);
+                            setEditedNote("");
+                          }}
+                          className="p-1.5 text-gray-500 hover:bg-gray-50 rounded-full transition-colors"
+                          title="Cancel editing"
+                        >
+                          <FiX className="w-4 h-4" />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
                 <motion.div 
                   className="rounded-lg bg-gray-50 p-4"
                   initial={{ scale: 0.95 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 300, damping: 25 }}
                 >
-                  <p className="text-gray-700">{singlePlan.notes[0]}</p>
+                  {isEditingNote ? (
+                    <textarea
+                      value={editedNote}
+                      onChange={(e) => setEditedNote(e.target.value)}
+                      className="w-full bg-white rounded-md border border-gray-200 p-2 text-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                      rows={3}
+                    />
+                  ) : (
+                    <p className="text-gray-700">{singlePlan.notes[0]}</p>
+                  )}
                 </motion.div>
               </motion.div>
             ) : showNoteInput ? (
@@ -371,17 +531,6 @@ function PersonalizeHomePage() {
 
             {/* Action Bar */}
             <div className="mt-8 flex items-center gap-4">
-              <button
-                onClick={() =>
-                  handleSaveStatus(singlePlan.title, !singlePlan.saved)
-                }
-                className="flex items-center gap-1 rounded-full bg-gray-100 p-2 text-[#0029ff] hover:bg-gray-200"
-              >
-                <FiBookmark
-                  className={`h-5 w-5 ${singlePlan.saved ? "fill-current" : ""}`}
-                />
-              </button>
-
               {!singlePlan.notes?.length && !showNoteInput && (
                 <button
                   onClick={() => setShowNoteInput(true)}
@@ -607,14 +756,10 @@ function PersonalizeHomePage() {
                         {plan.title}
                       </h3>
                       <button
-                        onClick={() =>
-                          handleSaveStatus(plan.title, !plan.saved)
-                        }
-                        className="rounded-full p-1 text-[#0029ff] hover:bg-gray-100"
+                        onClick={() => handleSaveStatus(plan.title, !plan.saved)}
+                        className="rounded-full p-2 bg-gray-100 text-[#0029ff] hover:bg-gray-200"
                       >
-                        <FiBookmark
-                          className={`h-5 w-5 ${plan.saved ? "fill-current" : ""}`}
-                        />
+                        <FiBookmark className={`h-5 w-5 ${plan.saved ? "fill-current" : ""}`} />
                       </button>
                     </div>
                     <p className="mt-2 line-clamp-2 text-sm text-gray-600">
