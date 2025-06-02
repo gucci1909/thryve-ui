@@ -17,6 +17,14 @@ const argv = yargs(hideBin(process.argv))
 
 dotenv.config({ path: argv.envFilePath });
 
+function safeParseJSON(content) {
+  try {
+    return JSON.parse(content);
+  } catch (e) {
+    return { chat_text: content };
+  }
+}
+
 export const rolePlayController = async (req, res) => {
 
   const db = getDb();
@@ -52,11 +60,6 @@ export const rolePlayController = async (req, res) => {
     const chatCollection = db.collection('chats');
     const existingChat = await chatCollection.findOne({ user_id: userId });
 
-
-    if(user?.companyId){
-
-    }
-
     const company = await companiesCollection.findOne({ INVITE_CODE: user?.companyId });
 
     const leadershipReport = await leadershipReportsCollection.findOne({ userId: userId });
@@ -83,12 +86,13 @@ export const rolePlayController = async (req, res) => {
 
     if (!data.choices || !data.choices[0]) {
       throw new Error('Invalid response from OpenAI');
+    
     }
 
     // Prepare server message
     const serverMessage = {
       from: 'aicoach',
-      chat_text: JSON.parse(data.choices[0].message.content).chat_text,
+      chat_text: safeParseJSON(data.choices[0].message.content).chat_text,
       timestamp: new Date(),
       messageType: 'response',
     };

@@ -17,6 +17,15 @@ const argv = yargs(hideBin(process.argv))
 
 dotenv.config({ path: argv.envFilePath });
 
+function safeParseJSON(content) {
+  try {
+    return JSON.parse(content);
+  } catch (e) {
+    console.log({safe: "safe_content"});
+    return { chat_text: content };
+  }
+}
+
 export const chatBoxController = async (req, res) => {
 
   const db = getDb();
@@ -88,7 +97,7 @@ export const chatBoxController = async (req, res) => {
     // Prepare server message
     const serverMessage = {
       from: 'aicoach',
-      chat_text: JSON.parse(data.choices[0].message.content).chat_text,
+      chat_text:  safeParseJSON(data.choices[0].message.content).chat_text,
       timestamp: new Date(),
       messageType: 'response',
     };
