@@ -12,7 +12,7 @@ import {
   FiPlayCircle,
   FiAlertTriangle,
   FiCheckCircle,
-  FiFeather 
+  FiFeather,
 } from "react-icons/fi";
 import { FaBullseye } from "react-icons/fa";
 import { Button } from "flowbite-react";
@@ -270,7 +270,7 @@ const CheckIn = () => {
   const getStatusButtons = (goal) => {
     const statuses = ["started", "deprecated", "completed"];
     return (
-      <div className="flex flex-wrap gap-1 mt-4">
+      <div className="mt-4 flex flex-wrap gap-1">
         {statuses
           .filter((status) => status !== goal.current_status)
           .map((status) => (
@@ -335,14 +335,12 @@ const CheckIn = () => {
 
     return Math.round(percentage);
   };
-   
 
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <div className="text-center flex flex-col justify-center">
+        <div className="flex flex-col justify-center text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
-          <p className="mt-2">Loading goals...</p>
         </div>
       </div>
     );
@@ -421,130 +419,136 @@ const CheckIn = () => {
 
             {/* Daily Reflections */}
             <div>
-      <motion.div
-        // initial={{ opacity: 0, y: -10 }}
-        // animate={{ opacity: 1, y: 0 }}
-        // transition={{ duration: 0.3 }}
-        className="m-auto mb-6 flex flex-col items-center justify-center"
-      >
-        <div className="relative inline-block">
-          <h2 className="relative z-10 text-xl font-bold text-[#0029ff]">
-            Daily Reflections
-          </h2>
-          <div className="mt-1 h-1 w-45 bg-gradient-to-r from-[#0029ff] to-transparent" />
-        </div>
-      </motion.div>
-
-      {/* Add Reflection Button when there are existing reflections */}
-      {!showReflectionInput && reflections.length > 0 && (
-        <motion.button
-          onClick={() => setShowReflectionInput(true)}
-          className="mb-4 w-full rounded-xl border-2 border-dashed border-[#0029ff]/30 bg-white p-4 text-center text-[#0029ff] transition-all hover:border-[#0029ff]/50 hover:bg-[#0029ff]/5"
-        >
-          <div className="flex items-center justify-center gap-2">
-            <FiFeather className="h-5 w-5" />
-            <span>Add Daily Reflection</span>
-          </div>
-        </motion.button>
-      )}
-
-      {/* Empty State */}
-      {reflections.length === 0 && !showReflectionInput && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4 }}
-          className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-white p-8 text-center"
-        >
-          <FiFeather className="mb-3 text-4xl text-[#0029ff] opacity-70" />
-          <h3 className="mb-1 text-lg font-medium text-gray-700">
-            No reflections yet
-          </h3>
-          <p className="max-w-md text-sm text-gray-500 mb-4">
-            Your daily reflections will appear here. Start by adding
-            your first reflection to track your progress and thoughts.
-          </p>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => setShowReflectionInput(true)}
-            className="flex items-center gap-2 rounded-lg bg-[#0029ff] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#0029ff]/90"
-          >
-            <FiPlus className="h-4 w-4" />
-            Add Your First Reflection
-          </motion.button>
-        </motion.div>
-      )}
-
-      {/* Reflection Input */}
-      {showReflectionInput && (
-        <div className="mb-4 rounded-xl border border-[#0029ff]/20 bg-white p-4 shadow-lg">
-          <textarea
-            value={newReflection}
-            onChange={(e) => setNewReflection(e.target.value)}
-            placeholder="Write your reflection for today..."
-            className="min-h-[100px] w-full resize-y rounded-lg border border-gray-200 p-3 text-gray-700 focus:border-[#0029ff] focus:ring-1 focus:outline-none"
-          />
-          <div className="mt-3 flex justify-end gap-2">
-            <button
-              onClick={() => {
-                setShowReflectionInput(false);
-                setNewReflection("");
-              }}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={addReflection}
-              className="flex items-center gap-2 rounded-lg bg-[#0029ff] px-4 py-2 text-sm text-white hover:bg-[#0029ff]/90"
-            >
-              <FiFeather className="h-4 w-4" />
-              Add Reflection
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Reflections List */}
-      {reflections.length > 0 && (
-        <div className="space-y-4">
-          <AnimatePresence>
-            {reflections.map((reflection) => (
               <motion.div
-                key={reflection.reflectionId}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm mx-2 sm:mx-0"
+                // initial={{ opacity: 0, y: -10 }}
+                // animate={{ opacity: 1, y: 0 }}
+                // transition={{ duration: 0.3 }}
+                className="m-auto mb-6 flex flex-col items-center justify-center"
               >
-                <div className="mb-2 text-sm text-gray-500">
-                  <div className="sm:hidden">
-                    {new Date(reflection.date).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric"
-                    })}
+                <div className="relative inline-block">
+                  <h2 className="relative z-10 text-xl font-bold text-[#0029ff]">
+                    Daily Reflections
+                  </h2>
+                  <div className="mt-1 h-1 w-45 bg-gradient-to-r from-[#0029ff] to-transparent" />
+                </div>
+              </motion.div>
+
+              {/* Add Reflection Button when there are existing reflections */}
+              {!showReflectionInput && reflections.length > 0 && (
+                <motion.button
+                  onClick={() => setShowReflectionInput(true)}
+                  className="mb-4 w-full rounded-xl border-2 border-dashed border-[#0029ff]/30 bg-white p-4 text-center text-[#0029ff] transition-all hover:border-[#0029ff]/50 hover:bg-[#0029ff]/5"
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <FiFeather className="h-5 w-5" />
+                    <span>Add Daily Reflection</span>
                   </div>
-                  <div className="hidden sm:block">
-                    {new Date(reflection.date).toLocaleDateString("en-US", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                </motion.button>
+              )}
+
+              {/* Empty State */}
+              {reflections.length === 0 && !showReflectionInput && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4 }}
+                  className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-white p-8 text-center"
+                >
+                  <FiFeather className="mb-3 text-4xl text-[#0029ff] opacity-70" />
+                  <h3 className="mb-1 text-lg font-medium text-gray-700">
+                    No reflections yet
+                  </h3>
+                  <p className="mb-4 max-w-md text-sm text-gray-500">
+                    Your daily reflections will appear here. Start by adding
+                    your first reflection to track your progress and thoughts.
+                  </p>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setShowReflectionInput(true)}
+                    className="flex items-center gap-2 rounded-lg bg-[#0029ff] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#0029ff]/90"
+                  >
+                    <FiPlus className="h-4 w-4" />
+                    Add Your First Reflection
+                  </motion.button>
+                </motion.div>
+              )}
+
+              {/* Reflection Input */}
+              {showReflectionInput && (
+                <div className="mb-4 rounded-xl border border-[#0029ff]/20 bg-white p-4 shadow-lg">
+                  <textarea
+                    value={newReflection}
+                    onChange={(e) => setNewReflection(e.target.value)}
+                    placeholder="Write your reflection for today..."
+                    className="min-h-[100px] w-full resize-y rounded-lg border border-gray-200 p-3 text-gray-700 focus:border-[#0029ff] focus:ring-1 focus:outline-none"
+                  />
+                  <div className="mt-3 flex justify-end gap-2">
+                    <button
+                      onClick={() => {
+                        setShowReflectionInput(false);
+                        setNewReflection("");
+                      }}
+                      className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={addReflection}
+                      className="flex items-center gap-2 rounded-lg bg-[#0029ff] px-4 py-2 text-sm text-white hover:bg-[#0029ff]/90"
+                    >
+                      <FiFeather className="h-4 w-4" />
+                      Add Reflection
+                    </button>
                   </div>
                 </div>
-                <p className="text-gray-700 text-sm sm:text-base break-words">
-                  {reflection.content}
-                </p>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      )}
-    </div>
+              )}
+
+              {/* Reflections List */}
+              {reflections.length > 0 && (
+                <div className="space-y-4">
+                  <AnimatePresence>
+                    {reflections.map((reflection) => (
+                      <motion.div
+                        key={reflection.reflectionId}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3 }}
+                        className="mx-2 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:mx-0"
+                      >
+                        <div className="mb-2 text-sm text-gray-500">
+                          <div className="sm:hidden">
+                            {new Date(reflection.date).toLocaleDateString(
+                              "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              },
+                            )}
+                          </div>
+                          <div className="hidden sm:block">
+                            {new Date(reflection.date).toLocaleDateString(
+                              "en-US",
+                              {
+                                weekday: "long",
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              },
+                            )}
+                          </div>
+                        </div>
+                        <p className="text-sm break-words text-gray-700 sm:text-base">
+                          {reflection.content}
+                        </p>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              )}
+            </div>
           </motion.div>
         ) : (
           <motion.div

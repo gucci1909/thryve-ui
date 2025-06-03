@@ -11,7 +11,7 @@ import {
 import { BsLightningCharge, BsRobot } from "react-icons/bs";
 import { RiBrainFill } from "react-icons/ri";
 import { useSelector } from "react-redux";
-import { Globe } from "../components/magicui/globe1"; // Make sure to import your Globe component
+import { Globe } from "../components/magicui/globe1"; 
 
 // Circle Component
 const Circle = ({ className, children }) => {

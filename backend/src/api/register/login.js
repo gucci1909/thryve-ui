@@ -1,6 +1,10 @@
 import express from 'express';
 import apiLimiter from '../../middleware/rateLimiter.js';
-import { loginController } from '../../controllers/login/login.controller.js';
+import {
+  loginController,
+  changePasswordController,
+} from '../../controllers/login/login.controller.js';
+import authenticate from '../../middleware/authenticate.js';
 
 const router = express.Router();
 
@@ -133,5 +137,37 @@ router.use(apiLimiter);
  *                     type: object
  */
 router.post('/login', loginController);
+
+/**
+ * @swagger
+ * /api/onboarding/change-password:
+ *   post:
+ *     summary: Change user password
+ *     description: Change the password for the authenticated user
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Password changed successfully
+ *       401:
+ *         description: Current password is incorrect
+ *       404:
+ *         description: User not found
+ */
+router.post('/change-password', authenticate, changePasswordController);
 
 export default router;

@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useState, useCallback, memo } from "react";
+import { useEffect, useState, memo } from "react";
 import { motion } from "framer-motion";
 import { BorderBeam } from "../magicui/border-beam";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { logout } from "../../store/userSlice";
 import YouTube from "react-youtube";
 import {
@@ -15,6 +15,7 @@ import {
   FiX,
   FiPlay,
   FiTrash2,
+  FiFileText,
 } from "react-icons/fi";
 import { useDebounce } from "../hook/useDebounce";
 
@@ -33,6 +34,9 @@ function PersonalizeHomePage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector((state) => state.user.token);
+  const [clickedCards, setClickedCards] = useState({});
+  const location = useLocation();
+  const showLearningPlan = location.state?.showLearningPlan || false;
 
   const getYouTubeVideoId = (url) => {
     if (!url) return null;
@@ -63,7 +67,7 @@ function PersonalizeHomePage() {
       rel: 0,
       controls: 1,
       origin: window.location.origin,
-      enablejsapi: 1
+      enablejsapi: 1,
     },
   };
 
@@ -114,15 +118,13 @@ function PersonalizeHomePage() {
               }
             : plan,
         ),
-
-        
       }));
 
-        setSinglePlan(prev => ({
+      setSinglePlan((prev) => ({
         ...prev,
-        notes: [noteText]
+        notes: [noteText],
       }));
-      
+
       // Reset note input and hide it
       setNote("");
       setShowNoteInput(false);
@@ -162,11 +164,10 @@ function PersonalizeHomePage() {
         ),
       }));
 
-         setSinglePlan(prev => ({
+      setSinglePlan((prev) => ({
         ...prev,
-        saved: saved
+        saved: saved,
       }));
-      
     } catch (error) {
       console.error("Error updating save status:", error);
     }
@@ -204,7 +205,7 @@ function PersonalizeHomePage() {
                 ...plan,
                 notes: [updatedNote],
               }
-            : plan
+            : plan,
         ),
       }));
 
@@ -251,7 +252,7 @@ function PersonalizeHomePage() {
                 ...plan,
                 notes: [],
               }
-            : plan
+            : plan,
         ),
       }));
 
@@ -330,7 +331,7 @@ function PersonalizeHomePage() {
   const handleNoteChange = (e) => {
     const newNote = e.target.value;
     setNote(newNote);
-    
+
     debouncedAddNote(singlePlan.title, newNote);
   };
 
@@ -394,10 +395,14 @@ function PersonalizeHomePage() {
                 {singlePlan.title}
               </h3>
               <button
-                onClick={() => handleSaveStatus(singlePlan.title, !singlePlan.saved)}
+                onClick={() =>
+                  handleSaveStatus(singlePlan.title, !singlePlan.saved)
+                }
                 className="flex items-center gap-1 rounded-full bg-gray-100 p-2 text-[#0029ff] hover:bg-gray-200"
               >
-                <FiBookmark className={`h-5 w-5 ${singlePlan.saved ? "fill-current" : ""}`} />
+                <FiBookmark
+                  className={`h-5 w-5 ${singlePlan.saved ? "fill-current" : ""}`}
+                />
               </button>
             </div>
             <p className="mt-3 text-gray-600">{singlePlan.content}</p>
@@ -436,13 +441,13 @@ function PersonalizeHomePage() {
 
             {/* Notes Section */}
             {singlePlan.notes?.length > 0 ? (
-              <motion.div 
+              <motion.div
                 className="mt-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
               >
-                <div className="flex items-center justify-between mb-2">
+                <div className="mb-2 flex items-center justify-between">
                   <h4 className="text-sm font-semibold text-gray-700">
                     Your Note
                   </h4>
@@ -454,43 +459,45 @@ function PersonalizeHomePage() {
                             setIsEditingNote(true);
                             setEditedNote(singlePlan.notes[0]);
                           }}
-                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                          className="rounded-full p-1.5 text-blue-600 transition-colors hover:bg-blue-50"
                           title="Edit note"
                         >
-                          <FiEdit2 className="w-4 h-4" />
+                          <FiEdit2 className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteNote(singlePlan.title)}
-                          className="p-1.5 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                          className="rounded-full p-1.5 text-red-500 transition-colors hover:bg-red-50"
                           title="Delete note"
                         >
-                          <FiTrash2 className="w-4 h-4" />
+                          <FiTrash2 className="h-4 w-4" />
                         </button>
                       </>
                     ) : (
                       <>
                         <button
-                          onClick={() => handleEditNote(singlePlan.title, editedNote)}
-                          className="p-1.5 text-green-600 hover:bg-green-50 rounded-full transition-colors"
+                          onClick={() =>
+                            handleEditNote(singlePlan.title, editedNote)
+                          }
+                          className="rounded-full p-1.5 text-green-600 transition-colors hover:bg-green-50"
                           title="Save changes"
                         >
-                          <FiCheck className="w-4 h-4" />
+                          <FiCheck className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => {
                             setIsEditingNote(false);
                             setEditedNote("");
                           }}
-                          className="p-1.5 text-gray-500 hover:bg-gray-50 rounded-full transition-colors"
+                          className="rounded-full p-1.5 text-gray-500 transition-colors hover:bg-gray-50"
                           title="Cancel editing"
                         >
-                          <FiX className="w-4 h-4" />
+                          <FiX className="h-4 w-4" />
                         </button>
                       </>
                     )}
                   </div>
                 </div>
-                <motion.div 
+                <motion.div
                   className="rounded-lg bg-gray-50 p-4"
                   initial={{ scale: 0.95 }}
                   animate={{ scale: 1 }}
@@ -500,7 +507,7 @@ function PersonalizeHomePage() {
                     <textarea
                       value={editedNote}
                       onChange={(e) => setEditedNote(e.target.value)}
-                      className="w-full bg-white rounded-md border border-gray-200 p-2 text-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                      className="w-full rounded-md border border-gray-200 bg-white p-2 text-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                       rows={3}
                     />
                   ) : (
@@ -729,97 +736,133 @@ function PersonalizeHomePage() {
             </div>
           </motion.div>
 
-          <motion.div
-            initial="offscreen"
-            whileInView="onscreen"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={cardVariants}
-            className="mt-8"
-          >
-            <h2 className="mb-6 text-2xl font-bold text-[#0029ff]">
-              Your Learning Journey
-            </h2>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {reportData?.learning_plan?.map((plan, index) => (
-                <motion.div
-                  key={index}
-                  className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 * index }}
-                  whileHover={{ scale: 1.01 }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary-color)]/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  <div className="relative z-10">
-                    <div className="flex items-start justify-between">
-                      <h3 className="text-lg font-semibold text-[#0029ff]">
-                        {plan.title}
-                      </h3>
-                      <button
-                        onClick={() => handleSaveStatus(plan.title, !plan.saved)}
-                        className="rounded-full p-2 bg-gray-100 text-[#0029ff] hover:bg-gray-200"
-                      >
-                        <FiBookmark className={`h-5 w-5 ${plan.saved ? "fill-current" : ""}`} />
-                      </button>
-                    </div>
-                    <p className="mt-2 line-clamp-2 text-sm text-gray-600">
-                      {plan.content}
-                    </p>
+          {showLearningPlan && (
+            <motion.div
+              initial="offscreen"
+              whileInView="onscreen"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={cardVariants}
+              className="mt-8"
+            >
+              <h2 className="mb-6 text-2xl font-bold text-[#0029ff]">
+                Your Learning Journey
+              </h2>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                {reportData?.learning_plan?.map((plan, index) => {
+                  const handleClick = (e) => {
+                    // Don't trigger if clicking on bookmark button or video thumbnail
+                    if (
+                      e.target.closest("button") ||
+                      e.target.closest(".video-container")
+                    ) {
+                      return;
+                    }
 
-                    <div className="mt-4 overflow-hidden rounded-lg border border-gray-200">
-                      <div className="aspect-video w-full bg-gray-100">
-                        {activeVideo === index ? (
-                          <div className="aspect-video w-full">
-                            <YouTube
-                              videoId={getYouTubeVideoId(plan.video)}
-                              opts={opts}
-                              className="h-full w-full"
-                              onError={(e) => console.error("YouTube Error:", e)}
-                            />
-                          </div>
-                        ) : (
-                          <div
-                            className="relative h-full w-full cursor-pointer"
-                            onClick={() => handleVideoClick(index)}
-                          >
-                            <img
-                              src={getYouTubeThumbnail(plan.video)}
-                              alt={plan.title}
-                              className="absolute inset-0 h-full w-full object-cover opacity-90 transition-opacity duration-300 hover:opacity-100"
-                              onError={(e) => {
-                                e.target.src =
-                                  "https://placehold.co/600x400/png?text=Video+Thumbnail";
-                              }}
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                              <FiPlay className="h-10 w-10 text-white" />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    // Set this card as clicked
+                    setClickedCards((prev) => ({ ...prev, [index]: true }));
 
-                    <div className="mt-4 flex items-center justify-between">
-                      <button
-                        onClick={() =>
-                          handleActionViewClick("single_feed", plan)
-                        }
-                        className="rounded-full bg-[#0029ff] px-4 py-2 text-sm font-medium text-white hover:bg-[#001fcc]"
-                      >
-                        Explore Plan
-                      </button>
-                      {plan.notes?.length > 0 && (
-                        <div className="text-sm text-gray-500">
-                          <FiCheck className="inline h-4 w-4 text-green-500" />{" "}
-                          Noted
-                        </div>
+                    setTimeout(() => {
+                      handleActionViewClick("single_feed", plan);
+                      // Reset the clicked state after navigation
+                      setClickedCards((prev) => ({ ...prev, [index]: false }));
+                    }, 300);
+                  };
+
+                  return (
+                    <motion.div
+                      key={index}
+                      className="group relative cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 * index }}
+                      whileHover={{ scale: 1.01 }}
+                      onClick={handleClick}
+                    >
+                      {/* Click feedback overlay - only show if this card is clicked */}
+                      {clickedCards[index] && (
+                        <motion.div
+                          className="absolute inset-0 z-20 bg-[var(--primary-color)]/20"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                        />
                       )}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+
+                      <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary-color)]/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                      <div className="relative z-10">
+                        <div className="flex items-start justify-between">
+                          <h3 className="text-lg font-semibold text-[#0029ff]">
+                            {plan.title}
+                          </h3>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSaveStatus(plan.title, !plan.saved);
+                            }}
+                            className="rounded-full bg-gray-100 p-2 text-[#0029ff] hover:bg-gray-200"
+                          >
+                            <FiBookmark
+                              className={`h-5 w-5 ${plan.saved ? "fill-current" : ""}`}
+                            />
+                          </button>
+                        </div>
+                        <p className="mt-2 line-clamp-2 text-sm text-gray-600">
+                          {plan.content}
+                        </p>
+
+                        <div className="video-container mt-4 overflow-hidden rounded-lg border border-gray-200">
+                          <div className="aspect-video w-full bg-gray-100">
+                            {activeVideo === index ? (
+                              <div className="aspect-video w-full">
+                                <YouTube
+                                  videoId={getYouTubeVideoId(plan.video)}
+                                  opts={opts}
+                                  className="h-full w-full"
+                                  onError={(e) =>
+                                    console.error("YouTube Error:", e)
+                                  }
+                                />
+                              </div>
+                            ) : (
+                              <div
+                                className="relative h-full w-full cursor-pointer"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleVideoClick(index);
+                                }}
+                              >
+                                <img
+                                  src={getYouTubeThumbnail(plan.video)}
+                                  alt={plan.title}
+                                  className="absolute inset-0 h-full w-full object-cover opacity-90 transition-opacity duration-300 hover:opacity-100"
+                                  onError={(e) => {
+                                    e.target.src =
+                                      "https://placehold.co/600x400/png?text=Video+Thumbnail";
+                                  }}
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                                  <FiPlay className="h-10 w-10 text-white" />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="mt-4 flex items-center justify-between">
+                          {plan.notes?.length > 0 && (
+                            <div className="flex items-center justify-center gap-1 text-sm text-gray-500">
+                              <FiFileText className="h-4 w-4 text-[var(--primary-color)]" />
+                              Your notes...
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
         </>
       )}
     </main>
