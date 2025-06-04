@@ -2,72 +2,31 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/userSlice";
 import { useNavigate } from "react-router-dom";
-import { FiEye, FiEyeOff, FiBookmark, FiPlay } from "react-icons/fi";
-import { motion } from "framer-motion";
+import {
+  FiBookmark,
+  FiPlay,
+  FiUser,
+  FiMail,
+  FiShield,
+  FiLock,
+  FiBookOpen,
+  FiLogOut,
+  FiChevronRight,
+} from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Profile() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { email, firstName, token } = useSelector((state) => state.user);
-  const [showChangePassword, setShowChangePassword] = useState(false);
   const [showSavedLearning, setShowSavedLearning] = useState(false);
   const [savedLearningPlans, setSavedLearningPlans] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
-
-  // Password states
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
 
   const handleLogout = () => {
     dispatch(logout());
     navigate("/");
-  };
-
-  const handleChangePassword = async (e) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
-    if (newPassword !== confirmPassword) {
-      setError("New passwords do not match");
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/onboarding/change-password`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            currentPassword,
-            newPassword,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to change password");
-      }
-
-      setSuccess("Password changed successfully");
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-      setShowChangePassword(false);
-    } catch (error) {
-      setError(error.message);
-    }
   };
 
   const fetchSavedLearning = async () => {
@@ -79,7 +38,7 @@ export default function Profile() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -88,7 +47,7 @@ export default function Profile() {
 
       const data = await response.json();
       const savedPlans = data.data.assessment.learning_plan.filter(
-        (plan) => plan.saved
+        (plan) => plan.saved,
       );
       setSavedLearningPlans(savedPlans);
     } catch (error) {
@@ -105,191 +64,195 @@ export default function Profile() {
   }, [showSavedLearning]);
 
   return (
-    <div className="flex-1 overflow-y-auto px-5">
-      <div className="flex flex-col items-center justify-start p-6 w-full max-w-md mx-auto mt-4">
-        <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mb-6 shadow-md">
-          <span className="text-3xl text-blue-600 font-semibold">
-            {firstName ? firstName[0].toUpperCase() : "U"}
-          </span>
-        </div>
-        
-        <div className="w-full bg-white rounded-xl shadow-lg p-6 space-y-6">
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Profile Information</h2>
-            
-            <div className="border-t border-gray-100 pt-4">
-              <p className="text-sm font-medium text-gray-500 mb-1">Name</p>
-              <p className="text-lg font-medium text-gray-700">{firstName || "Not provided"}</p>
-            </div>
-            
-            <div className="border-t border-gray-100 pt-4">
-              <p className="text-sm font-medium text-gray-500 mb-1">Email</p>
-              <p className="text-lg font-medium text-gray-700 break-all">{email || "Not provided"}</p>
-            </div>
-
-            <div className="border-t border-gray-100 pt-4">
-              <p className="text-sm font-medium text-gray-500 mb-1">Account Status</p>
-              <p className="text-lg font-medium text-green-600">Active</p>
-            </div>
-          </div>
-
-          {/* Change Password Section */}
-          <div className="border-t border-gray-100 pt-4">
-            <button
-              onClick={() => setShowChangePassword(!showChangePassword)}
-              className="w-full bg-white border border-[#0029ff] text-[#0029ff] py-3 px-4 rounded-lg hover:bg-[#0029ff] hover:text-white transition duration-200 font-medium"
-            >
-              Change Password
-            </button>
-
-            {showChangePassword && (
-              <form onSubmit={handleChangePassword} className="mt-4 space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-700">
-                    Current Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showCurrentPassword ? "text" : "password"}
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-gray-300 p-2 pr-10"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2"
-                    >
-                      {showCurrentPassword ? (
-                        <FiEyeOff className="text-gray-500" />
-                      ) : (
-                        <FiEye className="text-gray-500" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-gray-700">
-                    New Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showNewPassword ? "text" : "password"}
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-gray-300 p-2 pr-10"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2"
-                    >
-                      {showNewPassword ? (
-                        <FiEyeOff className="text-gray-500" />
-                      ) : (
-                        <FiEye className="text-gray-500" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-gray-700">
-                    Confirm New Password
-                  </label>
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-gray-300 p-2"
-                    required
-                  />
-                </div>
-
-                {error && (
-                  <p className="text-sm text-red-600 mt-2">{error}</p>
-                )}
-                {success && (
-                  <p className="text-sm text-green-600 mt-2">{success}</p>
-                )}
-
-                <button
-                  type="submit"
-                  className="w-full bg-[#0029ff] text-white py-2 px-4 rounded-lg hover:bg-[#0020cc] transition duration-200"
-                >
-                  Update Password
-                </button>
-              </form>
-            )}
-          </div>
-
-          {/* Saved Learning Section */}
-          <div className="border-t border-gray-100 pt-4">
-            <button
-              onClick={() => setShowSavedLearning(!showSavedLearning)}
-              className="w-full bg-white border border-[#0029ff] text-[#0029ff] py-3 px-4 rounded-lg hover:bg-[#0029ff] hover:text-white transition duration-200 font-medium"
-            >
-              Saved Learning
-            </button>
-
-            {showSavedLearning && (
-              <div className="mt-4 space-y-4">
-                {loading ? (
-                  <div className="text-center py-4">Loading...</div>
-                ) : savedLearningPlans.length > 0 ? (
-                  <div className="grid gap-4">
-                    {savedLearningPlans.map((plan, index) => (
-                      <motion.div
-                        key={index}
-                        className="group relative cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 * index }}
-                        whileHover={{ scale: 1.02 }}
-                        onClick={() =>
-                          navigate("/personalize-dashboard", {
-                            state: { selectedPlan: plan },
-                          })
-                        }
-                      >
-                        <div className="flex items-start justify-between">
-                          <h3 className="text-lg font-semibold text-[#0029ff]">
-                            {plan.title}
-                          </h3>
-                          <FiBookmark className="h-5 w-5 text-[#0029ff] fill-current" />
-                        </div>
-                        <p className="mt-2 line-clamp-2 text-sm text-gray-600">
-                          {plan.content}
-                        </p>
-                        {plan.video && (
-                          <div className="mt-2 flex items-center text-sm text-gray-500">
-                            <FiPlay className="mr-1 h-4 w-4" />
-                            Video Available
-                          </div>
-                        )}
-                      </motion.div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-center text-gray-500">
-                    No saved learning plans found
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
-
-          <button
-            onClick={handleLogout}
-            className="w-full mt-8 bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 transition duration-200 font-medium shadow-md hover:shadow-lg active:transform active:scale-95"
+    <div className="flex-1 overflow-y-auto px-4 pb-32">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="mx-auto max-w-md py-8"
+      >
+        {/* Profile Header */}
+        <div className="mb-8 text-center">
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-r from-[var(--primary-color)] to-blue-600 shadow-xl"
           >
-            Logout
-          </button>
+            <span className="text-4xl font-bold text-white">
+              {firstName ? firstName[0].toUpperCase() : "U"}
+            </span>
+          </motion.div>
+
+          <h1 className="mb-2 text-2xl font-bold text-gray-900">
+            {firstName || "User"}
+          </h1>
+          <p className="text-base text-gray-600">{email}</p>
         </div>
-      </div>
+
+        {/* Profile Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="overflow-hidden rounded-2xl bg-white shadow-lg"
+        >
+          {/* Personal Information Section */}
+          <div className="border-b border-gray-100 p-6">
+            <h2 className="mb-4 flex items-center text-lg font-semibold text-gray-900">
+              <FiUser className="mr-2 text-[var(--primary-color)]" />
+              Personal Information
+            </h2>
+
+            <div className="space-y-4">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <FiUser className="h-5 w-5 text-gray-400" />
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-gray-500">Full Name</p>
+                  <p className="text-base font-medium text-gray-900">
+                    {firstName || "Not provided"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <FiMail className="h-5 w-5 text-gray-400" />
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-gray-500">
+                    Email Address
+                  </p>
+                  <p className="text-base font-medium break-all text-gray-900">
+                    {email || "Not provided"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Account Actions Section */}
+          <div className="border-b border-gray-100 p-6">
+            <h2 className="mb-4 flex items-center text-lg font-semibold text-gray-900">
+              <FiShield className="mr-2 text-[var(--primary-color)]" />
+              Account Actions
+            </h2>
+
+            <div className="space-y-4">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate("/personalize-change-password")}
+                className="flex w-full items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3 transition-all duration-200 hover:border-[var(--primary-color)]"
+              >
+                <div className="flex items-center">
+                  <FiLock className="mr-3 text-[var(--primary-color)]" />
+                  <span className="font-medium text-[var(--primary-color)]">
+                    Change Password
+                  </span>
+                </div>
+                <FiChevronRight className="text-[var(--primary-color)]" />
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate("/personalize-saved-post")}
+                className="flex w-full items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3 transition-all duration-200 hover:border-[var(--primary-color)]"
+              >
+                <div className="flex items-center">
+                  <FiBookmark className="mr-3 text-[var(--primary-color)]" />
+                  <span className="font-medium text-[var(--primary-color)]">
+                    Saved Posts
+                  </span>
+                </div>
+                <FiChevronRight className="text-[var(--primary-color)]" />
+              </motion.button>
+            </div>
+          </div>
+
+          {/* Saved Learning Plans Section */}
+          <AnimatePresence>
+            {showSavedLearning && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden"
+              >
+                <div className="border-t border-gray-100 p-6">
+                  {loading ? (
+                    <div className="flex justify-center py-4">
+                      <div className="h-8 w-8 animate-spin rounded-full border-t-2 border-b-2 border-[var(--primary-color)]"></div>
+                    </div>
+                  ) : savedLearningPlans.length > 0 ? (
+                    <div className="grid gap-4">
+                      {savedLearningPlans.map((plan, index) => (
+                        <motion.div
+                          key={index}
+                          className="group relative cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.1 * index }}
+                          whileHover={{ scale: 1.01 }}
+                          onClick={() =>
+                            navigate("/personalize-dashboard", {
+                              state: { selectedPlan: plan },
+                            })
+                          }
+                        >
+                          <div className="flex items-start justify-between">
+                            <h3 className="text-lg font-semibold text-[var(--primary-color)]">
+                              {plan.title}
+                            </h3>
+                            <FiBookmark className="h-5 w-5 fill-current text-[var(--primary-color)]" />
+                          </div>
+                          <p className="mt-2 line-clamp-2 text-sm text-gray-600">
+                            {plan.content}
+                          </p>
+                          {plan.video && (
+                            <div className="mt-2 flex items-center text-sm text-gray-500">
+                              <FiPlay className="mr-2 h-4 w-4 text-[var(--primary-color)]" />
+                              Video Available
+                            </div>
+                          )}
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-4 text-center">
+                      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+                        <FiBookOpen className="h-6 w-6 text-gray-400" />
+                      </div>
+                      <h3 className="mb-1 text-base font-medium text-gray-900">
+                        No saved learning plans
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        Save learning plans to access them here later
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Logout Button */}
+          <div className="p-6">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleLogout}
+              className="flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-red-500 to-red-600 px-4 py-3 text-white shadow-md transition-all duration-200 hover:shadow-lg"
+            >
+              <FiLogOut className="mr-2" />
+              <span className="font-medium">Logout</span>
+            </motion.button>
+          </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
-} 
+}

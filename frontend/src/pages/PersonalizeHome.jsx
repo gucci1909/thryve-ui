@@ -7,6 +7,8 @@ import ChatBox from "../components/home/ChatBox";
 import Profile from "../components/home/Profile";
 import CheckIn from "../components/home/CheckIn";
 import PersonalizeDashboard from "../components/home/PersonalizeDashboard";
+import ChangePassword from "../components/home/ChangePassword";
+import SavedPost from "../components/home/SavedPost";
 
 export default function PersonalizeHome() {
   const location = useLocation();
@@ -20,7 +22,8 @@ export default function PersonalizeHome() {
         <PersonalizeDashboard />
       )}
       {location.pathname === "/personalize-profile" && <Profile />}
-
+      {location.pathname === "/personalize-saved-post" && <SavedPost />}
+      {location.pathname === "/personalize-change-password" && <ChangePassword />}
       {location.pathname === "/personalize-chat-box" && <ChatBox />}
 
       <BottomNav

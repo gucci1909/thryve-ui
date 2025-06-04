@@ -215,7 +215,7 @@ const LoginPage = () => {
               <span>Difficulty signing in?</span>
               <Link
                 to="/forgot-password"
-                className="font-medium text-blue-600 transition-colors duration-200 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                className="font-medium text-[var(--primary-color)] hover:text-[color-mix(in_srgb,var(--primary-color),black_10%)] hover:underline"
               >
                 Forgot password
               </Link>

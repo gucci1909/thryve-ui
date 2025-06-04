@@ -20,6 +20,9 @@ const PersonalizeHome = lazy(() => import("../pages/PersonalizeHome.jsx"));
 const LeaderShipAnalysis = lazy(
   () => import("../pages/LeaderShipAnalysis.jsx"),
 );
+const EmailVerification = lazy(() => import("../pages/EmailVerification.jsx"));
+const OTP = lazy(() => import("../pages/OTP.jsx"));
+const ResetPassword = lazy(() => import("../pages/ResetPassword.jsx"));
 
 function AllRoutes() {
   return (
@@ -27,6 +30,11 @@ function AllRoutes() {
       <AnimatePresence>
         <Routes>
           <Route path="/personalize" element={<Personalize />} />
+
+          {/* <Route
+            path="/leadership-feedback-assessment"
+            element={<LeadershipFeedbackAssessment />}
+          /> */}
           <Route
             path="/login"
             element={
@@ -35,6 +43,42 @@ function AllRoutes() {
               </PublicRoute>
             }
           />
+
+          <Route
+            path="/forgot-password"
+            element={
+              <PublicRoute>
+                <EmailVerification />
+              </PublicRoute>
+            }
+          />
+
+          {/* <Route
+            path="/email-verify"
+            element={
+              <PublicRoute>
+                <EmailVerification />
+              </PublicRoute>
+            }
+          /> */}
+
+          <Route
+            path="/otp-verify"
+            element={
+              <PublicRoute>
+                <OTP />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/reset-password"
+            element={
+              <PublicRoute>
+                <ResetPassword />
+              </PublicRoute>
+            }
+          />
+
           <Route
             path="/signup"
             element={
@@ -45,10 +89,28 @@ function AllRoutes() {
           />
           <Route path="/selection-page" element={<SelectionPage />} />
           <Route path="/waiting" element={<WaitingScreen />} />
-          <Route path="/logout" element={<LogOut/>}/>
+          <Route path="/logout" element={<LogOut />} />
           <Route
             path="/learning-plan-ready"
             element={<LearningPlanReadyScreen />}
+          />
+
+          <Route
+            path="/personalize-change-password"
+            element={
+              <PrivateRoute>
+                <PersonalizeHome />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/personalize-saved-post"
+            element={
+              <PrivateRoute>
+                <PersonalizeHome />
+              </PrivateRoute>
+            }
           />
 
           <Route
