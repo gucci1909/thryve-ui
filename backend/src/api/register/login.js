@@ -3,6 +3,9 @@ import apiLimiter from '../../middleware/rateLimiter.js';
 import {
   loginController,
   changePasswordController,
+  forgotPasswordController,
+  verifyOtpController,
+  resetPasswordController,
 } from '../../controllers/login/login.controller.js';
 import authenticate from '../../middleware/authenticate.js';
 
@@ -169,5 +172,90 @@ router.post('/login', loginController);
  *         description: User not found
  */
 router.post('/change-password', authenticate, changePasswordController);
+
+/**
+ * @swagger
+ * /api/onboarding/forgot-password:
+ *   post:
+ *     summary: Request password reset
+ *     description: Send OTP to user's email for password reset
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: OTP sent successfully
+ *       404:
+ *         description: User not found
+ */
+router.post('/forgot-password', forgotPasswordController);
+
+/**
+ * @swagger
+ * /api/onboarding/verify-otp:
+ *   post:
+ *     summary: Verify OTP for password reset
+ *     description: Verify the OTP sent to user's email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - otp
+ *             properties:
+ *               email:
+ *                 type: string
+ *               otp:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: OTP verified successfully
+ *       401:
+ *         description: Invalid OTP
+ *       404:
+ *         description: User not found
+ */
+router.post('/verify-otp', verifyOtpController);
+
+/**
+ * @swagger
+ * /api/onboarding/reset-password:
+ *   post:
+ *     summary: Reset password after OTP verification
+ *     description: Set new password for user after OTP verification
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - newPassword
+ *             properties:
+ *               email:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Password reset successfully
+ *       401:
+ *         description: Invalid or expired OTP verification
+ *       404:
+ *         description: User not found
+ */
+router.post('/reset-password', resetPasswordController);
 
 export default router;

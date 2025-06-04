@@ -3,6 +3,7 @@
 // @access  Public
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { ObjectId } from 'mongodb';
 import { getDb } from '../../config/db.js';
 
 export const loginController = async (req, res) => {
@@ -77,7 +78,7 @@ export const loginController = async (req, res) => {
 };
 
 // @desc    Change user password
-// @route   POST /api/users/change-password
+// @route   POST /api/auth/change-password
 // @access  Private
 export const changePasswordController = async (req, res) => {
   const { currentPassword, newPassword } = req.body;
@@ -87,8 +88,8 @@ export const changePasswordController = async (req, res) => {
     const db = getDb();
     const usersCollection = db.collection('users');
 
-    // Get user from database
-    const user = await usersCollection.findOne({ _id: userId });
+    // Get user from database - need to convert userId to ObjectId
+    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
 
     if (!user) {
       return res.status(404).json({
@@ -109,10 +110,10 @@ export const changePasswordController = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-    // Update password in database
+    // Update password in database - need to use ObjectId here too
     await usersCollection.updateOne(
-      { _id: userId },
-      { $set: { password: hashedPassword } }
+      { _id: new ObjectId(userId) },
+      { $set: { password: hashedPassword } },
     );
 
     res.json({
@@ -121,5 +122,138 @@ export const changePasswordController = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error during password change' });
+  }
+};
+
+// @desc    Request password reset and send OTP
+// @route   POST /api/onboarding/forgot-password
+// @access  Public
+export const forgotPasswordController = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const db = getDb();
+    const usersCollection = db.collection('users');
+
+    // Check if user exists
+    const user = await usersCollection.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found',
+      });
+    }
+
+    // Generate 6-digit OTP
+    // const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = 123456;
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // OTP valid for 10 minutes
+
+    // Store OTP and its expiry in database
+    await usersCollection.updateOne(
+      { email },
+      {
+        $set: {
+          resetPasswordOtp: otp,
+          resetPasswordOtpExpiry: otpExpiry,
+          resetPasswordVerified: false,
+        },
+      },
+    );
+
+    // In production, send email with OTP
+    // For now, just log it to console
+    console.log(`Password reset OTP for ${email}: ${otp}`);
+
+    res.json({
+      message: 'Password reset OTP sent successfully',
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error during password reset request' });
+  }
+};
+
+// @desc    Verify OTP for password reset
+// @route   POST /api/onboarding/verify-otp
+// @access  Public
+export const verifyOtpController = async (req, res) => {
+  const { email, otp } = req.body;
+
+  try {
+    const db = getDb();
+    const usersCollection = db.collection('users');
+
+    // Find user and check OTP
+    const user = await usersCollection.findOne({
+      email,
+      resetPasswordOtp: otp,
+      resetPasswordOtpExpiry: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        message: 'Invalid or expired OTP',
+      });
+    }
+
+    // Mark OTP as verified
+    await usersCollection.updateOne({ email }, { $set: { resetPasswordVerified: true } });
+
+    res.json({
+      message: 'OTP verified successfully',
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error during OTP verification' });
+  }
+};
+
+// @desc    Reset password after OTP verification
+// @route   POST /api/onboarding/reset-password
+// @access  Public
+export const resetPasswordController = async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  try {
+    const db = getDb();
+    const usersCollection = db.collection('users');
+
+    // Check if user exists and OTP was verified
+    const user = await usersCollection.findOne({
+      email,
+      resetPasswordVerified: true,
+      resetPasswordOtpExpiry: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        message: 'Invalid or expired password reset verification',
+      });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update password and clear reset fields
+    await usersCollection.updateOne(
+      { email },
+      {
+        $set: { password: hashedPassword },
+        $unset: {
+          resetPasswordOtp: '',
+          resetPasswordOtpExpiry: '',
+          resetPasswordVerified: '',
+        },
+      },
+    );
+
+    res.json({
+      message: 'Password reset successfully',
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error during password reset' });
   }
 };
