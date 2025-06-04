@@ -146,7 +146,7 @@ export const forgotPasswordController = async (req, res) => {
 
     // Generate 6-digit OTP
     // const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otp = 123456;
+    const otp = "123456";
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // OTP valid for 10 minutes
 
     // Store OTP and its expiry in database
@@ -179,6 +179,8 @@ export const forgotPasswordController = async (req, res) => {
 // @access  Public
 export const verifyOtpController = async (req, res) => {
   const { email, otp } = req.body;
+
+  debugger;
 
   try {
     const db = getDb();
