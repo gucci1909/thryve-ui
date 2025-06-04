@@ -180,8 +180,6 @@ export const forgotPasswordController = async (req, res) => {
 export const verifyOtpController = async (req, res) => {
   const { email, otp } = req.body;
 
-  debugger;
-
   try {
     const db = getDb();
     const usersCollection = db.collection('users');
