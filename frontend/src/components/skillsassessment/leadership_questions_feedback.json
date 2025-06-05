@@ -1,0 +1,169 @@
+{
+  "assessmentTitle": "Manager Effectiveness Assessment",
+  "instructions": "Each question maps to core managerial competencies that influence team engagement and performance.",
+  "assessment": [
+    {
+      "category": "Communication",
+      "categoryID": "Communication",
+      "questions": [
+        {
+          "id": "communicatesClearly",
+          "text": "My manager communicates clearly and effectively.",
+          "response": null
+        },
+        {
+          "id": "keepsInformed",
+          "text": "I am kept informed about important team and company updates.",
+          "response": null
+        },
+        {
+          "id": "listensActively",
+          "text": "My manager listens actively and makes me feel heard.",
+          "response": null
+        },
+        {
+          "id": "givesTimelyFeedback",
+          "text": "Feedback from my manager is timely and constructive.",
+          "response": null
+        }
+      ]
+    },
+    {
+      "category": "Support & Empathy",
+      "categoryID": "SupportEmpathy",
+      "questions": [
+        {
+          "id": "caresWellBeing",
+          "text": "My manager genuinely cares about my well-being.",
+          "response": null
+        },
+        {
+          "id": "approachable",
+          "text": "I feel comfortable approaching my manager with concerns or questions.",
+          "response": null
+        },
+        {
+          "id": "supportsDuringSetbacks",
+          "text": "My manager supports me during difficult situations or setbacks.",
+          "response": null
+        },
+        {
+          "id": "respectsBoundaries",
+          "text": "My manager respects work-life boundaries.",
+          "response": null
+        }
+      ]
+    },
+    {
+      "category": "Clarity & Direction",
+      "categoryID": "ClarityDirection",
+      "questions": [
+        {
+          "id": "setsClearGoals",
+          "text": "My manager sets clear goals and expectations.",
+          "response": null
+        },
+        {
+          "id": "understandContribution",
+          "text": "I understand how my work contributes to the team’s objectives.",
+          "response": null
+        },
+        {
+          "id": "guidesWithoutMicromanaging",
+          "text": "My manager provides helpful guidance without micromanaging.",
+          "response": null
+        }
+      ]
+    },
+    {
+      "category": "Growth & Development",
+      "categoryID": "GrowthDevelopment",
+      "questions": [
+        {
+          "id": "supportsCareerGrowth",
+          "text": "My manager actively supports my career development.",
+          "response": null
+        },
+        {
+          "id": "growthFeedback",
+          "text": "I receive feedback that helps me grow professionally.",
+          "response": null
+        },
+        {
+          "id": "createsLearningOpportunities",
+          "text": "My manager creates opportunities for me to learn new skills.",
+          "response": null
+        }
+      ]
+    },
+    {
+      "category": "Trust & Empowerment",
+      "categoryID": "TrustEmpowerment",
+      "questions": [
+        {
+          "id": "trustsDecisions",
+          "text": "My manager trusts me to make decisions in my work.",
+          "response": null
+        },
+        {
+          "id": "empoweredOwnership",
+          "text": "I am empowered to take ownership of my responsibilities.",
+          "response": null
+        },
+        {
+          "id": "recognizesContributions",
+          "text": "My manager recognizes and appreciates my contributions.",
+          "response": null
+        }
+      ]
+    },
+    {
+      "category": "Team Culture & Collaboration",
+      "categoryID": "TeamCultureCollaboration",
+      "questions": [
+        {
+          "id": "fostersCollaboration",
+          "text": "My manager fosters a collaborative and respectful team environment.",
+          "response": null
+        },
+        {
+          "id": "psychologicalSafety",
+          "text": "I feel psychologically safe to share ideas or make mistakes.",
+          "response": null
+        },
+        {
+          "id": "handlesConflictFairly",
+          "text": "My manager handles conflicts within the team in a fair and constructive way.",
+          "response": null
+        }
+      ]
+    }
+  ],
+  "scaleOptions": [
+    {
+      "value": 1,
+      "label": "Strongly Disagree",
+      "emoji": "😠"
+    },
+    {
+      "value": 2,
+      "label": "Disagree",
+      "emoji": "🙁"
+    },
+    {
+      "value": 3,
+      "label": "Neutral",
+      "emoji": "😐"
+    },
+    {
+      "value": 4,
+      "label": "Agree",
+      "emoji": "🙂"
+    },
+    {
+      "value": 5,
+      "label": "Strongly Agree",
+      "emoji": "😄"
+    }
+  ]
+}
