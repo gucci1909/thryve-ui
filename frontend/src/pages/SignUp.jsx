@@ -9,7 +9,7 @@ import { RainbowButton } from "../components/magicui/rainbow-button";
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import { useDispatch } from "react-redux";
-import { login } from "../store/userSlice";
+import { login, updateCompanyCode } from "../store/userSlice";
 
 const avatars = [
   {
@@ -81,6 +81,7 @@ const SignupPage = () => {
         }
 
         setCompanyInfo(data.company);
+        dispatch(updateCompanyCode(inviteCode));
       } catch (error) {
         console.error('Error verifying invite code:', error);
         setInviteCodeError('Failed to verify invite code');
@@ -88,7 +89,7 @@ const SignupPage = () => {
     };
 
     verifyInviteCode();
-  }, [inviteCode]);
+  }, [inviteCode, dispatch]);
 
   const validateField = (field, value) => {
     let error = "";

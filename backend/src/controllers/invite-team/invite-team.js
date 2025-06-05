@@ -1,21 +1,28 @@
 import { getDb } from '../../config/db.js';
 import z from 'zod';
+import crypto from 'crypto';
+import { ObjectId } from 'mongodb';
 
 // Validation schema for team member
 const teamMemberSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email format")
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email format'),
 });
 
 // Validation schema for request body
 const requestSchema = z.object({
-  inviteCode: z.string().min(1, "Company invite code is required"),
-  feedbackRequests: z.array(teamMemberSchema)
+  companyCode: z.string().min(1, 'Company invite code is required'),
+  feedbackRequests: z.array(teamMemberSchema),
 });
 
+function generateInviteCode(member_name) {
+  const hash = crypto.createHash('md5').update(member_name).digest('hex').toUpperCase();
+  return `FD3-${hash.slice(0, 3)}-${hash.slice(-3)}`;
+}
+
 const generateEmailTemplate = (teamMember, manager, company) => {
-  const assessmentLink = `${process.env.FRONTEND_URL}/feedback-assessment?inviteCode=${teamMember.inviteCode}`;
-  
+  const assessmentLink = `${process.env.FRONTEND_URL}/feedback-assessment?inviteCode=${teamMember.INVITE_CODE}`;
+
   return `
 <!DOCTYPE html>
 <html>
@@ -85,42 +92,44 @@ const generateEmailTemplate = (teamMember, manager, company) => {
 
 export const addTeamMembers = async (req, res) => {
   try {
+    debugger;
     const db = getDb();
     const teamMembersCollection = db.collection('team_members');
     const companiesCollection = db.collection('companies');
 
     // Validate request body
     requestSchema.parse(req.body);
-    const { inviteCode, feedbackRequests } = req.body;
+    const { companyCode, feedbackRequests } = req.body;
 
     // Verify company invite code
-    const company = await companiesCollection.findOne({ INVITE_CODE: inviteCode });
+    const company = await companiesCollection.findOne({ INVITE_CODE: companyCode });
     if (!company) {
       return res.status(404).json({
         status: 'Not OK',
-        error: 'Invalid company invite code'
+        error: 'Invalid company invite code',
       });
     }
 
     // Generate random invite codes and create documents for each team member
-    const teamMemberDocuments = feedbackRequests.map(member => ({
+    const teamMemberDocuments = feedbackRequests.map((member) => ({
       userId: req.user.id,
       userEmail: req.user.email,
-      companyId: company._id,
       companyName: company.COMPANY_NAME,
       name: member.name,
       email: member.email,
-      inviteCode: Math.random().toString(36).substring(2, 15),
+      INVITE_CODE: generateInviteCode(member.name),
+      companyCode: companyCode,
       status: 'email_pending',
+      assessment: false,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     }));
 
     // Insert all team members
     const result = await teamMembersCollection.insertMany(teamMemberDocuments);
 
     // Generate and log email templates for each team member
-    teamMemberDocuments.forEach(teamMember => {
+    teamMemberDocuments.forEach((teamMember) => {
       const emailTemplate = generateEmailTemplate(teamMember, req.user, company);
       console.log('\n=== Email Template for', teamMember.email, '===\n');
       console.log(emailTemplate);
@@ -131,15 +140,168 @@ export const addTeamMembers = async (req, res) => {
       status: 'OK',
       data: {
         insertedCount: result.insertedCount,
-        teamMembers: teamMemberDocuments
-      }
+        teamMembers: teamMemberDocuments,
+      },
     });
-
   } catch (error) {
     console.error('Add Team Members Error:', error);
     return res.status(400).json({
       status: 'Not OK',
-      error: error.errors || 'Failed to add team members'
+      error: error.errors || 'Failed to add team members',
     });
   }
-}; 
+};
+
+export const getMemberInfo = async (req, res) => {
+  try {
+    const { inviteCode } = req.params;
+
+    if (!inviteCode) {
+      return res.status(400).json({
+        status: 'Not OK',
+        error: 'Invite code is required',
+      });
+    }
+
+    const db = getDb();
+    const teamMembersCollection = db.collection('team_members');
+    const companiesCollection = db.collection('companies');
+    const usersCollection = db.collection('users');
+
+    // Find team member by invite code
+    const teamMember = await teamMembersCollection.findOne({ INVITE_CODE: inviteCode });
+
+    if (!teamMember) {
+      return res.status(404).json({
+        status: 'Not OK',
+        error: 'Invalid invite code',
+      });
+    }
+
+    // Get company details
+    const company = await companiesCollection.findOne({ INVITE_CODE: teamMember.companyCode });
+
+    if (!company) {
+      return res.status(404).json({
+        status: 'Not OK',
+        error: 'Company not found',
+      });
+    }
+
+    // Get manager details
+    const manager = await usersCollection.findOne({ _id: new ObjectId(teamMember.userId) });
+
+    if (!manager) {
+      return res.status(404).json({
+        status: 'Not OK',
+        error: 'Manager not found',
+      });
+    }
+
+    // Check if assessment is already completed
+    if (teamMember.assessment) {
+      return res.status(400).json({
+        status: 'Not OK',
+        error: 'Assessment already completed',
+      });
+    }
+
+    // Return all required information
+    return res.status(200).json({
+      status: 'OK',
+      data: {
+        teamMember: {
+          name: teamMember.name,
+          email: teamMember.email,
+          status: teamMember.status,
+          assessment: teamMember.assessment,
+        },
+        company: {
+          name: company.COMPANY_NAME,
+          aboutText: company.ABOUT_TEXT,
+        },
+        manager: {
+          name: manager.firstName,
+          email: manager.email,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Get Member Info Error:', error);
+    return res.status(500).json({
+      status: 'Not OK',
+      error: 'Failed to fetch member information',
+    });
+  }
+};
+
+export const saveFeedbackData = async (req, res) => {
+  try {
+    const { inviteCode } = req.params;
+    const feedbackData = req.body;
+
+    if (!inviteCode) {
+      return res.status(400).json({
+        status: 'Not OK',
+        error: 'Invite code is required',
+      });
+    }
+
+    const db = getDb();
+    const teamMembersCollection = db.collection('team_members');
+
+    // Find team member by invite code
+    const teamMember = await teamMembersCollection.findOne({ INVITE_CODE: inviteCode });
+
+    if (!teamMember) {
+      return res.status(404).json({
+        status: 'Not OK',
+        error: 'Invalid invite code',
+      });
+    }
+
+    // Check if assessment is already completed
+    if (teamMember.assessment) {
+      return res.status(400).json({
+        status: 'Not OK',
+        error: 'Assessment already completed',
+      });
+    }
+
+    // Update team member document with feedback data and mark assessment as completed
+    const result = await teamMembersCollection.updateOne(
+      { INVITE_CODE: inviteCode },
+      {
+        $set: {
+          assessment: true,
+          assessmentCompletedAt: new Date(),
+          feedbackData: {
+            ratingQuestions: feedbackData.ratingQuestions,
+            openEndedQuestions: feedbackData.openEndedQuestions,
+            overallProgress: feedbackData.overallProgress,
+            categoryProgress: feedbackData.categoryProgress,
+          },
+          updatedAt: new Date(),
+        },
+      }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res.status(500).json({
+        status: 'Not OK',
+        error: 'Failed to save feedback data',
+      });
+    }
+
+    return res.status(200).json({
+      status: 'OK',
+      message: 'Feedback saved successfully',
+    });
+  } catch (error) {
+    console.error('Save Feedback Error:', error);
+    return res.status(500).json({
+      status: 'Not OK',
+      error: 'Failed to save feedback data',
+    });
+  }
+};

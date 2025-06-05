@@ -23,6 +23,7 @@ const LeaderShipAnalysis = lazy(
 const EmailVerification = lazy(() => import("../pages/EmailVerification.jsx"));
 const OTP = lazy(() => import("../pages/OTP.jsx"));
 const ResetPassword = lazy(() => import("../pages/ResetPassword.jsx"));
+const FeedbackAssessment = lazy(() => import("../pages/FeedbackAssessment.jsx"));
 
 function AllRoutes() {
   return (
@@ -31,10 +32,10 @@ function AllRoutes() {
         <Routes>
           <Route path="/personalize" element={<Personalize />} />
 
-          {/* <Route
-            path="/leadership-feedback-assessment"
-            element={<LeadershipFeedbackAssessment />}
-          /> */}
+          <Route
+            path="/feedback-assessment"
+            element={<FeedbackAssessment />}
+          />
           <Route
             path="/login"
             element={

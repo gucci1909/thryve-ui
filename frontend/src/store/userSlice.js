@@ -7,6 +7,7 @@ const initialState = {
   firstName: JSON.parse(localStorage.getItem("firstName")) || null,
   reportData: JSON.parse(localStorage.getItem("reportData")) || null,
   personalize: JSON.parse(localStorage.getItem("personalize")) || null,
+  companyCode: JSON.parse(localStorage.getItem("companyCode")) || null,
 };
 
 const userSlice = createSlice({
@@ -55,12 +56,16 @@ const userSlice = createSlice({
       localStorage.setItem("reportData", JSON.stringify(action.payload));
       localStorage.setItem("personalize", "true");
     },
+    updateCompanyCode: (state, action) => {
+      state.companyCode = action.payload;
+      localStorage.setItem("companyCode", JSON.stringify(action.payload));
+    },
     updateProfile: (state, action) => {
       state.profile = action.payload;
     },
   },
 });
 
-export const { login, logout, updateProfile, reportDatafunc } =
+export const { login, logout, updateProfile, reportDatafunc, updateCompanyCode } =
   userSlice.actions;
 export default userSlice.reducer;

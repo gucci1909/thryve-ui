@@ -65,7 +65,7 @@
         },
         {
           "id": "understandContribution",
-          "text": "I understand how my work contributes to the team’s objectives.",
+          "text": "I understand how my work contributes to the team's objectives.",
           "response": null
         },
         {
@@ -164,6 +164,23 @@
       "value": 5,
       "label": "Strongly Agree",
       "emoji": "😄"
+    }
+  ],
+  "openEndedQuestions": [
+    {
+      "id": "managerStrengths",
+      "text": "What are my strengths as a manager?",
+      "response": null
+    },
+    {
+      "id": "areasForImprovement",
+      "text": "What are 1-2 areas where I can improve or better support you and the team?",
+      "response": null
+    },
+    {
+      "id": "additionalFeedback",
+      "text": "Any additional feedback you'd like to share?",
+      "response": null
     }
   ]
 }

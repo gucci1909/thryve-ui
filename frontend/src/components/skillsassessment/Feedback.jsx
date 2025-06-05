@@ -15,7 +15,8 @@ const Feedback = ({ onNext, onBack }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-    const token = useSelector((state) => state.user.token);
+  const token = useSelector((state) => state.user.token);
+  const companyCode = useSelector((state) => state.user.companyCode);
 
 
   const handleMemberChange = (index, field, value) => {
@@ -50,7 +51,7 @@ const Feedback = ({ onNext, onBack }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ feedbackRequests: teamMembers }),
+          body: JSON.stringify({ feedbackRequests: teamMembers, companyCode }),
         }
       );
 
