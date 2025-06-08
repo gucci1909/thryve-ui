@@ -9,48 +9,65 @@ import { RippleButton } from "../magicui/ripple-button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { FiCheck } from "react-icons/fi";
 
-export default function PsychographicProfile({ initialData, onNext, onBack, setProgressPercentage }) {
+export default function PsychographicProfile({
+  initialData,
+  onNext,
+  onBack,
+  setProgressPercentage,
+}) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState(initialData || {});
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState({});
 
   const currentQuestion = questions.questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.questions.length - 1;
   const isFirstQuestion = currentQuestionIndex === 0;
-  
+
   // Calculate progress for this section (0-25% of total progress)
   const answeredQuestions = Object.keys(answers).length;
   const totalQuestions = questions.questions.length;
   const sectionProgress = (answeredQuestions / totalQuestions) * 100;
-  const scaledProgress = 50 + (sectionProgress * 0.25); // This is step 3 of 4 (50-75%)
+  const scaledProgress = 50 + sectionProgress * 0.25; // This is step 3 of 4 (50-75%)
 
   // Update parent progress when answers change
   useEffect(() => {
     setProgressPercentage(scaledProgress);
   }, [answers, scaledProgress, setProgressPercentage]);
 
-  const handleOptionSelect = (questionId, value) => {
-    setSelectedOptions(prev => {
-      const newOptions = prev.includes(value) 
-        ? prev.filter(opt => opt !== value)
-        : [...prev, value];
+  const handleOptionSelect = (value, index, questionId) => {
+    setSelectedOptions((prev) => {
+      let newOptions;
       
-      // Update answers with selected options
-      setAnswers(prev => ({ ...prev, [questionId]: newOptions }));
-      return newOptions;
+      if (currentQuestion.type === "single-select") {
+        // For single select, just set the selected value
+        newOptions = [value];
+      } else {
+        // For multi-select, toggle the value
+        const currentOptions = prev[currentQuestionIndex] || [];
+        newOptions = currentOptions.includes(value)
+          ? currentOptions.filter((opt) => opt !== value)
+          : [...currentOptions, value];
+      }
+
+      const updated = { ...prev, [currentQuestionIndex]: newOptions };
+      
+      // Update answers state
+      setAnswers((ans) => ({ ...ans, [questionId]: newOptions }));
+
+      return updated;
     });
   };
 
   const handleNextQuestion = () => {
     setSelectedOptions([]);
     if (!isLastQuestion) {
-      setCurrentQuestionIndex(prev => prev + 1);
+      setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
 
   const handlePrevious = () => {
     setSelectedOptions([]);
-    setCurrentQuestionIndex(prev => Math.max(0, prev - 1));
+    setCurrentQuestionIndex((prev) => Math.max(0, prev - 1));
   };
 
   return (
@@ -82,14 +99,16 @@ export default function PsychographicProfile({ initialData, onNext, onBack, setP
           >
             {questions.instructions}
           </motion.p>
-          <motion.p 
-            className="mt-1 text-xs text-gray-500"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-          >
-            (You can select multiple options)
-          </motion.p>
+          {currentQuestion.type === "multi-select" && (
+            <motion.p
+              className="mt-1 text-xs text-gray-500"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+            >
+              (You can select multiple options)
+            </motion.p>
+          )}
         </div>
 
         {/* Progress Bar */}
@@ -134,35 +153,38 @@ export default function PsychographicProfile({ initialData, onNext, onBack, setP
         {/* Answer Options */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <AnimatePresence>
-            {currentQuestion.options.map((option) => (
-              <motion.div
-                key={option.value}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: option.value * 0.1 }}
-                layout
-              >
-                <RippleButton
-                  onClick={() => handleOptionSelect(currentQuestion.id, option.value)}
-                  rippleColor="rgba(0, 41, 255, 0.15)"
-                  className={cn(
-                    "w-full border-2 p-3 transition-all duration-150 sm:p-4",
-                    selectedOptions.includes(option.value)
-                      ? "border-[var(--primary-color)] bg-[#f0f4ff] text-[var(--primary-color)] shadow-sm"
-                      : "border-[#d6e0ff] bg-white text-[#0029ff] hover:border-[var(--primary-color)] hover:bg-[#f5f8ff]"
-                  )}
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
+            {currentQuestion.options.map((option, optionIndex) => {
+              const isSelected = selectedOptions[currentQuestionIndex]?.includes(option.value) || 
+                                answers[currentQuestion.id]?.includes(option.value);
+
+              return (
+                <motion.div
+                  key={option.value}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: optionIndex * 0.1 }}
+                  layout
                 >
-                  <motion.div className="flex items-center">
-                    <span className="font-medium">{option.text}</span>
-                    {selectedOptions.includes(option.value) && (
-                      <FiCheck className="ml-2 h-4 w-4" />
+                  <RippleButton
+                    onClick={() => handleOptionSelect(option.value, optionIndex, currentQuestion.id)}
+                    rippleColor="rgba(0, 41, 255, 0.15)"
+                    className={cn(
+                      "w-full border-2 p-3 transition-all duration-150 sm:p-4",
+                      isSelected
+                        ? "border-[var(--primary-color)] bg-[#f0f4ff] text-[var(--primary-color)] shadow-sm"
+                        : "border-[#d6e0ff] bg-white text-[#0029ff] hover:border-[var(--primary-color)] hover:bg-[#f5f8ff]",
                     )}
-                  </motion.div>
-                </RippleButton>
-              </motion.div>
-            ))}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                  >
+                    <motion.div className="flex items-center">
+                      <span className="font-medium">{option.text}</span>
+                      {isSelected && <FiCheck className="ml-2 h-4 w-4" />}
+                    </motion.div>
+                  </RippleButton>
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </div>
       </div>
@@ -206,7 +228,9 @@ export default function PsychographicProfile({ initialData, onNext, onBack, setP
                   rippleColor="rgba(0, 41, 255, 0.3)"
                   className={cn(
                     "flex items-center gap-1 bg-[var(--primary-color)] text-white hover:bg-[#001fcc]",
-                    !answers[currentQuestion.id]?.length ? "cursor-not-allowed opacity-50" : ""
+                    !answers[currentQuestion.id]?.length
+                      ? "cursor-not-allowed opacity-50"
+                      : "",
                   )}
                   whileHover={{
                     scale: !answers[currentQuestion.id]?.length ? 1 : 1.03,
@@ -224,7 +248,9 @@ export default function PsychographicProfile({ initialData, onNext, onBack, setP
                   rippleColor="rgba(0, 41, 255, 0.3)"
                   className={cn(
                     "flex items-center gap-1 bg-[var(--primary-color)] text-white hover:bg-[#001fcc]",
-                    !answers[currentQuestion.id]?.length ? "cursor-not-allowed opacity-50" : ""
+                    !answers[currentQuestion.id]?.length
+                      ? "cursor-not-allowed opacity-50"
+                      : "",
                   )}
                   whileHover={{
                     scale: !answers[currentQuestion.id]?.length ? 1 : 1.03,

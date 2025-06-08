@@ -190,7 +190,7 @@ function FeedbackAssessment() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center bg-gradient-to-br from-[#f6f9ff] to-[#eef2ff]">
+      <div className="flex items-center min-h-screen justify-center bg-gradient-to-br from-[#f6f9ff] to-[#eef2ff]">
         <div className="text-center">
           <motion.div
             animate={{ rotate: 360 }}
@@ -211,7 +211,7 @@ function FeedbackAssessment() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center bg-gradient-to-br from-[#f6f9ff] to-[#eef2ff]">
+      <div className="flex items-center min-h-screen justify-center bg-gradient-to-br from-[#f6f9ff] to-[#eef2ff]">
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}

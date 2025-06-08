@@ -5,6 +5,7 @@
     {
       "id": "learningStyle",
       "text": "How do you prefer to learn?",
+      "type": "multi-select",
       "options": [
         {
           "value": "onDemand",
@@ -31,6 +32,7 @@
     {
       "id": "coachingTone",
       "text": "What is your preferred coaching tone?",
+      "type": "single-select",
       "options": [
         {
           "value": "warm",

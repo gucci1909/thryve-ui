@@ -92,7 +92,6 @@ const generateEmailTemplate = (teamMember, manager, company) => {
 
 export const addTeamMembers = async (req, res) => {
   try {
-    debugger;
     const db = getDb();
     const teamMembersCollection = db.collection('team_members');
     const companiesCollection = db.collection('companies');
