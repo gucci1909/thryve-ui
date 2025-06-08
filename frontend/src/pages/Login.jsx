@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { login } from "../store/userSlice";
 import LoginBackground from "../components/onboarding/LoginBackground";
+import { useCookies } from 'react-cookie';
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,6 +20,7 @@ const LoginPage = () => {
     password: "",
   });
   const navigate = useNavigate();
+  const [cookies, setCookie] = useCookies(['authToken']);
 
   const validateField = (field, value) => {
     let error = "";
@@ -68,6 +70,7 @@ const LoginPage = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
+          credentials: 'include', // Important: include credentials
         },
       );
 
@@ -81,11 +84,21 @@ const LoginPage = () => {
           token,
           user: { id, email, firstName, personalized },
         } = data;
+
+        // Set the auth token cookie
+        setCookie('authToken', token, {
+          path: '/',
+          maxAge: 7 * 24 * 60 * 60, // 7 days
+          sameSite: 'strict'
+        });
+
+        // Update Redux store
+        dispatch(login({ token, _id: id, email, firstName, personalized }));
+
+        // Navigate based on personalization status
         if (personalized) {
-          dispatch(login({ token, _id: id, email, firstName, personalized }));
           navigate("/personalize-home");
         } else {
-          dispatch(login({ token, _id: id, email, firstName, personalized: false }));
           navigate("/home");
         }
       }

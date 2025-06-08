@@ -72,7 +72,7 @@ const logFormat = winston.format.combine(
       const { requestId, userId, ip, method, path: reqPath, ...rest } = metadata;
       const apiType = getApiType(reqPath);
       
-      log += ` [${level.toUpperCase()}] [${apiType}]`;
+      // log += ` [${level.toUpperCase()}] [${apiType}]`;
       if (requestId) log += ` [ReqID: ${requestId}]`;
       if (userId) log += ` [UserID: ${userId}]`;
       if (ip) log += ` [IP: ${ip}]`;
@@ -146,9 +146,9 @@ logger.withRequestContext = (req) => {
       // Enhance common log messages
       let enhancedMessage = message;
       if (message === 'Incoming request') {
-        enhancedMessage = `Incoming ${req.method} request to ${req.path}${req.user ? ` from user ${req.user.email || req.user.id}` : ' from unauthenticated user'}`;
+        enhancedMessage = `Incoming ${req.method} request to ${req.path}${req.user ? ` from user ${req.user.email || req.user.id}` : ''}`;
       } else if (message === 'Request completed') {
-        enhancedMessage = `Completed ${req.method} request to ${req.path}${req.user ? ` for user ${req.user.email || req.user.id}` : ' for unauthenticated user'}`;
+        enhancedMessage = `Completed ${req.method} request to ${req.path}${req.user ? ` for user ${req.user.email || req.user.id}` : ''}`;
       }
 
       logger.info(enhancedMessage, {

@@ -5,6 +5,7 @@ import { hideBin } from 'yargs/helpers';
 import fetch from 'node-fetch';
 import { ObjectId } from 'mongodb';
 import { getCoachPrompt } from './chat-box-prompt-template.js';
+import logger from '../../utils/logger.js';
 
 const argv = yargs(hideBin(process.argv))
   .option('envFilePath', {
@@ -21,7 +22,7 @@ function safeParseJSON(content) {
   try {
     return JSON.parse(content);
   } catch (e) {
-    console.log({safe: "safe_content"});
+    console.log({ safe: 'safe_content' });
     return { chat_text: content };
   }
 }
@@ -37,9 +38,10 @@ export const chatBoxController = async (req, res) => {
     }
 
     const usersCollection = db.collection('users');
+    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+
     const companiesCollection = db.collection('companies');
     const leadershipReportsCollection = db.collection('leadership-reports');
-    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
 
     if (!user) {
       throw new Error('User or company ID not found');
@@ -58,13 +60,13 @@ export const chatBoxController = async (req, res) => {
       chat_text: question,
       timestamp: currentTimestamp,
       messageType: 'question',
-      sessionId: sessionId
+      sessionId: sessionId,
     };
 
     const chatCollection = db.collection('chats');
     const existingChat = await chatCollection.findOne({ user_id: userId });
 
-    if(user?.companyId){
+    if (user?.companyId) {
     }
 
     const company = await companiesCollection.findOne({ INVITE_CODE: user?.companyId });
@@ -81,7 +83,12 @@ export const chatBoxController = async (req, res) => {
         messages: [
           {
             role: 'system',
-            content: getCoachPrompt(question, leadershipReport || {}, company || {}, existingChat || {}),
+            content: getCoachPrompt(
+              question,
+              leadershipReport || {},
+              company || {},
+              existingChat || {},
+            ),
           },
         ],
         temperature: 0.7,
@@ -100,7 +107,7 @@ export const chatBoxController = async (req, res) => {
       chat_text: safeParseJSON(data.choices[0].message.content).chat_text,
       timestamp: new Date(),
       messageType: 'response',
-      sessionId: sessionId
+      sessionId: sessionId,
     };
 
     if (existingChat) {
@@ -113,18 +120,103 @@ export const chatBoxController = async (req, res) => {
             },
           },
           $set: {
-            updated_at: currentTimestamp
-          }
-        }
+            updated_at: currentTimestamp,
+          },
+        },
       );
     } else {
       await chatCollection.insertOne({
         user_id: userId,
         chat_context: [userMessage, serverMessage],
         created_at: currentTimestamp,
-        updated_at: currentTimestamp
+        updated_at: currentTimestamp,
       });
     }
+
+    // start points to the user
+
+    if (!user || !user.companyId) {
+      return res.status(404).json({
+        status: 'Not OK',
+        error: 'User or company ID not found',
+      });
+    }
+
+    const companyId = user.companyId;
+    const pointsKey = `CoachingChatInteractionPoint_${companyId}`;
+    const points = parseInt(process.env[pointsKey]) || 0;
+
+    if (!points) {
+      console.warn(`No points configuration found for ${pointsKey}`);
+    }
+
+    const interactionsCollection = db.collection('interactions');
+
+    // Check if user has already interacted with this title
+    const existingInteraction = await interactionsCollection.findOne({
+      user_id: userId,
+    });
+
+    if (existingInteraction) {
+      // Check if LEARNING is already in the interacted_with array
+      const hasLearningInteraction = existingInteraction.interacted_with.includes('COACHING');
+
+      // Update points and add LEARNING to interacted_with if not present
+      await interactionsCollection.updateOne(
+        { _id: existingInteraction._id },
+        {
+          $set: {
+            points: existingInteraction.points + points,
+            interaction_timestamp: new Date(),
+          },
+          ...(!hasLearningInteraction
+            ? {
+                $push: { interacted_with: 'COACHING' },
+              }
+            : {}),
+        },
+      );
+    } else {
+      // Create new interaction
+      await interactionsCollection.insertOne({
+        user_id: userId,
+        interaction_timestamp: new Date(),
+        interacted_with: ['COACHING'],
+        points: points,
+      });
+    }
+
+      // After updating points, emit the new total to connected clients
+    const updatedPoints = existingInteraction ? existingInteraction.points + points : points;
+    
+    // Emit points update event
+    const clients = req.app.locals.clients || new Map();
+    const userClients = clients.get(userId);
+    if (userClients) {
+      userClients.forEach(client => {
+        client.res.write(`data: ${JSON.stringify({ points: updatedPoints })}\n\n`);
+      });
+    }
+
+    // Add comprehensive logging
+    const logMetadata = {
+      userId: userId,
+      userEmail: user.email,
+      companyId: user.companyId,
+      interactionType: 'COACHING',
+      pointsAwarded: points,
+      isFirstInteraction: !existingInteraction,
+      currentInteractionTypes: existingInteraction 
+        ? [...existingInteraction.interacted_with, ...(!existingInteraction.interacted_with.includes('COACHING') ? ['COACHING'] : [])]
+        : ['COACHING'],
+      totalPoints: existingInteraction ? existingInteraction.points + points : points,
+      timestamp: new Date().toISOString()
+    };
+
+    req.logger = logger.withRequestContext(req);
+    req.logger.info('Coaching Interaction recorded', logMetadata);
+
+    // end points
 
     res.status(200).json({
       success: true,
@@ -173,9 +265,15 @@ export const chatBoxGetAllTextController = async (req, res) => {
     }
 
     // Filter messages from the last 12 hours
-    const recentMessages = userChat.chat_context.filter(msg => 
-      new Date(msg.timestamp) >= twelveHoursAgo
-    );
+    const recentMessages = userChat.chat_context.filter((msg) => {
+      try {
+        const msgDate = new Date(msg.timestamp);
+        return !isNaN(msgDate.getTime()) && msgDate >= twelveHoursAgo;
+      } catch (error) {
+        console.error('Invalid timestamp in message:', msg);
+        return false;
+      }
+    });
 
     res.status(200).json({
       success: true,

@@ -8,6 +8,7 @@ import App from "./App.jsx";
 import { store, persistor } from "./store";
 import 'react-phone-number-input/style.css'
 import "./index.css";
+import { CookiesProvider } from "react-cookie";
 
 // 🔥 Register the service worker
 registerSW({
@@ -30,7 +31,10 @@ createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
       <BrowserRouter>
+      <CookiesProvider>
+
         <App />
+      </CookiesProvider>
       </BrowserRouter>
     </PersistGate>
   </Provider>,

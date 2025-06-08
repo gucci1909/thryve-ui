@@ -65,6 +65,13 @@ export const loginController = async (req, res) => {
       userResponse.personalized = user.personalized;
     }
 
+     res.cookie('authToken', token, {
+      httpOnly: true, // Prevent XSS attacks
+      sameSite: 'strict', // Prevent CSRF attacks
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/', // Accessible across all routes
+    });
+
     // Return success response
     res.json({
       message: 'Login successful',

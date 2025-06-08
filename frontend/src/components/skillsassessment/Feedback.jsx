@@ -76,8 +76,6 @@ const Feedback = ({ onNext, onBack }) => {
     } catch (err) {
       console.error("Error adding team members:", err);
       // You might want to show an error message to the user here
-    } finally {
-      setIsSubmitting(false);
     }
   };
 

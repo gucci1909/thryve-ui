@@ -26,6 +26,7 @@ export default function ChatBox() {
   const [previousView, setPreviousView] = useState(null);
   const [isRolePlay, setIsRolePlay] = useState(null);
   const [currentSessionId, setCurrentSessionId] = useState(null);
+  const [eventSource, setEventSource] = useState(null);
 
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -453,6 +454,54 @@ export default function ChatBox() {
     },
   };
 
+  // // Initialize SSE connection
+  // useEffect(() => {
+  //   if (!token) return;
+
+  //   const newEventSource = new EventSource(
+  //     `${import.meta.env.VITE_API_BASE_URL}/chat-box/events`,
+  //     {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     }
+  //   );
+
+  //   newEventSource.onmessage = (event) => {
+  //     const data = JSON.parse(event.data);
+  //     if (data.type === 'message') {
+  //       setMessages((prevMessages) => {
+  //         // Check if message already exists to prevent duplicates
+  //         const messageExists = prevMessages.some(
+  //           (msg) => msg.timestamp === data.data.timestamp
+  //         );
+  //         if (!messageExists) {
+  //           return [...prevMessages, data.data];
+  //         }
+  //         return prevMessages;
+  //       });
+  //     }
+  //   };
+
+  //   newEventSource.onerror = (error) => {
+  //     console.error('SSE Error:', error);
+  //     newEventSource.close();
+  //     // Attempt to reconnect after a delay
+  //     setTimeout(() => {
+  //       setEventSource(null);
+  //     }, 5000);
+  //   };
+
+  //   setEventSource(newEventSource);
+
+  //   // Cleanup on unmount
+  //   return () => {
+  //     if (newEventSource) {
+  //       newEventSource.close();
+  //     }
+  //   };
+  // }, [token]);
+
   return (
     <main className="flex flex-1 flex-col overflow-hidden bg-gray-50">
       <div className="flex items-center justify-between border-b border-white/20 bg-white px-4 py-3 shadow-sm">
@@ -569,60 +618,79 @@ export default function ChatBox() {
             </motion.div>
           </motion.div>
         ) : (
-          <div className="flex-1 overflow-y-auto p-4">
-            {groupMessagesBySession(messages).map((sessionMessages, sessionIndex) => (
-              <div key={sessionIndex} className="mb-8">
-                {sessionMessages.length > 0 && (
-                  <div className="mb-4 flex justify-center">
-                    <span className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
-                      {formatSessionTime(sessionMessages[0].timestamp)}
-                    </span>
-                  </div>
-                )}
-                <div className="space-y-4">
-                  {sessionMessages.map((message) => (
-                    <motion.div
-                      key={message.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className={`flex ${
-                        message.sender === "user" ? "justify-end" : "justify-start"
-                      }`}
-                    >
-                      <div
-                        className={`max-w-[80%] rounded-lg p-3 ${
-                          message.sender === "user"
-                            ? "bg-[var(--primary-color)] text-white"
-                            : "bg-white text-gray-800 shadow-sm"
-                        }`}
-                      >
-                        <p className="text-sm">{message.text}</p>
-                        <div
-                          className={`mt-1 text-right text-xs ${
-                            message.sender === "user"
-                              ? "text-blue-100"
-                              : "text-gray-400"
-                          }`}
-                        >
-                          {new Date(message.timestamp).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
-            {isLoading && (
-              <div className="flex justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary-color)] border-t-transparent"></div>
-              </div>
-            )}
-          </div>
+          // <div className="flex-1 overflow-y-auto p-4">
+          //   {groupMessagesBySession(messages).map((sessionMessages, sessionIndex) => (
+          //     <div key={sessionIndex} className="mb-8">
+          //       {sessionMessages.length > 0 && (
+          //         <div className="mb-4 flex justify-center">
+          //           <span className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
+          //             {formatSessionTime(sessionMessages[0].timestamp)}
+          //           </span>
+          //         </div>
+          //       )}
+          //       <div className="space-y-4">
+          //         {sessionMessages.map((message) => (
+          //           <motion.div
+          //             key={message.id}
+          //             initial={{ opacity: 0, y: 10 }}
+          //             animate={{ opacity: 1, y: 0 }}
+          //             transition={{ duration: 0.3 }}
+          //             className={`flex ${
+          //               message.sender === "user" ? "justify-end" : "justify-start"
+          //             }`}
+          //           >
+          //             <div
+          //               className={`max-w-[80%] rounded-lg p-3 ${
+          //                 message.sender === "user"
+          //                   ? "bg-[var(--primary-color)] text-white"
+          //                   : "bg-white text-gray-800 shadow-sm"
+          //               }`}
+          //             >
+          //               <p className="text-sm">{message.text}</p>
+          //               <div
+          //                 className={`mt-1 text-right text-xs ${
+          //                   message.sender === "user"
+          //                     ? "text-blue-100"
+          //                     : "text-gray-400"
+          //                 }`}
+          //               >
+          //                 {new Date(message.timestamp).toLocaleTimeString([], {
+          //                   hour: "2-digit",
+          //                   minute: "2-digit",
+          //                 })}
+          //               </div>
+          //             </div>
+          //           </motion.div>
+          //         ))}
+          //       </div>
+          //     </div>
+          //   ))}
+          //   <div ref={messagesEndRef} />
+          //   {isLoading && (
+          //     <div className="flex justify-center">
+          //       <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary-color)] border-t-transparent"></div>
+          //     </div>
+          //   )}
+          // </div>
+
+           <Chat
+            startRecording={startRecording}
+            stopRecording={stopRecording}
+            messages={messages}
+            isLoading={isLoading}
+            messagesEndRef={messagesEndRef}
+            isRecording={isRecording}
+            goBackToScenarios={goBackToScenarios}
+            animationProps={animationProps}
+            isProcessing={isProcessing}
+            inputValue={inputValue}
+            setInputValue={setInputValue}
+            handleSend={handleSend}
+            handleRolePlaySend={handleRolePlaySend}
+            isRolePlay={isRolePlay}
+            canvasRef={canvasRef}
+            setInputValues={setInputValue}
+          />
         )}
       </AnimatePresence>
     </main>

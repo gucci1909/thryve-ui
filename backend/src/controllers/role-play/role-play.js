@@ -5,6 +5,7 @@ import fetch from 'node-fetch';
 import { ObjectId } from 'mongodb';
 import { getDb } from '../../config/db.js';
 import { getRolePlayingPrompt } from './role-play-prompt-template.js';
+import logger from '../../utils/logger.js';
 
 const argv = yargs(hideBin(process.argv))
   .option('envFilePath', {
@@ -26,11 +27,9 @@ function safeParseJSON(content) {
 }
 
 export const rolePlayController = async (req, res) => {
-
   const db = getDb();
 
   try {
-
     const { question, userId } = req.body;
 
     if (!question || !userId) {
@@ -75,7 +74,12 @@ export const rolePlayController = async (req, res) => {
         messages: [
           {
             role: 'system',
-            content: getRolePlayingPrompt(question, leadershipReport || {}, company || {}, existingChat || {}),
+            content: getRolePlayingPrompt(
+              question,
+              leadershipReport || {},
+              company || {},
+              existingChat || {},
+            ),
           },
         ],
         temperature: 0.7,
@@ -86,7 +90,6 @@ export const rolePlayController = async (req, res) => {
 
     if (!data.choices || !data.choices[0]) {
       throw new Error('Invalid response from OpenAI');
-    
     }
 
     // Prepare server message
@@ -109,20 +112,105 @@ export const rolePlayController = async (req, res) => {
               $each: [userMessage, serverMessage],
             },
           },
-        }
+        },
       );
     } else {
       // Create new conversation
-      await chatCollection.insertOne(
-        {
-          user_id: userId,
-          chat_context: [userMessage, serverMessage],
-          created_at: currentTimestamp,
-          updated_at: currentTimestamp,
-        }
-      );
+      await chatCollection.insertOne({
+        user_id: userId,
+        chat_context: [userMessage, serverMessage],
+        created_at: currentTimestamp,
+        updated_at: currentTimestamp,
+      });
     }
 
+    // start points to the user
+
+    if (!user || !user.companyId) {
+      return res.status(404).json({
+        status: 'Not OK',
+        error: 'User or company ID not found',
+      });
+    }
+
+    const companyId = user.companyId;
+    const pointsKey = `RoleplayInteractionPoint_${companyId}`;
+    const points = parseInt(process.env[pointsKey]) || 0;
+
+    if (!points) {
+      console.warn(`No points configuration found for ${pointsKey}`);
+    }
+
+    const interactionsCollection = db.collection('interactions');
+
+    // Check if user has already interacted with this title
+    const existingInteraction = await interactionsCollection.findOne({
+      user_id: userId,
+    });
+
+    if (existingInteraction) {
+      // Check if LEARNING is already in the interacted_with array
+      const hasLearningInteraction = existingInteraction.interacted_with.includes('ROLEPLAY');
+
+      // Update points and add LEARNING to interacted_with if not present
+      await interactionsCollection.updateOne(
+        { _id: existingInteraction._id },
+        {
+          $set: {
+            points: existingInteraction.points + points,
+            interaction_timestamp: new Date(),
+          },
+          ...(!hasLearningInteraction
+            ? {
+                $push: { interacted_with: 'ROLEPLAY' },
+              }
+            : {}),
+        },
+      );
+    } else {
+      // Create new interaction
+      await interactionsCollection.insertOne({
+        user_id: userId,
+        interaction_timestamp: new Date(),
+        interacted_with: ['ROLEPLAY'],
+        points: points,
+      });
+    }
+
+    // After updating points, emit the new total to connected clients
+    const updatedPoints = existingInteraction ? existingInteraction.points + points : points;
+
+    // Emit points update event
+    const clients = req.app.locals.clients || new Map();
+    const userClients = clients.get(userId);
+    if (userClients) {
+      userClients.forEach((client) => {
+        client.res.write(`data: ${JSON.stringify({ points: updatedPoints })}\n\n`);
+      });
+    }
+
+    // Add comprehensive logging
+    const logMetadata = {
+      userId: userId,
+      userEmail: user.email,
+      companyId: user.companyId,
+      interactionType: 'ROLEPLAY',
+      pointsAwarded: points,
+      isFirstInteraction: !existingInteraction,
+      currentInteractionTypes: existingInteraction
+        ? [
+            ...existingInteraction.interacted_with,
+            ...(!existingInteraction.interacted_with.includes('ROLEPLAY') ? ['ROLEPLAY'] : []),
+          ]
+        : ['ROLEPLAY'],
+      totalPoints: existingInteraction ? existingInteraction.points + points : points,
+      timestamp: new Date().toISOString(),
+    };
+
+    req.logger = logger.withRequestContext(req);
+    req.logger.info('Roleplay Interaction recorded', logMetadata);
+
+    // end points
     res.status(200).json({
       success: true,
       response: serverMessage.text,
@@ -137,5 +225,5 @@ export const rolePlayController = async (req, res) => {
       error: 'An error occurred while processing your request',
       details: error.message,
     });
-  } 
+  }
 };

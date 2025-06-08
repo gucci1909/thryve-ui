@@ -27,3 +27,15 @@ export function getDb() {
   if (!db) throw new Error("Call connectToDb first");
   return db;
 }
+
+async function initializeDb() {
+  try {
+    // Create indexes
+    const db = getDb();
+    await db.collection('chats').createIndex({ 'chat_context.sessionId': 1 });
+    await db.collection('chats').createIndex({ user_id: 1 });
+    console.log('Database indexes created successfully');
+  } catch (error) {
+    console.error('Error creating database indexes:', error);
+  }
+}

@@ -1,9 +1,81 @@
 import { motion } from "framer-motion";
 import { FaTrophy } from "react-icons/fa";
 import { useSelector } from "react-redux";
+import { useState, useEffect } from "react";
+import { useCookies } from 'react-cookie';
 
 function Header() {
   const firstName = useSelector((state) => state.user.firstName);
+  const token = useSelector((state) => state.user.token);
+  const [points, setPoints] = useState(0);
+  const [showPointsUpdate, setShowPointsUpdate] = useState(false);
+  const [previousPoints, setPreviousPoints] = useState(0);
+  const [eventSource, setEventSource] = useState(null);
+
+  useEffect(() => {
+    // Initial points fetch
+    const fetchPoints = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/feed/points`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: 'include' // Include cookies in the request
+        });
+        if (!response.ok) throw new Error('Failed to fetch points');
+        const data = await response.json();
+        setPoints(data.points);
+        setPreviousPoints(data.points);
+      } catch (error) {
+        console.error('Error fetching points:', error);
+      }
+    };
+
+    fetchPoints();
+
+    // Set up SSE connection only if we have a token
+    if (token) {
+      const es = new EventSource(`${import.meta.env.VITE_API_BASE_URL}/points-stream`, {
+        withCredentials: true // Include cookies in the request
+      });
+
+      es.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.points !== undefined) {
+            setPreviousPoints(points);
+            setPoints(data.points);
+            setShowPointsUpdate(true);
+            setTimeout(() => setShowPointsUpdate(false), 2000);
+          }
+        } catch (error) {
+          console.error('Error parsing SSE data:', error);
+        }
+      };
+
+      es.onerror = (error) => {
+        console.error('SSE Error:', error);
+        // Implement reconnection logic if needed
+        setTimeout(() => {
+          es.close();
+          // Try to reconnect after 5 seconds
+          const newEs = new EventSource(`${import.meta.env.VITE_API_BASE_URL}/points-stream`, {
+            withCredentials: true
+          });
+          setEventSource(newEs);
+        }, 5000);
+      };
+
+      setEventSource(es);
+
+      return () => {
+        es.close();
+      };
+    }
+  }, [token, points]);
+
   return (
     <div className="w-full bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_20%)] py-3 shadow-md">
       {/* Top center-aligned logo + title */}
@@ -27,7 +99,6 @@ function Header() {
       <div className="mx-auto flex max-w-4xl items-center justify-between px-4">
         {/* Left: Menu + greeting */}
         <div className="flex items-center gap-2 text-white">
-          {/* <Menu className="h-5 w-5" /> */}
           <span className="text-sm font-medium">Good Morning, {firstName}</span>
         </div>
 
@@ -53,7 +124,6 @@ function Header() {
             }}
             whileTap={{ scale: 0.98 }}
           >
-            {/* Trophy icon with subtle shine */}
             <motion.div
               className="relative"
               animate={{
@@ -68,38 +138,30 @@ function Header() {
               }}
             >
               <FaTrophy className="text-yellow-300" />
-              {/* <motion.div
-                  className="absolute top-0 left-0 h-full w-3 bg-white/40"
-                  initial={{ x: -10 }}
-                  animate={{ x: "100%" }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    repeatDelay: 3,
-                    ease: "easeInOut",
-                  }}
-                  style={{
-                    transform: "skewX(-20deg)",
-                  }}
-                /> */}
             </motion.div>
 
-            {/* Score with subtle pulse */}
-            <motion.span
-              animate={{
-                scale: [1, 1.05, 1],
-              }}
-              // transition={{
-              //   duration: 3,
-              //   repeat: Infinity,
-              //   repeatType: "reverse",
-              //   ease: "easeInOut",
-              // }}
-            >
-              274
-            </motion.span>
+            <motion.div className="relative">
+              <motion.span
+                key={points}
+                initial={showPointsUpdate ? { y: -20, opacity: 0 } : false}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              >
+                {points}
+              </motion.span>
+              
+              {showPointsUpdate && points > previousPoints && (
+                <motion.span
+                  className="absolute -top-4 left-0 text-xs text-green-300"
+                  initial={{ opacity: 0, y: 0 }}
+                  animate={{ opacity: 1, y: -10 }}
+                  exit={{ opacity: 0 }}
+                >
+                  +{points - previousPoints}
+                </motion.span>
+              )}
+            </motion.div>
 
-            {/* Subtle floating particles */}
             {[0, 1, 2].map((i) => (
               <motion.div
                 key={i}
@@ -125,7 +187,6 @@ function Header() {
             ))}
           </motion.div>
 
-          {/* Soft glow */}
           <motion.div
             className="absolute inset-0 -z-10 rounded-full bg-[var(--primary-color)]/20 blur-md"
             initial={{ scale: 0.8, opacity: 0 }}

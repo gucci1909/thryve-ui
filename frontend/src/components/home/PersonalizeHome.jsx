@@ -38,6 +38,7 @@ function PersonalizeHomePage() {
   const token = useSelector((state) => state.user.token);
   const [clickedCards, setClickedCards] = useState({});
   const location = useLocation();
+  const [showSavedOnly, setShowSavedOnly] = useState(false);
   const showLearningPlan = location.state?.showLearningPlan || false;
   const [reactionLoading, setReactionLoading] = useState({});
 
@@ -78,7 +79,41 @@ function PersonalizeHomePage() {
     setActiveVideo(activeVideo === index ? null : index);
   };
 
-  const handleActionViewClick = (action_view, plan) => {
+  const handleInteraction = async (title) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/feed/interact`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ title }),
+        },
+      );
+
+      if (response.status === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to record interaction");
+      }
+
+      const data = await response.json();
+      console.log("Interaction recorded successfully:", data);
+    } catch (error) {
+      console.error("Error recording interaction:", error);
+    }
+  };
+
+  const handleActionViewClick = async (action_view, plan) => {
+    if (action_view === "single_feed") {
+      await handleInteraction(plan.title);
+    }
     setActiveActionView(action_view);
     setSinglePlan(plan);
     setShowNoteInput(false);
@@ -321,6 +356,18 @@ function PersonalizeHomePage() {
             : plan,
         ),
       }));
+
+      // Update singlePlan state if the title matches
+      if (singlePlan.title === title) {
+        setSinglePlan((prev) => ({
+          ...prev,
+          reactions: {
+            ...prev.reactions,
+            [reactionType]: reactionValue,
+            [reactionType === "thumbsUp" ? "thumbsDown" : "thumbsUp"]: false,
+          },
+        }));
+      }
     } catch (error) {
       console.error("Error adding reaction:", error);
     } finally {
@@ -598,15 +645,70 @@ function PersonalizeHomePage() {
             ) : null}
 
             {/* Action Bar */}
-            <div className="mt-8 flex items-center gap-4">
-              {!singlePlan.notes?.length && !showNoteInput && (
-                <button
-                  onClick={() => setShowNoteInput(true)}
-                  className="flex items-center gap-1 rounded-full bg-gray-100 p-2 text-[#0029ff] hover:bg-gray-200"
+            <div className="mt-8 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                {!singlePlan.notes?.length && !showNoteInput && (
+                  <button
+                    onClick={() => setShowNoteInput(true)}
+                    className="flex items-center gap-1 rounded-full bg-gray-100 p-2 text-[#0029ff] hover:bg-gray-200"
+                  >
+                    <FiEdit className="h-5 w-5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Reaction Buttons */}
+              <div className="flex items-center gap-2">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => handleReaction(singlePlan.title, "thumbsUp")}
+                  disabled={reactionLoading[singlePlan.title]}
+                  className={`group relative rounded-full p-2 transition-colors ${
+                    singlePlan.reactions?.thumbsUp
+                      ? "bg-blue-100 text-blue-600"
+                      : "text-[var(--primary-color)] hover:bg-gray-100"
+                  }`}
                 >
-                  <FiEdit className="h-5 w-5" />
-                </button>
-              )}
+                  <FiThumbsUp
+                    className={`h-5 w-5 transition-transform group-hover:scale-110 ${
+                      singlePlan.reactions?.thumbsUp
+                        ? "fill-current"
+                        : "border-blue-500"
+                    }`}
+                  />
+                  {reactionLoading[singlePlan.title] && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+                    </div>
+                  )}
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => handleReaction(singlePlan.title, "thumbsDown")}
+                  disabled={reactionLoading[singlePlan.title]}
+                  className={`group relative rounded-full p-2 transition-colors ${
+                    singlePlan.reactions?.thumbsDown
+                      ? "bg-red-100 text-red-600"
+                      : "text-[var(--primary-color)] hover:bg-gray-100"
+                  }`}
+                >
+                  <FiThumbsDown
+                    className={`h-5 w-5 transition-transform group-hover:scale-110 ${
+                      singlePlan.reactions?.thumbsDown
+                        ? "fill-current"
+                        : "text-[var(--primary-color)]"
+                    }`}
+                  />
+                  {reactionLoading[singlePlan.title] && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent"></div>
+                    </div>
+                  )}
+                </motion.button>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -807,185 +909,205 @@ function PersonalizeHomePage() {
             variants={cardVariants}
             className="mt-8"
           >
+            <div className="mb-8 w-full">
+              <div className={`relative flex h-12 w-full items-center justify-center rounded-full bg-gray-100 p-1 shadow-inner  ${
+                    !showSavedOnly
+                      ? "border border-blue-500"
+                      : ""
+                  }`}>
+                <motion.button
+                  className={`relative z-10 flex h-full w-full items-center text-lg justify-center rounded-full font-medium transition-colors focus:outline-none ${
+                    showSavedOnly
+                      ? "bg-[var(--primary-color)] text-white shadow-md"
+                      : "bg-transparent text-gray-600 hover:text-gray-800"
+                  }`}
+                  onClick={() => setShowSavedOnly((prev) => !prev)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {showSavedOnly ? "Show All Posts" : "Show Saved Posts"}
+                </motion.button>
+              </div>
+            </div>
             <h2 className="mb-6 text-2xl font-bold text-[#0029ff]">
               Your Learning Journey
             </h2>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {reportData?.learning_plan?.map((plan, index) => {
-                const handleClick = (e) => {
-                  // Don't trigger if clicking on bookmark button or video thumbnail
-                  if (
-                    e.target.closest("button") ||
-                    e.target.closest(".video-container")
-                  ) {
-                    return;
-                  }
+              {reportData?.learning_plan
+                ?.filter((plan) => !showSavedOnly || plan.saved)
+                ?.map((plan, index) => {
+                  const handleClick = (e) => {
+                    // Don't trigger if clicking on bookmark button or video thumbnail
+                    if (
+                      e.target.closest("button") ||
+                      e.target.closest(".video-container")
+                    ) {
+                      return;
+                    }
 
-                  // Set this card as clicked
-                  setClickedCards((prev) => ({ ...prev, [index]: true }));
+                    // Set this card as clicked
+                    setClickedCards((prev) => ({ ...prev, [index]: true }));
 
-                  setTimeout(() => {
-                    handleActionViewClick("single_feed", plan);
-                    // Reset the clicked state after navigation
-                    setClickedCards((prev) => ({ ...prev, [index]: false }));
-                  }, 300);
-                };
+                    setTimeout(() => {
+                      handleActionViewClick("single_feed", plan);
+                      // Reset the clicked state after navigation
+                      setClickedCards((prev) => ({ ...prev, [index]: false }));
+                    }, 300);
+                  };
 
-                return (
-                  <motion.div
-                    key={index}
-                    className="group relative cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 * index }}
-                    whileHover={{ scale: 1.01 }}
-                    onClick={handleClick}
-                  >
-                    {/* Click feedback overlay - only show if this card is clicked */}
-                    {clickedCards[index] && (
-                      <motion.div
-                        className="absolute inset-0 z-20 bg-[var(--primary-color)]/20"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                      />
-                    )}
+                  return (
+                    <motion.div
+                      key={index}
+                      className="group relative cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 * index }}
+                      whileHover={{ scale: 1.01 }}
+                      onClick={handleClick}
+                    >
+                      {/* Click feedback overlay - only show if this card is clicked */}
+                      {clickedCards[index] && (
+                        <motion.div
+                          className="absolute inset-0 z-20 bg-[var(--primary-color)]/20"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                        />
+                      )}
 
-                    <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary-color)]/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                    <div className="relative z-10">
-                      <div className="flex items-start justify-between">
-                        <h3 className="text-lg font-semibold text-[#0029ff]">
-                          {plan.title}
-                        </h3>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSaveStatus(plan.title, !plan.saved);
-                          }}
-                          className="rounded-full bg-gray-100 p-2 text-[#0029ff] hover:bg-gray-200"
-                        >
-                          <FiBookmark
-                            className={`h-5 w-5 ${plan.saved ? "fill-current" : ""}`}
-                          />
-                        </button>
-                      </div>
-                      <p className="mt-2 line-clamp-2 text-sm text-gray-600">
-                        {plan.content}
-                      </p>
+                      <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary-color)]/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                      <div className="relative z-10">
+                        <div className="flex items-start justify-between">
+                          <h3 className="text-lg font-semibold text-[#0029ff]">
+                            {plan.title}
+                          </h3>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSaveStatus(plan.title, !plan.saved);
+                            }}
+                            className="rounded-full bg-gray-100 p-2 text-[#0029ff] hover:bg-gray-200"
+                          >
+                            <FiBookmark
+                              className={`h-5 w-5 ${plan.saved ? "fill-current" : ""}`}
+                            />
+                          </button>
+                        </div>
+                        <p className="mt-2 line-clamp-2 text-sm text-gray-600">
+                          {plan.content}
+                        </p>
 
-                      <div className="video-container mt-4 overflow-hidden rounded-lg border border-gray-200">
-                        <div className="aspect-video w-full bg-gray-100">
-                          {activeVideo === index ? (
-                            <div className="aspect-video w-full">
-                              <YouTube
-                                videoId={getYouTubeVideoId(plan.video)}
-                                opts={opts}
-                                className="h-full w-full"
-                                onError={(e) =>
-                                  console.error("YouTube Error:", e)
-                                }
-                              />
-                            </div>
-                          ) : (
-                            <div
-                              className="relative h-full w-full cursor-pointer"
+                        <div className="video-container mt-4 overflow-hidden rounded-lg border border-gray-200">
+                          <div className="aspect-video w-full bg-gray-100">
+                            {activeVideo === index ? (
+                              <div className="aspect-video w-full">
+                                <YouTube
+                                  videoId={getYouTubeVideoId(plan.video)}
+                                  opts={opts}
+                                  className="h-full w-full"
+                                  onError={(e) =>
+                                    console.error("YouTube Error:", e)
+                                  }
+                                />
+                              </div>
+                            ) : (
+                              <div
+                                className="relative h-full w-full cursor-pointer"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleVideoClick(index);
+                                }}
+                              >
+                                <img
+                                  src={getYouTubeThumbnail(plan.video)}
+                                  alt={plan.title}
+                                  className="absolute inset-0 h-full w-full object-cover opacity-90 transition-opacity duration-300 hover:opacity-100"
+                                  onError={(e) => {
+                                    e.target.src =
+                                      "https://placehold.co/600x400/png?text=Video+Thumbnail";
+                                  }}
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                                  <FiPlay className="h-10 w-10 text-white" />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="mt-4 flex items-center justify-between">
+                          <div className="mt-4 flex items-center justify-between">
+                            {plan.notes?.length > 0 && (
+                              <div className="flex items-center justify-center gap-1 text-sm text-gray-500">
+                                <FiFileText className="h-4 w-4 text-[var(--primary-color)]" />
+                                Your notes...
+                              </div>
+                            )}
+
+                            {/* Add the reactions UI here */}
+                          </div>
+                          <div className="ml-auto flex items-center gap-2">
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleVideoClick(index);
+                                handleReaction(plan.title, "thumbsUp");
                               }}
+                              disabled={reactionLoading[plan.title]}
+                              className={`group relative rounded-full p-2 transition-colors ${
+                                plan.reactions?.thumbsUp
+                                  ? "bg-blue-100 text-blue-600"
+                                  : "text-[var(--primary-color)] hover:bg-gray-100"
+                              }`}
                             >
-                              <img
-                                src={getYouTubeThumbnail(plan.video)}
-                                alt={plan.title}
-                                className="absolute inset-0 h-full w-full object-cover opacity-90 transition-opacity duration-300 hover:opacity-100"
-                                onError={(e) => {
-                                  e.target.src =
-                                    "https://placehold.co/600x400/png?text=Video+Thumbnail";
-                                }}
+                              <FiThumbsUp
+                                className={`h-5 w-5 transition-transform group-hover:scale-110 ${
+                                  plan.reactions?.thumbsUp
+                                    ? "fill-current"
+                                    : "border-blue-500"
+                                }`}
                               />
-                              <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                                <FiPlay className="h-10 w-10 text-white" />
-                              </div>
-                            </div>
-                          )}
+                              {reactionLoading[plan.title] && (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+                                </div>
+                              )}
+                            </motion.button>
+
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleReaction(plan.title, "thumbsDown");
+                              }}
+                              disabled={reactionLoading[plan.title]}
+                              className={`group relative rounded-full p-2 transition-colors ${
+                                plan.reactions?.thumbsDown
+                                  ? "bg-red-100 text-red-600"
+                                  : "text-[var(--primary-color)] hover:bg-gray-100"
+                              }`}
+                            >
+                              <FiThumbsDown
+                                className={`h-5 w-5 transition-transform group-hover:scale-110 ${
+                                  plan.reactions?.thumbsDown
+                                    ? "fill-current"
+                                    : "text-[var(--primary-color)]"
+                                }`}
+                              />
+                              {reactionLoading[plan.title] && (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent"></div>
+                                </div>
+                              )}
+                            </motion.button>
+                          </div>
                         </div>
                       </div>
-
-                      <div className="mt-4 flex items-center justify-between">
-
-                      <div className="mt-4 flex items-center justify-between">
-                        {plan.notes?.length > 0 && (
-                          <div className="flex items-center justify-center gap-1 text-sm text-gray-500">
-                            <FiFileText className="h-4 w-4 text-[var(--primary-color)]" />
-                            Your notes...
-                          </div>
-                        )}
-
-                        {/* Add the reactions UI here */}
-                      </div>
-                      <div className="flex items-center gap-2 ml-auto">
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleReaction(plan.title, "thumbsUp");
-                          }}
-                          disabled={reactionLoading[plan.title]}
-                          className={`group relative rounded-full p-2 transition-colors ${
-                            plan.reactions?.thumbsUp
-                              ? "bg-blue-100 text-blue-600"
-                              : "text-[var(--primary-color)] hover:bg-gray-100"
-                          }`}
-                        >
-                          <FiThumbsUp
-                            className={`h-5 w-5 transition-transform group-hover:scale-110 ${
-                              plan.reactions?.thumbsUp
-                                ? "fill-current"
-                                : "border-blue-500"
-                            }`}
-                          />
-                          {reactionLoading[plan.title] && (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
-                            </div>
-                          )}
-                        </motion.button>
-
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleReaction(plan.title, "thumbsDown");
-                          }}
-                          disabled={reactionLoading[plan.title]}
-                          className={`group relative rounded-full p-2 transition-colors ${
-                            plan.reactions?.thumbsDown
-                              ? "bg-red-100 text-red-600"
-                              : "text-[var(--primary-color)] hover:bg-gray-100"
-                          }`}
-                        >
-                          <FiThumbsDown
-                            className={`h-5 w-5 transition-transform group-hover:scale-110 ${
-                              plan.reactions?.thumbsDown
-                                ? "fill-current"
-                                : "text-[var(--primary-color)]"
-                            }`}
-                          />
-                          {reactionLoading[plan.title] && (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent"></div>
-                            </div>
-                          )}
-                        </motion.button>
-                      </div>
-
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
+                    </motion.div>
+                  );
+                })}
             </div>
           </motion.div>
           {/* )} */}
