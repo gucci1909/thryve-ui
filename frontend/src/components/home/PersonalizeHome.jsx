@@ -39,7 +39,6 @@ function PersonalizeHomePage() {
   const [clickedCards, setClickedCards] = useState({});
   const location = useLocation();
   const showLearningPlan = location.state?.showLearningPlan || false;
-  const [reactions, setReactions] = useState({});
   const [reactionLoading, setReactionLoading] = useState({});
 
   const getYouTubeVideoId = (url) => {
@@ -274,7 +273,15 @@ function PersonalizeHomePage() {
   const handleReaction = async (title, reactionType) => {
     try {
       setReactionLoading((prev) => ({ ...prev, [title]: true }));
-      
+
+      // Get current reaction value to toggle it
+      const currentPlan = reportData.learning_plan.find(
+        (plan) => plan.title === title,
+      );
+      const currentReactionValue =
+        currentPlan?.reactions?.[reactionType] || false;
+      const reactionValue = !currentReactionValue; // Toggle the value
+
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/feed/add-reaction`,
         {
@@ -283,8 +290,8 @@ function PersonalizeHomePage() {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ title, reactionType }),
-        }
+          body: JSON.stringify({ title, reactionType, reactionValue }),
+        },
       );
 
       if (response.status === 401) {
@@ -297,15 +304,23 @@ function PersonalizeHomePage() {
         throw new Error("Failed to add reaction");
       }
 
-      // Update local state
-      setReactions((prev) => ({
+      // Update reportData state with new reaction
+      setReportData((prev) => ({
         ...prev,
-        [title]: {
-          thumbsUp: reactionType === "thumbsUp",
-          thumbsDown: reactionType === "thumbsDown",
-        },
+        learning_plan: prev.learning_plan.map((plan) =>
+          plan.title === title
+            ? {
+                ...plan,
+                reactions: {
+                  ...plan.reactions,
+                  [reactionType]: reactionValue,
+                  [reactionType === "thumbsUp" ? "thumbsDown" : "thumbsUp"]:
+                    false,
+                },
+              }
+            : plan,
+        ),
       }));
-
     } catch (error) {
       console.error("Error adding reaction:", error);
     } finally {
@@ -353,45 +368,6 @@ function PersonalizeHomePage() {
       fetchLeadershipReport();
     }
   }, [token]);
-
-  useEffect(() => {
-    const fetchReactions = async (title) => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/feed/reactions/${encodeURIComponent(title)}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (response.status === 401) {
-          dispatch(logout());
-          navigate("/");
-          return;
-        }
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch reactions");
-        }
-
-        const data = await response.json();
-        setReactions((prev) => ({
-          ...prev,
-          [title]: data.data,
-        }));
-      } catch (error) {
-        console.error("Error fetching reactions:", error);
-      }
-    };
-
-    if (reportData?.learning_plan) {
-      reportData.learning_plan.forEach((plan) => {
-        fetchReactions(plan.title);
-      });
-    }
-  }, [reportData?.learning_plan, token]);
 
   const cardVariants = {
     offscreen: {
@@ -936,67 +912,75 @@ function PersonalizeHomePage() {
                       </div>
 
                       <div className="mt-4 flex items-center justify-between">
+
+                      <div className="mt-4 flex items-center justify-between">
                         {plan.notes?.length > 0 && (
                           <div className="flex items-center justify-center gap-1 text-sm text-gray-500">
                             <FiFileText className="h-4 w-4 text-[var(--primary-color)]" />
                             Your notes...
                           </div>
                         )}
-                        
+
                         {/* Add the reactions UI here */}
-                        <div className="flex items-center gap-2">
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleReaction(plan.title, "thumbsUp");
-                            }}
-                            disabled={reactionLoading[plan.title]}
-                            className={`group relative rounded-full p-2 transition-colors ${
-                              reactions[plan.title]?.thumbsUp
-                                ? "bg-blue-100 text-blue-600"
-                                : "hover:bg-gray-100 border-blue-500"
+                      </div>
+                      <div className="flex items-center gap-2 ml-auto">
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleReaction(plan.title, "thumbsUp");
+                          }}
+                          disabled={reactionLoading[plan.title]}
+                          className={`group relative rounded-full p-2 transition-colors ${
+                            plan.reactions?.thumbsUp
+                              ? "bg-blue-100 text-blue-600"
+                              : "text-[var(--primary-color)] hover:bg-gray-100"
+                          }`}
+                        >
+                          <FiThumbsUp
+                            className={`h-5 w-5 transition-transform group-hover:scale-110 ${
+                              plan.reactions?.thumbsUp
+                                ? "fill-current"
+                                : "border-blue-500"
                             }`}
-                          >
-                            <FiThumbsUp
-                              className={`h-5 w-5 transition-transform group-hover:scale-110 ${
-                                reactions[plan.title]?.thumbsUp ? "fill-current" : "border-blue-500"
-                              }`}
-                            />
-                            {reactionLoading[plan.title] && (
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
-                              </div>
-                            )}
-                          </motion.button>
-                          
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleReaction(plan.title, "thumbsDown");
-                            }}
-                            disabled={reactionLoading[plan.title]}
-                            className={`group relative rounded-full p-2 transition-colors ${
-                              reactions[plan.title]?.thumbsDown
-                                ? "bg-red-100 text-red-600"
-                                : "hover:bg-gray-100 text-[var(--primary-color)]"
+                          />
+                          {reactionLoading[plan.title] && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+                            </div>
+                          )}
+                        </motion.button>
+
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleReaction(plan.title, "thumbsDown");
+                          }}
+                          disabled={reactionLoading[plan.title]}
+                          className={`group relative rounded-full p-2 transition-colors ${
+                            plan.reactions?.thumbsDown
+                              ? "bg-red-100 text-red-600"
+                              : "text-[var(--primary-color)] hover:bg-gray-100"
+                          }`}
+                        >
+                          <FiThumbsDown
+                            className={`h-5 w-5 transition-transform group-hover:scale-110 ${
+                              plan.reactions?.thumbsDown
+                                ? "fill-current"
+                                : "text-[var(--primary-color)]"
                             }`}
-                          >
-                            <FiThumbsDown
-                              className={`h-5 w-5 transition-transform group-hover:scale-110 ${
-                                reactions[plan.title]?.thumbsDown ? "fill-current" : "text-[var(--primary-color)]"
-                              }`}
-                            />
-                            {reactionLoading[plan.title] && (
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent"></div>
-                              </div>
-                            )}
-                          </motion.button>
-                        </div>
+                          />
+                          {reactionLoading[plan.title] && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent"></div>
+                            </div>
+                          )}
+                        </motion.button>
+                      </div>
+
                       </div>
                     </div>
                   </motion.div>
