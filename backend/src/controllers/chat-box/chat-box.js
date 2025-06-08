@@ -27,18 +27,15 @@ function safeParseJSON(content) {
 }
 
 export const chatBoxController = async (req, res) => {
-
   const db = getDb();
 
   try {
-
     const { question, userId } = req.body;
 
     if (!question || !userId) {
       return res.status(400).json({ error: 'Question and userId are required' });
     }
 
-    // Get user's company ID from users collection
     const usersCollection = db.collection('users');
     const companiesCollection = db.collection('companies');
     const leadershipReportsCollection = db.collection('leadership-reports');
@@ -50,24 +47,27 @@ export const chatBoxController = async (req, res) => {
 
     const currentTimestamp = new Date();
 
+    // Create a session ID based on 12-hour window
+    const sessionStartTime = new Date(currentTimestamp);
+    sessionStartTime.setHours(Math.floor(sessionStartTime.getHours() / 12) * 12, 0, 0, 0);
+    const sessionId = `${userId}_${sessionStartTime.getTime()}`;
+
     // Prepare user message
     const userMessage = {
       from: 'user',
       chat_text: question,
       timestamp: currentTimestamp,
       messageType: 'question',
+      sessionId: sessionId
     };
 
     const chatCollection = db.collection('chats');
     const existingChat = await chatCollection.findOne({ user_id: userId });
 
-
     if(user?.companyId){
-
     }
 
     const company = await companiesCollection.findOne({ INVITE_CODE: user?.companyId });
-
     const leadershipReport = await leadershipReportsCollection.findOne({ userId: userId });
 
     const response = await fetch(process.env.OpenAIAPI, {
@@ -94,18 +94,16 @@ export const chatBoxController = async (req, res) => {
       throw new Error('Invalid response from OpenAI');
     }
 
-    // Prepare server message
+    // Prepare server message with session ID
     const serverMessage = {
       from: 'aicoach',
-      chat_text:  safeParseJSON(data.choices[0].message.content).chat_text,
+      chat_text: safeParseJSON(data.choices[0].message.content).chat_text,
       timestamp: new Date(),
       messageType: 'response',
+      sessionId: sessionId
     };
 
-    // Find existing conversation or create new one
-
     if (existingChat) {
-      // Update existing conversation
       await chatCollection.updateOne(
         { user_id: userId },
         {
@@ -114,18 +112,18 @@ export const chatBoxController = async (req, res) => {
               $each: [userMessage, serverMessage],
             },
           },
+          $set: {
+            updated_at: currentTimestamp
+          }
         }
       );
     } else {
-      // Create new conversation
-      await chatCollection.insertOne(
-        {
-          user_id: userId,
-          chat_context: [userMessage, serverMessage],
-          created_at: currentTimestamp,
-          updated_at: currentTimestamp,
-        }
-      );
+      await chatCollection.insertOne({
+        user_id: userId,
+        chat_context: [userMessage, serverMessage],
+        created_at: currentTimestamp,
+        updated_at: currentTimestamp
+      });
     }
 
     res.status(200).json({
@@ -142,7 +140,7 @@ export const chatBoxController = async (req, res) => {
       error: 'An error occurred while processing your request',
       details: error.message,
     });
-  } 
+  }
 };
 
 export const chatBoxGetAllTextController = async (req, res) => {
@@ -158,6 +156,10 @@ export const chatBoxGetAllTextController = async (req, res) => {
       });
     }
 
+    // Calculate timestamp for 12 hours ago
+    const twelveHoursAgo = new Date();
+    twelveHoursAgo.setHours(twelveHoursAgo.getHours() - 12);
+
     // Find chat messages for the user
     const chatCollection = db.collection('chats');
     const userChat = await chatCollection.findOne({ user_id: userId });
@@ -170,9 +172,14 @@ export const chatBoxGetAllTextController = async (req, res) => {
       });
     }
 
+    // Filter messages from the last 12 hours
+    const recentMessages = userChat.chat_context.filter(msg => 
+      new Date(msg.timestamp) >= twelveHoursAgo
+    );
+
     res.status(200).json({
       success: true,
-      chat_context: userChat.chat_context || [],
+      chat_context: recentMessages || [],
     });
   } catch (error) {
     console.error('Error fetching chat history:', error);

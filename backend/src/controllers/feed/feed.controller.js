@@ -207,7 +207,7 @@ export const addReaction = async (req, res) => {
         const db = getDb();
         const leadershipReportsCollection = db.collection('leadership-reports');
         const userId = req.user.id;
-        const { title, reactionType } = req.body;
+        const { title, reactionType, reactionValue } = req.body;
 
         if (!title || !reactionType || !['thumbsUp', 'thumbsDown'].includes(reactionType)) {
             return res.status(400).json({
@@ -224,7 +224,7 @@ export const addReaction = async (req, res) => {
             },
             {
                 $set: {
-                    [`assessment.learning_plan.$.reactions.${reactionType}`]: true,
+                    [`assessment.learning_plan.$.reactions.${reactionType}`]: reactionValue,
                     [`assessment.learning_plan.$.reactions.${reactionType === 'thumbsUp' ? 'thumbsDown' : 'thumbsUp'}`]: false,
                     updatedAt: new Date()
                 }
@@ -248,59 +248,6 @@ export const addReaction = async (req, res) => {
         return res.status(500).json({
             status: 'Not OK',
             error: 'Failed to add reaction'
-        });
-    }
-};
-
-export const getReactions = async (req, res) => {
-    try {
-        const db = getDb();
-        const leadershipReportsCollection = db.collection('leadership-reports');
-        const userId = req.user.id;
-        const { title } = req.params;
-
-        if (!title) {
-            return res.status(400).json({
-                status: 'Not OK',
-                error: 'Title is required'
-            });
-        }
-
-        // Find the learning plan and get its reactions
-        const report = await leadershipReportsCollection.findOne(
-            {
-                userId: userId,
-                'assessment.learning_plan.title': title
-            },
-            {
-                projection: {
-                    'assessment.learning_plan.$': 1
-                }
-            }
-        );
-
-        if (!report || !report.assessment.learning_plan[0]) {
-            return res.status(404).json({
-                status: 'Not OK',
-                error: 'Learning plan not found'
-            });
-        }
-
-        const reactions = report.assessment.learning_plan[0].reactions || {
-            thumbsUp: false,
-            thumbsDown: false
-        };
-
-        return res.status(200).json({
-            status: 'OK',
-            data: reactions
-        });
-
-    } catch (error) {
-        console.error('Get Reactions Error:', error);
-        return res.status(500).json({
-            status: 'Not OK',
-            error: 'Failed to get reactions'
         });
     }
 };
