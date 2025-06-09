@@ -15,10 +15,24 @@ const requestSchema = z.object({
   feedbackRequests: z.array(teamMemberSchema),
 });
 
-function generateInviteCode(member_name) {
-  const hash = crypto.createHash('md5').update(member_name).digest('hex').toUpperCase();
-  return `FD3-${hash.slice(0, 3)}-${hash.slice(-3)}`;
+function generateInviteCode(teamMember, userId, company, req) {
+  // Combine multiple unique identifiers
+  const timestamp = new Date().toISOString();
+  const ipAddress = req.ip || req.connection.remoteAddress;
+  
+  // Create a unique string combining all parameters
+  const uniqueString = `${userId}-${company._id}-${timestamp}-${teamMember.name}-${teamMember.email}-${ipAddress}`;
+  
+  // Generate SHA1 hash
+  const hash = crypto.createHash('sha1')
+    .update(uniqueString)
+    .digest('hex');
+  
+  // Format the code to be more readable: THR-XXXXX-XXXXX-XXXXX
+  // return `THR-${hash.slice(0, 5)}-${hash.slice(5, 10)}-${hash.slice(10, 15)}`;
+  return hash;
 }
+
 
 const generateEmailTemplate = (teamMember, manager, company) => {
   const assessmentLink = `${process.env.FRONTEND_URL}/feedback-assessment?inviteCode=${teamMember.INVITE_CODE}`;
@@ -116,7 +130,7 @@ export const addTeamMembers = async (req, res) => {
       companyName: company.COMPANY_NAME,
       name: member.name,
       email: member.email,
-      INVITE_CODE: generateInviteCode(member.name),
+      INVITE_CODE: generateInviteCode(member, req.user.id, company, req),
       companyCode: companyCode,
       status: 'email_pending',
       assessment: false,
