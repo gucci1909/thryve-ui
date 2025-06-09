@@ -19,6 +19,7 @@ import {
   FiThumbsUp,
   FiThumbsDown,
 } from "react-icons/fi";
+import { FaFire, FaCalendarAlt, FaTrophy, FaBolt } from "react-icons/fa";
 import { useDebounce } from "../hook/useDebounce";
 
 function PersonalizeHomePage() {
@@ -36,11 +37,13 @@ function PersonalizeHomePage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector((state) => state.user.token);
+  const points = useSelector((state) => state.user.points);
   const [clickedCards, setClickedCards] = useState({});
   const location = useLocation();
   const [showSavedOnly, setShowSavedOnly] = useState(false);
   const showLearningPlan = location.state?.showLearningPlan || false;
   const [reactionLoading, setReactionLoading] = useState({});
+  const streakDays = Math.floor(points / 20);
 
   const getYouTubeVideoId = (url) => {
     if (!url) return null;
@@ -714,6 +717,139 @@ function PersonalizeHomePage() {
         </motion.div>
       ) : (
         <>
+          {/* Learning Streak Card */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, type: "spring" }}
+            className="mb-8"
+          >
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_20%)] p-6 shadow-lg">
+              {/* Animated background effects */}
+              <motion.div
+                className="absolute inset-0 opacity-20"
+                style={{
+                  background:
+                    "radial-gradient(circle at center, white 0%, transparent 70%)",
+                }}
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.1, 0.2, 0.1],
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+
+              <div className="relative z-10">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <motion.div
+                      animate={{
+                        rotate: [0, 10, 0, -10, 0],
+                      }}
+                      transition={{
+                        duration: 4,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    >
+                      <FaFire className="h-8 w-8 text-yellow-300" />
+                    </motion.div>
+                    <h2 className="text-2xl font-bold text-white">
+                      Learning Streak
+                    </h2>
+                  </div>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm"
+                  >
+                    <FaTrophy className="h-5 w-5 text-yellow-300" />
+                    <span className="font-semibold text-white">
+                      {points} Points
+                    </span>
+                  </motion.div>
+                </div>
+
+                <div className="mt-6 flex items-center justify-between">
+                  <div className="flex items-center gap-6">
+                    <div className="text-center">
+                      <motion.div
+                        className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm"
+                        whileHover={{ scale: 1.05 }}
+                        animate={{
+                          y: [0, -5, 0],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                      >
+                        <span className="text-2xl font-bold text-white">
+                          {streakDays}
+                        </span>
+                      </motion.div>
+                      <p className="mt-2 text-sm font-medium text-white/80">
+                        Days
+                      </p>
+                    </div>
+
+                    <div className="text-center">
+                      <motion.div
+                        className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm"
+                        whileHover={{ scale: 1.05 }}
+                        animate={{
+                          y: [0, -5, 0],
+                        }}
+                        transition={{
+                          duration: 2,
+                          delay: 0.2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                      >
+                        <span className="text-2xl font-bold text-white">
+                          {20 - (points % 20)}
+                        </span>
+                      </motion.div>
+                      <p className="mt-2 text-sm font-medium text-white/80">
+                        Points to Next Day
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* <motion.div
+                className="flex flex-col items-end"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <div className="flex items-center gap-2">
+                  <FaBolt className="h-5 w-5 text-yellow-300" />
+                  <span className="text-lg font-semibold text-white">Keep Going!</span>
+                </div>
+                <p className="mt-1 text-sm text-white/80">Complete more lessons to extend your streak</p>
+              </motion.div> */}
+                </div>
+
+                {/* Progress bar */}
+                <div className="mt-6">
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-white/20">
+                    <motion.div
+                      className="h-full bg-yellow-300"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(points % 20) * 5}%` }}
+                      transition={{ duration: 0.8, type: "spring" }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
           {showLearningPlan && (
             <motion.div
               initial="offscreen"
@@ -910,13 +1046,13 @@ function PersonalizeHomePage() {
             className="mt-8"
           >
             <div className="mb-8 w-full">
-              <div className={`relative flex h-12 w-full items-center justify-center rounded-full bg-gray-100 p-1 shadow-inner  ${
-                    !showSavedOnly
-                      ? "border border-blue-500"
-                      : ""
-                  }`}>
+              <div
+                className={`relative flex h-12 w-full items-center justify-center rounded-full bg-gray-100 p-1 shadow-inner ${
+                  !showSavedOnly ? "border border-blue-500" : ""
+                }`}
+              >
                 <motion.button
-                  className={`relative z-10 flex h-full w-full items-center text-lg justify-center rounded-full font-medium transition-colors focus:outline-none ${
+                  className={`relative z-10 flex h-full w-full items-center justify-center rounded-full text-lg font-medium transition-colors focus:outline-none ${
                     showSavedOnly
                       ? "bg-[var(--primary-color)] text-white shadow-md"
                       : "bg-transparent text-gray-600 hover:text-gray-800"
@@ -933,181 +1069,198 @@ function PersonalizeHomePage() {
               Your Learning Journey
             </h2>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {reportData?.learning_plan
-                ?.filter((plan) => !showSavedOnly || plan.saved)
-                ?.map((plan, index) => {
-                  const handleClick = (e) => {
-                    // Don't trigger if clicking on bookmark button or video thumbnail
-                    if (
-                      e.target.closest("button") ||
-                      e.target.closest(".video-container")
-                    ) {
-                      return;
-                    }
+              {reportData?.learning_plan?.filter(
+                (plan) => !showSavedOnly || plan.saved,
+              )?.length === 0 && showSavedOnly ? (
+                <div className="col-span-2 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--primary-color)]/20 bg-[var(--primary-color)]/5 px-4 py-12">
+                  <FiBookmark className="h-12 w-12 text-[var(--primary-color)]" />
+                  <p className="mt-4 text-center text-lg font-medium text-[var(--primary-color)]">
+                    No saved posts yet
+                  </p>
+                  <p className="mt-2 text-center text-gray-600">
+                    Click the bookmark icon on any post to save it for later
+                  </p>
+                </div>
+              ) : (
+                reportData?.learning_plan
+                  ?.filter((plan) => !showSavedOnly || plan.saved)
+                  ?.map((plan, index) => {
+                    const handleClick = (e) => {
+                      // Don't trigger if clicking on bookmark button or video thumbnail
+                      if (
+                        e.target.closest("button") ||
+                        e.target.closest(".video-container")
+                      ) {
+                        return;
+                      }
 
-                    // Set this card as clicked
-                    setClickedCards((prev) => ({ ...prev, [index]: true }));
+                      // Set this card as clicked
+                      setClickedCards((prev) => ({ ...prev, [index]: true }));
 
-                    setTimeout(() => {
-                      handleActionViewClick("single_feed", plan);
-                      // Reset the clicked state after navigation
-                      setClickedCards((prev) => ({ ...prev, [index]: false }));
-                    }, 300);
-                  };
+                      setTimeout(() => {
+                        handleActionViewClick("single_feed", plan);
+                        // Reset the clicked state after navigation
+                        setClickedCards((prev) => ({
+                          ...prev,
+                          [index]: false,
+                        }));
+                      }, 300);
+                    };
 
-                  return (
-                    <motion.div
-                      key={index}
-                      className="group relative cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 * index }}
-                      whileHover={{ scale: 1.01 }}
-                      onClick={handleClick}
-                    >
-                      {/* Click feedback overlay - only show if this card is clicked */}
-                      {clickedCards[index] && (
-                        <motion.div
-                          className="absolute inset-0 z-20 bg-[var(--primary-color)]/20"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                        />
-                      )}
+                    return (
+                      <motion.div
+                        key={index}
+                        className="group relative cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 * index }}
+                        whileHover={{ scale: 1.01 }}
+                        onClick={handleClick}
+                      >
+                        {/* Click feedback overlay - only show if this card is clicked */}
+                        {clickedCards[index] && (
+                          <motion.div
+                            className="absolute inset-0 z-20 bg-[var(--primary-color)]/20"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                          />
+                        )}
 
-                      <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary-color)]/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                      <div className="relative z-10">
-                        <div className="flex items-start justify-between">
-                          <h3 className="text-lg font-semibold text-[#0029ff]">
-                            {plan.title}
-                          </h3>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSaveStatus(plan.title, !plan.saved);
-                            }}
-                            className="rounded-full bg-gray-100 p-2 text-[#0029ff] hover:bg-gray-200"
-                          >
-                            <FiBookmark
-                              className={`h-5 w-5 ${plan.saved ? "fill-current" : ""}`}
-                            />
-                          </button>
-                        </div>
-                        <p className="mt-2 line-clamp-2 text-sm text-gray-600">
-                          {plan.content}
-                        </p>
+                        <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary-color)]/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                        <div className="relative z-10">
+                          <div className="flex items-start justify-between">
+                            <h3 className="text-lg font-semibold text-[#0029ff]">
+                              {plan.title}
+                            </h3>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSaveStatus(plan.title, !plan.saved);
+                              }}
+                              className="rounded-full bg-gray-100 p-2 text-[#0029ff] hover:bg-gray-200"
+                            >
+                              <FiBookmark
+                                className={`h-5 w-5 ${plan.saved ? "fill-current" : ""}`}
+                              />
+                            </button>
+                          </div>
+                          <p className="mt-2 line-clamp-2 text-sm text-gray-600">
+                            {plan.content}
+                          </p>
 
-                        <div className="video-container mt-4 overflow-hidden rounded-lg border border-gray-200">
-                          <div className="aspect-video w-full bg-gray-100">
-                            {activeVideo === index ? (
-                              <div className="aspect-video w-full">
-                                <YouTube
-                                  videoId={getYouTubeVideoId(plan.video)}
-                                  opts={opts}
-                                  className="h-full w-full"
-                                  onError={(e) =>
-                                    console.error("YouTube Error:", e)
-                                  }
-                                />
-                              </div>
-                            ) : (
-                              <div
-                                className="relative h-full w-full cursor-pointer"
+                          <div className="video-container mt-4 overflow-hidden rounded-lg border border-gray-200">
+                            <div className="aspect-video w-full bg-gray-100">
+                              {activeVideo === index ? (
+                                <div className="aspect-video w-full">
+                                  <YouTube
+                                    videoId={getYouTubeVideoId(plan.video)}
+                                    opts={opts}
+                                    className="h-full w-full"
+                                    onError={(e) =>
+                                      console.error("YouTube Error:", e)
+                                    }
+                                  />
+                                </div>
+                              ) : (
+                                <div
+                                  className="relative h-full w-full cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleVideoClick(index);
+                                  }}
+                                >
+                                  <img
+                                    src={getYouTubeThumbnail(plan.video)}
+                                    alt={plan.title}
+                                    className="absolute inset-0 h-full w-full object-cover opacity-90 transition-opacity duration-300 hover:opacity-100"
+                                    onError={(e) => {
+                                      e.target.src =
+                                        "https://placehold.co/600x400/png?text=Video+Thumbnail";
+                                    }}
+                                  />
+                                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                                    <FiPlay className="h-10 w-10 text-white" />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="mt-4 flex items-center justify-between">
+                            <div className="mt-4 flex items-center justify-between">
+                              {plan.notes?.length > 0 && (
+                                <div className="flex items-center justify-center gap-1 text-sm text-gray-500">
+                                  <FiFileText className="h-4 w-4 text-[var(--primary-color)]" />
+                                  Your notes...
+                                </div>
+                              )}
+
+                              {/* Add the reactions UI here */}
+                            </div>
+                            <div className="ml-auto flex items-center gap-2">
+                              <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleVideoClick(index);
+                                  handleReaction(plan.title, "thumbsUp");
                                 }}
-                              >
-                                <img
-                                  src={getYouTubeThumbnail(plan.video)}
-                                  alt={plan.title}
-                                  className="absolute inset-0 h-full w-full object-cover opacity-90 transition-opacity duration-300 hover:opacity-100"
-                                  onError={(e) => {
-                                    e.target.src =
-                                      "https://placehold.co/600x400/png?text=Video+Thumbnail";
-                                  }}
-                                />
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                                  <FiPlay className="h-10 w-10 text-white" />
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="mt-4 flex items-center justify-between">
-                          <div className="mt-4 flex items-center justify-between">
-                            {plan.notes?.length > 0 && (
-                              <div className="flex items-center justify-center gap-1 text-sm text-gray-500">
-                                <FiFileText className="h-4 w-4 text-[var(--primary-color)]" />
-                                Your notes...
-                              </div>
-                            )}
-
-                            {/* Add the reactions UI here */}
-                          </div>
-                          <div className="ml-auto flex items-center gap-2">
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleReaction(plan.title, "thumbsUp");
-                              }}
-                              disabled={reactionLoading[plan.title]}
-                              className={`group relative rounded-full p-2 transition-colors ${
-                                plan.reactions?.thumbsUp
-                                  ? "bg-blue-100 text-blue-600"
-                                  : "text-[var(--primary-color)] hover:bg-gray-100"
-                              }`}
-                            >
-                              <FiThumbsUp
-                                className={`h-5 w-5 transition-transform group-hover:scale-110 ${
+                                disabled={reactionLoading[plan.title]}
+                                className={`group relative rounded-full p-2 transition-colors ${
                                   plan.reactions?.thumbsUp
-                                    ? "fill-current"
-                                    : "border-blue-500"
+                                    ? "bg-blue-100 text-blue-600"
+                                    : "text-[var(--primary-color)] hover:bg-gray-100"
                                 }`}
-                              />
-                              {reactionLoading[plan.title] && (
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
-                                </div>
-                              )}
-                            </motion.button>
+                              >
+                                <FiThumbsUp
+                                  className={`h-5 w-5 transition-transform group-hover:scale-110 ${
+                                    plan.reactions?.thumbsUp
+                                      ? "fill-current"
+                                      : "border-blue-500"
+                                  }`}
+                                />
+                                {reactionLoading[plan.title] && (
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+                                  </div>
+                                )}
+                              </motion.button>
 
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleReaction(plan.title, "thumbsDown");
-                              }}
-                              disabled={reactionLoading[plan.title]}
-                              className={`group relative rounded-full p-2 transition-colors ${
-                                plan.reactions?.thumbsDown
-                                  ? "bg-red-100 text-red-600"
-                                  : "text-[var(--primary-color)] hover:bg-gray-100"
-                              }`}
-                            >
-                              <FiThumbsDown
-                                className={`h-5 w-5 transition-transform group-hover:scale-110 ${
+                              <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleReaction(plan.title, "thumbsDown");
+                                }}
+                                disabled={reactionLoading[plan.title]}
+                                className={`group relative rounded-full p-2 transition-colors ${
                                   plan.reactions?.thumbsDown
-                                    ? "fill-current"
-                                    : "text-[var(--primary-color)]"
+                                    ? "bg-red-100 text-red-600"
+                                    : "text-[var(--primary-color)] hover:bg-gray-100"
                                 }`}
-                              />
-                              {reactionLoading[plan.title] && (
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent"></div>
-                                </div>
-                              )}
-                            </motion.button>
+                              >
+                                <FiThumbsDown
+                                  className={`h-5 w-5 transition-transform group-hover:scale-110 ${
+                                    plan.reactions?.thumbsDown
+                                      ? "fill-current"
+                                      : "text-[var(--primary-color)]"
+                                  }`}
+                                />
+                                {reactionLoading[plan.title] && (
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent"></div>
+                                  </div>
+                                )}
+                              </motion.button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
+                      </motion.div>
+                    );
+                  })
+              )}
             </div>
           </motion.div>
           {/* )} */}

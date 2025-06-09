@@ -1,16 +1,18 @@
 import { motion } from "framer-motion";
 import { FaTrophy } from "react-icons/fa";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
 import { useCookies } from 'react-cookie';
+import { updatePoints } from "../../store/userSlice";
 
 function Header() {
   const firstName = useSelector((state) => state.user.firstName);
   const token = useSelector((state) => state.user.token);
-  const [points, setPoints] = useState(0);
   const [showPointsUpdate, setShowPointsUpdate] = useState(false);
   const [previousPoints, setPreviousPoints] = useState(0);
   const [eventSource, setEventSource] = useState(null);
+  const dispatch = useDispatch();
+  const points = useSelector((state) => state.user.points);
 
   useEffect(() => {
     // Initial points fetch
@@ -26,7 +28,7 @@ function Header() {
         });
         if (!response.ok) throw new Error('Failed to fetch points');
         const data = await response.json();
-        setPoints(data.points);
+        dispatch(updatePoints(data.points));
         setPreviousPoints(data.points);
       } catch (error) {
         console.error('Error fetching points:', error);
@@ -46,7 +48,7 @@ function Header() {
           const data = JSON.parse(event.data);
           if (data.points !== undefined) {
             setPreviousPoints(points);
-            setPoints(data.points);
+            dispatch(updatePoints(data.points));
             setShowPointsUpdate(true);
             setTimeout(() => setShowPointsUpdate(false), 2000);
           }
@@ -74,7 +76,7 @@ function Header() {
         es.close();
       };
     }
-  }, [token, points]);
+  }, [token, points, dispatch]);
 
   return (
     <div className="w-full bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_20%)] py-3 shadow-md">

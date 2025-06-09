@@ -8,6 +8,7 @@ const initialState = {
   reportData: JSON.parse(localStorage.getItem("reportData")) || null,
   personalize: JSON.parse(localStorage.getItem("personalize")) || null,
   companyCode: JSON.parse(localStorage.getItem("companyCode")) || null,
+  points: parseInt(localStorage.getItem("points")) || 0,
 };
 
 const userSlice = createSlice({
@@ -20,6 +21,7 @@ const userSlice = createSlice({
       state.email = action.payload.email;
       state.firstName = action.payload.firstName;
       state.personalize = action.payload.personalized;
+      state.points = action.payload.points || 0;
 
       localStorage.setItem("token", action.payload.token);
       localStorage.setItem("_id", JSON.stringify(action.payload._id));
@@ -28,6 +30,7 @@ const userSlice = createSlice({
         "firstName",
         JSON.stringify(action.payload.firstName),
       );
+      localStorage.setItem("points", action.payload.points || 0);
       if (!action.payload.personalized) {
         localStorage.setItem("personalize", "false");
       } else {
@@ -41,6 +44,7 @@ const userSlice = createSlice({
       state.firstName = null;
       state.reportData = null;
       state.personalize = null;
+      state.points = 0;
 
       localStorage.removeItem("token");
       localStorage.removeItem("_id");
@@ -48,6 +52,11 @@ const userSlice = createSlice({
       localStorage.removeItem("firstName");
       localStorage.removeItem("reportData");
       localStorage.removeItem("personalize");
+      localStorage.removeItem("points");
+    },
+    updatePoints: (state, action) => {
+      state.points = action.payload;
+      localStorage.setItem("points", action.payload);
     },
     reportDatafunc: (state, action) => {
       state.reportData = action.payload;
@@ -66,6 +75,12 @@ const userSlice = createSlice({
   },
 });
 
-export const { login, logout, updateProfile, reportDatafunc, updateCompanyCode } =
-  userSlice.actions;
+export const { 
+  login, 
+  logout, 
+  updateProfile, 
+  reportDatafunc, 
+  updateCompanyCode,
+  updatePoints 
+} = userSlice.actions;
 export default userSlice.reducer;
