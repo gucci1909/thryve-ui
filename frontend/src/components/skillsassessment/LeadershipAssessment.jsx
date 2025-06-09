@@ -270,7 +270,7 @@ export default function LeadershipAssessment({
               {currentQuestionIndex + 1}
             </motion.div>
             <h4 className="mt-0.5 text-base leading-tight font-medium text-gray-800 sm:text-lg">
-              {currentQuestion.text}
+              {currentQuestion?.text}
             </h4>
           </motion.div>
 
