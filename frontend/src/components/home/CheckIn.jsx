@@ -54,7 +54,10 @@ const CheckIn = () => {
       );
 
       if (response.status === 401) {
+        // Clear the authToken cookie
+        removeCookie("authToken", { path: "/" });
         dispatch(logout());
+
         navigate("/");
         return;
       }
@@ -88,6 +91,7 @@ const CheckIn = () => {
       );
 
       if (response.status === 401) {
+        removeCookie("authToken", { path: "/" });
         dispatch(logout());
         navigate("/");
         return;
@@ -127,6 +131,7 @@ const CheckIn = () => {
         );
 
         if (response.status === 401) {
+          removeCookie("authToken", { path: "/" });
           dispatch(logout());
           navigate("/");
           return;
@@ -170,6 +175,7 @@ const CheckIn = () => {
       );
 
       if (response.status === 401) {
+        removeCookie("authToken", { path: "/" });
         dispatch(logout());
         navigate("/");
         return;
@@ -205,6 +211,7 @@ const CheckIn = () => {
       );
 
       if (response.status === 401) {
+        removeCookie("authToken", { path: "/" });
         dispatch(logout());
         navigate("/");
         return;
@@ -240,6 +247,7 @@ const CheckIn = () => {
       );
 
       if (response.status === 401) {
+        removeCookie("authToken", { path: "/" });
         dispatch(logout());
         navigate("/");
         return;

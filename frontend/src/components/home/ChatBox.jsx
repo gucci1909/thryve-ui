@@ -7,12 +7,14 @@ import scenariosData from "./chatbox.json";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { logout } from "../../store/userSlice";
+import { useCookies } from 'react-cookie';
 import Chat from "./Chat";
 
 export default function ChatBox() {
   const token = useSelector((state) => state.user.token);
   const userId = useSelector((state) => state.user._id);
   const firstName = useSelector((state) => state.user.firstName);
+  const [cookies, setCookie, removeCookie] = useCookies(['authToken']);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -107,6 +109,7 @@ export default function ChatBox() {
 
       const statusCode = response.status;
       if (statusCode === 401) {
+
         dispatch(logout());
         navigate("/");
         return;

@@ -10,6 +10,7 @@ import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import { useDispatch } from "react-redux";
 import { login, updateCompanyCode } from "../store/userSlice";
+import { useCookies } from 'react-cookie';
 
 const avatars = [
   {
@@ -51,6 +52,7 @@ const SignupPage = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [cookies, setCookie] = useCookies(['authToken']);
   const [apiError, setApiError] = useState("");
   const [errors, setErrors] = useState({
     firstName: "",
@@ -205,6 +207,15 @@ const SignupPage = () => {
         setApiError("Email is already registered");
       } else {
         const { token, user: { id, email, firstName } } = data;
+
+           // Set the auth token cookie
+        setCookie('authToken', token, {
+          path: '/',
+          maxAge: 7 * 24 * 60 * 60, // 7 days
+          sameSite: 'strict'
+        });
+
+
         dispatch(login({ token, _id: id, email, firstName }));
         navigate("/selection-page");
       }

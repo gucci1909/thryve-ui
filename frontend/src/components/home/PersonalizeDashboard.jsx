@@ -18,6 +18,7 @@ import {
 } from "react-icons/fi";
 import YouTube from "react-youtube";
 import { useDebounce } from "../hook/useDebounce";
+import { useCookies } from "react-cookie";
 
 function PersonalizeDashboard() {
   const [reportData, setReportData] = useState(null);
@@ -25,6 +26,7 @@ function PersonalizeDashboard() {
   const [error, setError] = useState(null);
   const [activeVideo, setActiveVideo] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [cookies, setCookie, removeCookie] = useCookies(["authToken"]);
   const [activeActionView, setActiveActionView] = useState(null);
   const [singlePlan, setSinglePlan] = useState({});
   const [note, setNote] = useState("");
@@ -123,6 +125,7 @@ function PersonalizeDashboard() {
       );
 
       if (response.status === 401) {
+        removeCookie("authToken", { path: "/" });
         dispatch(logout());
         navigate("/");
         return;
@@ -171,6 +174,7 @@ function PersonalizeDashboard() {
       );
 
       if (response.status === 401) {
+        removeCookie("authToken", { path: "/" });
         dispatch(logout());
         navigate("/");
         return;
@@ -211,6 +215,7 @@ function PersonalizeDashboard() {
       );
 
       if (response.status === 401) {
+        removeCookie("authToken", { path: "/" });
         dispatch(logout());
         navigate("/");
         return;
@@ -258,6 +263,7 @@ function PersonalizeDashboard() {
       );
 
       if (response.status === 401) {
+        removeCookie("authToken", { path: "/" });
         dispatch(logout());
         navigate("/");
         return;
@@ -307,6 +313,7 @@ function PersonalizeDashboard() {
 
         const statusCode = response.status;
         if (statusCode === 401) {
+          removeCookie("authToken", { path: "/" });
           dispatch(logout());
           navigate("/");
           return;

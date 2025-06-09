@@ -14,6 +14,7 @@ import {
   FiChevronRight,
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
+import { useCookies } from "react-cookie";
 
 export default function Profile() {
   const dispatch = useDispatch();
@@ -23,8 +24,10 @@ export default function Profile() {
   const [savedLearningPlans, setSavedLearningPlans] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [cookies, setCookie, removeCookie] = useCookies(['authToken']);
 
   const handleLogout = () => {
+      removeCookie("authToken", { path: "/" });
     dispatch(logout());
     navigate("/");
   };

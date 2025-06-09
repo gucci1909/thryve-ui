@@ -8,6 +8,7 @@ import { login } from "../store/userSlice";
 import LoginBackground from "../components/onboarding/LoginBackground";
 import { useCookies } from 'react-cookie';
 
+
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
