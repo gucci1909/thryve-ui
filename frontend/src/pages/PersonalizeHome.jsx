@@ -9,22 +9,33 @@ import CheckIn from "../components/home/CheckIn";
 import PersonalizeDashboard from "../components/home/PersonalizeDashboard";
 import ChangePassword from "../components/home/ChangePassword";
 import SavedPost from "../components/home/SavedPost";
+import { useState } from "react";
 
 export default function PersonalizeHome() {
   const location = useLocation();
+  const [pointAdded, setPointAdded] = useState(false);
   return (
     <div className="flex h-screen flex-col bg-gradient-to-b from-[#f0f4ff] to-[#e6ecff]">
-      <Header />
+      <Header pointAdded={pointAdded} setPointAdded={setPointAdded} />
 
-      {location.pathname === "/personalize-home" && <PersonalizeHomePage />}
-      {location.pathname === "/personalize-check-in" && <CheckIn />}
+      {location.pathname === "/personalize-home" && (
+        <PersonalizeHomePage
+          pointAdded={pointAdded}
+          setPointAdded={setPointAdded}
+        />
+      )}
+      {location.pathname === "/personalize-check-in" && <CheckIn pointAdded={pointAdded} setPointAdded={setPointAdded} />}
       {location.pathname === "/personalize-dashboard" && (
         <PersonalizeDashboard />
       )}
       {location.pathname === "/personalize-profile" && <Profile />}
       {location.pathname === "/personalize-saved-post" && <SavedPost />}
-      {location.pathname === "/personalize-change-password" && <ChangePassword />}
-      {location.pathname === "/personalize-chat-box" && <ChatBox />}
+      {location.pathname === "/personalize-change-password" && (
+        <ChangePassword />
+      )}
+      {location.pathname === "/personalize-chat-box" && (
+        <ChatBox pointAdded={pointAdded} setPointAdded={setPointAdded} />
+      )}
 
       <BottomNav
         chatPath="/personalize-chat-box"

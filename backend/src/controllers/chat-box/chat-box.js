@@ -152,65 +152,52 @@ export const chatBoxController = async (req, res) => {
 
     const interactionsCollection = db.collection('interactions');
 
-    // Check if user has already interacted with this title
-    const existingInteraction = await interactionsCollection.findOne({
+    // Record the new interaction as a separate event
+    const interactionDoc = {
       user_id: userId,
-    });
+      interaction_type: 'COACHING',
+      chat_question: question,
+      points: points,
+      interaction_timestamp: new Date(),
+    };
 
-    if (existingInteraction) {
-      // Check if LEARNING is already in the interacted_with array
-      const hasLearningInteraction = existingInteraction.interacted_with.includes('COACHING');
+    const result = await interactionsCollection.insertOne(interactionDoc);
 
-      // Update points and add LEARNING to interacted_with if not present
-      await interactionsCollection.updateOne(
-        { _id: existingInteraction._id },
-        {
-          $set: {
-            points: existingInteraction.points + points,
-            interaction_timestamp: new Date(),
-          },
-          ...(!hasLearningInteraction
-            ? {
-                $push: { interacted_with: 'COACHING' },
-              }
-            : {}),
-        },
-      );
-    } else {
-      // Create new interaction
-      await interactionsCollection.insertOne({
-        user_id: userId,
-        interaction_timestamp: new Date(),
-        interacted_with: ['COACHING'],
-        points: points,
-      });
-    }
-
-      // After updating points, emit the new total to connected clients
-    const updatedPoints = existingInteraction ? existingInteraction.points + points : points;
-    
     // Emit points update event
     const clients = req.app.locals.clients || new Map();
     const userClients = clients.get(userId);
     if (userClients) {
-      userClients.forEach(client => {
+      userClients.forEach((client) => {
         client.res.write(`data: ${JSON.stringify({ points: updatedPoints })}\n\n`);
       });
     }
+
+    // Emit total points (aggregate for user)
+    const totalPoints = await interactionsCollection
+      .aggregate([
+        { $match: { user_id: userId } },
+        { $group: { _id: null, total: { $sum: '$points' } } },
+      ])
+      .toArray();
+
+    const updatedPoints = totalPoints[0]?.total || 0;
+
+    // ✅ Update total points in users collection
+    await usersCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $set: { totalPoints: updatedPoints } },
+    );
 
     // Add comprehensive logging
     const logMetadata = {
       userId: userId,
       userEmail: user.email,
       companyId: user.companyId,
+      chat_question: question,
       interactionType: 'COACHING',
       pointsAwarded: points,
-      isFirstInteraction: !existingInteraction,
-      currentInteractionTypes: existingInteraction 
-        ? [...existingInteraction.interacted_with, ...(!existingInteraction.interacted_with.includes('COACHING') ? ['COACHING'] : [])]
-        : ['COACHING'],
-      totalPoints: existingInteraction ? existingInteraction.points + points : points,
-      timestamp: new Date().toISOString()
+      totalPoints: updatedPoints,
+      timestamp: new Date().toISOString(),
     };
 
     req.logger = logger.withRequestContext(req);

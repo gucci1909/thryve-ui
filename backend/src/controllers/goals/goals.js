@@ -201,7 +201,7 @@ export const addReflection = async (req, res) => {
     // start points to the user
     // Get user's company ID from users collection
     const usersCollection = db.collection('users');
-    const user = await usersCollection.findOne({ _id: new ObjectId( req.user.id) });
+    const user = await usersCollection.findOne({ _id: new ObjectId(req.user.id) });
     if (!user || !user.companyId) {
       return res.status(404).json({
         status: 'Not OK',
@@ -219,46 +219,36 @@ export const addReflection = async (req, res) => {
 
     const interactionsCollection = db.collection('interactions');
 
-    // Check if user has already interacted with this title
-    const existingInteraction = await interactionsCollection.findOne({
+    // Record the new interaction as a separate event
+    const interactionDoc = {
       user_id: req.user.id,
-    });
+      interaction_type: 'REFLECTION',
+      content: req.body.content,
+      points: points,
+      interaction_timestamp: new Date(),
+    };
 
-    if (existingInteraction) {
-      // Check if LEARNING is already in the interacted_with array
-      const hasLearningInteraction = existingInteraction.interacted_with.includes('REFLECTION');
+    const result_1 = await interactionsCollection.insertOne(interactionDoc);
 
-      // Update points and add LEARNING to interacted_with if not present
-      await interactionsCollection.updateOne(
-        { _id: existingInteraction._id },
-        {
-          $set: {
-            points: existingInteraction.points + points,
-            interaction_timestamp: new Date(),
-          },
-          ...(!hasLearningInteraction
-            ? {
-                $push: { interacted_with: 'REFLECTION' },
-              }
-            : {}),
-        },
-      );
-    } else {
-      // Create new interaction
-      await interactionsCollection.insertOne({
-        user_id: req.user.id,
-        interaction_timestamp: new Date(),
-        interacted_with: ['REFLECTION'],
-        points: points,
-      });
-    }
+    // Emit total points (aggregate for user)
+    const totalPoints = await interactionsCollection
+      .aggregate([
+        { $match: { user_id: req.user.id } },
+        { $group: { _id: null, total: { $sum: '$points' } } },
+      ])
+      .toArray();
 
-    // After updating points, emit the new total to connected clients
-    const updatedPoints = existingInteraction ? existingInteraction.points + points : points;
+    const updatedPoints = totalPoints[0]?.total || 0;
+
+    // ✅ Update total points in users collection
+    await usersCollection.updateOne(
+      { _id: new ObjectId(req.user.id) },
+      { $set: { totalPoints: updatedPoints } },
+    );
 
     // Emit points update event
     const clients = req.app.locals.clients || new Map();
-    const userClients = clients.get( req.user.id);
+    const userClients = clients.get(req.user.id);
     if (userClients) {
       userClients.forEach((client) => {
         client.res.write(`data: ${JSON.stringify({ points: updatedPoints })}\n\n`);
@@ -270,16 +260,10 @@ export const addReflection = async (req, res) => {
       userId: req.user.id,
       userEmail: user.email,
       companyId: user.companyId,
+      content: req.body.content,
       interactionType: 'REFLECTION',
       pointsAwarded: points,
-      isFirstInteraction: !existingInteraction,
-      currentInteractionTypes: existingInteraction
-        ? [
-            ...existingInteraction.interacted_with,
-            ...(!existingInteraction.interacted_with.includes('REFLECTION') ? ['REFLECTION'] : []),
-          ]
-        : ['REFLECTION'],
-      totalPoints: existingInteraction ? existingInteraction.points + points : points,
+      totalPoints: updatedPoints,
       timestamp: new Date().toISOString(),
     };
 

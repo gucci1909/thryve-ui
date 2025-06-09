@@ -266,23 +266,22 @@ export const getUserPoints = async (req, res) => {
   try {
     const db = getDb();
     const userId = req.user.id;
-    const interactionsCollection = db.collection('interactions');
+    const interactionsCollection = db.collection('users');
 
     // Get the user's interaction document
-    const interaction = await interactionsCollection.findOne({ user_id: userId });
-    
-    const points = interaction ? interaction.points : 0;
+    const interaction = await interactionsCollection.findOne({ _id: new ObjectId(userId) });
+
+    const points = interaction ? interaction.totalPoints : 0;
 
     return res.status(200).json({
       status: 'OK',
-      points: points
+      points: points,
     });
-
   } catch (error) {
     console.error('Get Points Error:', error);
     return res.status(500).json({
       status: 'Not OK',
-      error: 'Failed to fetch points'
+      error: 'Failed to fetch points',
     });
   }
 };
@@ -300,7 +299,7 @@ export const interActWithFeedItemController = async (req, res) => {
       });
     }
 
-    // Get user's company ID from users collection
+    // Fetch user
     const usersCollection = db.collection('users');
     const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
 
@@ -321,78 +320,63 @@ export const interActWithFeedItemController = async (req, res) => {
 
     const interactionsCollection = db.collection('interactions');
 
-    // Check if user has already interacted with this title
-    const existingInteraction = await interactionsCollection.findOne({
-      user_id: userId
-    });
+    // Record the new interaction as a separate event
+    const interactionDoc = {
+      user_id: userId,
+      // company_id: companyId,
+      interaction_type: 'LEARNING',
+      learning_plan_title: title,
+      points: points,
+      interaction_timestamp: new Date(),
+    };
 
-    let result;
-    if (existingInteraction) {
-      // Check if LEARNING is already in the interacted_with array
-      const hasLearningInteraction = existingInteraction.interacted_with.includes('LEARNING');
-      
-      // Update points and add LEARNING to interacted_with if not present
-      result = await interactionsCollection.updateOne(
-        { _id: existingInteraction._id },
-        {
-          $set: {
-            points: existingInteraction.points + points,
-            interaction_timestamp: new Date(),
-          },
-          ...(!hasLearningInteraction
-            ? {
-              $push: { interacted_with: 'LEARNING' },
-            }
-            : {}),
-        },
-      );
-    } else {
-      // Create new interaction
-      result = await interactionsCollection.insertOne({
-        user_id: userId,
-        interaction_timestamp: new Date(),
-        interacted_with: ['LEARNING'],
-        learning_plan_title: title,
-        points: points
-      });
-    }
+    const result = await interactionsCollection.insertOne(interactionDoc);
 
-    // After updating points, emit the new total to connected clients
-    const updatedPoints = existingInteraction ? existingInteraction.points + points : points;
-    
-    // Emit points update event
+    // Emit total points (aggregate for user)
+    const totalPoints = await interactionsCollection
+      .aggregate([
+        { $match: { user_id: userId } },
+        { $group: { _id: null, total: { $sum: '$points' } } },
+      ])
+      .toArray();
+
+    const updatedPoints = totalPoints[0]?.total || 0;
+
+    // ✅ Update total points in users collection
+    await usersCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $set: { totalPoints: updatedPoints } },
+    );
+
+    // Emit to connected SSE clients if any
     const clients = req.app.locals.clients || new Map();
     const userClients = clients.get(userId);
     if (userClients) {
-      userClients.forEach(client => {
+      userClients.forEach((client) => {
         client.res.write(`data: ${JSON.stringify({ points: updatedPoints })}\n\n`);
       });
     }
 
-    // Comprehensive logging
+    // Log event
     const logMetadata = {
-      userId: userId,
+      userId,
       userEmail: user.email,
-      companyId: user.companyId,
+      companyId,
       learningPlanTitle: title,
       pointsAwarded: points,
-      isFirstInteraction: !existingInteraction,
-      currentInteractionTypes: existingInteraction 
-        ? [...existingInteraction.interacted_with, ...(!existingInteraction.interacted_with.includes('LEARNING') ? ['LEARNING'] : [])]
-        : ['LEARNING'],
+      interactionType: 'LEARNING',
       totalPoints: updatedPoints,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     req.logger = logger.withRequestContext(req);
-    req.logger.info('Learning Plan Interaction recorded', logMetadata);
+    req.logger.info('Learning Plan Interaction recorded (event model)', logMetadata);
 
     return res.status(200).json({
       status: 'OK',
       message: 'Interaction recorded successfully',
       points: updatedPoints,
     });
-
   } catch (error) {
     console.error('Interaction Error:', error);
     return res.status(500).json({

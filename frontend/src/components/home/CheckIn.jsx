@@ -22,7 +22,7 @@ import { useNavigate } from "react-router";
 import { logout } from "../../store/userSlice";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
-const CheckIn = () => {
+const CheckIn = ({ pointAdded, setPointAdded }) => {
   const [view, setView] = useState("main");
   const [goals, setGoals] = useState([]);
   const [newGoalTitle, setNewGoalTitle] = useState("");
@@ -193,6 +193,8 @@ const CheckIn = () => {
     } catch (error) {
       console.error("Error adding reflection:", error);
       setError(error.message);
+    } finally {
+      setPointAdded(true);
     }
   };
 

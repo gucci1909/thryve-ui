@@ -19,20 +19,17 @@ function generateInviteCode(teamMember, userId, company, req) {
   // Combine multiple unique identifiers
   const timestamp = new Date().toISOString();
   const ipAddress = req.ip || req.connection.remoteAddress;
-  
+
   // Create a unique string combining all parameters
   const uniqueString = `${userId}-${company._id}-${timestamp}-${teamMember.name}-${teamMember.email}-${ipAddress}`;
-  
+
   // Generate SHA1 hash
-  const hash = crypto.createHash('sha1')
-    .update(uniqueString)
-    .digest('hex');
-  
+  const hash = crypto.createHash('sha1').update(uniqueString).digest('hex');
+
   // Format the code to be more readable: THR-XXXXX-XXXXX-XXXXX
   // return `THR-${hash.slice(0, 5)}-${hash.slice(5, 10)}-${hash.slice(10, 15)}`;
   return hash;
 }
-
 
 const generateEmailTemplate = (teamMember, manager, company) => {
   const assessmentLink = `${process.env.FRONTEND_URL}/feedback-assessment?inviteCode=${teamMember.INVITE_CODE}`;
@@ -296,7 +293,7 @@ export const saveFeedbackData = async (req, res) => {
           },
           updatedAt: new Date(),
         },
-      }
+      },
     );
 
     if (result.modifiedCount === 0) {

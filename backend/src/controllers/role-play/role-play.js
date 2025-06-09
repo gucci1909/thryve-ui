@@ -143,42 +143,32 @@ export const rolePlayController = async (req, res) => {
 
     const interactionsCollection = db.collection('interactions');
 
-    // Check if user has already interacted with this title
-    const existingInteraction = await interactionsCollection.findOne({
+    // Record the new interaction as a separate event
+    const interactionDoc = {
       user_id: userId,
-    });
+      interaction_type: 'ROLEPLAY',
+      chat_question: question,
+      points: points,
+      interaction_timestamp: new Date(),
+    };
 
-    if (existingInteraction) {
-      // Check if LEARNING is already in the interacted_with array
-      const hasLearningInteraction = existingInteraction.interacted_with.includes('ROLEPLAY');
+    const result = await interactionsCollection.insertOne(interactionDoc);
 
-      // Update points and add LEARNING to interacted_with if not present
-      await interactionsCollection.updateOne(
-        { _id: existingInteraction._id },
-        {
-          $set: {
-            points: existingInteraction.points + points,
-            interaction_timestamp: new Date(),
-          },
-          ...(!hasLearningInteraction
-            ? {
-                $push: { interacted_with: 'ROLEPLAY' },
-              }
-            : {}),
-        },
-      );
-    } else {
-      // Create new interaction
-      await interactionsCollection.insertOne({
-        user_id: userId,
-        interaction_timestamp: new Date(),
-        interacted_with: ['ROLEPLAY'],
-        points: points,
-      });
-    }
+    // Emit total points (aggregate for user)
+    const totalPoints = await interactionsCollection
+      .aggregate([
+        { $match: { user_id: userId } },
+        { $group: { _id: null, total: { $sum: '$points' } } },
+      ])
+      .toArray();
 
-    // After updating points, emit the new total to connected clients
-    const updatedPoints = existingInteraction ? existingInteraction.points + points : points;
+    const updatedPoints = totalPoints[0]?.total || 0;
+
+    // ✅ Update total points in users collection
+    await usersCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $set: { totalPoints: updatedPoints } },
+    );
 
     // Emit points update event
     const clients = req.app.locals.clients || new Map();
@@ -194,16 +184,10 @@ export const rolePlayController = async (req, res) => {
       userId: userId,
       userEmail: user.email,
       companyId: user.companyId,
+      chat_question: question,
       interactionType: 'ROLEPLAY',
       pointsAwarded: points,
-      isFirstInteraction: !existingInteraction,
-      currentInteractionTypes: existingInteraction
-        ? [
-            ...existingInteraction.interacted_with,
-            ...(!existingInteraction.interacted_with.includes('ROLEPLAY') ? ['ROLEPLAY'] : []),
-          ]
-        : ['ROLEPLAY'],
-      totalPoints: existingInteraction ? existingInteraction.points + points : points,
+      totalPoints: updatedPoints,
       timestamp: new Date().toISOString(),
     };
 

@@ -10,7 +10,7 @@ import { logout } from "../../store/userSlice";
 import { useCookies } from 'react-cookie';
 import Chat from "./Chat";
 
-export default function ChatBox() {
+export default function ChatBox({ pointAdded, setPointAdded }) {
   const token = useSelector((state) => state.user.token);
   const userId = useSelector((state) => state.user._id);
   const firstName = useSelector((state) => state.user.firstName);
@@ -223,6 +223,7 @@ export default function ChatBox() {
       ]);
     } finally {
       setIsLoading(false);
+      setPointAdded(true);
     }
   };
 
@@ -294,6 +295,7 @@ export default function ChatBox() {
       ]);
     } finally {
       setIsLoading(false);
+      setPointAdded(true);
     }
   };
 

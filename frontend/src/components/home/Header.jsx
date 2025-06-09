@@ -2,10 +2,10 @@ import { motion } from "framer-motion";
 import { FaTrophy } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
-import { useCookies } from 'react-cookie';
+import { useCookies } from "react-cookie";
 import { updatePoints } from "../../store/userSlice";
 
-function Header() {
+function Header({ pointAdded, setPointAdded }) {
   const firstName = useSelector((state) => state.user.firstName);
   const token = useSelector((state) => state.user.token);
   const [showPointsUpdate, setShowPointsUpdate] = useState(false);
@@ -15,68 +15,59 @@ function Header() {
   const points = useSelector((state) => state.user.points);
 
   useEffect(() => {
-    // Initial points fetch
     const fetchPoints = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/feed/points`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/feed/points`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            credentials: "include", // Include cookies in the request
           },
-          credentials: 'include' // Include cookies in the request
-        });
-        if (!response.ok) throw new Error('Failed to fetch points');
+        );
+        if (!response.ok) throw new Error("Failed to fetch points");
         const data = await response.json();
         dispatch(updatePoints(data.points));
         setPreviousPoints(data.points);
       } catch (error) {
-        console.error('Error fetching points:', error);
+        console.error("Error fetching points:", error);
       }
     };
 
     fetchPoints();
 
-    // Set up SSE connection only if we have a token
-    if (token) {
-      const es = new EventSource(`${import.meta.env.VITE_API_BASE_URL}/points-stream`, {
-        withCredentials: true // Include cookies in the request
-      });
+  }, [token, points, dispatch]);
 
-      es.onmessage = (event) => {
+  useEffect(() => {
+    if (pointAdded) {
+      const fetchPoints = async () => {
         try {
-          const data = JSON.parse(event.data);
-          if (data.points !== undefined) {
-            setPreviousPoints(points);
-            dispatch(updatePoints(data.points));
-            setShowPointsUpdate(true);
-            setTimeout(() => setShowPointsUpdate(false), 2000);
-          }
+          const response = await fetch(
+            `${import.meta.env.VITE_API_BASE_URL}/feed/points`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              credentials: "include", // Include cookies in the request
+            },
+          );
+          if (!response.ok) throw new Error("Failed to fetch points");
+          const data = await response.json();
+          dispatch(updatePoints(data.points));
+          setPreviousPoints(data.points);
         } catch (error) {
-          console.error('Error parsing SSE data:', error);
+          console.error("Error fetching points:", error);
         }
       };
-
-      es.onerror = (error) => {
-        console.error('SSE Error:', error);
-        // Implement reconnection logic if needed
-        setTimeout(() => {
-          es.close();
-          // Try to reconnect after 5 seconds
-          const newEs = new EventSource(`${import.meta.env.VITE_API_BASE_URL}/points-stream`, {
-            withCredentials: true
-          });
-          setEventSource(newEs);
-        }, 5000);
-      };
-
-      setEventSource(es);
-
-      return () => {
-        es.close();
-      };
+      fetchPoints();
+      setPointAdded(false);
     }
-  }, [token, points, dispatch]);
+  }, [pointAdded]);
 
   return (
     <div className="w-full bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_20%)] py-3 shadow-md">
@@ -151,7 +142,7 @@ function Header() {
               >
                 {points}
               </motion.span>
-              
+
               {showPointsUpdate && points > previousPoints && (
                 <motion.span
                   className="absolute -top-4 left-0 text-xs text-green-300"

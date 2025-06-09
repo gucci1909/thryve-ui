@@ -16,6 +16,7 @@ import {
   FiTrash2,
   FiFileText,
 } from "react-icons/fi";
+import { FaFire, FaCalendarAlt, FaTrophy, FaBolt } from "react-icons/fa";
 import YouTube from "react-youtube";
 import { useDebounce } from "../hook/useDebounce";
 import { useCookies } from "react-cookie";
@@ -45,6 +46,9 @@ function PersonalizeDashboard() {
   const navigate = useNavigate();
   const token = useSelector((state) => state.user.token);
   const firstName = useSelector((state) => state.user.firstName);
+  const points = useSelector((state) => state.user.points);
+  const streakDays = Math.floor(points / 20);
+  const pointsNeeded = 20 - (points % 20);
 
   const cardVariants = {
     offscreen: {
@@ -544,127 +548,124 @@ function PersonalizeDashboard() {
         </motion.div>
       ) : (
         <>
-          {/* Learning Plan
+          {/* Learning Streak Card */}
           <motion.div
-            initial="offscreen"
-            whileInView="onscreen"
-            viewport={{ once: true, amount: 0.2 }}
-            className="mt-8"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, type: "spring" }}
+            className="mb-8"
           >
-            <h2 className="mb-6 text-2xl font-bold text-[#0029ff]">
-              Your Learning Journey
-            </h2>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {reportData?.learning_plan?.map((plan, index) => {
-                const handleClick = (e) => {
-                  if (
-                    e.target.closest("button") ||
-                    e.target.closest(".video-container")
-                  ) {
-                    return;
-                  }
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_20%)] p-6 shadow-lg">
+              {/* Animated background effects */}
+              <motion.div
+                className="absolute inset-0 opacity-20"
+                style={{
+                  background:
+                    "radial-gradient(circle at center, white 0%, transparent 70%)",
+                }}
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.1, 0.2, 0.1],
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
 
-                  setClickedCards((prev) => ({ ...prev, [index]: true }));
+              <div className="relative z-10">
+                <div className="flex items-center justify-center">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-white">
+                      Learning Streak
+                    </h2>
+                    <motion.div
+                      animate={{
+                        rotate: [0, 10, 0, -10, 0],
+                      }}
+                      transition={{
+                        duration: 4,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    >
+                      <FaFire className="h-8 w-8 text-yellow-300" />
+                    </motion.div>
+                  </div>
+                </div>
 
-                  setTimeout(() => {
-                    handleActionViewClick("single_feed", plan);
-                    setClickedCards((prev) => ({ ...prev, [index]: false }));
-                  }, 300);
-                };
+                <div className="mt-3 flex flex-row items-center justify-center gap-4">
+                  <div className="flex items-center gap-4">
+                    <motion.div
+                      className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm"
+                      whileHover={{ scale: 1.05 }}
+                      animate={{
+                        y: [0, -5, 0],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    >
+                      <span className="text-xl font-bold text-white">
+                        {streakDays}
+                      </span>
+                    </motion.div>
+                    <p className="text-lg font-medium text-white">Days</p>
+                  </div>
 
-                return (
-                  <motion.div
-                    key={index}
-                    className="group relative cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 * index }}
-                    whileHover={{ scale: 1.01 }}
-                    onClick={handleClick}
-                  >
-                    {clickedCards[index] && (
+                  {/* Progress bar with points needed inside */}
+                  {/* <div className="flex-1">
+                    <div className="relative h-8 w-full overflow-hidden rounded-full bg-white/20">
                       <motion.div
-                        className="absolute inset-0 z-20 bg-[var(--primary-color)]/20"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
+                        className="absolute top-0 left-0 h-full bg-yellow-300"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${(points % 20) * 5}%` }}
+                        transition={{ duration: 0.8, type: "spring" }}
                       />
-                    )}
-
-                    <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary-color)]/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                    <div className="relative z-10">
-                      <div className="flex items-start justify-between">
-                        <h3 className="text-lg font-semibold text-[#0029ff]">
-                          {plan.title}
-                        </h3>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSaveStatus(plan.title, !plan.saved);
-                          }}
-                          className="rounded-full bg-gray-100 p-2 text-[#0029ff] hover:bg-gray-200"
-                        >
-                          <FiBookmark
-                            className={`h-5 w-5 ${plan.saved ? "fill-current" : ""}`}
-                          />
-                        </button>
-                      </div>
-                      <p className="mt-2 line-clamp-2 text-sm text-gray-600">
-                        {plan.content}
-                      </p>
-
-                      <div className="video-container mt-4 overflow-hidden rounded-lg border border-gray-200">
-                        <div className="aspect-video w-full bg-gray-100">
-                          {activeVideo === index ? (
-                            <div className="aspect-video w-full">
-                              <YouTube
-                                videoId={getYouTubeVideoId(plan.video)}
-                                opts={opts}
-                                className="h-full w-full"
-                                onError={(e) =>
-                                  console.error("YouTube Error:", e)
-                                }
-                              />
-                            </div>
-                          ) : (
-                            <div
-                              className="relative h-full w-full cursor-pointer"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleVideoClick(index);
-                              }}
-                            >
-                              <img
-                                src={getYouTubeThumbnail(plan.video)}
-                                alt={plan.title}
-                                className="absolute inset-0 h-full w-full object-cover opacity-90 transition-opacity duration-300 hover:opacity-100"
-                                onError={(e) => {
-                                  e.target.src =
-                                    "https://placehold.co/600x400/png?text=Video+Thumbnail";
-                                }}
-                              />
-                              <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                                <FiPlay className="h-10 w-10 text-white" />
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="mt-4 flex items-center justify-between">
-                        {plan.notes?.length > 0 && (
-                          <div className="flex items-center justify-center gap-1 text-sm text-gray-500">
-                            <FiFileText className="h-4 w-4 text-[var(--primary-color)]" />
-                            Your notes...
-                          </div>
-                        )}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-sm font-semibold text-white">
+                          {pointsNeeded} points needed
+                        </span>
                       </div>
                     </div>
-                  </motion.div>
-                );
-              })}
+                  </div> */}
+                </div>
+                <div className="mt-5 flex-1">
+                  <div className="relative h-8 w-full overflow-hidden rounded-full bg-white/20">
+                    <motion.div
+                      className="absolute top-0 left-0 h-full bg-yellow-300"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(points % 20) * 5}%` }}
+                      transition={{ duration: 0.8, type: "spring" }}
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-sm font-semibold text-white">
+                        {pointsNeeded} points needed
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                {/* <div className="mt-6">
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-white/20">
+                    <motion.div
+                      className="absolute top-0 left-0 h-full bg-yellow-300"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(points % 20) * 5}%` }}
+                      transition={{ duration: 0.8, type: "spring" }}
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-sm font-semibold text-white">
+                        {pointsNeeded} points needed
+                      </span>
+                    </div>
+                  </div>
+                </div> */}
+              </div>
             </div>
-          </motion.div> */}
+          </motion.div>
 
           <motion.div
             initial="offscreen"

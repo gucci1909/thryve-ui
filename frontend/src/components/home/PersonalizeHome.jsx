@@ -22,7 +22,7 @@ import {
 import { FaFire, FaCalendarAlt, FaTrophy, FaBolt } from "react-icons/fa";
 import { useDebounce } from "../hook/useDebounce";
 
-function PersonalizeHomePage() {
+function PersonalizeHomePage({ pointAdded, setPointAdded }) {
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -110,6 +110,8 @@ function PersonalizeHomePage() {
       console.log("Interaction recorded successfully:", data);
     } catch (error) {
       console.error("Error recording interaction:", error);
+    } finally {
+      setPointAdded(true);
     }
   };
 
@@ -718,15 +720,15 @@ function PersonalizeHomePage() {
       ) : (
         <>
           {/* Learning Streak Card */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, type: "spring" }}
             className="mb-8"
           >
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_20%)] p-6 shadow-lg">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_20%)] p-6 shadow-lg"> */}
               {/* Animated background effects */}
-              <motion.div
+              {/* <motion.div
                 className="absolute inset-0 opacity-20"
                 style={{
                   background:
@@ -819,7 +821,7 @@ function PersonalizeHomePage() {
                         Points to Next Day
                       </p>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* <motion.div
                 className="flex flex-col items-end"
@@ -833,10 +835,10 @@ function PersonalizeHomePage() {
                 </div>
                 <p className="mt-1 text-sm text-white/80">Complete more lessons to extend your streak</p>
               </motion.div> */}
-                </div>
+                {/* </div> */}
 
                 {/* Progress bar */}
-                <div className="mt-6">
+                {/* <div className="mt-6">
                   <div className="h-2 w-full overflow-hidden rounded-full bg-white/20">
                     <motion.div
                       className="h-full bg-yellow-300"
@@ -848,7 +850,7 @@ function PersonalizeHomePage() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </motion.div> */}
 
           {showLearningPlan && (
             <motion.div
