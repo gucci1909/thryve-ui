@@ -61,6 +61,7 @@ export const chatBoxController = async (req, res) => {
       timestamp: currentTimestamp,
       messageType: 'question',
       sessionId: sessionId,
+      chatType: 'coaching'
     };
 
     const chatCollection = db.collection('chats');
@@ -102,15 +103,22 @@ export const chatBoxController = async (req, res) => {
     }
 
     // Prepare server message with session ID
+    let thirdRound = false;
     const serverMessage = {
       from: 'aicoach',
       chat_text: safeParseJSON(data.choices[0].message.content).chat_text,
       timestamp: new Date(),
       messageType: 'response',
       sessionId: sessionId,
+      chatType: 'coaching'
     };
 
     if (existingChat) {
+      const coachingMessages = existingChat.chat_context.filter(msg => msg.chatType === 'coaching');
+      const messageRound = coachingMessages.length || 1;
+      const updatedMessageRound = messageRound + 2;
+      thirdRound = updatedMessageRound % 6 === 0;
+
       await chatCollection.updateOne(
         { user_id: userId },
         {
@@ -130,6 +138,7 @@ export const chatBoxController = async (req, res) => {
         chat_context: [userMessage, serverMessage],
         created_at: currentTimestamp,
         updated_at: currentTimestamp,
+        message_round: 1,
       });
     }
 
@@ -212,6 +221,7 @@ export const chatBoxController = async (req, res) => {
         userMessage,
         serverMessage,
       },
+      thirdRound: thirdRound,
     });
   } catch (error) {
     console.error('Chat box error:', error);
@@ -272,6 +282,45 @@ export const chatBoxGetAllTextController = async (req, res) => {
       success: false,
       error: 'An error occurred while fetching chat history',
       details: error.message,
+    });
+  }
+};
+
+export const saveFeedback = async (req, res) => {
+  const db = getDb();
+
+  try {
+    const { userId, sessionId, chatType, decision, timestamp } = req.body;
+
+    if (!userId || !sessionId || !chatType || !decision || !timestamp) {
+      return res.status(400).json({
+        status: 'Not OK',
+        error: 'Missing required fields',
+      });
+    }
+
+    const feedbackCollection = db.collection('chat-feedback');
+
+    const feedbackDoc = {
+      userId,
+      sessionId,
+      chatType,
+      decision,
+      timestamp: new Date(timestamp),
+      createdAt: new Date(),
+    };
+
+    await feedbackCollection.insertOne(feedbackDoc);
+
+    return res.status(200).json({
+      status: 'OK',
+      message: 'Feedback saved successfully',
+    });
+  } catch (error) {
+    console.error('Save Feedback Error:', error);
+    return res.status(500).json({
+      status: 'Not OK',
+      error: 'Failed to save feedback',
     });
   }
 };

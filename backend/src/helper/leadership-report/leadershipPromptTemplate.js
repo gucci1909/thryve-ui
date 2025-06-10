@@ -67,31 +67,107 @@ leadership_assessment_input_actual: This is the JSON input that we have received
 
 ${JSON.stringify(inputJson, null, 2)}
 
-
 youtube-master-list
 
 The structure of this is that the first part is the Youtube Video Link and the second part is the content that can be used to query a suitable video to be featured in the leadership_assessment_report_template.learning_plan. The video link and text is delimited with a "-" (hyphen)
+														
+https://www.youtube.com/watch?v=SI6cOkDOoyE - Ideal for: Aspiring and mid-level managers. Topic: Delegation fundamentals. Takeaway: Assign tasks effectively and develop delegation as a promotion-worthy skill. (youtube.com, youtube.com)
 
-https://youtu.be/Hwn_W-X2Rds?si=4GZBTtObEzX1Azx_ - Marshall Goldsmith outlines a structured approach to coaching aimed at facilitating behavioral change. He emphasizes the importance of identifying specific behaviors to change, involving stakeholders for feedback, and following up to ensure progress. The process is iterative and focuses on measurable outcomes.
+https://www.youtube.com/watch?v=YLBDkz0TwLM - Ideal for: All manager levels. Topic: Radical candor. Takeaway: Learn to “care personally, challenge directly” for honest, empathetic feedback.
 
-https://youtu.be/BlVZiZob37I?si=PoUJxVlwiDHFVha9 - In this video, Goldsmith introduces the concept of "feedforward," which involves giving suggestions for future improvement rather than focusing on past mistakes. This approach encourages positive change and is often more effective than traditional feedback methods
+https://www.youtube.com/watch?v=doFpXXICnVE - Ideal for: Team leads. Topic: Leadership coaching. Takeaway: Build emotional intelligence and guide team growth.
 
-https://youtu.be/FYhws73vm0c?si=MKjNn7EMHTBRT0EF - Goldsmith presents a six-question framework designed to enhance communication between leaders and their teams. The questions focus on goals, progress, and how leaders can support their team members, fostering a culture of continuous improvement.
+https://www.youtube.com/watch?v=2B2fyub1ZTY - Ideal for: First-time supervisors. Topic: Constructive feedback. Takeaway: Basics of timely, balanced, actionable feedback.
 
+https://www.youtube.com/watch?v=tdnJCwxpBuA - Ideal for: All leaders. Topic: Empathy in leadership. Takeaway: Understand and share team emotions to build trust.
 
-https://youtu.be/2owIN1RooDo?si=CICLUEONsdP1FGtK - This video discusses the negative impact of the word "but" in conversations. Goldsmith explains how it can negate positive statements and suggests using "and" instead to maintain a constructive dialogue.
+https://www.youtube.com/watch?v=buVVIpttzUA - Ideal for: Emerging leaders. Topic: Future leadership skills. Takeaway: Adaptability and curiosity will define the next generation of successful leaders.
 
+https://www.youtube.com/watch?v=n_ffqEA8X5g - Ideal for: Introverted or collaborative leaders. Topic: Communication style. Takeaway: Leading by asking questions and listening can be more effective than issuing commands.
 
+https://www.youtube.com/watch?v=7YC0G-ZA8gU - Ideal for: Introverted or humble leaders. Topic: Quiet leadership. Takeaway: Consistent, small, thoughtful actions can produce more consistent influence than loud directives.
 
-https://youtu.be/UxjR_a9c-qE?si=vuuSHnXU8EEdwcCV - Goldsmith explores how seemingly harmless comments can be destructive in a professional setting. He provides insights into recognizing and avoiding such comments to foster a more positive work environment.
+https://www.youtube.com/watch?v=aXGm5S5mAaU - Ideal for: Anyone facing setbacks. Topic: Resilience. Takeaway: Resilience is a skill that can be developed—negative experiences strengthen if reframed.
 
-https://youtu.be/qsxLbx8GTj4?si=nm24dX4HJVHoVWPY - In "Teaching Leaders What to Stop: Making Destructive Comments," Marshall Goldsmith warns that sarcastic, cutting remarks—often dismissed as harmless or candid—can deeply damage relationships and team morale. These comments usually serve to assert superiority, not to add value. The twist: most people don’t even realize they’re making them. Since self-awareness is limited, listening to others’ feedback is crucial. Goldsmith offers a simple test: if a comment doesn’t help the customer, company, or the person involved, don’t say it. True leadership requires restraint, not just honesty.
+https://www.youtube.com/watch?v=wxM-3ddOST8 - Ideal for: Senior executives. Topic: Leadership transition. Takeaway: How experienced leaders prepare for major role shifts by building trust, presence, and team buy‑in. (youtube.com)
 
-https://youtu.be/0-VSOII2t1g?si=z2M9RSl6AqBdfU9G - In "Teaching Leaders What to Stop: Aren’t I Smart and Aren’t They Stupid?" Marshall Goldsmith exposes a common leadership flaw: the compulsion to prove intelligence by elevating oneself or putting others down. He reveals that 65% of communication is wasted on self-praise or belittling others—offering no learning or value. The antidote? Stop engaging in or tolerating these ego-driven habits. Leaders who resist the urge to showcase superiority, especially when it's unnecessary, reclaim time, boost productivity, and pave the way for genuine growth.
+https://www.youtube.com/watch?v=ScOr3ut1mHs - Ideal for: Coaching-focused leaders. Topic: Delegation & coaching. Takeaway: Blend delegation with development.
 
-https://youtu.be/sXibuyCKXdw?si=353imgH8TfYjuZmn - in "Teaching Leaders What to Stop", Marshall Goldsmith emphasizes that effective leadership isn't just about adopting new behaviors but also about eliminating detrimental ones. He identifies common habits—such as the need to always win, adding unnecessary value, making destructive comments, and showcasing one's intelligence at others' expense—that can hinder team dynamics and personal growth. Goldsmith advocates for self-awareness and restraint, urging leaders to pause and consider the impact of their words and actions. By consciously stopping these negative behaviors, leaders can foster a more positive, collaborative, and productive work environment.
+https://www.youtube.com/watch?v=8PiAwZF68jY - Ideal for: Project managers. Topic: Delegation tactics. Takeaway: Practical tips to empower teams.
 
-https://youtu.be/JVDkFU-M65Q?si=GP13CfbzwaWtw_ZL - n "Winning Too Much," Marshall Goldsmith highlights the most pervasive and challenging leadership habit to break: the constant need to win—at everything, all the time. Whether the issue is big or trivial, professional or personal, many leaders instinctively push to be right or come out ahead. This compulsive need undermines collaboration, damages relationships, and limits growth. Goldsmith illustrates through relatable case studies how resisting the urge to “win” in conversations or conflicts leads to stronger connections and better outcomes. His advice: pause, reflect, and ask—“Is this really worth winning?” Letting go can be a true leadership strength.
+https://www.youtube.com/watch?v=V7tnbx-6Ayc - Ideal for: Managers applying feedback. Topic: Radical candor in action. Takeaway: Move from theory to real-world usage.
+
+https://www.youtube.com/watch?v=gi5UfSIf0BM - Ideal for: All leaders. Topic: Feedback best practices. Takeaway: Five rules to give clear, respectful feedback.
+
+https://www.youtube.com/watch?v=8j1eEP0dyCA - Ideal for: Senior leaders. Topic: Empathetic leadership. Takeaway: Trust is the foundation of effective teams.
+
+https://www.youtube.com/watch?v=1Evwgu369Jw - Ideal for: Leaders & educators. Topic: Empathy vs. sympathy. Takeaway: Connect through shared feelings.
+
+https://www.youtube.com/watch?v=22iqquWxrrA - Ideal for: Team leads. Topic: Emotional impact of empathy. Takeaway: Empathy transforms leadership outcomes.
+
+https://www.youtube.com/watch?v=S5eUu1jgVDQ - Ideal for: Daily leadership. Topic: Practical empathy. Takeaway: Micro-gestures that show you care.
+
+https://www.youtube.com/watch?v=c_XZ36b_aDI - Ideal for: All leaders. Topic: Routine empathy habits. Takeaway: Daily empathetic actions yield trust.
+
+https://www.youtube.com/watch?v=jWj0kLLq6IQ - Ideal for: Developing managers. Topic: Coaching techniques. Takeaway: Establish meaningful coaching conversations.
+
+https://www.youtube.com/watch?v=G1FhcR8xyd4 - Ideal for: Emerging managers. Topic: Core coaching behaviors. Takeaway: Skills to build coaching culture.
+
+https://www.youtube.com/watch?v=UWAWBTK_cfw - Ideal for: First-time managers. Topic: Coaching essentials. Takeaway: How to guide performance and growth.
+
+https://www.youtube.com/watch?v=ILOkVAJgli8 - Ideal for: Executive coaches. Topic: Advanced coaching. Takeaway: Professional communication techniques.
+
+https://www.youtube.com/watch?v=drIAw27EBDI - Ideal for: Time-pressed leaders. Topic: Coaching in 20–30 min. Takeaway: Make structured coaching impactful with limited time.
+
+https://www.youtube.com/watch?v=rkSakDkzb7Q - Ideal for: Growth-stage leaders. Topic: Scale leadership. Takeaway: Practical strategies to grow your leadership capacity alongside organizational expansion.
+
+https://www.youtube.com/watch?v=h2lP174yo00 - Ideal for: Teams & leaders. Topic: Two-way feedback. Takeaway: Tips for productive feedback exchange.
+
+https://www.youtube.com/watch?v=NcKAi0ZfEoo - Ideal for: Team leads. Topic: Feedback frameworks. Takeaway: "Stop-Start-Continue" model for clarity and action.
+
+https://www.youtube.com/watch?v=2yOsZVgj_FE - Ideal for: Leaders & execs. Topic: Honest feedback. Takeaway: Construct feedback rooted in respect and clarity.
+
+https://www.youtube.com/watch?v=jJJIY9DM-ts - Ideal for: Collaborative workplaces. Topic: Peer feedback. Takeaway: Structured approach to giving and receiving peer critique.
+
+https://www.youtube.com/watch?v=V4ZZeADBRAM - Ideal for: Growth-minded professionals. Topic: Feedback seeking. Takeaway: Encourage & integrate feedback with intention.
+
+https://www.youtube.com/watch?v=Vh7f13HEslQ - Ideal for: HR and managers. Topic: Performance reviews. Takeaway: Refine review process and reduce anxiety.
+
+https://www.youtube.com/watch?v=CXBWNr2giHo - Ideal for: Emerging leaders. Topic: Review follow-up. Takeaway: Prep, delivery tips, and post-review actions.														
+
+https://www.youtube.com/watch?v=bH8RlRrFARo - Ideal for: New managers (2025 specific). Topic: Mid-year feedback. Takeaway: Ensure mid-cycle performance tracking.														
+
+https://www.youtube.com/watch?v=rE925DTWhhk - Ideal for: Team managers. Topic: Performance strategy. Takeaway: Align skills, motivation, and resources.														
+
+https://www.youtube.com/watch?v=YeOzCHKv9fA - Ideal for: Managers addressing underperformance. Topic: Poor performance management. Takeaway: Structured coaching instead of blame.														
+
+https://www.youtube.com/playlist?list=PLUL5iaZCLDUF-2_m4WEBBWuxicL68I7g- - Ideal for: HR practitioners. Topic: Performance toolkit. Takeaway: Range of tools for ongoing performance management.														
+
+https://www.youtube.com/watch?v=OoISfhACm4s - Ideal for: Managers new to radical candor. Topic: Radical candor basics. Takeaway: Core feedback compass framework.														
+
+https://www.youtube.com/watch?v=WHpGkWdWOlA - Ideal for: Feedback culture builders. Topic: Candor in the workplace. Takeaway: Core components to foster radical candor.														
+
+https://www.youtube.com/watch?v=DmgT18v0Wzo - Ideal for: Leadership trainers. Topic: Radically candid cultures. Takeaway: Learn frameworks from Kim Scott’s SPC session.														
+
+https://www.youtube.com/watch?v=vylmPna3v4Q - Ideal for: Data-influenced leaders. Topic: Delegation rationale. Takeaway: Research-backed importance of delegation.														
+
+https://www.youtube.com/watch?v=iYqN5ntld-k - Ideal for: Structured managers. Topic: Delegation checklist. Takeaway: Essential do’s and don’ts.														
+
+https://www.youtube.com/watch?v=llzakTJqkBk - Ideal for: Senior leaders. Topic: Psychological delegation barriers. Takeaway: Identify and overcome mental blocks.														
+
+https://www.youtube.com/watch?v=kZAH-R-qUTQ - Ideal for: Team leads. Topic: Meetings + delegation. Takeaway: How to embed delegation in meeting routine.														
+
+https://www.youtube.com/watch?v=msIP8TyZXn8 - Ideal for: Leadership learners. Topic: Multiple leadership topics. Takeaway: Rapid insights on communication, feedback, and growth.														
+
+https://www.youtube.com/watch?v=n1Kv67Z7qXQ - Ideal for: All leadership levels. Topic: Leadership essentials. Takeaway: Three key questions to help introspect and define your leadership identity.														
+
+https://www.youtube.com/watch?v=dySpIRY8cWE - Ideal for: C‑Suite executives. Topic: Leadership traits. Takeaway: The interplay of gratitude, humility, and accountability in top-tier leadership.														
+
+https://www.youtube.com/watch?v=CPzeFw3nPO0 - Ideal for: Aspiring CEO candidates. Topic: CEO readiness. Takeaway: What makes a CEO coach-worthy: clarity, influence, and impact mindset.														
+
+https://www.youtube.com/watch?v=kebe2mzn6QA - Ideal for: Leadership development professionals. Topic: Leadership behavior. Takeaway: Insights from two of the world’s most trusted leadership coaches.
+
+https://www.youtube.com/playlist?list=PLOpZoY-U0jaVQzfxdiAXrRTMJnABkdIxQ - Ideal for: Executive coaches. Topic: Interview leadership. Takeaway: Rare interviews with CEOs sharing firsthand leadership challenges and lessons.
 
 leadership_assessment_report_template: this is the template that I expect as the output from you the Leadership Coach.
 

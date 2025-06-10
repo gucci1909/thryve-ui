@@ -54,6 +54,7 @@ export const rolePlayController = async (req, res) => {
       chat_text: question,
       timestamp: currentTimestamp,
       messageType: 'question',
+      chatType: 'roleplay'
     };
 
     const chatCollection = db.collection('chats');
@@ -98,11 +99,19 @@ export const rolePlayController = async (req, res) => {
       chat_text: safeParseJSON(data.choices[0].message.content).chat_text,
       timestamp: new Date(),
       messageType: 'response',
+      chatType: 'roleplay'
     };
 
     // Find existing conversation or create new one
+    let thirdRound = false;
 
     if (existingChat) {
+      // Count messages of roleplay type only
+      const roleplayMessages = existingChat.chat_context.filter(msg => msg.chatType === 'roleplay');
+      const messageRound = roleplayMessages.length || 1;
+      const updatedMessageRound = messageRound + 2;
+      thirdRound = updatedMessageRound % 6 === 0;
+
       // Update existing conversation
       await chatCollection.updateOne(
         { user_id: userId },
@@ -202,6 +211,7 @@ export const rolePlayController = async (req, res) => {
         userMessage,
         serverMessage,
       },
+      thirdRound: thirdRound
     });
   } catch (error) {
     console.error('Chat box error:', error);

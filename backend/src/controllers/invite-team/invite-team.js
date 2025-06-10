@@ -287,6 +287,7 @@ export const saveFeedbackData = async (req, res) => {
           assessmentCompletedAt: new Date(),
           feedbackData: {
             ratingQuestions: feedbackData.ratingQuestions,
+            npsScore: feedbackData.npsScore,
             openEndedQuestions: feedbackData.openEndedQuestions,
             overallProgress: feedbackData.overallProgress,
             categoryProgress: feedbackData.categoryProgress,

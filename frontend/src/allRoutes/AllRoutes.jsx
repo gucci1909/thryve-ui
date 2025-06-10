@@ -24,6 +24,7 @@ const EmailVerification = lazy(() => import("../pages/EmailVerification.jsx"));
 const OTP = lazy(() => import("../pages/OTP.jsx"));
 const ResetPassword = lazy(() => import("../pages/ResetPassword.jsx"));
 const FeedbackAssessment = lazy(() => import("../pages/FeedbackAssessment.jsx"));
+const FeedbackThankYou = lazy(() => import("../pages/FeedbackThankYou.jsx"));
 
 function AllRoutes() {
   return (
@@ -35,6 +36,10 @@ function AllRoutes() {
           <Route
             path="/feedback-assessment"
             element={<FeedbackAssessment />}
+          />
+          <Route
+            path="/feedback-thank-you"
+            element={<FeedbackThankYou />}
           />
           <Route
             path="/login"

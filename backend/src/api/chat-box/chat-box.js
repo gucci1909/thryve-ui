@@ -1,9 +1,12 @@
 import express from 'express';
 import apiLimiter from '../../middleware/rateLimiter.js';
 import authenticate from '../../middleware/authenticate.js';
-import { chatBoxController, chatBoxGetAllTextController } from '../../controllers/chat-box/chat-box.js';
+import {
+  chatBoxController,
+  chatBoxGetAllTextController,
+  saveFeedback,
+} from '../../controllers/chat-box/chat-box.js';
 import { rolePlayController } from '../../controllers/role-play/role-play.js';
-// import { setupPointsSSEConnection } from '../../controllers/chat-box/sse-controller.js';
 
 const router = express.Router();
 
@@ -105,6 +108,8 @@ router.post('/send-message', chatBoxController);
 router.get('/get-message', chatBoxGetAllTextController);
 
 router.post('/send-role-play-message', rolePlayController);
+
+router.post('/save-feedback', saveFeedback);
 
 // Add SSE endpoint
 // router.get('/events', authenticate, sseController);

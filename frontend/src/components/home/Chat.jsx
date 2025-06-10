@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Send, Mic, MicOff, Sparkles } from "lucide-react";
 import { ShinyButton } from "../../components/magicui/shiny-button";
 import React, { memo, useEffect } from "react";
+import ChatFeedback from "./ChatFeedback";
 
 const Chat = memo(
   function Chat({
@@ -21,6 +22,11 @@ const Chat = memo(
     canvasRef,
     handleRolePlaySend,
     isRolePlay,
+    showFeedback,
+    sessionId,
+    userId,
+    token,
+    onContinueChat,
   }) {
     useEffect(() => {
       if (messagesEndRef?.current) {
@@ -80,6 +86,17 @@ const Chat = memo(
                 </div>
               </motion.div>
             ))}
+
+            {showFeedback && (
+              <ChatFeedback
+                isVisible={true}
+                chatType={isRolePlay ? "roleplay" : "coaching"}
+                sessionId={sessionId}
+                userId={userId}
+                token={token}
+                onContinue={onContinueChat}
+              />
+            )}
 
             {isLoading && (
               <motion.div
@@ -257,7 +274,8 @@ const Chat = memo(
       prevProps.isRecording === nextProps.isRecording &&
       prevProps.isProcessing === nextProps.isProcessing &&
       prevProps.inputValue === nextProps.inputValue &&
-      prevProps.messagesEndRef === nextProps.messagesEndRef
+      prevProps.messagesEndRef === nextProps.messagesEndRef &&
+      prevProps.showFeedback === nextProps.showFeedback
     );
   },
 );

@@ -3,137 +3,81 @@
   "instructions": "Each question maps to core managerial competencies that influence team engagement and performance.",
   "assessment": [
     {
-      "category": "Communication",
-      "categoryID": "Communication",
+      "category": "Communication & Clarity",
+      "categoryID": "CommunicationClarity",
       "questions": [
         {
           "id": "communicatesClearly",
-          "text": "My manager communicates clearly and effectively.",
+          "text": "My manager clearly communicates goals, expectations, and priorities.",
           "response": null
         },
         {
           "id": "keepsInformed",
-          "text": "I am kept informed about important team and company updates.",
-          "response": null
-        },
-        {
-          "id": "listensActively",
-          "text": "My manager listens actively and makes me feel heard.",
-          "response": null
-        },
-        {
-          "id": "givesTimelyFeedback",
-          "text": "Feedback from my manager is timely and constructive.",
+          "text": "My manager listens actively and considers input before making decisions.",
           "response": null
         }
       ]
     },
     {
-      "category": "Support & Empathy",
-      "categoryID": "SupportEmpathy",
+      "category": "Support & Development",
+      "categoryID": "SupportDevelopment",
       "questions": [
         {
           "id": "caresWellBeing",
-          "text": "My manager genuinely cares about my well-being.",
+          "text": "My manager provides useful feedback that helps me improve.",
           "response": null
         },
         {
           "id": "approachable",
-          "text": "I feel comfortable approaching my manager with concerns or questions.",
-          "response": null
-        },
-        {
-          "id": "supportsDuringSetbacks",
-          "text": "My manager supports me during difficult situations or setbacks.",
-          "response": null
-        },
-        {
-          "id": "respectsBoundaries",
-          "text": "My manager respects work-life boundaries.",
+          "text": "My manager supports my learning and professional growth.",
           "response": null
         }
       ]
     },
     {
-      "category": "Clarity & Direction",
-      "categoryID": "ClarityDirection",
+      "category": "Decision-Making & Fairness",
+      "categoryID": "DecisionMakingFairness",
       "questions": [
         {
           "id": "setsClearGoals",
-          "text": "My manager sets clear goals and expectations.",
+          "text": "My manager makes fair, timely, and transparent decisions.",
           "response": null
         },
         {
           "id": "understandContribution",
-          "text": "I understand how my work contributes to the team's objectives.",
-          "response": null
-        },
-        {
-          "id": "guidesWithoutMicromanaging",
-          "text": "My manager provides helpful guidance without micromanaging.",
+          "text": "My manager handles conflict and difficult situations effectively.",
           "response": null
         }
       ]
     },
     {
-      "category": "Growth & Development",
-      "categoryID": "GrowthDevelopment",
+      "category": "Recognition & Team Culture",
+      "categoryID": "RecognitionTeamCulture",
       "questions": [
         {
           "id": "supportsCareerGrowth",
-          "text": "My manager actively supports my career development.",
+          "text": "My manager appreciates and recognizes individual and team contributions.",
           "response": null
         },
         {
           "id": "growthFeedback",
-          "text": "I receive feedback that helps me grow professionally.",
-          "response": null
-        },
-        {
-          "id": "createsLearningOpportunities",
-          "text": "My manager creates opportunities for me to learn new skills.",
+          "text": "My manager creates an inclusive and psychologically safe team environment.",
           "response": null
         }
       ]
     },
     {
-      "category": "Trust & Empowerment",
-      "categoryID": "TrustEmpowerment",
+      "category": "Empowerment & Motivation",
+      "categoryID": "EmpowermentMotivation",
       "questions": [
         {
           "id": "trustsDecisions",
-          "text": "My manager trusts me to make decisions in my work.",
+          "text": "I feel empowered to take ownership of my work under my manager.",
           "response": null
         },
         {
           "id": "empoweredOwnership",
-          "text": "I am empowered to take ownership of my responsibilities.",
-          "response": null
-        },
-        {
-          "id": "recognizesContributions",
-          "text": "My manager recognizes and appreciates my contributions.",
-          "response": null
-        }
-      ]
-    },
-    {
-      "category": "Team Culture & Collaboration",
-      "categoryID": "TeamCultureCollaboration",
-      "questions": [
-        {
-          "id": "fostersCollaboration",
-          "text": "My manager fosters a collaborative and respectful team environment.",
-          "response": null
-        },
-        {
-          "id": "psychologicalSafety",
-          "text": "I feel psychologically safe to share ideas or make mistakes.",
-          "response": null
-        },
-        {
-          "id": "handlesConflictFairly",
-          "text": "My manager handles conflicts within the team in a fair and constructive way.",
+          "text": "My manager inspires and motivates the team to perform at their best.",
           "response": null
         }
       ]
@@ -166,6 +110,24 @@
       "emoji": "😄"
     }
   ],
+  "npsQuestion": {
+    "id": "managerNPS",
+    "text": "On a scale of 0 to 10, how likely are you to recommend this manager as someone others would want to work with?",
+    "response": null,
+    "scaleOptions": [
+      {"value": 0, "label": "Not at all likely"},
+      {"value": 1, "label": "1"},
+      {"value": 2, "label": "2"},
+      {"value": 3, "label": "3"},
+      {"value": 4, "label": "4"},
+      {"value": 5, "label": "5"},
+      {"value": 6, "label": "6"},
+      {"value": 7, "label": "7"},
+      {"value": 8, "label": "8"},
+      {"value": 9, "label": "9"},
+      {"value": 10, "label": "Extremely likely"}
+    ]
+  },
   "openEndedQuestions": [
     {
       "id": "managerStrengths",
