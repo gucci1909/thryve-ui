@@ -22,7 +22,7 @@ const ChatFeedback = ({
         },
         body: JSON.stringify({
           userId,
-          sessionId,
+          // sessionId,
           chatType,
           decision,
           timestamp: new Date().toISOString()

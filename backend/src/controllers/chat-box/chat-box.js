@@ -290,9 +290,9 @@ export const saveFeedback = async (req, res) => {
   const db = getDb();
 
   try {
-    const { userId, sessionId, chatType, decision, timestamp } = req.body;
+    const { userId, chatType, decision, timestamp } = req.body;
 
-    if (!userId || !sessionId || !chatType || !decision || !timestamp) {
+    if (!userId || !chatType || !decision || !timestamp) {
       return res.status(400).json({
         status: 'Not OK',
         error: 'Missing required fields',
@@ -303,7 +303,6 @@ export const saveFeedback = async (req, res) => {
 
     const feedbackDoc = {
       userId,
-      sessionId,
       chatType,
       decision,
       timestamp: new Date(timestamp),
