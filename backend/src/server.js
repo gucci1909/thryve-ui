@@ -15,6 +15,7 @@ import chatBoxRoutes from './api/chat-box/chat-box.js';
 import companyRoutes from './api/companies/companies.js';
 import goalRoutes from './api/goals/goals.js';
 import inviteTeamRoutes from './api/invite-team/invite-team.js';
+import learningPlanRoutes from './api/learning-plan/learning-plan.js';
 import feedRoutes from './api/feed/explore.js';
 import { connectToDb, getDb } from './config/db.js';
 import authenticate from './middleware/authenticate.js';
@@ -131,6 +132,8 @@ app.use('/api/chat-box', chatBoxRoutes);
 
 app.use('/api/goals-list', goalRoutes);
 app.use('/api/invite-team', inviteTeamRoutes);
+
+app.use('/api/learning-plan', learningPlanRoutes);
 
 app.use('/api/feed', feedRoutes);
 

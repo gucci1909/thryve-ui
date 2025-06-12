@@ -1,0 +1,69 @@
+import dotenv from 'dotenv';
+import yargs from 'yargs/yargs';
+import { hideBin } from 'yargs/helpers';
+import fetch from 'node-fetch';
+import { getLearningPlanPrompt } from './learningPlanPromptTemplate.js';
+
+const argv = yargs(hideBin(process.argv))
+  .option('envFilePath', {
+    alias: 'e',
+    describe: 'Path to the .env file',
+    type: 'string',
+    demandOption: true,
+  })
+  .parse();
+
+dotenv.config({ path: argv.envFilePath });
+
+async function generateLearningPlan(past_learning_cards, team_feedback, coaching_history, reflections_of_context, leadership_assessment) {
+  const openaiEndpoint = process.env.OpenAIAPI;
+
+  const systemPrompt = getLearningPlanPrompt(past_learning_cards, team_feedback, coaching_history, reflections_of_context, leadership_assessment);
+
+  console.log(`
+    ================ SYSTEM PROMPT START ================
+
+  `);
+
+  console.dir(systemPrompt, { depth: null, colors: true });
+
+  console.log(`
+    ================ SYSTEM PROMPT END ================
+
+  `);
+
+  try {
+    const response = await fetch(openaiEndpoint, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.OpenAIAPIKEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4',
+        messages: [
+          {
+            role: 'system',
+            content: systemPrompt,
+          },
+        ],
+        temperature: 0.4,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      const outputText = data.choices[0].message.content;
+      const outputJson = JSON.parse(outputText);
+      return outputJson;
+    } else {
+      throw new Error(`OpenAI Error: ${data.error.message}`);
+    }
+  } catch (error) {
+    console.error('Error generating learning plan:', error.message);
+    throw error;
+  }
+}
+
+export default generateLearningPlan; 
