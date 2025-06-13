@@ -2,6 +2,7 @@ import { getDb } from '../../config/db.js';
 import z from 'zod';
 import crypto from 'crypto';
 import { ObjectId } from 'mongodb';
+import { sendEmail } from '../../helper/email/sendEmail.js';
 
 // Validation schema for team member
 const teamMemberSchema = z.object({
@@ -138,19 +139,43 @@ export const addTeamMembers = async (req, res) => {
     // Insert all team members
     const result = await teamMembersCollection.insertMany(teamMemberDocuments);
 
-    // Generate and log email templates for each team member
-    teamMemberDocuments.forEach((teamMember) => {
+    // Send emails to each team member
+    const emailPromises = teamMemberDocuments.map(async (teamMember) => {
       const emailTemplate = generateEmailTemplate(teamMember, req.user, company);
-      console.log('\n=== Email Template for', teamMember.email, '===\n');
-      console.log(emailTemplate);
-      console.log('\n=== End Email Template ===\n');
+      const emailResult = await sendEmail(
+        { name: teamMember.name, email: teamMember.email },
+        'Leadership Assessment Invitation',
+        emailTemplate
+      );
+
+      // Update team member status based on email sending result
+      if (emailResult.success) {
+        await teamMembersCollection.updateOne(
+          { _id: teamMember._id },
+          { $set: { status: 'email_sent', updatedAt: new Date() } }
+        );
+      } else {
+        await teamMembersCollection.updateOne(
+          { _id: teamMember._id },
+          { $set: { status: 'email_failed', updatedAt: new Date() } }
+        );
+      }
+
+      return emailResult;
     });
+
+    // Wait for all emails to be sent
+    const emailResults = await Promise.all(emailPromises);
 
     return res.status(200).json({
       status: 'OK',
       data: {
         insertedCount: result.insertedCount,
         teamMembers: teamMemberDocuments,
+        emailResults: emailResults.map((result, index) => ({
+          email: teamMemberDocuments[index].email,
+          success: result.success
+        }))
       },
     });
   } catch (error) {

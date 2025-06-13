@@ -5,6 +5,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
 import { getDb } from '../../config/db.js';
+import { sendEmail } from '../../helper/email/sendEmail.js';
+import { generateOtpEmailTemplate } from '../../helper/email/templates/otpEmailTemplate.js';
 
 export const loginController = async (req, res) => {
   const { email, password } = req.body;
@@ -152,8 +154,7 @@ export const forgotPasswordController = async (req, res) => {
     }
 
     // Generate 6-digit OTP
-    // const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otp = "123456";
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // OTP valid for 10 minutes
 
     // Store OTP and its expiry in database
@@ -168,15 +169,39 @@ export const forgotPasswordController = async (req, res) => {
       },
     );
 
-    // In production, send email with OTP
-    // For now, just log it to console
-    console.log(`Password reset OTP for ${email}: ${otp}`);
+    // Generate email template
+    const emailTemplate = generateOtpEmailTemplate(user, otp);
+
+    // Send email with OTP
+    const emailResult = await sendEmail(
+      { name: user.firstName, email: user.email },
+      'Password Reset OTP - Thryve',
+      emailTemplate
+    );
+
+    if (!emailResult.success) {
+      // If email fails, remove the OTP from database
+      await usersCollection.updateOne(
+        { email },
+        {
+          $unset: {
+            resetPasswordOtp: "",
+            resetPasswordOtpExpiry: "",
+            resetPasswordVerified: "",
+          },
+        }
+      );
+      
+      return res.status(500).json({
+        message: 'Failed to send OTP email. Please try again.',
+      });
+    }
 
     res.json({
       message: 'Password reset OTP sent successfully',
     });
   } catch (error) {
-    console.error(error);
+    console.error('Password Reset Error:', error);
     res.status(500).json({ message: 'Server error during password reset request' });
   }
 };

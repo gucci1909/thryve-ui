@@ -7,6 +7,7 @@ export const leadershipReportControllers = async (req, res) => {
   try {
     const db = getDb();
     const leadershipReportsCollection = db.collection('leadership-reports');
+    const learningPlanCollection = db.collection('learning-plans');
     const usersCollection = db.collection('users');
 
 

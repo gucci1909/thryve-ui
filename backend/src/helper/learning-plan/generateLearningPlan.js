@@ -20,6 +20,7 @@ async function generateLearningPlan(past_learning_cards, team_feedback, coaching
 
   const systemPrompt = getLearningPlanPrompt(past_learning_cards, team_feedback, coaching_history, reflections_of_context, leadership_assessment);
 
+  debugger;
   console.log(`
     ================ SYSTEM PROMPT START ================
 
@@ -40,14 +41,14 @@ async function generateLearningPlan(past_learning_cards, team_feedback, coaching
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
             content: systemPrompt,
           },
         ],
-        temperature: 0.4,
+        temperature: 0.7,
       }),
     });
 
@@ -55,6 +56,26 @@ async function generateLearningPlan(past_learning_cards, team_feedback, coaching
 
     if (response.ok) {
       const outputText = data.choices[0].message.content;
+
+      // console.log({t: outputText});
+      console.log(`
+        ================ OUTPUT TEXT START ================
+
+      `);
+      console.dir(outputText, { depth: null, colors: true });
+      console.log(`
+        ================ OUTPUT TEXT END ================
+
+      `);
+
+      // Remove code block markers if present
+  if (outputText.startsWith("```json")) {
+    outputText = outputText.replace(/```json\n?/, "").replace(/```$/, "");
+  } else if (outputText.startsWith("```")) {
+    outputText = outputText.replace(/```\w*\n?/, "").replace(/```$/, "");
+  }
+
+
       const outputJson = JSON.parse(outputText);
       return outputJson;
     } else {

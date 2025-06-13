@@ -4,6 +4,7 @@ import logger from '../../utils/logger.js';
 
 export const learningPlanController = async (req, res) => {
   try {
+    debugger;
     const db = getDb();
     const userId = req.user.id;
 
@@ -21,44 +22,26 @@ export const learningPlanController = async (req, res) => {
     const teamMembers = await teamMembersCollection.find({ userId }).toArray();
     const reflections = await reflectionsCollection.find({ userId }).toArray();
 
-    // Prepare input for the learning plan generator
-    // const inputJson = {
-    //   past_learning_cards: existingLearningPlans.map(plan => ({
-    //     title: plan.title,
-    //     content: plan.content,
-    //     video: plan.video
-    //   })),
-    //   team_feedback: teamMembers.map(member => ({
-    //     rating: member.feedbackData?.rating,
-    //     feedback: member.feedbackData?.feedback,
-    //     area: member.feedbackData?.area
-    //   })).filter(feedback => feedback.rating && feedback.feedback),
-    //   coaching_history: chats?.chat_context?.map(chat => ({
-    //     question: chat.chat_text,
-    //     response: chat.response,
-    //     timestamp: chat.timestamp
-    //   })) || [],
-    //   reflections: reflections.map(reflection => ({
-    //     content: reflection.content,
-    //     timestamp: reflection.timestamp,
-    //     tags: reflection.tags || []
-    //   })),
-    //   leadership_assessment: leadershipReport?.assessment || {},
-    //   youtube_videos: [] // This should be populated from your master list
-    // };
+    debugger;
 
     const past_learning_cards = [
       ...(existingLearningPlans?.learning_plan || []),
       ...(leadershipReport?.assessment?.learning_plan || [])
     ];
 
-    const team_feedback = teamMembers.filter(feedback => feedback.feedbackData);
+    const team_feedback = teamMembers.map(feedback => feedback.feedbackData);
 
     const coaching_history = chats?.chat_context || [];
 
     const reflections_of_context = reflections.map(reflection => ({
       content: reflection.content,  
     }));
+
+    console.log('Past Learning Cards:', past_learning_cards);
+    console.log('Team Feedback:', team_feedback);
+    console.log('Coaching History:', coaching_history);
+    console.log('Reflections of Context:', reflections_of_context);
+    console.log('Leadership Report Assessment:', leadershipReport?.assessment);
     
     // Generate new learning plan
     const generatedPlan = await generateLearningPlan(past_learning_cards, team_feedback, coaching_history, reflections_of_context, leadershipReport?.assessment);
