@@ -11,6 +11,6 @@ router.use(apiLimiter, authenticate);
 
 router.post('/learning-plan', learningPlanController);
 
-router.get('/learning-plan', learningPlanGetController);
+router.get('/learning-plans', learningPlanGetController);
 
 export default router;

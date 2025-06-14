@@ -134,7 +134,7 @@ app.use('/api/chat-box', chatBoxRoutes);
 app.use('/api/goals-list', goalRoutes);
 app.use('/api/invite-team', inviteTeamRoutes);
 
-app.use('/api/learning-plan', learningPlanRoutes);
+app.use('/api/personalizeLearning', learningPlanRoutes);
 
 app.use('/api/feed', feedRoutes);
 

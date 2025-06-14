@@ -19,7 +19,7 @@ dotenv.config({ path: argv.envFilePath });
 export const changeGoalStatus = async (req, res) => {
   try {
     const db = getDb();
-    const leadershipReportsCollection = db.collection('leadership-reports');
+    const leadershipReportsCollection = db.collection('learning-plans');
     const userId = req.user.id;
     const { title, saved } = req.body;
 
@@ -34,11 +34,11 @@ export const changeGoalStatus = async (req, res) => {
     const result = await leadershipReportsCollection.updateOne(
       {
         userId: userId,
-        'assessment.learning_plan.title': title,
+        'learning_plan.title': title,
       },
       {
         $set: {
-          'assessment.learning_plan.$.saved': saved,
+          'learning_plan.$.saved': saved,
           updatedAt: new Date(),
         },
       },
@@ -67,7 +67,7 @@ export const changeGoalStatus = async (req, res) => {
 export const addGoalNotes = async (req, res) => {
   try {
     const db = getDb();
-    const leadershipReportsCollection = db.collection('leadership-reports');
+    const leadershipReportsCollection = db.collection('learning-plans');
     const userId = req.user.id;
     const { title, note } = req.body;
 
@@ -82,11 +82,11 @@ export const addGoalNotes = async (req, res) => {
     const result = await leadershipReportsCollection.updateOne(
       {
         userId: userId,
-        'assessment.learning_plan.title': title,
+        'learning_plan.title': title,
       },
       {
         $push: {
-          'assessment.learning_plan.$.notes': note,
+          'learning_plan.$.notes': note,
         },
         $set: {
           updatedAt: new Date(),
@@ -120,7 +120,7 @@ export const addGoalNotes = async (req, res) => {
 export const editGoalNote = async (req, res) => {
   try {
     const db = getDb();
-    const leadershipReportsCollection = db.collection('leadership-reports');
+    const leadershipReportsCollection = db.collection('learning-plans');
     const userId = req.user.id;
     const { title, updatedNote } = req.body;
 
@@ -135,11 +135,11 @@ export const editGoalNote = async (req, res) => {
     const result = await leadershipReportsCollection.updateOne(
       {
         userId: userId,
-        'assessment.learning_plan.title': title,
+        'learning_plan.title': title,
       },
       {
         $set: {
-          'assessment.learning_plan.$.notes': [updatedNote],
+          'learning_plan.$.notes': [updatedNote],
           updatedAt: new Date(),
         },
       },
@@ -168,7 +168,7 @@ export const editGoalNote = async (req, res) => {
 export const deleteGoalNote = async (req, res) => {
   try {
     const db = getDb();
-    const leadershipReportsCollection = db.collection('leadership-reports');
+    const leadershipReportsCollection = db.collection('learning-plans');
     const userId = req.user.id;
     const { title } = req.body;
 
@@ -183,11 +183,11 @@ export const deleteGoalNote = async (req, res) => {
     const result = await leadershipReportsCollection.updateOne(
       {
         userId: userId,
-        'assessment.learning_plan.title': title,
+        'learning_plan.title': title,
       },
       {
         $set: {
-          'assessment.learning_plan.$.notes': [],
+          'learning_plan.$.notes': [],
           updatedAt: new Date(),
         },
       },
@@ -216,7 +216,7 @@ export const deleteGoalNote = async (req, res) => {
 export const addReaction = async (req, res) => {
   try {
     const db = getDb();
-    const leadershipReportsCollection = db.collection('leadership-reports');
+    const leadershipReportsCollection = db.collection('learning-plans');
     const userId = req.user.id;
     const { title, reactionType, reactionValue } = req.body;
 
@@ -231,12 +231,12 @@ export const addReaction = async (req, res) => {
     const result = await leadershipReportsCollection.updateOne(
       {
         userId: userId,
-        'assessment.learning_plan.title': title,
+        'learning_plan.title': title,
       },
       {
         $set: {
-          [`assessment.learning_plan.$.reactions.${reactionType}`]: reactionValue,
-          [`assessment.learning_plan.$.reactions.${reactionType === 'thumbsUp' ? 'thumbsDown' : 'thumbsUp'}`]: false,
+          [`learning_plan.$.reactions.${reactionType}`]: reactionValue,
+          [`learning_plan.$.reactions.${reactionType === 'thumbsUp' ? 'thumbsDown' : 'thumbsUp'}`]: false,
           updatedAt: new Date(),
         },
       },
@@ -323,7 +323,6 @@ export const interActWithFeedItemController = async (req, res) => {
     // Record the new interaction as a separate event
     const interactionDoc = {
       user_id: userId,
-      // company_id: companyId,
       interaction_type: 'LEARNING',
       learning_plan_title: title,
       points: points,
