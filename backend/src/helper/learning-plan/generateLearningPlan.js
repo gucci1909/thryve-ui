@@ -2,6 +2,9 @@ import dotenv from 'dotenv';
 import yargs from 'yargs/yargs';
 import { hideBin } from 'yargs/helpers';
 import fetch from 'node-fetch';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { getLearningPlanPrompt } from './learningPlanPromptTemplate.js';
 
 const argv = yargs(hideBin(process.argv))
@@ -15,23 +18,46 @@ const argv = yargs(hideBin(process.argv))
 
 dotenv.config({ path: argv.envFilePath });
 
+// Helper to get __dirname in ES Module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 async function generateLearningPlan(past_learning_cards, team_feedback, coaching_history, reflections_of_context, leadership_assessment) {
   const openaiEndpoint = process.env.OpenAIAPI;
 
-  const systemPrompt = getLearningPlanPrompt(past_learning_cards, team_feedback, coaching_history, reflections_of_context, leadership_assessment);
+  const systemPrompt = getLearningPlanPrompt(
+    past_learning_cards,
+    team_feedback,
+    coaching_history,
+    reflections_of_context,
+    leadership_assessment
+  );
 
-  debugger;
+  // Log system prompt to console
   console.log(`
     ================ SYSTEM PROMPT START ================
 
   `);
-
   console.dir(systemPrompt, { depth: null, colors: true });
-
   console.log(`
     ================ SYSTEM PROMPT END ================
 
   `);
+
+  // File path to store prompt
+  const filePath = path.join(__dirname, 'learning-plan-prompt.txt');
+
+  // Append the prompt with a timestamp
+  const timestamp = new Date().toISOString();
+  const logContent = `\n\n===== ${timestamp} =====\n${systemPrompt}\n`;
+
+  fs.appendFile(filePath, logContent, (err) => {
+    if (err) {
+      console.error('❌ Error writing to file:', err);
+    } else {
+      console.log(`✅ Prompt successfully appended to: ${filePath}`);
+    }
+  });
 
   try {
     const response = await fetch(openaiEndpoint, {

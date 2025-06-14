@@ -73,6 +73,38 @@ export const chatBoxController = async (req, res) => {
     const company = await companiesCollection.findOne({ INVITE_CODE: user?.companyId });
     const leadershipReport = await leadershipReportsCollection.findOne({ userId: userId });
 
+    const coachingPrompt = getCoachPrompt( question,
+              leadershipReport || {},
+              company || {},
+              existingChat || {},
+            );
+
+     // Log system prompt to console
+  console.log(`
+    ================ SYSTEM PROMPT START ================
+
+  `);
+  console.dir(coachingPrompt, { depth: null, colors: true });
+  console.log(`
+    ================ SYSTEM PROMPT END ================
+
+  `);
+
+  // File path to store prompt
+  const filePath = path.join(__dirname, 'coaching-prompt.txt');
+
+  // Append the prompt with a timestamp
+  const timestamp = new Date().toISOString();
+  const logContent = `\n\n===== ${timestamp} =====\n${coachingPrompt}\n`;
+
+  fs.appendFile(filePath, logContent, (err) => {
+    if (err) {
+      console.error('❌ Error writing to file:', err);
+    } else {
+      console.log(`✅ Prompt successfully appended to: ${filePath}`);
+    }
+  });
+
     const response = await fetch(process.env.OpenAIAPI, {
       method: 'POST',
       headers: {
