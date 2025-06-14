@@ -10,24 +10,34 @@ export const leadershipReportControllers = async (req, res) => {
     const learningPlanCollection = db.collection('learning-plans');
     const usersCollection = db.collection('users');
 
-
-    // Validate request body
+    // 1. Validate request body
     leadershipReportSchema.parse(req.body);
 
-    // Generate leadership assessment
+    // 2. Generate leadership assessment
     const leadershipAssessment = await generateLeadershipAssessment(req.body);
 
-    // Create report document with user details and timestamp
-    const reportDocument = {
+    // 3. Destructure learning_plan from assessment
+    const { learning_plan, ...restOfAssessment } = leadershipAssessment;
+
+    // 4. Insert learning_plan into `learning-plans` collection
+    if (learning_plan && Array.isArray(learning_plan) && learning_plan.length > 0) {
+      await learningPlanCollection.insertOne({
+        userId: req.user.id,
+        userEmail: req.user.email,
+        learning_plan: learning_plan,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+
+    // 5. Insert the rest of the assessment into `leadership-reports` collection
+    await leadershipReportsCollection.insertOne({
       userId: req.user.id,
       userEmail: req.user.email,
-      assessment: leadershipAssessment,
+      assessment: restOfAssessment,
       createdAt: new Date(),
       updatedAt: new Date(),
-    };
-
-    // Save report to database
-    const result = await leadershipReportsCollection.insertOne(reportDocument);
+    });
 
     const updateResult = await usersCollection.updateOne(
       { _id: new ObjectId(req.user.id) },
@@ -49,7 +59,7 @@ export const leadershipReportControllers = async (req, res) => {
       status: 'OK',
       data: {
         reportId: result.insertedId,
-        ...leadershipAssessment,
+        ...restOfAssessment,
       },
     });
   } catch (error) {
@@ -72,20 +82,20 @@ export const leadershipReportRecommendationController = async (req, res) => {
     if (!userId) {
       return res.status(400).json({
         status: 'Not OK',
-        error: 'User ID not found in token'
+        error: 'User ID not found in token',
       });
     }
 
     // Find the latest leadership report for the user
     const userReport = await leadershipReportsCollection.findOne(
       { userId: userId },
-      { sort: { createdAt: -1 } } // Get the most recent report
+      { sort: { createdAt: -1 } }, // Get the most recent report
     );
 
     if (!userReport) {
       return res.status(404).json({
         status: 'Not OK',
-        error: 'No leadership report found for this user'
+        error: 'No leadership report found for this user',
       });
     }
 
@@ -94,15 +104,14 @@ export const leadershipReportRecommendationController = async (req, res) => {
       status: 'OK',
       data: {
         reportId: userReport._id,
-        assessment: userReport.assessment
-      }
+        assessment: userReport.assessment,
+      },
     });
-
   } catch (error) {
     console.error('Leadership Report Recommendation Error:', error);
     return res.status(500).json({
       status: 'Not OK',
-      error: 'Failed to fetch leadership report recommendation'
+      error: 'Failed to fetch leadership report recommendation',
     });
   }
 };

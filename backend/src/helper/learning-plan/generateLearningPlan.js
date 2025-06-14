@@ -22,7 +22,13 @@ dotenv.config({ path: argv.envFilePath });
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-async function generateLearningPlan(past_learning_cards, team_feedback, coaching_history, reflections_of_context, leadership_assessment) {
+async function generateLearningPlan(
+  past_learning_cards,
+  team_feedback,
+  coaching_history,
+  reflections_of_context,
+  leadership_assessment,
+) {
   const openaiEndpoint = process.env.OpenAIAPI;
 
   const systemPrompt = getLearningPlanPrompt(
@@ -30,7 +36,7 @@ async function generateLearningPlan(past_learning_cards, team_feedback, coaching
     team_feedback,
     coaching_history,
     reflections_of_context,
-    leadership_assessment
+    leadership_assessment,
   );
 
   // Log system prompt to console
@@ -81,29 +87,27 @@ async function generateLearningPlan(past_learning_cards, team_feedback, coaching
     const data = await response.json();
 
     if (response.ok) {
-      const outputText = data.choices[0].message.content;
-
-      // console.log({t: outputText});
-      console.log(`
-        ================ OUTPUT TEXT START ================
-
-      `);
-      console.dir(outputText, { depth: null, colors: true });
-      console.log(`
-        ================ OUTPUT TEXT END ================
-
-      `);
+      let outputText = data.choices[0].message.content;
 
       // Remove code block markers if present
-  if (outputText.startsWith("```json")) {
-    outputText = outputText.replace(/```json\n?/, "").replace(/```$/, "");
-  } else if (outputText.startsWith("```")) {
-    outputText = outputText.replace(/```\w*\n?/, "").replace(/```$/, "");
-  }
+      if (outputText.startsWith('```json')) {
+        outputText = outputText.replace(/^```json\s*/, '').replace(/```$/, '');
+      } else if (outputText.startsWith('```')) {
+        outputText = outputText.replace(/^```\w*\s*/, '').replace(/```$/, '');
+      }
 
+      let outputJson;
 
-      const outputJson = JSON.parse(outputText);
-      return outputJson;
+      try {
+        outputJson = JSON.parse(outputText);
+      } catch (error) {
+        console.error('Failed to parse JSON:', error);
+        throw new Error('Invalid JSON format in response');
+      }
+
+      const learningPlan = outputJson.learning_plan || [];
+
+      return learningPlan;
     } else {
       throw new Error(`OpenAI Error: ${data.error.message}`);
     }
@@ -113,4 +117,4 @@ async function generateLearningPlan(past_learning_cards, team_feedback, coaching
   }
 }
 
-export default generateLearningPlan; 
+export default generateLearningPlan;

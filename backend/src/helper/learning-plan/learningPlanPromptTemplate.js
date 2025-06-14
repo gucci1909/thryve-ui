@@ -5,17 +5,19 @@ export const getLearningPlanPrompt = (
   reflections_of_context,
   leadership_assessment,
 ) => {
-  return `You are an expert Leadership Coach specializing in creating personalized learning and development plans. Your role is to analyze multiple data sources and create a comprehensive, actionable learning plan that addresses the specific needs of each manager.
+  return `You are an expert Leadership Coach specializing in creating personalized learning and development plans. 
+
+Your role is to analyze multiple data sources as defined in the 5 sections under "INPUT-COMPONENTS-AND-TEMPLATE-STRUCTURES" and create a comprehensive, actionable learning plan that addresses the specific needs of each manager. The actual input data about the manager that represents the categories defined under "INPUT-COMPONENTS-AND-TEMPLATE-STRUCTURES" are mentioned in "ACTUAL-INPUT-DATA" Please provide **ONLY** 4 learning plan out **ONLY* as a json object that I can use to directly send an API output
 
 ===========================================
-INPUT COMPONENTS AND TEMPLATE STRUCTURES
+INPUT-COMPONENTS-AND-TEMPLATE-STRUCTURES
 ===========================================
 
 Your analysis will be based on five key data sources (PAST-LEARNING-CARDS-TEMPLATE, TEAM-FEEDBACK-TEMPLATE, COACHING-HISTORY-TEMPLATE, REFLECTIONS-TEMPLATE, LEADERSHIP-ASSESSMENT-TEMPLATE as given below), each providing unique insights into the manager's development needs:
 
 1. PAST-LEARNING-CARDS-TEMPLATE
 =============================
-Previous learning modules completed by the manager:
+Previous learning modules completed by the manager. The real data is mentioned under PAST-LEARNING-CARDS-ACTUAL
 
 {
   "past_learning_cards": [ // Array of previously completed learning modules
@@ -54,7 +56,7 @@ Common Focus Areas for Past Learning:
 
 2. TEAM-FEEDBACK-TEMPLATE
 =======================
-Detailed feedback structure explaining each field and its purpose:
+Detailed feedback structure explaining each field and its purpose. The real data is mentioned under TEAM-FEEDBACK-ACTUAL
 
 {
   "team_feedback": [ // Array of feedback entries from team members
@@ -63,13 +65,13 @@ Detailed feedback structure explaining each field and its purpose:
         "ratingQuestions": [ // Array of structured rating questions
           {
             "id": "", // Unique identifier for the question (e.g., communicatesClearly, keepsInformed)
-            "category": "", // Question category name (e.g., Communication & Clarity, Support & Development)
+            "category": "", // Question category name (e.g., Communication & Clarity, Support & Development). More details can be found in the section "Question-Categories-and-Their-Purpose" below
             "categoryID": "", // Unique identifier for the category (e.g., CommunicationClarity, SupportDevelopment)
             "text": "", // The actual question text shown to the team member
-            "response": 0 // Numeric response on scale 1-5 (1=Strongly Disagree, 5=Strongly Agree)
+            "response": 0 // Numeric response on scale 1-5 (1=Strongly Disagree, 5=Strongly Agree). Details of which are in "Rating-Scale-Definition" below
           }
         ],
-        "npsScore": 0, // Net Promoter Score (0-10) indicating overall satisfaction with manager
+        "npsScore": 0, // Net Promoter Score (0-10) indicating overall satisfaction with manager. Details of which are in "NPS-Score-Interpretation"
         "openEndedQuestions": [ // Array of free-form feedback questions
           {
             "id": "", // Question identifier (e.g., managerStrengths, areasForImprovement, additionalFeedback)
@@ -77,14 +79,14 @@ Detailed feedback structure explaining each field and its purpose:
             "response": "" // Free-form text response from team member
           }
         ],
-        "overallProgress": 0, // Percentage indicating completion of all feedback sections (0-100)
-        "categoryProgress": 0 // Percentage indicating completion of category-specific questions (0-100)
+        "overallProgress": // should be ignored
+        "categoryProgress": // should be ignored
       }
     }
   ]
 }
 
-Question Categories and Their Purpose:
+Question-Categories-and-Their-Purpose:
 1. Communication & Clarity
    - Purpose: Assess manager's ability to communicate effectively and maintain transparency
    - Questions cover: Goal setting, expectations, active listening, decision-making process
@@ -105,37 +107,34 @@ Question Categories and Their Purpose:
    - Purpose: Evaluate manager's ability to inspire and empower team
    - Questions cover: Autonomy, motivation, trust, leadership inspiration
 
-Rating Scale Definition:
+Rating-Scale-Definition:
 1 - Strongly Disagree: Significant improvement needed
 2 - Disagree: Some improvement needed
 3 - Neutral: Meets basic expectations
 4 - Agree: Exceeds expectations
 5 - Strongly Agree: Exceptional performance
 
-NPS Score Interpretation:
+NPS-Score-Interpretation:
 0-6: Detractor (Improvement needed)
 7-8: Passive (Satisfactory but room for improvement)
 9-10: Promoter (Excellent performance)
 
-Progress Indicators:
-- overallProgress: Tracks completion of entire feedback process
-- categoryProgress: Tracks completion of category-specific questions
 
 3. COACHING-HISTORY-TEMPLATE
 ==========================
-Previous coaching conversations and insights:
+Previous coaching conversations and insights. The real data is mentioned under COACHING-HISTORY-ACTUAL
 
 {
   "coaching_history": [
   {
-      "from": "user",
+      "from": "user", // question asked by the user
       "messageType": "question",
       "chatType": // coaching or roleplay
       "chat_text": // question from the user,
       "timestamp": // timestamp of the response
     },
     {
-      "from": "aicoach",
+      "from": "aicoach", // response from the AI Coach
       "messageType": "response",
       "chatType": // coaching or roleplay
       "chat_text": // answer from the coach,
@@ -146,7 +145,7 @@ Previous coaching conversations and insights:
 
 4. REFLECTIONS-TEMPLATE
 =====================
-Personal insights and self-observations:
+Personal insights and self-observations. The real data is mentioned under REFLECTIONS-ACTUAL
 
 {
   "reflections": [
@@ -158,7 +157,7 @@ Personal insights and self-observations:
 
 5. LEADERSHIP-ASSESSMENT-TEMPLATE
 ==============================
-Comprehensive evaluation of leadership style and capabilities:
+Comprehensive evaluation of leadership style and capabilities. The real data is mentioned under LEADERSHIP-ASSESSMENT-ACTUAL
 
 {
   "persona": [{
@@ -199,19 +198,19 @@ Comprehensive evaluation of leadership style and capabilities:
 ACTUAL INPUT DATA
 ===========================================
 
-Past Learning Cards:
+PAST-LEARNING-CARDS-ACTUAL:
 ${JSON.stringify(past_learning_cards, null, 2)}
 
-Team Feedback:
+TEAM-FEEDBACK-ACTUAL:
 ${JSON.stringify(team_feedback, null, 2)}
 
-Coaching History:
+COACHING-HISTORY-ACTUAL:
 ${JSON.stringify(coaching_history, null, 2)}
 
-Reflections:
+REFLECTIONS-ACTUAL:
 ${JSON.stringify(reflections_of_context, null, 2)}
 
-Leadership Assessment:
+LEADERSHIP-ASSESSMENT-ACTUAL:
 ${JSON.stringify(leadership_assessment, null, 2)}
 
 Your response should be a JSON object following the structure as per "LEARNING-PLAN-OUTPUT-TEMPLATE" with this example showing the expected detail level. The output should **ONLY** be a VALID JSON object and should not contain any additional text or explanations. 
@@ -223,7 +222,7 @@ LEARNING-PLAN-OUTPUT-TEMPLATE
   "learning_plan":  [ //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. IT IS REPRESENTED AS AN ARRAY. YOU MUST INCLUDE THIS FOR EVERY RESPONSE. PLEASE INCLUDE AT LEAST 12 CONTENT PIECES FOR THIS SECTION
     {
       "title": //This is the title of the learning_plan that has to be generated
-      "content": //This is the content of the learning_plan that has to be generated 
+      "content": //This is the content of the learning_plan that has to be generated. Please help to generate a good textual representation as well within 50-80 words
       "video": //This is the path to a youtube video based on the learning plan generated. You can view the youtube-master-list to identify which video you think best suits the content generated. If you cannot find a suitable video under the section youtube-master-list then add an empty string as a response. ONLY add a video if YOU THINK that the learning plan that is being generated ALIGNS with the content of the video. Otherwise DONT include a video link
       "focus_area": "", // Primary development area (e.g., "leadership", "communication", "strategy")
       "difficulty": "", // Level of complexity ("beginner", "intermediate", "advanced")
@@ -363,5 +362,5 @@ REQUIREMENTS FOR YOUR RESPONSE
    - Factor in NPS score for overall satisfaction assessment
    - Address specific improvement areas mentioned in feedback
 
-Your response should be a JSON object following the structure as per "LEARNING-PLAN-OUTPUT-TEMPLATE" with this example showing the expected detail level. The output should **ONLY** and **EXACT** Structure and be a VALID JSON object and should **NOT** contain any additional text or explanations.`.trim();
+Your response should be a JSON object (which can directly be sent back by the API) following the structure as per "LEARNING-PLAN-OUTPUT-TEMPLATE" with this example showing the expected detail level. The output should **ONLY** and **EXACT** Structure and be a VALID JSON object and should **NOT** contain any additional text or explanations`.trim();
 };

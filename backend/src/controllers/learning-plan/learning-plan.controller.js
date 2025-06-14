@@ -4,7 +4,6 @@ import logger from '../../utils/logger.js';
 
 export const learningPlanController = async (req, res) => {
   try {
-    debugger;
     const db = getDb();
     const userId = req.user.id;
 
@@ -22,36 +21,34 @@ export const learningPlanController = async (req, res) => {
     const teamMembers = await teamMembersCollection.find({ userId }).toArray();
     const reflections = await reflectionsCollection.find({ userId }).toArray();
 
-    debugger;
-
     const past_learning_cards = [
       ...(existingLearningPlans?.learning_plan || []),
-      ...(leadershipReport?.assessment?.learning_plan || [])
+      ...(leadershipReport?.assessment?.learning_plan || []),
     ];
 
-    const team_feedback = teamMembers.map(feedback => feedback.feedbackData);
+    const team_feedback = teamMembers.map((feedback) => feedback.feedbackData);
 
     const coaching_history = chats?.chat_context || [];
 
-    const reflections_of_context = reflections.map(reflection => ({
-      content: reflection.content,  
+    const reflections_of_context = reflections.map((reflection) => ({
+      content: reflection.content,
     }));
 
-    console.log('Past Learning Cards:', past_learning_cards);
-    console.log('Team Feedback:', team_feedback);
-    console.log('Coaching History:', coaching_history);
-    console.log('Reflections of Context:', reflections_of_context);
-    console.log('Leadership Report Assessment:', leadershipReport?.assessment);
-    
     // Generate new learning plan
-    const generatedPlan = await generateLearningPlan(past_learning_cards, team_feedback, coaching_history, reflections_of_context, leadershipReport?.assessment);
+    const generatedPlan = await generateLearningPlan(
+      past_learning_cards,
+      team_feedback,
+      coaching_history,
+      reflections_of_context,
+      leadershipReport?.assessment,
+    );
 
     // Save the generated plan
     const result = await learningPlansCollection.insertOne({
       userId,
-      ...generatedPlan,
+      learning_plan: generatedPlan,
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     });
 
     // Log the event
@@ -59,7 +56,7 @@ export const learningPlanController = async (req, res) => {
       userId,
       userEmail: req.user.email,
       learningPlanId: result.insertedId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     req.logger = logger.withRequestContext(req);
@@ -67,14 +64,13 @@ export const learningPlanController = async (req, res) => {
 
     return res.status(200).json({
       status: 'OK',
-      data: generatedPlan
+      data: generatedPlan,
     });
-
   } catch (error) {
     console.error('Learning Plan Generation Error:', error);
     return res.status(400).json({
       status: 'Not OK',
-      error: error.message || 'Failed to generate learning plan'
+      error: error.message || 'Failed to generate learning plan',
     });
   }
 };
@@ -89,27 +85,25 @@ export const learningPlanGetController = async (req, res) => {
     // Get the latest learning plan for the user
     const latestPlan = await learningPlansCollection
       .find({ userId })
-      .sort({ created_at: -1 })
-      .limit(1)
+      .sort({ updated_at: -1 })
       .toArray();
 
     if (!latestPlan || latestPlan.length === 0) {
       return res.status(404).json({
         status: 'Not OK',
-        error: 'No learning plan found'
+        error: 'No learning plan found',
       });
     }
 
     return res.status(200).json({
       status: 'OK',
-      data: latestPlan[0]
+      data: latestPlan[0],
     });
-
   } catch (error) {
     console.error('Get Learning Plan Error:', error);
     return res.status(400).json({
       status: 'Not OK',
-      error: error.message || 'Failed to get learning plan'
+      error: error.message || 'Failed to get learning plan',
     });
   }
 };

@@ -19,7 +19,6 @@ async function generateLeadershipAssessment(inputJson) {
   const openaiEndpoint = process.env.OpenAIAPI;
 
   const systemPrompt = getLeadershipPrompt(inputJson);
-  debugger;
 
   try {
     const response = await fetch(openaiEndpoint, {

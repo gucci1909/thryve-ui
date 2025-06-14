@@ -5,6 +5,9 @@ import { hideBin } from 'yargs/helpers';
 import fetch from 'node-fetch';
 import { ObjectId } from 'mongodb';
 import { getCoachPrompt } from './chat-box-prompt-template.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import logger from '../../utils/logger.js';
 
 const argv = yargs(hideBin(process.argv))
@@ -17,6 +20,10 @@ const argv = yargs(hideBin(process.argv))
   .parse();
 
 dotenv.config({ path: argv.envFilePath });
+
+// Helper to get __dirname in ES Module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function safeParseJSON(content) {
   try {
@@ -61,7 +68,7 @@ export const chatBoxController = async (req, res) => {
       timestamp: currentTimestamp,
       messageType: 'question',
       sessionId: sessionId,
-      chatType: 'coaching'
+      chatType: 'coaching',
     };
 
     const chatCollection = db.collection('chats');
@@ -73,37 +80,49 @@ export const chatBoxController = async (req, res) => {
     const company = await companiesCollection.findOne({ INVITE_CODE: user?.companyId });
     const leadershipReport = await leadershipReportsCollection.findOne({ userId: userId });
 
-    const coachingPrompt = getCoachPrompt( question,
-              leadershipReport || {},
-              company || {},
-              existingChat || {},
-            );
+    const learningPlansCollection = db.collection('learning-plans');
+    const existingLearningPlans = await learningPlansCollection.findOne({ userId });
 
-     // Log system prompt to console
-  console.log(`
+    const { learning_plan, ...restOfAssessment } = leadershipReport?.assessment || {};
+
+    const learning_cards = [
+      ...(existingLearningPlans?.learning_plan || []),
+      ...(learning_plan || []),
+    ];
+
+    const coachingPrompt = getCoachPrompt(
+      question,
+      restOfAssessment || {},
+      company || {},
+      existingChat || {},
+      learning_cards || {},
+    );
+
+    // Log system prompt to console
+    console.log(`
     ================ SYSTEM PROMPT START ================
 
   `);
-  console.dir(coachingPrompt, { depth: null, colors: true });
-  console.log(`
+    console.dir(coachingPrompt, { depth: null, colors: true });
+    console.log(`
     ================ SYSTEM PROMPT END ================
 
   `);
 
-  // File path to store prompt
-  const filePath = path.join(__dirname, 'coaching-prompt.txt');
+    // File path to store prompt
+    const filePath = path.join(__dirname, 'coaching-prompt.txt');
 
-  // Append the prompt with a timestamp
-  const timestamp = new Date().toISOString();
-  const logContent = `\n\n===== ${timestamp} =====\n${coachingPrompt}\n`;
+    // Append the prompt with a timestamp
+    const timestamp = new Date().toISOString();
+    const logContent = `\n\n===== ${timestamp} =====\n${coachingPrompt}\n`;
 
-  fs.appendFile(filePath, logContent, (err) => {
-    if (err) {
-      console.error('❌ Error writing to file:', err);
-    } else {
-      console.log(`✅ Prompt successfully appended to: ${filePath}`);
-    }
-  });
+    fs.appendFile(filePath, logContent, (err) => {
+      if (err) {
+        console.error('❌ Error writing to file:', err);
+      } else {
+        console.log(`✅ Prompt successfully appended to: ${filePath}`);
+      }
+    });
 
     const response = await fetch(process.env.OpenAIAPI, {
       method: 'POST',
@@ -118,9 +137,10 @@ export const chatBoxController = async (req, res) => {
             role: 'system',
             content: getCoachPrompt(
               question,
-              leadershipReport || {},
+              restOfAssessment || {},
               company || {},
               existingChat || {},
+              learning_cards || {},
             ),
           },
         ],
@@ -142,11 +162,13 @@ export const chatBoxController = async (req, res) => {
       timestamp: new Date(),
       messageType: 'response',
       sessionId: sessionId,
-      chatType: 'coaching'
+      chatType: 'coaching',
     };
 
     if (existingChat) {
-      const coachingMessages = existingChat.chat_context.filter(msg => msg.chatType === 'coaching');
+      const coachingMessages = existingChat.chat_context.filter(
+        (msg) => msg.chatType === 'coaching',
+      );
       const messageRound = coachingMessages.length || 1;
       const updatedMessageRound = messageRound + 2;
       thirdRound = updatedMessageRound % 6 === 0;

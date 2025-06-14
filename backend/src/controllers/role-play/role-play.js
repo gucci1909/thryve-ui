@@ -5,6 +5,9 @@ import fetch from 'node-fetch';
 import { ObjectId } from 'mongodb';
 import { getDb } from '../../config/db.js';
 import { getRolePlayingPrompt } from './role-play-prompt-template.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import logger from '../../utils/logger.js';
 
 const argv = yargs(hideBin(process.argv))
@@ -26,6 +29,10 @@ function safeParseJSON(content) {
   }
 }
 
+// Helper to get __dirname in ES Module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 export const rolePlayController = async (req, res) => {
   const db = getDb();
 
@@ -40,6 +47,8 @@ export const rolePlayController = async (req, res) => {
     const usersCollection = db.collection('users');
     const companiesCollection = db.collection('companies');
     const leadershipReportsCollection = db.collection('leadership-reports');
+    const learningPlansCollection = db.collection('learning-plans');
+    const existingLearningPlans = await learningPlansCollection.findOne({ userId });
     const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
 
     if (!user) {
@@ -54,7 +63,7 @@ export const rolePlayController = async (req, res) => {
       chat_text: question,
       timestamp: currentTimestamp,
       messageType: 'question',
-      chatType: 'roleplay'
+      chatType: 'roleplay',
     };
 
     const chatCollection = db.collection('chats');
@@ -63,6 +72,46 @@ export const rolePlayController = async (req, res) => {
     const company = await companiesCollection.findOne({ INVITE_CODE: user?.companyId });
 
     const leadershipReport = await leadershipReportsCollection.findOne({ userId: userId });
+    const { learning_plan, ...restOfAssessment } = leadershipReport?.assessment || {};
+
+    const learning_cards = [
+      ...(existingLearningPlans?.learning_plan || []),
+      ...(learning_plan || []),
+    ];
+
+    const rolePlayPrompt = getRolePlayingPrompt(
+      question,
+      restOfAssessment || {},
+      company || {},
+      existingChat || {},
+      learning_cards || {},
+    );
+
+    // Log system prompt to console
+    console.log(`
+        ================ SYSTEM PROMPT START ================
+    
+      `);
+    console.dir(rolePlayPrompt, { depth: null, colors: true });
+    console.log(`
+        ================ SYSTEM PROMPT END ================
+    
+      `);
+
+    // File path to store prompt
+    const filePath = path.join(__dirname, 'role-play-prompt.txt');
+
+    // Append the prompt with a timestamp
+    const timestamp = new Date().toISOString();
+    const logContent = `\n\n===== ${timestamp} =====\n${rolePlayPrompt}\n`;
+
+    fs.appendFile(filePath, logContent, (err) => {
+      if (err) {
+        console.error('❌ Error writing to file:', err);
+      } else {
+        console.log(`✅ Prompt successfully appended to: ${filePath}`);
+      }
+    });
 
     const response = await fetch(process.env.OpenAIAPI, {
       method: 'POST',
@@ -77,9 +126,10 @@ export const rolePlayController = async (req, res) => {
             role: 'system',
             content: getRolePlayingPrompt(
               question,
-              leadershipReport || {},
+              restOfAssessment || {},
               company || {},
               existingChat || {},
+              learning_cards || {},
             ),
           },
         ],
@@ -99,7 +149,7 @@ export const rolePlayController = async (req, res) => {
       chat_text: safeParseJSON(data.choices[0].message.content).chat_text,
       timestamp: new Date(),
       messageType: 'response',
-      chatType: 'roleplay'
+      chatType: 'roleplay',
     };
 
     // Find existing conversation or create new one
@@ -107,7 +157,9 @@ export const rolePlayController = async (req, res) => {
 
     if (existingChat) {
       // Count messages of roleplay type only
-      const roleplayMessages = existingChat.chat_context.filter(msg => msg.chatType === 'roleplay');
+      const roleplayMessages = existingChat.chat_context.filter(
+        (msg) => msg.chatType === 'roleplay',
+      );
       const messageRound = roleplayMessages.length || 1;
       const updatedMessageRound = messageRound + 2;
       thirdRound = updatedMessageRound % 6 === 0;
@@ -211,7 +263,7 @@ export const rolePlayController = async (req, res) => {
         userMessage,
         serverMessage,
       },
-      thirdRound: thirdRound
+      thirdRound: thirdRound,
     });
   } catch (error) {
     console.error('Chat box error:', error);

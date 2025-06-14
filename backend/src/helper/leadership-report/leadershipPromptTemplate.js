@@ -200,9 +200,22 @@ leadership_assessment_report_template: this is the template that I expect as the
   "learning_plan": [ //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. IT IS REPRESENTED AS AN ARRAY. YOU MUST INCLUDE THIS FOR EVERY RESPONSE. PLEASE INCLUDE AT LEAST 12 CONTENT PIECES FOR THIS SECTION
     {
       "title": //This is the title of the learning_plan that has to be generated
-      "content": //This is the content of the learning_plan that has to be generated 
+      "content": //This is the content of the learning_plan that has to be generated. Please help to generate a good textual representation as well within 50-80 words
       "video": //This is the path to a youtube video based on the learning plan generated. You can view the youtube-master-list to identify which video you think best suits the content generated. If you cannot find a suitable video under the section youtube-master-list then add an empty string as a response. ONLY add a video if YOU THINK that the learning plan that is being generated ALIGNS with the content of the video. Otherwise DONT include a video link
-    } 
+      "focus_area": "", // Primary development area (e.g., "leadership", "communication", "strategy")
+      "difficulty": "", // Level of complexity ("beginner", "intermediate", "advanced")
+      "skills": [], // Array of specific skills developed through this module viz. "emotional intelligence", "active listening", "empathetic leadership", "adaptive communication", // Any other skill you think is relevant to the learning plan
+      "prerequisites": [], // Array of recommended prior knowledge or experience viz. "Basic leadership experience", "Team management responsibility", // Any other prerequisite you think is relevant to the learning plan
+      "next_steps": [], // Array of actionable implementation steps viz. "Practice active listening in next three team meetings", "Conduct emotional intelligence self-assessment", "Schedule individual connect sessions with team members", "Document emotional triggers and responses for one week", // Any other next step you think is relevant to the learning plan
+      "metrics": { // How to measure success
+        "short_term": [], // Immediate indicators of progress
+        "long_term": [] // Long-term success measures
+      },
+      "resources": { // Additional learning materials
+        "required": [], // Must-have resources
+        "optional": [] // Supplementary materials
+      }
+   }
   ]
 
 }`.trim();
