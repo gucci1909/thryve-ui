@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, memo } from "react";
+import { motion } from "framer-motion";
 import { BorderBeam } from "../magicui/border-beam";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router";
@@ -17,39 +18,12 @@ import {
   FiFileText,
   FiThumbsUp,
   FiThumbsDown,
-  FiArrowRight,
 } from "react-icons/fi";
-import {
-  FaFire,
-  FaCalendarAlt,
-  FaTrophy,
-  FaBolt,
-  FaRegLightbulb,
-  FaChartLine,
-  FaRegClock,
-} from "react-icons/fa";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  TooltipTrigger,
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-} from "@radix-ui/react-tooltip";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "../ui/card";
-import { cn } from "../../lib/utils";
+import { FaFire, FaCalendarAlt, FaTrophy, FaBolt } from "react-icons/fa";
 import { useDebounce } from "../hook/useDebounce";
 
 function PersonalizeHomePage({ pointAdded, setPointAdded }) {
   const [reportData, setReportData] = useState(null);
-  const [learningData, setLearningData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeVideo, setActiveVideo] = useState(null);
@@ -67,57 +41,9 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
   const [clickedCards, setClickedCards] = useState({});
   const location = useLocation();
   const [showSavedOnly, setShowSavedOnly] = useState(false);
-  const showLearningPlan = location.state?.showLearningPlan || false;
+  const showLearningPlan = location.state?.showLearningPlan || true;
   const [reactionLoading, setReactionLoading] = useState({});
   const streakDays = Math.floor(points / 20);
-
-  const difficultyColors = {
-    beginner: "bg-emerald-100 text-emerald-800",
-    intermediate: "bg-amber-100 text-amber-800",
-    advanced: "bg-rose-100 text-rose-800",
-  };
-
-  const focusAreaIcons = {
-    "decision-making": "🧠",
-    communication: "💬",
-  };
-
-  const cardVariants = {
-    offscreen: {
-      y: 50,
-      opacity: 0,
-    },
-    onscreen: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring",
-        bounce: 0.4,
-        duration: 0.8,
-      },
-    },
-    hover: {
-      y: -5,
-      transition: {
-        type: "spring",
-        bounce: 0.4,
-        duration: 0.3,
-      },
-    },
-  };
-
-  const opts = {
-    height: "100%",
-    width: "100%",
-    playerVars: {
-      autoplay: 1,
-      modestbranding: 1,
-      rel: 0,
-      controls: 1,
-      origin: window.location.origin,
-      enablejsapi: 1,
-    },
-  };
 
   const getYouTubeVideoId = (url) => {
     if (!url) return null;
@@ -137,6 +63,19 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
 
     // Try multiple thumbnail qualities
     return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+  };
+
+  const opts = {
+    height: "100%",
+    width: "100%",
+    playerVars: {
+      autoplay: 1,
+      modestbranding: 1,
+      rel: 0,
+      controls: 1,
+      origin: window.location.origin,
+      enablejsapi: 1,
+    },
   };
 
   const handleVideoClick = (index) => {
@@ -212,7 +151,7 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
         throw new Error("Failed to add note");
       }
 
-      setLearningData((prev) => ({
+      setReportData((prev) => ({
         ...prev,
         learning_plan: prev.learning_plan.map((plan) =>
           plan.title === title
@@ -261,9 +200,7 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
         throw new Error("Failed to update save status");
       }
 
-      console.log({ le: learningData });
-
-      setLearningData((prev) => ({
+      setReportData((prev) => ({
         ...prev,
         learning_plan: prev.learning_plan.map((plan) =>
           plan.title === title ? { ...plan, saved } : plan,
@@ -303,7 +240,7 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
         throw new Error("Failed to edit note");
       }
 
-      setLearningData((prev) => ({
+      setReportData((prev) => ({
         ...prev,
         learning_plan: prev.learning_plan.map((plan) =>
           plan.title === title
@@ -350,7 +287,7 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
         throw new Error("Failed to delete note");
       }
 
-      setLearningData((prev) => ({
+      setReportData((prev) => ({
         ...prev,
         learning_plan: prev.learning_plan.map((plan) =>
           plan.title === title
@@ -375,7 +312,10 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
 
   const handleReaction = async (title, reactionType) => {
     try {
-      const currentPlan = learningData.learning_plan.find(
+      setReactionLoading((prev) => ({ ...prev, [title]: true }));
+
+      // Get current reaction value to toggle it
+      const currentPlan = reportData.learning_plan.find(
         (plan) => plan.title === title,
       );
       const currentReactionValue =
@@ -405,7 +345,7 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
       }
 
       // Update reportData state with new reaction
-      setLearningData((prev) => ({
+      setReportData((prev) => ({
         ...prev,
         learning_plan: prev.learning_plan.map((plan) =>
           plan.title === title
@@ -440,21 +380,12 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
     }
   };
 
-  const debouncedAddNote = useDebounce(addNote, 500);
-
-  const handleNoteChange = (e) => {
-    const newNote = e.target.value;
-    setNote(newNote);
-
-    debouncedAddNote(singlePlan.title, newNote);
-  };
-
   useEffect(() => {
-    const fetchLeadershipReportAndLearningPlan = async () => {
+    const fetchLeadershipReport = async () => {
       try {
         setLoading(true);
-        const learningPlanResponse = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/personalizeLearning/learning-plans`,
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/onboarding/leadership-report`,
           {
             method: "GET",
             headers: {
@@ -464,51 +395,60 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
           },
         );
 
-        if (showLearningPlan) {
-          const leaderShipReportResponse = await fetch(
-            `${import.meta.env.VITE_API_BASE_URL}/onboarding/leadership-report`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-            },
-          );
-          const data = await leaderShipReportResponse.json();
-          setReportData(data.data);
-        }
-
-        const statusCode = learningPlanResponse.status;
+        const statusCode = response.status;
         if (statusCode === 401) {
           dispatch(logout());
           navigate("/");
           return;
         }
 
-        if (!learningPlanResponse.ok) {
-          throw new Error("Failed to fetch learning Plans");
+        if (!response.ok) {
+          throw new Error("Failed to fetch leadership report");
         }
 
-        const learningPlanData = await learningPlanResponse.json();
-        setLearningData(learningPlanData.data);
-
+        const data = await response.json();
+        setReportData(data.data.assessment);
         setLoading(false);
       } catch (error) {
-        console.error(
-          "Error fetching leadership report and learning Plan:",
-          error,
-        );
+        console.error("Error fetching leadership report:", error);
         setError(error.message);
         setLoading(false);
       }
     };
 
     if (token) {
-      fetchLeadershipReportAndLearningPlan();
+      fetchLeadershipReport();
     }
   }, [token]);
 
+  const cardVariants = {
+    offscreen: {
+      y: 50,
+      opacity: 0,
+    },
+    onscreen: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        bounce: 0.4,
+        duration: 0.8,
+      },
+    },
+  };
+
+  // Create debounced function with 500ms delay
+  const debouncedAddNote = useDebounce(addNote, 500);
+
+  // Handle textarea changes
+  const handleNoteChange = (e) => {
+    const newNote = e.target.value;
+    setNote(newNote);
+
+    debouncedAddNote(singlePlan.title, newNote);
+  };
+
+  // Memoized Video Player Component
   const VideoPlayer = memo(({ videoId, opts, onClose }) => (
     <div className="aspect-video w-full">
       <YouTube
@@ -549,47 +489,6 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
       </div>
     );
   }
-
-  const learningPlans = [
-    {
-      title: "Advanced Decision-Making Techniques",
-      content:
-        "Master advanced decision-making techniques to enhance fairness and transparency in your managerial role. Learn to integrate team inputs effectively while ensuring timely decisions.",
-      video: "",
-      focus_area: "decision-making",
-      difficulty: "advanced",
-      skills: ["critical thinking", "fair decision-making"],
-      prerequisites: ["Basic decision-making skills"],
-      next_steps: ["Implement decision-making frameworks in team meetings"],
-      metrics: {
-        short_term: ["Increased clarity in decision-making processes"],
-        long_term: ["Improved team trust in managerial decisions"],
-      },
-      resources: {
-        required: ["Decision-making frameworks"],
-        optional: ["Books on ethical leadership"],
-      },
-    },
-    {
-      title: "Enhancing Communication Clarity",
-      content:
-        "Develop techniques to improve clarity in communication. Focus on setting clear goals and expectations to align your team effectively.",
-      video: "https://www.youtube.com/watch?v=n1Kv67Z7qXQ",
-      focus_area: "communication",
-      difficulty: "intermediate",
-      skills: ["goal setting", "clear communication"],
-      prerequisites: ["Basic communication skills"],
-      next_steps: ["Practice goal setting in team briefings"],
-      metrics: {
-        short_term: ["Improved team understanding of goals"],
-        long_term: ["Enhanced team alignment and performance"],
-      },
-      resources: {
-        required: ["Communication strategy templates"],
-        optional: ["Workshops on effective communication"],
-      },
-    },
-  ];
 
   return (
     <main className="mt-4 flex-1 overflow-y-auto px-5 pb-24">
@@ -828,8 +727,8 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
             className="mb-8"
           >
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_20%)] p-6 shadow-lg"> */}
-          {/* Animated background effects */}
-          {/* <motion.div
+              {/* Animated background effects */}
+              {/* <motion.div
                 className="absolute inset-0 opacity-20"
                 style={{
                   background:
@@ -924,7 +823,7 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
                     </div>
                   </div> */}
 
-          {/* <motion.div
+                  {/* <motion.div
                 className="flex flex-col items-end"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -936,10 +835,10 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
                 </div>
                 <p className="mt-1 text-sm text-white/80">Complete more lessons to extend your streak</p>
               </motion.div> */}
-          {/* </div> */}
+                {/* </div> */}
 
-          {/* Progress bar */}
-          {/* <div className="mt-6">
+                {/* Progress bar */}
+                {/* <div className="mt-6">
                   <div className="h-2 w-full overflow-hidden rounded-full bg-white/20">
                     <motion.div
                       className="h-full bg-yellow-300"
@@ -1172,7 +1071,7 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
               Your Learning Journey
             </h2>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {learningData?.learning_plan?.filter(
+              {reportData?.learning_plan?.filter(
                 (plan) => !showSavedOnly || plan.saved,
               )?.length === 0 && showSavedOnly ? (
                 <div className="col-span-2 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--primary-color)]/20 bg-[var(--primary-color)]/5 px-4 py-12">
@@ -1185,7 +1084,7 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
                   </p>
                 </div>
               ) : (
-                learningData?.learning_plan
+                reportData?.learning_plan
                   ?.filter((plan) => !showSavedOnly || plan.saved)
                   ?.map((plan, index) => {
                     const handleClick = (e) => {
@@ -1252,29 +1151,6 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
                             {plan.content}
                           </p>
 
-                          {/* <div className="relative aspect-video w-full overflow-hidden bg-gray-100">
-                            {plan.video ? (
-                              <div className="h-full w-full">
-                                <YouTube
-                                  videoId={getYouTubeVideoId(plan.video)}
-                                  opts={opts}
-                                  className="h-full w-full"
-                                />
-                              </div>
-                            ) : (
-                              <div className="flex h-full items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
-                                <div className="text-center">
-                                  <div className="mx-auto mb-4 text-6xl">
-                                    {focusAreaIcons[plan.focus_area] || "📚"}
-                                  </div>
-                                  <p className="text-lg font-medium text-gray-500">
-                                    No video available
-                                  </p>
-                                </div>
-                              </div>
-                            )}
-                          </div> */}
-
                           <div className="video-container mt-4 overflow-hidden rounded-lg border border-gray-200">
                             <div className="aspect-video w-full bg-gray-100">
                               {activeVideo === index ? (
@@ -1321,6 +1197,8 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
                                   Your notes...
                                 </div>
                               )}
+
+                              {/* Add the reactions UI here */}
                             </div>
                             <div className="ml-auto flex items-center gap-2">
                               <motion.button

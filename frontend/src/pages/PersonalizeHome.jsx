@@ -2,6 +2,7 @@
 import { useLocation } from "react-router";
 import BottomNav from "../components/home/BottomNav";
 import Header from "../components/home/Header";
+import PersonalizeHomePage1 from "../components/home/PersonalizeHome1";
 import PersonalizeHomePage from "../components/home/PersonalizeHome";
 import ChatBox from "../components/home/ChatBox";
 import Profile from "../components/home/Profile";
