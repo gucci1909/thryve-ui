@@ -19,6 +19,9 @@ function PersonalizeHomePage({ setPointAdded }) {
   const showLearningPlan = location.state?.showLearningPlan || false;
 
   const [visibleCount, setVisibleCount] = useState(4);
+  const [savedVisibleCount, setSavedVisibleCount] = useState(4);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [showSavedOnly, setShowSavedOnly] = useState(false);
 
   const [reportData, setReportData] = useState(null);
   const [learningData, setLearningData] = useState(null);
@@ -29,8 +32,6 @@ function PersonalizeHomePage({ setPointAdded }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [isEditingNote, setIsEditingNote] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [note, setNote] = useState("");
   const [editedNote, setEditedNote] = useState("");
   const [singlePlan, setSinglePlan] = useState({});
@@ -110,15 +111,19 @@ function PersonalizeHomePage({ setPointAdded }) {
 
   const handleCardClick = (index, e) => {
     // console.log("Card clicked:", index, e);
-    if (e.target.closest('.ytp-chrome-bottom') || e.target.closest('button') || e.target.closest(".video-container")) {
+    if (
+      e.target.closest(".ytp-chrome-bottom") ||
+      e.target.closest("button") ||
+      e.target.closest(".video-container")
+    ) {
       return;
     }
-    
-    setIsClickedStates(prev => ({ ...prev, [index]: true }));
+
+    setIsClickedStates((prev) => ({ ...prev, [index]: true }));
     setTimeout(() => {
-      setIsClickedStates(prev => ({ ...prev, [index]: false }));
+      setIsClickedStates((prev) => ({ ...prev, [index]: false }));
     }, 300);
-    
+
     const plan = learningData.learning_plan[index];
     setClickedCards((prev) => ({ ...prev, [index]: true }));
     setTimeout(() => {
@@ -133,7 +138,7 @@ function PersonalizeHomePage({ setPointAdded }) {
   const handleVideoClick = (index) => {
     if (activeVideo === index && playerRefs.current[index]) {
       const player = playerRefs.current[index].internalPlayer;
-      player.getPlayerState().then(state => {
+      player.getPlayerState().then((state) => {
         if (state === 1) {
           player.pauseVideo();
         } else {
@@ -518,7 +523,9 @@ function PersonalizeHomePage({ setPointAdded }) {
           setIsLoadingMore(true);
           setTimeout(() => {
             setVisibleCount((prev) => prev + 4);
-            setIsLoadingMore(false);
+            if (!showSavedOnly) {
+              setIsLoadingMore(false);
+            }
           }, 800);
         }
       },
@@ -529,6 +536,11 @@ function PersonalizeHomePage({ setPointAdded }) {
       },
     );
 
+
+    if(visibleCount >= learningData?.learning_plan?.length) {
+      setIsLoadingMore(false); 
+    }
+
     if (loaderRef.current) {
       observer.observe(loaderRef.current);
     }
@@ -536,9 +548,11 @@ function PersonalizeHomePage({ setPointAdded }) {
     return () => {
       if (loaderRef.current) observer.unobserve(loaderRef.current);
     };
-  }, [visibleCount, loaderRef, learningData?.learning_plan?.length]);
+  }, [visibleCount, learningData?.learning_plan?.length]);
 
   const visibleItems = learningData?.learning_plan?.slice(0, visibleCount);
+
+  console.log("loadingRef", loaderRef);
 
   if (loading) {
     return <LoadingSpinner />;
@@ -636,9 +650,10 @@ function PersonalizeHomePage({ setPointAdded }) {
               </h2>
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {learningData?.learning_plan?.filter(
-                (plan) => !showSavedOnly || plan.saved,
-              )?.length === 0 && showSavedOnly ? (
+              {visibleItems?.filter((plan) => !showSavedOnly || plan.saved)
+                ?.length === 0 &&
+              showSavedOnly &&
+              !isLoadingMore ? (
                 <div className="col-span-2 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--primary-color)]/20 bg-[var(--primary-color)]/5 px-4 py-12">
                   <FiBookmark className="h-12 w-12 text-[var(--primary-color)]" />
                   <p className="mt-4 text-center text-lg font-medium text-[var(--primary-color)]">
@@ -687,7 +702,9 @@ function PersonalizeHomePage({ setPointAdded }) {
 
                   {/* Loading text with fade animation */}
                   <p className="animate-[fadeInOut_2s_ease-in-out_infinite] text-sm font-medium text-gray-600">
-                    Loading more plans...
+                    {showSavedOnly
+                      ? "Loading saved plans..."
+                      : "Loading more plans..."}
                   </p>
                 </div>
               )}

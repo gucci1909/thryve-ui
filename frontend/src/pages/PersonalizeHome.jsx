@@ -15,9 +15,13 @@ import { useState } from "react";
 export default function PersonalizeHome() {
   const location = useLocation();
   const [pointAdded, setPointAdded] = useState(false);
+  const isChatView = location.pathname === "/personalize-chat-box";
+
   return (
     <div className="flex h-screen flex-col bg-gradient-to-b from-[#f0f4ff] to-[#e6ecff]">
-      <Header pointAdded={pointAdded} setPointAdded={setPointAdded} />
+      {!isChatView && (
+        <Header pointAdded={pointAdded} setPointAdded={setPointAdded} />
+      )}
 
       {location.pathname === "/personalize-home" && (
         <PersonalizeHomePage
@@ -38,13 +42,15 @@ export default function PersonalizeHome() {
         <ChatBox pointAdded={pointAdded} setPointAdded={setPointAdded} />
       )}
 
-      <BottomNav
-        chatPath="/personalize-chat-box"
-        homePath="/personalize-home"
-        checkinPath="/personalize-check-in"
-        dashboardPath="/personalize-dashboard"
-        profilePath="/personalize-profile"
-      />
+      {!isChatView && (
+        <BottomNav
+          chatPath="/personalize-chat-box"
+          homePath="/personalize-home"
+          checkinPath="/personalize-check-in"
+          dashboardPath="/personalize-dashboard"
+          profilePath="/personalize-profile"
+        />
+      )}
     </div>
   );
 }

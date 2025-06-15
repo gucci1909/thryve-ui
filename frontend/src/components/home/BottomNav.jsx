@@ -27,7 +27,7 @@ const BottomNav = ({
       <motion.div
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="absolute bottom-14 left-1/2 z-10 -translate-x-1/2 transform"
+        className="absolute bottom-9 left-1/2 z-10 -translate-x-1/2 transform"
         onClick={() => navigate(chatPath)} // Navigate on click
       >
         <button className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-white bg-gradient-to-br from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_30%)] text-white shadow-[var(--primary-color)]/30 shadow-xl backdrop-blur-md">

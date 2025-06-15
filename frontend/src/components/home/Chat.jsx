@@ -1,8 +1,8 @@
 "use client";
 import { motion } from "framer-motion";
-import { Send, Mic, MicOff, Sparkles } from "lucide-react";
+import { Send, Mic, MicOff, Sparkles, ChevronDown } from "lucide-react";
 import { ShinyButton } from "../../components/magicui/shiny-button";
-import React, { memo, useEffect } from "react";
+import React, { memo, useEffect, useState } from "react";
 import ChatFeedback from "./ChatFeedback";
 
 const Chat = memo(
@@ -28,11 +28,49 @@ const Chat = memo(
     token,
     onContinueChat,
   }) {
+    const [expandedMessages, setExpandedMessages] = useState({});
+
     useEffect(() => {
       if (messagesEndRef?.current) {
         messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
       }
     }, [messages, isLoading, messagesEndRef]);
+
+    const formatMessage = (text) => {
+      // Replace \n\n with <br><br> and \n with <br>
+      const paragraphs = text.split("\n\n");
+      return (
+        <div className="whitespace-pre-wrap">
+          {paragraphs.map((paragraph, i) => (
+            <div key={i} className="mb-2 last:mb-0">
+              {paragraph.split("\n").map((line, j) => (
+                <React.Fragment key={j}>
+                  {line}
+                  {j < paragraph.split("\n").length - 1 && (
+                    <>
+                      {" "}
+                      {/* Add a space */}
+                      <br />  <br /> {/* Add a br tag */}
+                    </>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          ))}
+        </div>
+      );
+    };
+
+    const toggleMessageExpand = (messageId) => {
+      setExpandedMessages((prev) => ({
+        ...prev,
+        [messageId]: !prev[messageId],
+      }));
+    };
+
+    const shouldShowReadMore = (text) => {
+      return text.length > 300;
+    };
 
     return (
       <motion.div
@@ -46,7 +84,7 @@ const Chat = memo(
           stiffness: 400,
           mass: 0.5,
         }}
-        className="flex h-full flex-col"
+        className="flex h-[calc(100vh-60px)] flex-col"
       >
         {/* Messages container - takes available space */}
         <motion.div
@@ -57,7 +95,7 @@ const Chat = memo(
           style={{
             marginBottom: "45px",
             display: "flex",
-            flexDirection: "column-reverse", // This makes it start from bottom
+            flexDirection: "column-reverse",
           }}
         >
           <div className="space-y-4">
@@ -70,14 +108,42 @@ const Chat = memo(
                 className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                  className={`group relative max-w-[85%] rounded-2xl px-4 py-2 ${
                     m.sender === "user"
                       ? "bg-[var(--primary-color)] text-white"
                       : "bg-white text-gray-800 shadow-sm"
                   }`}
                 >
-                  <div>{m.text}</div>
-                  <div className="mt-1 text-xs opacity-70">
+                  <div
+                    className={`${!expandedMessages[m.id] && shouldShowReadMore(m.text) ? "line-clamp-4" : ""}`}
+                  >
+                    {formatMessage(m.text)}
+                  </div>
+
+                  {shouldShowReadMore(m.text) && (
+                    <motion.button
+                      onClick={() => toggleMessageExpand(m.id)}
+                      className={`mt-1 flex w-full items-center justify-center gap-1 text-xs font-medium transition-colors ${
+                        m.sender === "user"
+                          ? "text-white/80 hover:text-white"
+                          : "text-gray-500 hover:text-gray-700"
+                      }`}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {expandedMessages[m.id] ? "Show less" : "Read more"}
+                      <ChevronDown
+                        size={14}
+                        className={`transition-transform duration-200 ${
+                          expandedMessages[m.id] ? "rotate-180" : ""
+                        }`}
+                      />
+                    </motion.button>
+                  )}
+
+                  <div
+                    className={`mt-1 text-xs ${m.sender === "user" ? "text-white/70" : "text-gray-500"}`}
+                  >
                     {new Date(m.timestamp).toLocaleTimeString([], {
                       hour: "numeric",
                       minute: "2-digit",
@@ -104,7 +170,7 @@ const Chat = memo(
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                <div className="max-w-[80%] rounded-2xl bg-white px-4 py-2 text-gray-800 shadow-sm">
+                <div className="max-w-[85%] rounded-2xl bg-white px-4 py-2 text-gray-800 shadow-sm">
                   <div className="typing-indicator flex gap-1">
                     <motion.span
                       animate={{ y: [0, -5, 0] }}
@@ -267,7 +333,6 @@ const Chat = memo(
   },
   // Custom comparison function
   (prevProps, nextProps) => {
-    // Only re-render if these specific props change
     return (
       prevProps.messages === nextProps.messages &&
       prevProps.isLoading === nextProps.isLoading &&

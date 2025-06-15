@@ -7,14 +7,15 @@ import scenariosData from "./chatbox.json";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { logout } from "../../store/userSlice";
-import { useCookies } from 'react-cookie';
+import { useCookies } from "react-cookie";
 import Chat from "./Chat";
+import FloatingNav from "./FloatingNav";
 
 export default function ChatBox({ pointAdded, setPointAdded }) {
   const token = useSelector((state) => state.user.token);
   const userId = useSelector((state) => state.user._id);
   const firstName = useSelector((state) => state.user.firstName);
-  const [cookies, setCookie, removeCookie] = useCookies(['authToken']);
+  const [cookies, setCookie, removeCookie] = useCookies(["authToken"]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -85,12 +86,12 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
 
   const formatSessionTime = (timestamp) => {
     const date = new Date(timestamp);
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true
+    return date.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
     });
   };
 
@@ -110,7 +111,6 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
 
       const statusCode = response.status;
       if (statusCode === 401) {
-
         dispatch(logout());
         navigate("/");
         return;
@@ -127,11 +127,13 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
           text: msg.chat_text,
           sender: msg.from === "user" ? "user" : "bot",
           timestamp: new Date(msg.timestamp),
-          sessionId: msg.sessionId
+          sessionId: msg.sessionId,
         }));
 
         if (formattedMessages.length > 0) {
-          setCurrentSessionId(formattedMessages[formattedMessages.length - 1].sessionId);
+          setCurrentSessionId(
+            formattedMessages[formattedMessages.length - 1].sessionId,
+          );
         }
 
         setMessages(formattedMessages);
@@ -233,7 +235,7 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
     }
   };
 
-   const handleRolePlaySend = async (question) => {
+  const handleRolePlaySend = async (question) => {
     scrollToBottom();
     const trimmed = question?.trim() || inputValue?.trim();
 
@@ -470,61 +472,13 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
     },
   };
 
-  // // Initialize SSE connection
-  // useEffect(() => {
-  //   if (!token) return;
-
-  //   const newEventSource = new EventSource(
-  //     `${import.meta.env.VITE_API_BASE_URL}/chat-box/events`,
-  //     {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     }
-  //   );
-
-  //   newEventSource.onmessage = (event) => {
-  //     const data = JSON.parse(event.data);
-  //     if (data.type === 'message') {
-  //       setMessages((prevMessages) => {
-  //         // Check if message already exists to prevent duplicates
-  //         const messageExists = prevMessages.some(
-  //           (msg) => msg.timestamp === data.data.timestamp
-  //         );
-  //         if (!messageExists) {
-  //           return [...prevMessages, data.data];
-  //         }
-  //         return prevMessages;
-  //       });
-  //     }
-  //   };
-
-  //   newEventSource.onerror = (error) => {
-  //     console.error('SSE Error:', error);
-  //     newEventSource.close();
-  //     // Attempt to reconnect after a delay
-  //     setTimeout(() => {
-  //       setEventSource(null);
-  //     }, 5000);
-  //   };
-
-  //   setEventSource(newEventSource);
-
-  //   // Cleanup on unmount
-  //   return () => {
-  //     if (newEventSource) {
-  //       newEventSource.close();
-  //     }
-  //   };
-  // }, [token]);
-
   const handleContinueChat = () => {
     setShowFeedback(false);
   };
 
   return (
-    <main className="flex flex-1 flex-col overflow-hidden bg-gray-50">
-      <div className="flex items-center justify-between border-b border-white/20 bg-white px-4 py-3 shadow-sm">
+    <main className="flex h-screen flex-col overflow-hidden bg-gradient-to-b from-[#f0f4ff] to-[#e6ecff]">
+      <div className="flex items-center justify-between border-b border-white/20 bg-white/80 px-4 py-3 shadow-sm backdrop-blur-sm">
         <div className="flex items-center gap-2">
           <MessageCircle className="text-[var(--primary-color)]" size={20} />
           <motion.h2
@@ -662,6 +616,8 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
           />
         )}
       </AnimatePresence>
+
+      {/* <FloatingNav /> */}
     </main>
   );
 }
