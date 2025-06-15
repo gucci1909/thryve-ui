@@ -11,6 +11,7 @@ import PersonalizeDashboard from "../components/home/PersonalizeDashboard";
 import ChangePassword from "../components/home/ChangePassword";
 import SavedPost from "../components/home/SavedPost";
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function PersonalizeHome() {
   const location = useLocation();
@@ -19,9 +20,18 @@ export default function PersonalizeHome() {
 
   return (
     <div className="flex h-screen flex-col bg-gradient-to-b from-[#f0f4ff] to-[#e6ecff]">
-      {!isChatView && (
-        <Header pointAdded={pointAdded} setPointAdded={setPointAdded} />
-      )}
+      <AnimatePresence>
+        {!isChatView && (
+          <motion.div
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -100, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          >
+            <Header pointAdded={pointAdded} setPointAdded={setPointAdded} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {location.pathname === "/personalize-home" && (
         <PersonalizeHomePage
@@ -29,7 +39,9 @@ export default function PersonalizeHome() {
           setPointAdded={setPointAdded}
         />
       )}
-      {location.pathname === "/personalize-check-in" && <CheckIn pointAdded={pointAdded} setPointAdded={setPointAdded} />}
+      {location.pathname === "/personalize-check-in" && (
+        <CheckIn pointAdded={pointAdded} setPointAdded={setPointAdded} />
+      )}
       {location.pathname === "/personalize-dashboard" && (
         <PersonalizeDashboard />
       )}
@@ -39,18 +51,30 @@ export default function PersonalizeHome() {
         <ChangePassword />
       )}
       {location.pathname === "/personalize-chat-box" && (
-        <ChatBox pointAdded={pointAdded} setPointAdded={setPointAdded} />
-      )}
-
-      {!isChatView && (
-        <BottomNav
-          chatPath="/personalize-chat-box"
-          homePath="/personalize-home"
-          checkinPath="/personalize-check-in"
-          dashboardPath="/personalize-dashboard"
-          profilePath="/personalize-profile"
+        <ChatBox
+          pointAdded={pointAdded}
+          setPointAdded={setPointAdded}
         />
       )}
+
+      <AnimatePresence>
+        {!isChatView && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          >
+            <BottomNav
+              chatPath="/personalize-chat-box"
+              homePath="/personalize-home"
+              checkinPath="/personalize-check-in"
+              dashboardPath="/personalize-dashboard"
+              profilePath="/personalize-profile"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

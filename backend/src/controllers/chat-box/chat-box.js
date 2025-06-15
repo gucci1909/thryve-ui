@@ -301,7 +301,7 @@ export const chatBoxGetAllTextController = async (req, res) => {
 
     // Calculate timestamp for 12 hours ago
     const twelveHoursAgo = new Date();
-    twelveHoursAgo.setHours(twelveHoursAgo.getHours() - 12);
+    // twelveHoursAgo.setHours(twelveHoursAgo.getHours() - 12);
 
     // Find chat messages for the user
     const chatCollection = db.collection('chats');
@@ -328,7 +328,7 @@ export const chatBoxGetAllTextController = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      chat_context: recentMessages || [],
+      chat_context: userChat.chat_context || [],
     });
   } catch (error) {
     console.error('Error fetching chat history:', error);

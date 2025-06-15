@@ -1,6 +1,10 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { FiHome, FiMessageCircle, FiCalendar, FiBarChart2, FiUser, FiX } from "react-icons/fi";
+import {
+  FiMessageCircle,
+  FiX,
+} from "react-icons/fi";
+import { Home, Calendar, PieChart, User, MessageCircle } from "lucide-react";
 import { useState } from "react";
 
 const FloatingNav = () => {
@@ -8,11 +12,11 @@ const FloatingNav = () => {
   const navigate = useNavigate();
 
   const navItems = [
-    { icon: FiHome, path: "/personalize-home", label: "Home" },
-    { icon: FiMessageCircle, path: "/personalize-chat-box", label: "Chat" },
-    { icon: FiCalendar, path: "/personalize-check-in", label: "Check-in" },
-    { icon: FiBarChart2, path: "/personalize-dashboard", label: "Dashboard" },
-    { icon: FiUser, path: "/personalize-profile", label: "Profile" },
+    { icon: Home, path: "/personalize-home", label: "Home" },
+    { icon: Calendar, path: "/personalize-check-in", label: "Check-in" },
+    // { icon: MessageCircle, path: "/personalize-chat-box", label: "Chat" },
+    { icon: PieChart, path: "/personalize-dashboard", label: "Dashboard" },
+    { icon: User, path: "/personalize-profile", label: "Profile" },
   ];
 
   const handleNavigation = (path) => {
@@ -22,25 +26,25 @@ const FloatingNav = () => {
 
   return (
     <motion.div
-      className="fixed bottom-6 right-6 z-50"
-      initial={{ opacity: 0, y: 20 }}
+      className="fixed top-6 right-6 z-50"
+      initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      // transition={{ duration: 0.3 }}
     >
       <AnimatePresence>
         {isExpanded && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            className="absolute bottom-16 right-0 mb-2 rounded-2xl bg-white p-2 shadow-lg"
+            initial={{ opacity: 0, scale: 0.8, y: -20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: -20 }}
+            className="absolute top-12 right-0 mt-4 rounded-2xl bg-white p-2 shadow-lg"
           >
             {navItems.map((item, index) => (
               <motion.button
                 key={item.path}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
+                // transition={{ delay: index * 0.1 }}
                 onClick={() => handleNavigation(item.path)}
                 className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-50"
               >
@@ -84,4 +88,4 @@ const FloatingNav = () => {
   );
 };
 
-export default FloatingNav; 
+export default FloatingNav;

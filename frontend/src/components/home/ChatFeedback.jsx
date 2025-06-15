@@ -67,7 +67,7 @@ const ChatFeedback = ({
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="mb-6 max-w-[80%] rounded-xl border border-[#0029ff]/10 bg-white p-4 shadow-lg"
+      className="mb-6 max-w-[85%] rounded-xl border border-[#0029ff]/10 bg-white p-4 shadow-lg"
     >
       <motion.div 
         className="mb-4 flex items-center gap-2 text-[#0029ff]"

@@ -10,6 +10,7 @@ import { logout } from "../../store/userSlice";
 import { useCookies } from "react-cookie";
 import Chat from "./Chat";
 import FloatingNav from "./FloatingNav";
+import LoadingSpinner from "./PersonalizeHome/LoadingSpinner";
 
 export default function ChatBox({ pointAdded, setPointAdded }) {
   const token = useSelector((state) => state.user.token);
@@ -24,6 +25,7 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
   const [activeView, setActiveView] = useState("chat");
   const [selectedScenario, setSelectedScenario] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMessage, setIsLoadingMessage] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [previousView, setPreviousView] = useState(null);
@@ -96,7 +98,7 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
   };
 
   const loadChatHistory = async () => {
-    setIsLoading(true);
+    setIsLoadingMessage(true);
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/chat-box/get-message`,
@@ -136,11 +138,11 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
           );
         }
 
-        setMessages(formattedMessages);
+        // setMessages(formattedMessages);
       }
-      setIsLoading(false);
+      setIsLoadingMessage(false);
     } catch (error) {
-      setIsLoading(false);
+      setIsLoadingMessage(false);
       console.error("Error loading chat history:", error);
     }
   };
@@ -476,6 +478,18 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
     setShowFeedback(false);
   };
 
+  if(isLoadingMessage) {
+    return (
+       <div className="flex h-screen flex-col items-center justify-center gap-6">
+      <div className="relative h-20 w-20">
+        <div className="absolute inset-0 animate-[spin_1.5s_linear_infinite] rounded-full border-4 border-transparent border-t-[#0029ff] border-r-[#0029ff]"></div>
+        <div className="absolute inset-4 animate-[pulse_2s_ease-in-out_infinite] rounded-full bg-[#0029ff] opacity-20"></div>
+      </div>
+      <p className="text-lg font-medium text-gray-700">Loading your chat history</p>
+    </div>
+    );
+  }
+
   return (
     <main className="flex h-screen flex-col overflow-hidden bg-gradient-to-b from-[#f0f4ff] to-[#e6ecff]">
       <div className="flex items-center justify-between border-b border-white/20 bg-white/80 px-4 py-3 shadow-sm backdrop-blur-sm">
@@ -617,7 +631,7 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
         )}
       </AnimatePresence>
 
-      {/* <FloatingNav /> */}
+      <FloatingNav />
     </main>
   );
 }
