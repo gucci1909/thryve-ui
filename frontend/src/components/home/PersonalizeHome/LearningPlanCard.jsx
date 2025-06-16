@@ -27,8 +27,11 @@ const LearningPlanCard = ({
 }) => {
   const difficultyColors = {
     beginner: "bg-emerald-100 text-emerald-800",
+    Beginner: "bg-emerald-100 text-emerald-800",
     intermediate: "bg-amber-100 text-amber-800",
+    Intermediate: "bg-amber-100 text-amber-800",
     advanced: "bg-rose-100 text-rose-800",
+    Advanced: "bg-rose-100 text-rose-800",
   };
 
   const cardVariants = {
@@ -193,7 +196,7 @@ const LearningPlanCard = ({
             </div>
 
             <div>
-              <p className="text-sm font-medium text-gray-900">Short-term:</p>
+              <p className="text-sm font-medium text-gray-900">Short-Term Results:</p>
               <p className="text-sm text-gray-600">
                 {plan.metrics.short_term[0]}
               </p>
@@ -204,7 +207,7 @@ const LearningPlanCard = ({
               <FaChartLine className="text-green-600 transition-all duration-200 group-hover:scale-110" />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-900">Long-term:</p>
+              <p className="text-sm font-medium text-gray-900">Long-Term Results:</p>
               <p className="text-sm text-gray-600">
                 {plan.metrics.long_term[0]}
               </p>

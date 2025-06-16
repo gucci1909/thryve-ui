@@ -1,33 +1,129 @@
 {
   "scenarios": [
     {
-      "id": "feedback",
-      "title": "Giving constructive feedback",
-      "keywords": ["feedback"],
-      "response": "Deliver feedback early, frequently, and with specific examples.",
-      "question": "I want to engage in a roleplay on giving constructive feedback"
+      "id": "1",
+      "title": "Giving Constructive Feedback",
+      "question": "I want to engage in a role play on giving constructive feedback"
     },
     {
-      "id": "effective-1on1",
-      "title": "Effective 1:1 meetings",
-      "keywords": ["effective"],
-      "response": "You should schedule fixed time and have a document where you capture notes.",
-      "question": "How can I have effective 1:1s?"
+      "id": "2",
+      "title": "Handling Underperformance",
+      "question": "I want to engage in a role play on handling underperformance"
+    },
+    {
+      "id": "3",
+      "title": "Delegating Critical Tasks",
+      "question": "I want to engage in a role play on delegating critical tasks"
+    },
+    {
+      "id": "4",
+      "title": "Managing Upward Expectations",
+      "question": "I want to engage in a role play on managing upward expectations"
+    },
+    {
+      "id": "5",
+      "title": "Navigating Team Conflict",
+      "question": "I want to engage in a role play on navigating team conflict"
+    },
+    {
+      "id": "6",
+      "title": "Conducting Difficult 1:1s",
+      "question": "I want to engage in a role play on conducting difficult 1:1s"
+    },
+    {
+      "id": "7",
+      "title": "Coaching a High Performer",
+      "question": "I want to engage in a role play on coaching a high performer"
+    },
+    {
+      "id": "8",
+      "title": "Addressing Burnout Symptoms",
+      "question": "I want to engage in a role play on addressing burnout symptoms"
+    },
+    {
+      "id": "9",
+      "title": "Setting Clear Expectations",
+      "question": "I want to engage in a role play on setting clear expectations"
+    },
+    {
+      "id": "10",
+      "title": "Delivering Tough News",
+      "question": "I want to engage in a role play on delivering tough news"
+    },
+    {
+      "id": "11",
+      "title": "Leading Through Change",
+      "question": "I want to engage in a role play on leading through change"
+    },
+    {
+      "id": "12",
+      "title": "Resolving Peer Disagreements",
+      "question": "I want to engage in a role play on resolving peer disagreements"
+    },
+    {
+      "id": "13",
+      "title": "Escalating to Leadership",
+      "question": "I want to engage in a role play on escalating to leadership"
+    },
+    {
+      "id": "14",
+      "title": "Managing Remote Teams",
+      "question": "I want to engage in a role play on managing remote teams"
+    },
+    {
+      "id": "15",
+      "title": "Facilitating Team Alignment",
+      "question": "I want to engage in a role play on facilitating team alignment"
+    },
+    {
+      "id": "16",
+      "title": "Handling Missed Deadlines",
+      "question": "I want to engage in a role play on handling missed deadlines"
+    },
+    {
+      "id": "17",
+      "title": "Responding to Feedback",
+      "question": "I want to engage in a role play on responding to feedback"
+    },
+    {
+      "id": "18",
+      "title": "Influencing Without Authority",
+      "question": "I want to engage in a role play on influencing without authority"
+    },
+    {
+      "id": "19",
+      "title": "Welcoming New Joinees",
+      "question": "I want to engage in a role play on welcoming new joinees"
+    },
+    {
+      "id": "20",
+      "title": "Prioritizing Team Goals",
+      "question": "I want to engage in a role play on prioritizing team goals"
+    },
+    {
+      "id": "21",
+      "title": "Conducting Performance Reviews",
+      "question": "I want to engage in a role play on conducting performance reviews"
+    },
+    {
+      "id": "22",
+      "title": "Handling Promotions Fairly",
+      "question": "I want to engage in a role play on handling promotions fairly"
+    },
+    {
+      "id": "23",
+      "title": "Managing Cross Functional Conflicts",
+      "question": "I want to engage in a role play on managing cross functional conflicts"
+    },
+    {
+      "id": "24",
+      "title": "Rebuilding Team Trust",
+      "question": "I want to engage in a role play on rebuilding team trust"
+    },
+    {
+      "id": "25",
+      "title": "Communicating Vision Clearly",
+      "question": "I want to engage in a role play on communicating vision clearly"
     }
-  ],
-  "fallbackResponse": "This is a demo of how the AI Coach will function. I will respond to your question in a few weeks 😊",
-  "sampleInputs": [
-    "How can I have effective 1:1s?",
-    "What's the best way to give feedback to my team?",
-    "How should I handle a conversation about someone's career path?",
-    "How do I set meaningful goals for my team?",
-    "How do I keep my team motivated during tough times?",
-    "There is some conflict between two team members. What should I do?",
-    "How do I build trust with my new team?",
-    "What's a good approach to delegation?",
-    "How can I make meetings more productive?",
-    "How do I review someone's performance fairly?",
-    "How do I improve communication flow?",
-    "What's a good way to manage time better?"
   ]
 }

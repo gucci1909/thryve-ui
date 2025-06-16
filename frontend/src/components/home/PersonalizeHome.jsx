@@ -39,6 +39,7 @@ function PersonalizeHomePage({ setPointAdded }) {
   const [reactionLoading, setReactionLoading] = useState({});
   const [isClickedStates, setIsClickedStates] = useState({});
   const playerRefs = useRef({});
+  const contentRef = useRef(null);
 
   const loaderRef = useRef(null);
 
@@ -511,6 +512,8 @@ function PersonalizeHomePage({ setPointAdded }) {
     }
   }, [token]);
 
+  const visibleItems = learningData?.learning_plan?.slice(0, visibleCount);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -536,9 +539,8 @@ function PersonalizeHomePage({ setPointAdded }) {
       },
     );
 
-
-    if(visibleCount >= learningData?.learning_plan?.length) {
-      setIsLoadingMore(false); 
+    if (visibleCount >= learningData?.learning_plan?.length) {
+      setIsLoadingMore(false);
     }
 
     if (loaderRef.current) {
@@ -548,9 +550,19 @@ function PersonalizeHomePage({ setPointAdded }) {
     return () => {
       if (loaderRef.current) observer.unobserve(loaderRef.current);
     };
-  }, [visibleCount, learningData?.learning_plan?.length]);
+  }, [visibleCount, learningData?.learning_plan?.length, visibleItems]);
 
-  const visibleItems = learningData?.learning_plan?.slice(0, visibleCount);
+  useEffect(() => {
+    if (contentRef.current) {
+      console.log({ 1: true }, { 2: true });
+      contentRef.current.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
+  }, [activeActionView]);
+
+ 
 
   console.log("loadingRef", loaderRef);
 
@@ -574,30 +586,32 @@ function PersonalizeHomePage({ setPointAdded }) {
   );
 
   return (
-    <main className="flex-1 overflow-y-auto px-5 pb-24">
+    <main className="flex-1 overflow-y-auto px-[12px] pb-[50px]" ref={contentRef}>
       {activeActionView === "single_feed" ? (
-        <SinglePlanView
-          singlePlan={singlePlan}
-          handleActionViewClick={handleActionViewClick}
-          handleSaveStatus={handleSaveStatus}
-          isPlaying={isPlaying}
-          setIsPlaying={setIsPlaying}
-          getYouTubeVideoId={getYouTubeVideoId}
-          getYouTubeThumbnail={getYouTubeThumbnail}
-          opts={opts}
-          handleReaction={handleReaction}
-          reactionLoading={reactionLoading}
-          showNoteInput={showNoteInput}
-          setShowNoteInput={setShowNoteInput}
-          note={note}
-          handleNoteChange={handleNoteChange}
-          isEditingNote={isEditingNote}
-          setIsEditingNote={setIsEditingNote}
-          editedNote={editedNote}
-          setEditedNote={setEditedNote}
-          handleEditNote={handleEditNote}
-          handleDeleteNote={handleDeleteNote}
-        />
+        <>
+          <SinglePlanView
+            singlePlan={singlePlan}
+            handleActionViewClick={handleActionViewClick}
+            handleSaveStatus={handleSaveStatus}
+            isPlaying={isPlaying}
+            setIsPlaying={setIsPlaying}
+            getYouTubeVideoId={getYouTubeVideoId}
+            getYouTubeThumbnail={getYouTubeThumbnail}
+            opts={opts}
+            handleReaction={handleReaction}
+            reactionLoading={reactionLoading}
+            showNoteInput={showNoteInput}
+            setShowNoteInput={setShowNoteInput}
+            note={note}
+            handleNoteChange={handleNoteChange}
+            isEditingNote={isEditingNote}
+            setIsEditingNote={setIsEditingNote}
+            editedNote={editedNote}
+            setEditedNote={setEditedNote}
+            handleEditNote={handleEditNote}
+            handleDeleteNote={handleDeleteNote}
+          />
+        </>
       ) : (
         <>
           {reportData && (
@@ -606,6 +620,7 @@ function PersonalizeHomePage({ setPointAdded }) {
               whileInView="onscreen"
               viewport={{ once: true, amount: 0.2 }}
               variants={cardVariants}
+              className="mt-[20px]"
             >
               <LeadershipReport reportData={reportData} />
             </motion.div>
@@ -645,7 +660,7 @@ function PersonalizeHomePage({ setPointAdded }) {
             {/* Centered Heading */}
             <div className="w-full text-center">
               <h2 className="text-2xl font-bold text-[var(--primary-color)]">
-                Learning Plans
+                Your Learning Plan
                 <span className="mx-auto mt-2 mb-4 block h-1 w-16 rounded-full bg-[var(--primary-color)]"></span>
               </h2>
             </div>

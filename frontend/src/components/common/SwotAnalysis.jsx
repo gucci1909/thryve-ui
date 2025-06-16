@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 function SwotAnalysis({ expandedSections, reportData, toggleSection }) {
   return (
     <div className="w-full">
-      <h3 className="mb-6 text-center text-2xl font-bold text-[var(--primary-color)]">
+      <h3 className="mb-3 mt-4 text-center text-2xl font-bold text-[var(--primary-color)]">
         SWOT Analysis
       </h3>
 

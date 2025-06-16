@@ -58,7 +58,7 @@ export const leadershipReportControllers = async (req, res) => {
     return res.status(200).json({
       status: 'OK',
       data: {
-        reportId: result.insertedId,
+        // reportId: result.insertedId,
         ...restOfAssessment,
       },
     });

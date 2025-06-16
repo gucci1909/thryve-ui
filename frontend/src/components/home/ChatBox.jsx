@@ -140,7 +140,7 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
           );
         }
 
-        setMessages(formattedMessages);
+        // setMessages(formattedMessages);
       }
       setIsLoadingMessage(false);
     } catch (error) {
@@ -610,11 +610,7 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
       {/* Difficulty indicator */}
       <motion.div 
         className="absolute right-3 top-3 h-2 w-2 rounded-full"
-        style={{
-          backgroundColor: 
-            sc.difficulty === 'hard' ? '#ef4444' : 
-            sc.difficulty === 'medium' ? '#f59e0b' : '#10b981'
-        }}
+
         animate={{
           scale: [1, 1.3, 1],
           transition: { duration: 2, repeat: Infinity }
@@ -634,9 +630,6 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
         <h3 className="truncate text-lg font-medium text-gray-800 group-hover:text-[var(--primary-color)]">
           {sc.title}
         </h3>
-        <p className="mt-1 line-clamp-2 text-sm text-gray-600">
-          {sc.description}
-        </p>
       </div>
 
       {/* Hover overlay */}

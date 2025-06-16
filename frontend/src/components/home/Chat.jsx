@@ -348,49 +348,63 @@ const Chat = memo(
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ type: "spring", stiffness: 500 }}
-                    className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"}`}
+                    className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"} mb-3 px-4`}
                   >
                     <div
                       className={`group relative max-w-[85%] rounded-2xl px-4 py-2 ${
                         m.sender === "user"
-                          ? "bg-[var(--primary-color)] text-white"
-                          : "bg-white text-gray-800 shadow-sm"
+                          ? "rounded-tr-none bg-[var(--primary-color)] text-white"
+                          : "rounded-tl-none bg-gray-100 text-gray-800"
                       }`}
+                      style={{
+                        boxShadow:
+                          m.sender === "user"
+                            ? "0 1px 2px rgba(0,0,0,0.1)"
+                            : "0 1px 2px rgba(0,0,0,0.05)",
+                      }}
                     >
-                      <div
-                        className={`${!expandedMessages[m.id] && shouldShowReadMore(m.text) ? "line-clamp-4" : ""}`}
-                      >
-                        {formatMessage(m.text)}
-                      </div>
-
-                      {shouldShowReadMore(m.text) && (
-                        <motion.button
-                          onClick={() => toggleMessageExpand(m.id)}
-                          className={`mt-1 flex w-full items-center justify-center gap-1 text-xs font-medium transition-colors ${
-                            m.sender === "user"
-                              ? "text-white/80 hover:text-white"
-                              : "text-gray-500 hover:text-gray-700"
-                          }`}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
+                      {/* Message bubble with tail */}
+                      <div className="relative">
+                        <div
+                          className={`${!expandedMessages[m.id] && shouldShowReadMore(m.text) ? "line-clamp-4" : ""}`}
                         >
-                          {expandedMessages[m.id] ? "Show less" : "Read more"}
-                          <ChevronDown
-                            size={14}
-                            className={`transition-transform duration-200 ${
-                              expandedMessages[m.id] ? "rotate-180" : ""
-                            }`}
-                          />
-                        </motion.button>
-                      )}
+                          {formatMessage(m.text)}
+                        </div>
 
-                      <div
-                        className={`mt-1 text-xs ${m.sender === "user" ? "text-white/70" : "text-gray-500"}`}
-                      >
-                        {new Date(m.timestamp).toLocaleTimeString([], {
-                          hour: "numeric",
-                          minute: "2-digit",
-                        })}
+                        {/* Message metadata */}
+                        <div className="mt-1 flex items-center justify-end space-x-2">
+                          {shouldShowReadMore(m.text) && (
+                            <motion.button
+                              onClick={() => toggleMessageExpand(m.id)}
+                              className={`text-xs font-medium transition-colors ${
+                                m.sender === "user"
+                                  ? "text-white/80 hover:text-white"
+                                  : "text-gray-500 hover:text-gray-700"
+                              }`}
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                            >
+                              {expandedMessages[m.id]
+                                ? "Show less"
+                                : "Read more"}
+                              <ChevronDown
+                                size={14}
+                                className={`ml-1 inline transition-transform duration-200 ${
+                                  expandedMessages[m.id] ? "rotate-180" : ""
+                                }`}
+                              />
+                            </motion.button>
+                          )}
+
+                          <span
+                            className={`text-xs ${m.sender === "user" ? "text-white/70" : "text-gray-500"}`}
+                          >
+                            {new Date(m.timestamp).toLocaleTimeString([], {
+                              hour: "numeric",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -463,7 +477,7 @@ const Chat = memo(
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <LeadershipButton 
+              <LeadershipButton
                 onClick={goBackToScenarios}
                 isCompact={messages.length > 0}
               >
