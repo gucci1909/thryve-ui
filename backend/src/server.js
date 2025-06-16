@@ -57,9 +57,9 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 
 const allowedOrigins = {
-  dev: [process.env.ALLOWED_HOST],
-  stg: [process.env.ALLOWED_HOST],
-  prod: [process.env.ALLOWED_HOST],
+  dev: [process.env.ALLOWED_HOST || '*'],
+  stg: [process.env.ALLOWED_HOST || '*'],
+  prod: [process.env.ALLOWED_HOST || '*'],
 };
 
 app.use(
@@ -67,7 +67,7 @@ app.use(
     origin: function (origin, callback) {
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
-      
+
       if (allowedOrigins[argv.mode].indexOf(origin) !== -1 || !origin) {
         callback(null, true);
       } else {
@@ -78,7 +78,7 @@ app.use(
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
     exposedHeaders: ['Content-Range', 'X-Content-Range'],
-    maxAge: 86400 // 24 hours
+    maxAge: 86400, // 24 hours
   }),
 );
 
