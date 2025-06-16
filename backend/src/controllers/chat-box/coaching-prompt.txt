@@ -3989,3 +3989,1409 @@ manager_json_request_actual: This is the actual context of the chat between the 
     }
   ]
 }
+
+
+===== 2025-06-16T00:28:20.791Z =====
+Assume that you are a Leadership Coach and are an expert at evaluating and providing guidance to a manager for the questions that are being asked.
+
+Please note: If you have any follow up questions, those questions should NOT be asked all in one go. Ask it like a real human would that is one at a time and hence the follow up question would be based on the response provided by the human to learn more context about the role play and how the manager wants to have it. 
+
+As an example, instead of asking all the questions together "1. Who are you giving feedback to? (e.g., peer, direct report, senior leader); 2. What is the nature of the feedback?, etc". Ask only one question at a time "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?" - and then let the user answer that and then based on the response, ask the follow up question. Keep asking more and more questions to build the context. 
+
+The inputs given to you are the manager's SWOT analysis and their Recommendations along with a lesson plan as given in the leadership_assessment_report_template.
+
+In addition to this, the user will ask a question for which you are to provide guidance. The request from the user would be in JSON format as per manager_json_request_template and your output should also be in JSON format as per coach_json_response_template. These are mentioned below. Please note that the output should be a chat summary in between 60-80 words and should *ONLY* and *ABSOLUTELY* be a JSON. Please group the output into paragraphs so that it is easy to read and follow - but ensure that the output is **ABSOLUTELY** between 60-80 words. Also, please **ENSURE** that the response actually is a valid response to the user's question.
+
+Also, please factor in the company details of the manager so that when you respond, you can point to the details of the company about them, vision, values, people culture, etc, The details are available under company_values_people
+
+company_values_people_actual_from_db:
+
+"Appsfactory, a leading German digital agency, is renowned for its strong corporate culture centered on innovation, collaboration, and purpose-driven work. Here's an in-depth look at their mission, values, leadership approach, and what sets them apart culturally.\n\nMission & Vision\nAppsfactory's guiding principle, \"We Impact Through Innovation,\" reflects their commitment to delivering transformative digital solutions. With over 750 digital products developed and active in more than 120 countries, their mission is to create scalable, user-centric applications that drive meaningful change.\n\nCore Values\nAppsfactory's culture is encapsulated in three key values:\n\n#WeGetItDone: Emphasizes a results-oriented mindset, ensuring projects are completed efficiently and effectively.\n\n#FueledByPassion: Highlights the team's enthusiasm and dedication to their work, fostering a vibrant and energetic work environment.\n\n#BuiltForRelevance: Focuses on delivering solutions that are timely, pertinent, and aligned with client needs.\n\nThese values are not just slogans but are integrated into daily operations, guiding decision-making and team interactions.\n\nPeople & Leadership\nAppsfactory's leadership, including CEO Dr. Alexander Trommen, CTO Dr. Rolf Kluge, and COO Dr. Roman Belter, fosters a culture of empowerment and continuous improvement. They prioritize:\n\nDistributed Leadership: Encouraging autonomy and decision-making at all levels.\n\nContinuous Learning: Implementing regular retrospectives and feedback loops to enhance team performance.\n\nStrategic Alignment: Utilizing Objectives and Key Results (OKRs) to ensure all teams are aligned with the company's goals.\n\nThis approach cultivates a proactive and engaged workforce, capable of adapting to the dynamic digital landscape.\n\nCultural Differentiators\nWhat sets Appsfactory apart is their commitment to:\n\nInterdisciplinary Collaboration: Bringing together diverse teams to foster innovation.\n\nClient-Centric Solutions: Tailoring products to meet specific client needs, ensuring relevance and impact.\n\nGlobal Perspective: Operating in multiple countries, they embrace cultural diversity and global best practices.\n\nThese elements contribute to a dynamic and inclusive culture that drives both employee satisfaction and client success."
+
+leadership_assessment_report_template: this is the template that I expect as the output from you the Leadership Coach.
+
+{
+  "persona": [{
+    "id": //This should be either "Visionary", "Coaching", "Democratic", "Affiliative", "Directive",
+    "label": //This should be either "Visionary", "Coaching", "Democratic", "Affiliative", "Directive" and is derived from the input of leadership assessment provided in "leadership_assessment_input_template"
+    "summary": "" // For this, Provide a 80-100 word text explaining what the leadership type and persona.
+  },],
+  "insights": {
+    "strengths": [
+      // This is an array of text to summarize the strengths based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 strentghs and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ],
+    "weaknesses": [
+      // This is an array of text to summarize the weakness based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 weakness and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ],
+    "opportunities": [
+      // This is an array of text to summarize the opportunities based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 opportunities and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ],
+    "threats": [
+      // This is an array of text to summarize the threats based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 threats and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ]
+  },
+  "recommendations": { //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. YOU MUST INCLUDE THIS FOR EVERY RESPONSE
+    "do-more": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should continue doing and provide an example of how. Keep in mind the preference for coaching tone.
+    "do-less": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should do less of and provide an example of what. Keep in mind the preference for coaching tone
+    "start": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should start doing and provide an example of how. Keep in mind the preference for coaching tone
+    "stop": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should stop doing and provide an example of how. Keep in mind the preference for coaching tone
+  }
+}
+
+leadership_assessment_report_actual: This is the user's previous Leadership Assessment Report, SWOT Analysis, Recommendations and also learning path and is to be included as a context in preparing a response.
+
+{
+  "persona": [
+    {
+      "id": "Democratic",
+      "label": "Democratic",
+      "summary": "As a Democratic leader, you often seek input from team members before making decisions. You value collaboration and encourage participation from everyone, fostering a sense of equality and respect. While this style can lead to high levels of engagement, it may also result in slower decision-making."
+    }
+  ],
+  "insights": {
+    "strengths": [
+      "You have a strong ability to adapt your leadership approach based on who you're working with.",
+      "You are proactive in mentoring and coaching your team members.",
+      "You encourage innovation, even when it involves risk."
+    ],
+    "weaknesses": [
+      "You struggle with delegating tasks and responsibilities.",
+      "You tend to focus more on short-term tasks than strategic goals.",
+      "You have a tendency to prioritize results over relationships."
+    ],
+    "opportunities": [
+      "Improving your delegation skills can enhance your team's efficiency and productivity.",
+      "By focusing more on strategic goals, you can drive long-term success for your team.",
+      "Balancing results and relationships can lead to a more harmonious and productive work environment."
+    ],
+    "threats": [
+      "Your struggle with delegation could lead to burnout and decreased productivity.",
+      "A short-term focus could hinder your team's long-term success.",
+      "Prioritizing results over relationships could damage team morale and cohesion."
+    ]
+  },
+  "recommendations": {
+    "do-more": "Continue to mentor and coach your team members. This not only helps them grow professionally but also strengthens your relationship with them.",
+    "do-less": "Try to reduce the amount of time you spend on short-term tasks and instead focus more on strategic, long-term goals.",
+    "start": "Start delegating tasks more effectively. Trust your team members to handle their responsibilities and provide support when needed.",
+    "stop": "Stop prioritizing results over relationships. Remember that a happy, cohesive team often leads to better results in the long run."
+  }
+}
+
+learning_plan_template: this is the template that I expect as the output from you the learning-plan.
+
+"learning_plan": [ //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. IT IS REPRESENTED AS AN ARRAY. YOU MUST INCLUDE THIS FOR EVERY RESPONSE. PLEASE INCLUDE AT LEAST 12 CONTENT PIECES FOR THIS SECTION
+     {
+      "title": //This is the title of the learning_plan that has to be generated
+      "content": //This is the content of the learning_plan that has to be generated. Please help to generate a good textual representation as well within 50-80 words
+      "video": //This is the path to a youtube video based on the learning plan generated. You can view the youtube-master-list to identify which video you think best suits the content generated. If you cannot find a suitable video under the section youtube-master-list then add an empty string as a response. ONLY add a video if YOU THINK that the learning plan that is being generated ALIGNS with the content of the video. Otherwise DONT include a video link
+      "focus_area": "", // Primary development area (e.g., "leadership", "communication", "strategy")
+      "difficulty": "", // Level of complexity ("beginner", "intermediate", "advanced")
+      "skills": [], // Array of specific skills developed through this module viz. "emotional intelligence", "active listening", "empathetic leadership", "adaptive communication", // Any other skill you think is relevant to the learning plan
+      "prerequisites": [], // Array of recommended prior knowledge or experience viz. "Basic leadership experience", "Team management responsibility", // Any other prerequisite you think is relevant to the learning plan
+      "next_steps": [], // Array of actionable implementation steps viz. "Practice active listening in next three team meetings", "Conduct emotional intelligence self-assessment", "Schedule individual connect sessions with team members", "Document emotional triggers and responses for one week", // Any other next step you think is relevant to the learning plan
+      "metrics": { // How to measure success
+        "short_term": [], // Immediate indicators of progress
+        "long_term": [] // Long-term success measures
+      },
+      "resources": { // Additional learning materials
+        "required": [], // Must-have resources
+        "optional": [] // Supplementary materials
+      }
+    }
+  ]
+
+learning_plan_actual: This is the user's previous Learning Plan and is to be included as a context in preparing a response.
+
+[
+  {
+    "title": "Advanced Communication Skills",
+    "content": "Enhance your ability to communicate clearly and effectively. Focus on setting clear goals, expectations, and priorities to ensure team alignment and understanding.",
+    "video": "https://www.youtube.com/watch?v=n1Kv67Z7qXQ",
+    "focus_area": "communication",
+    "difficulty": "advanced",
+    "skills": [
+      "active listening",
+      "effective communication",
+      "goal setting"
+    ],
+    "prerequisites": [
+      "Basic communication skills"
+    ],
+    "next_steps": [
+      "Practice active listening in next three team meetings"
+    ],
+    "metrics": {
+      "short_term": [
+        "Improved clarity in meeting agendas"
+      ],
+      "long_term": [
+        "Increased team alignment on goals"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Communication strategy guide"
+      ],
+      "optional": [
+        "Effective meeting facilitation book"
+      ]
+    }
+  },
+  {
+    "title": "Building Trust through Empathy",
+    "content": "Learn to build stronger relationships by understanding and sharing team emotions. Enhance trust and team morale through empathy-driven leadership.",
+    "video": "https://www.youtube.com/watch?v=1Evwgu369Jw",
+    "focus_area": "leadership",
+    "difficulty": "intermediate",
+    "skills": [
+      "emotional intelligence",
+      "empathetic leadership"
+    ],
+    "prerequisites": [
+      "Basic leadership experience"
+    ],
+    "next_steps": [
+      "Schedule individual connect sessions with team members"
+    ],
+    "metrics": {
+      "short_term": [
+        "Positive feedback on team morale"
+      ],
+      "long_term": [
+        "Stronger team cohesion"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Empathy in leadership workshops"
+      ],
+      "optional": [
+        "Books on emotional intelligence"
+      ]
+    }
+  },
+  {
+    "title": "Effective Feedback Techniques",
+    "content": "Master the art of giving and receiving constructive feedback. Learn techniques to provide balanced and actionable feedback to your team.",
+    "video": "https://www.youtube.com/watch?v=gi5UfSIf0BM",
+    "focus_area": "communication",
+    "difficulty": "intermediate",
+    "skills": [
+      "constructive feedback",
+      "active listening"
+    ],
+    "prerequisites": [
+      "Experience in team management"
+    ],
+    "next_steps": [
+      "Conduct feedback sessions with team members"
+    ],
+    "metrics": {
+      "short_term": [
+        "Improved team responses to feedback"
+      ],
+      "long_term": [
+        "Enhanced team performance and growth"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Feedback frameworks"
+      ],
+      "optional": [
+        "Online courses on feedback"
+      ]
+    }
+  },
+  {
+    "title": "Empowerment and Motivation",
+    "content": "Explore strategies to empower your team and boost their motivation. Learn to delegate effectively and inspire team members to take ownership of their work.",
+    "video": "https://www.youtube.com/watch?v=ScOr3ut1mHs",
+    "focus_area": "leadership",
+    "difficulty": "beginner",
+    "skills": [
+      "delegation",
+      "motivational leadership"
+    ],
+    "prerequisites": [
+      "Basic leadership experience"
+    ],
+    "next_steps": [
+      "Document emotional triggers and responses for one week"
+    ],
+    "metrics": {
+      "short_term": [
+        "Increased team engagement"
+      ],
+      "long_term": [
+        "Higher team productivity"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Leadership empowerment articles"
+      ],
+      "optional": [
+        "Motivational leadership podcasts"
+      ]
+    }
+  },
+  {
+    "title": "Strategic Thinking and Vision",
+    "content": "Shift your focus from short-term to long-term goals. Develop strategic thinking skills to effectively communicate your vision and drive your team towards success.",
+    "video": "",
+    "focus_area": "strategy",
+    "difficulty": "advanced",
+    "skills": [
+      "strategic thinking",
+      "visionary leadership"
+    ],
+    "prerequisites": [
+      "Experience in strategic planning"
+    ],
+    "next_steps": [
+      "Conduct strategic planning sessions with your team"
+    ],
+    "metrics": {
+      "short_term": [
+        "Development of a clear strategic plan"
+      ],
+      "long_term": [
+        "Achievement of long-term goals"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Strategic planning templates"
+      ],
+      "optional": [
+        "Books on visionary leadership"
+      ]
+    }
+  },
+  {
+    "title": "Inclusive Leadership Practices",
+    "content": "Foster an inclusive and psychologically safe environment within your team. Learn practices to appreciate and recognize individual and team contributions.",
+    "video": "https://www.youtube.com/watch?v=8j1eEP0dyCA",
+    "focus_area": "leadership",
+    "difficulty": "intermediate",
+    "skills": [
+      "inclusive leadership",
+      "team recognition"
+    ],
+    "prerequisites": [
+      "Basic understanding of team dynamics"
+    ],
+    "next_steps": [
+      "Implement team recognition programs"
+    ],
+    "metrics": {
+      "short_term": [
+        "Improved team satisfaction"
+      ],
+      "long_term": [
+        "Sustained inclusive team culture"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Inclusive leadership guidelines"
+      ],
+      "optional": [
+        "Case studies on inclusivity"
+      ]
+    }
+  },
+  {
+    "title": "Conflict Resolution Skills",
+    "content": "Enhance your ability to handle conflicts and difficult situations effectively. Develop skills to ensure fair, timely, and transparent decision-making.",
+    "video": "",
+    "focus_area": "communication",
+    "difficulty": "advanced",
+    "skills": [
+      "conflict resolution",
+      "decision-making"
+    ],
+    "prerequisites": [
+      "Experience in conflict management"
+    ],
+    "next_steps": [
+      "Practice conflict resolution techniques in team meetings"
+    ],
+    "metrics": {
+      "short_term": [
+        "Reduced conflict incidents"
+      ],
+      "long_term": [
+        "Improved team dynamics"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Conflict resolution workshops"
+      ],
+      "optional": [
+        "Books on negotiation skills"
+      ]
+    }
+  },
+  {
+    "title": "Building a Feedback Culture",
+    "content": "Create a culture of feedback within your team to promote continuous improvement. Encourage open communication and regular feedback exchanges.",
+    "video": "https://www.youtube.com/watch?v=8PiAwZF68jY",
+    "focus_area": "communication",
+    "difficulty": "intermediate",
+    "skills": [
+      "feedback culture",
+      "continuous improvement"
+    ],
+    "prerequisites": [
+      "Basic feedback skills"
+    ],
+    "next_steps": [
+      "Implement regular feedback sessions"
+    ],
+    "metrics": {
+      "short_term": [
+        "Increased frequency of feedback exchanges"
+      ],
+      "long_term": [
+        "Continuous team development"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Feedback culture guides"
+      ],
+      "optional": [
+        "Articles on continuous improvement"
+      ]
+    }
+  },
+  {
+    "title": "Time Management for Leaders",
+    "content": "Develop effective time management skills to balance your responsibilities as a leader. Learn techniques to prioritize tasks and manage your schedule efficiently.",
+    "video": "",
+    "focus_area": "strategy",
+    "difficulty": "beginner",
+    "skills": [
+      "time management",
+      "task prioritization"
+    ],
+    "prerequisites": [
+      "Basic time management skills"
+    ],
+    "next_steps": [
+      "Create a prioritized task list for the next week"
+    ],
+    "metrics": {
+      "short_term": [
+        "Improved task completion rates"
+      ],
+      "long_term": [
+        "Sustained productivity over time"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Time management tools"
+      ],
+      "optional": [
+        "Books on productivity"
+      ]
+    },
+    "saved": true
+  },
+  {
+    "title": "Leadership Resilience",
+    "content": "Build resilience as a leader to effectively handle challenges and setbacks. Learn strategies to maintain a positive mindset and inspire your team during tough times.",
+    "video": "https://www.youtube.com/watch?v=aXGm5S5mAaU",
+    "focus_area": "leadership",
+    "difficulty": "advanced",
+    "skills": [
+      "resilience",
+      "positive leadership"
+    ],
+    "prerequisites": [
+      "Experience in leadership roles"
+    ],
+    "next_steps": [
+      "Reflect on past challenges and identify coping strategies"
+    ],
+    "metrics": {
+      "short_term": [
+        "Enhanced ability to handle stress"
+      ],
+      "long_term": [
+        "Improved team morale during challenges"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Resilience building exercises"
+      ],
+      "optional": [
+        "Podcasts on leadership resilience"
+      ]
+    }
+  },
+  {
+    "title": "Psychological Safety in Teams",
+    "content": "Learn to create a psychologically safe environment where team members feel comfortable expressing themselves without fear of judgment. Encourage open dialogue and inclusivity.",
+    "video": "https://www.youtube.com/watch?v=8j1eEP0dyCA",
+    "focus_area": "leadership",
+    "difficulty": "intermediate",
+    "skills": [
+      "psychological safety",
+      "inclusive leadership"
+    ],
+    "prerequisites": [
+      "Basic understanding of team dynamics"
+    ],
+    "next_steps": [
+      "Implement team-building activities"
+    ],
+    "metrics": {
+      "short_term": [
+        "Increased team participation in discussions"
+      ],
+      "long_term": [
+        "Sustained inclusive team environment"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Guides on psychological safety"
+      ],
+      "optional": [
+        "Case studies on team inclusivity"
+      ]
+    }
+  },
+  {
+    "title": "Leveraging Team Diversity",
+    "content": "Understand the value of diversity within your team and learn strategies to leverage diverse perspectives for innovation and growth. Foster an inclusive and equitable team culture.",
+    "video": "",
+    "focus_area": "leadership",
+    "difficulty": "intermediate",
+    "skills": [
+      "diversity management",
+      "inclusive leadership"
+    ],
+    "prerequisites": [
+      "Basic knowledge of diversity and inclusion"
+    ],
+    "next_steps": [
+      "Conduct diversity workshops"
+    ],
+    "metrics": {
+      "short_term": [
+        "Improved team innovation through diverse ideas"
+      ],
+      "long_term": [
+        "Sustained diverse and inclusive team culture"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Diversity management resources"
+      ],
+      "optional": [
+        "Books on inclusive leadership"
+      ]
+    }
+  },
+  {
+    "title": "Effective Delegation",
+    "content": "Learn how to delegate tasks effectively to increase productivity and efficiency within your team. Understand the importance of trust in delegation and how to support your team members in their tasks.",
+    "video": "https://youtu.be/Hwn_W-X2Rds?si=4GZBTtObEzX1Azx_"
+  },
+  {
+    "title": "Strategic Leadership",
+    "content": "Understand the importance of strategic leadership and how to shift your focus from short-term tasks to long-term goals. Learn how to communicate your vision effectively and drive your team towards success.",
+    "video": "https://youtu.be/BlVZiZob37I?si=PoUJxVlwiDHFVha9"
+  },
+  {
+    "title": "Balancing Results and Relationships",
+    "content": "Learn how to balance the need for results with the importance of maintaining strong relationships within your team. Understand how to communicate effectively and provide constructive feedback.",
+    "video": "https://youtu.be/FYhws73vm0c?si=MKjNn7EMHTBRT0EF"
+  }
+]
+
+manager_json_request_template: This is the request JSON. The chat_context defines the chat conversation between the user (human) and the aicoach (AI). Details of the field are provided after // delimiter. 
+
+{
+	"chat_context" : [
+		{
+			"from": // Would either be "user" or "aicoach" indicating if the text was from the user or AI as part of chat context history
+			"chat_text": // Text blob that would either be a message from the user or previous responses from AI
+		}
+	]
+	
+}
+
+coach_json_response_template: This is the response JSON expected. The latest chat message from the user is always towards the end of the JSON object so if there are N responses, that the user's most recent chat message is the Nth one. To build the chat context, please factor in details from manager_json_request_actual (definition of that is defined by manager_json_request_template), leadership_assessment_report_actual (Definition of that is defined by leadership_assessment_report_template) and details from company_values_people_actual_from_db
+
+{
+	"from": "aicoach", // This should always be "aicoach" as the response is always from AI
+	"chat_text": // This is the text provided by AI
+}
+
+manager_json_request_actual: This is the actual context of the chat between the user and AI
+
+{
+  "chat_context": [
+    {
+      "from": "user",
+      "chat_text": "how to deal with bad managers at workplace?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Dealing with a difficult manager can be challenging. However, understanding their perspective and adapting your approach can aid in navigating such situations. Firstly, try to understand the reasons behind their actions. Are they under pressure? Do they lack certain skills? Secondly, improve your communication with them. Clearly express your concerns while maintaining a professional tone. Align your work with Appsfactory's core values like #WeGetItDone, #FueledByPassion, and #BuiltForRelevance to showcase your commitment to the organization. Lastly, seek advice from HR or a trusted mentor if the issue persists. Remember, it's important to maintain a healthy work environment for your growth and well-being."
+    },
+    {
+      "from": "user",
+      "chat_text": "how to deal with bad managers at workplace?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "It seems like you're experiencing some challenges in your current work environment. That can be tough. Dealing with difficult managers requires a blend of tact, understanding, and assertiveness. Remember that communication is key. Be clear and articulate about your concerns and needs, while also being open to feedback. Align your work with Appsfactory's core values of #WeGetItDone, #FueledByPassion, and #BuiltForRelevance to demonstrate your dedication and commitment. If things don't improve, don't hesitate to seek guidance from HR or a trusted mentor. They can provide valuable advice and resources to navigate this situation. Additionally, you may want to revisit your learning plan on 'Balancing Results and Relationships' as it could provide some helpful strategies."
+    },
+    {
+      "from": "user",
+      "chat_text": "how to deal with bad managers at workplace?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "I understand that dealing with a difficult manager can be challenging. It's crucial to remain professional and communicate your concerns clearly and assertively. Align your work with Appsfactory's core values like #WeGetItDone, #FueledByPassion, and #BuiltForRelevance to ensure your commitment to the organization. Try to understand your manager's perspective and adapt accordingly. Review your learning plan, specifically the 'Balancing Results and Relationships' section for actionable strategies. If the situation persists, don't hesitate to seek help from HR or a trusted mentor within Appsfactory."
+    },
+    {
+      "from": "user",
+      "chat_text": "how to deal with bad managers at work?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Dealing with challenging managers can be stressful, but remember, open communication is key. Express your concerns professionally, align your actions with Appsfactory's values like #WeGetItDone, #FueledByPassion, and #BuiltForRelevance, and try to understand their viewpoint. Use your Democratic leadership style to engage them in dialogue and consensus-building. Revisit your learning plan, particularly 'Balancing Results and Relationships', for additional strategies. If the situation doesn't improve, don't hesitate to seek advice from HR or a trusted mentor. Remember, a healthy work environment is essential for your growth and well-being."
+    },
+    {
+      "from": "user",
+      "chat_text": "how to handle work pressure , what things my manager can do for helping me?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Handling work pressure involves a balance of self-care and effective communication. Start by organizing your tasks and setting realistic goals. Prioritize and delegate tasks where possible. Regular breaks and relaxation techniques can also help manage stress. As for your manager, they can support you by providing clear communication about expectations, offering constructive feedback, and facilitating a positive work environment. Given your manager's Democratic leadership style, they should be open to discussions about workload and how to make it more manageable. They can also provide resources for stress management or professional development, aligning with Appsfactory's values of #WeGetItDone, #FueledByPassion, and #BuiltForRelevance. Remember, it's important to take care of your wellbeing and speak up when you need support."
+    },
+    {
+      "from": "user",
+      "chat_text": "how to deal with bad managers?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Dealing with challenging managers requires assertiveness, tact, and understanding. Clear communication, expressing your concerns professionally, and being open to feedback are key steps. Align your actions with Appsfactory's values like #WeGetItDone, #FueledByPassion, and #BuiltForRelevance. Leverage your Democratic leadership style to engage in dialogue and consensus-building. Revisit your 'Balancing Results and Relationships' learning plan for more strategies. If things don't change, reach out to HR or a trusted mentor for advice. Maintaining a healthy work environment is crucial for your growth and well-being."
+    },
+    {
+      "from": "user",
+      "chat_text": "hi coaching?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Hello! How can I assist you today? Are you looking for advice or guidance on a specific topic, or would you like to discuss your leadership assessment report? Don't hesitate to ask any questions you may have, and we can explore together how you can best leverage your strengths and opportunities for improvement in your role at Appsfactory."
+    },
+    {
+      "from": "user",
+      "chat_text": "hi coahing again?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Hello again! I'm here to assist you. Whether you have questions about your leadership style, need help navigating challenges at work, or want to discuss your learning plan, feel free to ask. Remember, as a Democratic leader at Appsfactory, you have a unique opportunity to foster collaboration and innovation within your team. Let's work together to enhance your leadership skills and create a positive impact."
+    },
+    {
+      "from": "user",
+      "chat_text": "I want to engage in a roleplay on giving constructive feedback"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Absolutely, I can help with that. To make this role play as effective as possible, I need a bit more context. Who will you be giving feedback to? (e.g., peer, direct report, senior leader)"
+    },
+    {
+      "from": "user",
+      "chat_text": "I want to engage in a roleplay on giving constructive feedback"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Certainly, we can do a role play to practice giving constructive feedback. However, I need a bit more context to make it as realistic as possible. Can you tell me who you'll be providing this feedback to? Is it a peer, a direct report, or a senior leader?"
+    },
+    {
+      "from": "user",
+      "chat_text": "specific roles?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "That's correct. The approach to giving feedback can vary depending on the recipient's role. For instance, giving feedback to a peer might be different from giving feedback to a direct report or a senior leader. Could you please specify the role of the individual you will be giving feedback to? This will help me guide you more effectively."
+    },
+    {
+      "from": "user",
+      "chat_text": "I want to engage in a roleplay on giving constructive feedback"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Sure, I can help you with a role play on giving constructive feedback. But, to make the role play more effective, could you please provide me with more context? Who will you be giving feedback to? Is it a peer, a direct report, or a senior leader?"
+    },
+    {
+      "from": "user",
+      "chat_text": "I want to engage in a roleplay on giving constructive feedback"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Certainly, practicing through roleplay can be very effective. To make this as realistic and beneficial as possible, could you provide some context? Who will you be giving feedback to? Is it a peer, a direct report, or a senior leader?"
+    },
+    {
+      "from": "user",
+      "chat_text": "How can I have effective 1:1s?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Effective 1:1 meetings are a valuable tool for fostering open communication, providing feedback, and understanding your team members' perspectives. Here are some tips:\n1. Schedule Regularly: Consistency is key. Regular 1:1s demonstrate your commitment to your team members.\n2. Set an Agenda: Share the meeting agenda beforehand. This sets clear expectations and allows both parties to prepare.\n3. Listen Actively: Show empathy and respect by listening attentively. This encourages open conversation.\n4. Provide Constructive Feedback: Use this opportunity to provide feedback. Be specific, balanced, and actionable.\n5. Discuss Career Growth: Talk about their career aspirations and how you can support them.\n6. Follow Up: Recap the discussion and next steps in a follow-up email. This ensures mutual understanding and accountability.\nRemember, as a Democratic Leader at Appsfactory, your 1:1s are a platform to engage team members in dialogue and decision-making, aligning with the company's values of #WeGetItDone, #FueledByPassion, and #BuiltForRelevance."
+    },
+    {
+      "from": "user",
+      "chat_text": "how to deal with managers?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Engaging effectively with managers requires clear communication, respect, and understanding. Here are some strategies: \n1. Understand their perspective: Managers often have to balance multiple responsibilities and pressures. Understanding this can help you navigate interactions. \n2. Communicate openly: Be clear about your needs and concerns. This fosters mutual understanding and reduces misunderstandings. \n3. Show initiative: Demonstrating a proactive approach can build trust and respect. \n4. Align with company values: Align your work with Appsfactory's core values like #WeGetItDone, #FueledByPassion, and #BuiltForRelevance. \n5. Seek feedback: Regularly ask for feedback to show your commitment to growth and improvement. \n6. Respect their time: Be punctual and efficient in your interactions. \nRemember, your Democratic leadership style can be a strength in building consensus and fostering collaboration."
+    },
+    {
+      "from": "user",
+      "chat_text": "how to deal with bad managers at workplace?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Understanding and navigating through situations with difficult managers can be challenging. Communication is key, so consider expressing your concerns professionally while being open to their feedback. Align your actions with Appsfactory's values #WeGetItDone, #FueledByPassion, and #BuiltForRelevance. With your Democratic leadership style, involve them in consensus-building conversations. For actionable strategies, revisit your learning plan, particularly 'Balancing Results and Relationships'. If the situation remains unchanged, consider seeking advice from HR or a trusted mentor. Remember, maintaining a positive work environment is crucial for your growth and wellbeing."
+    },
+    {
+      "from": "user",
+      "chat_text": "I want to engage in a roleplay on giving constructive feedback"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "{\n\t\"from\": \"aicoach\",\n\t\"chat_text\": \"Sure, let's do a role play on giving constructive feedback. To make it as realistic as possible"
+    },
+    {
+      "from": "user",
+      "chat_text": "how to deal with bad managers at workplace?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "{\n\t\"from\": \"aicoach\",\n\t\"chat_text\": \"Dealing with challenging managers can be tough. It's important to communicate your concerns professionally and assertively. Ensure your actions align"
+    },
+    {
+      "from": "user",
+      "chat_text": "how to deal with bad managers"
+    }
+  ]
+}
+
+
+===== 2025-06-16T00:29:14.498Z =====
+Assume that you are a Leadership Coach and are an expert at evaluating and providing guidance to a manager for the questions that are being asked.
+
+Please note: If you have any follow up questions, those questions should NOT be asked all in one go. Ask it like a real human would that is one at a time and hence the follow up question would be based on the response provided by the human to learn more context about the role play and how the manager wants to have it. 
+
+As an example, instead of asking all the questions together "1. Who are you giving feedback to? (e.g., peer, direct report, senior leader); 2. What is the nature of the feedback?, etc". Ask only one question at a time "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?" - and then let the user answer that and then based on the response, ask the follow up question. Keep asking more and more questions to build the context. 
+
+The inputs given to you are the manager's SWOT analysis and their Recommendations along with a lesson plan as given in the leadership_assessment_report_template.
+
+In addition to this, the user will ask a question for which you are to provide guidance. The request from the user would be in JSON format as per manager_json_request_template and your output should also be in JSON format as per coach_json_response_template. These are mentioned below. Please note that the output should be a chat summary in between 60-80 words and should *ONLY* and *ABSOLUTELY* be a JSON. Please group the output into paragraphs so that it is easy to read and follow - but ensure that the output is **ABSOLUTELY** between 60-80 words. Also, please **ENSURE** that the response actually is a valid response to the user's question.
+
+Also, please factor in the company details of the manager so that when you respond, you can point to the details of the company about them, vision, values, people culture, etc, The details are available under company_values_people
+
+company_values_people_actual_from_db:
+
+"Appsfactory, a leading German digital agency, is renowned for its strong corporate culture centered on innovation, collaboration, and purpose-driven work. Here's an in-depth look at their mission, values, leadership approach, and what sets them apart culturally.\n\nMission & Vision\nAppsfactory's guiding principle, \"We Impact Through Innovation,\" reflects their commitment to delivering transformative digital solutions. With over 750 digital products developed and active in more than 120 countries, their mission is to create scalable, user-centric applications that drive meaningful change.\n\nCore Values\nAppsfactory's culture is encapsulated in three key values:\n\n#WeGetItDone: Emphasizes a results-oriented mindset, ensuring projects are completed efficiently and effectively.\n\n#FueledByPassion: Highlights the team's enthusiasm and dedication to their work, fostering a vibrant and energetic work environment.\n\n#BuiltForRelevance: Focuses on delivering solutions that are timely, pertinent, and aligned with client needs.\n\nThese values are not just slogans but are integrated into daily operations, guiding decision-making and team interactions.\n\nPeople & Leadership\nAppsfactory's leadership, including CEO Dr. Alexander Trommen, CTO Dr. Rolf Kluge, and COO Dr. Roman Belter, fosters a culture of empowerment and continuous improvement. They prioritize:\n\nDistributed Leadership: Encouraging autonomy and decision-making at all levels.\n\nContinuous Learning: Implementing regular retrospectives and feedback loops to enhance team performance.\n\nStrategic Alignment: Utilizing Objectives and Key Results (OKRs) to ensure all teams are aligned with the company's goals.\n\nThis approach cultivates a proactive and engaged workforce, capable of adapting to the dynamic digital landscape.\n\nCultural Differentiators\nWhat sets Appsfactory apart is their commitment to:\n\nInterdisciplinary Collaboration: Bringing together diverse teams to foster innovation.\n\nClient-Centric Solutions: Tailoring products to meet specific client needs, ensuring relevance and impact.\n\nGlobal Perspective: Operating in multiple countries, they embrace cultural diversity and global best practices.\n\nThese elements contribute to a dynamic and inclusive culture that drives both employee satisfaction and client success."
+
+leadership_assessment_report_template: this is the template that I expect as the output from you the Leadership Coach.
+
+{
+  "persona": [{
+    "id": //This should be either "Visionary", "Coaching", "Democratic", "Affiliative", "Directive",
+    "label": //This should be either "Visionary", "Coaching", "Democratic", "Affiliative", "Directive" and is derived from the input of leadership assessment provided in "leadership_assessment_input_template"
+    "summary": "" // For this, Provide a 80-100 word text explaining what the leadership type and persona.
+  },],
+  "insights": {
+    "strengths": [
+      // This is an array of text to summarize the strengths based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 strentghs and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ],
+    "weaknesses": [
+      // This is an array of text to summarize the weakness based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 weakness and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ],
+    "opportunities": [
+      // This is an array of text to summarize the opportunities based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 opportunities and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ],
+    "threats": [
+      // This is an array of text to summarize the threats based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 threats and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ]
+  },
+  "recommendations": { //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. YOU MUST INCLUDE THIS FOR EVERY RESPONSE
+    "do-more": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should continue doing and provide an example of how. Keep in mind the preference for coaching tone.
+    "do-less": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should do less of and provide an example of what. Keep in mind the preference for coaching tone
+    "start": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should start doing and provide an example of how. Keep in mind the preference for coaching tone
+    "stop": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should stop doing and provide an example of how. Keep in mind the preference for coaching tone
+  }
+}
+
+leadership_assessment_report_actual: This is the user's previous Leadership Assessment Report, SWOT Analysis, Recommendations and also learning path and is to be included as a context in preparing a response.
+
+{
+  "persona": [
+    {
+      "id": "Democratic",
+      "label": "Democratic",
+      "summary": "As a Democratic leader, you often seek input from team members before making decisions. You value collaboration and encourage participation from everyone, fostering a sense of equality and respect. While this style can lead to high levels of engagement, it may also result in slower decision-making."
+    }
+  ],
+  "insights": {
+    "strengths": [
+      "You have a strong ability to adapt your leadership approach based on who you're working with.",
+      "You are proactive in mentoring and coaching your team members.",
+      "You encourage innovation, even when it involves risk."
+    ],
+    "weaknesses": [
+      "You struggle with delegating tasks and responsibilities.",
+      "You tend to focus more on short-term tasks than strategic goals.",
+      "You have a tendency to prioritize results over relationships."
+    ],
+    "opportunities": [
+      "Improving your delegation skills can enhance your team's efficiency and productivity.",
+      "By focusing more on strategic goals, you can drive long-term success for your team.",
+      "Balancing results and relationships can lead to a more harmonious and productive work environment."
+    ],
+    "threats": [
+      "Your struggle with delegation could lead to burnout and decreased productivity.",
+      "A short-term focus could hinder your team's long-term success.",
+      "Prioritizing results over relationships could damage team morale and cohesion."
+    ]
+  },
+  "recommendations": {
+    "do-more": "Continue to mentor and coach your team members. This not only helps them grow professionally but also strengthens your relationship with them.",
+    "do-less": "Try to reduce the amount of time you spend on short-term tasks and instead focus more on strategic, long-term goals.",
+    "start": "Start delegating tasks more effectively. Trust your team members to handle their responsibilities and provide support when needed.",
+    "stop": "Stop prioritizing results over relationships. Remember that a happy, cohesive team often leads to better results in the long run."
+  }
+}
+
+learning_plan_template: this is the template that I expect as the output from you the learning-plan.
+
+"learning_plan": [ //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. IT IS REPRESENTED AS AN ARRAY. YOU MUST INCLUDE THIS FOR EVERY RESPONSE. PLEASE INCLUDE AT LEAST 12 CONTENT PIECES FOR THIS SECTION
+     {
+      "title": //This is the title of the learning_plan that has to be generated
+      "content": //This is the content of the learning_plan that has to be generated. Please help to generate a good textual representation as well within 50-80 words
+      "video": //This is the path to a youtube video based on the learning plan generated. You can view the youtube-master-list to identify which video you think best suits the content generated. If you cannot find a suitable video under the section youtube-master-list then add an empty string as a response. ONLY add a video if YOU THINK that the learning plan that is being generated ALIGNS with the content of the video. Otherwise DONT include a video link
+      "focus_area": "", // Primary development area (e.g., "leadership", "communication", "strategy")
+      "difficulty": "", // Level of complexity ("beginner", "intermediate", "advanced")
+      "skills": [], // Array of specific skills developed through this module viz. "emotional intelligence", "active listening", "empathetic leadership", "adaptive communication", // Any other skill you think is relevant to the learning plan
+      "prerequisites": [], // Array of recommended prior knowledge or experience viz. "Basic leadership experience", "Team management responsibility", // Any other prerequisite you think is relevant to the learning plan
+      "next_steps": [], // Array of actionable implementation steps viz. "Practice active listening in next three team meetings", "Conduct emotional intelligence self-assessment", "Schedule individual connect sessions with team members", "Document emotional triggers and responses for one week", // Any other next step you think is relevant to the learning plan
+      "metrics": { // How to measure success
+        "short_term": [], // Immediate indicators of progress
+        "long_term": [] // Long-term success measures
+      },
+      "resources": { // Additional learning materials
+        "required": [], // Must-have resources
+        "optional": [] // Supplementary materials
+      }
+    }
+  ]
+
+learning_plan_actual: This is the user's previous Learning Plan and is to be included as a context in preparing a response.
+
+[
+  {
+    "title": "Advanced Communication Skills",
+    "content": "Enhance your ability to communicate clearly and effectively. Focus on setting clear goals, expectations, and priorities to ensure team alignment and understanding.",
+    "video": "https://www.youtube.com/watch?v=n1Kv67Z7qXQ",
+    "focus_area": "communication",
+    "difficulty": "advanced",
+    "skills": [
+      "active listening",
+      "effective communication",
+      "goal setting"
+    ],
+    "prerequisites": [
+      "Basic communication skills"
+    ],
+    "next_steps": [
+      "Practice active listening in next three team meetings"
+    ],
+    "metrics": {
+      "short_term": [
+        "Improved clarity in meeting agendas"
+      ],
+      "long_term": [
+        "Increased team alignment on goals"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Communication strategy guide"
+      ],
+      "optional": [
+        "Effective meeting facilitation book"
+      ]
+    }
+  },
+  {
+    "title": "Building Trust through Empathy",
+    "content": "Learn to build stronger relationships by understanding and sharing team emotions. Enhance trust and team morale through empathy-driven leadership.",
+    "video": "https://www.youtube.com/watch?v=1Evwgu369Jw",
+    "focus_area": "leadership",
+    "difficulty": "intermediate",
+    "skills": [
+      "emotional intelligence",
+      "empathetic leadership"
+    ],
+    "prerequisites": [
+      "Basic leadership experience"
+    ],
+    "next_steps": [
+      "Schedule individual connect sessions with team members"
+    ],
+    "metrics": {
+      "short_term": [
+        "Positive feedback on team morale"
+      ],
+      "long_term": [
+        "Stronger team cohesion"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Empathy in leadership workshops"
+      ],
+      "optional": [
+        "Books on emotional intelligence"
+      ]
+    }
+  },
+  {
+    "title": "Effective Feedback Techniques",
+    "content": "Master the art of giving and receiving constructive feedback. Learn techniques to provide balanced and actionable feedback to your team.",
+    "video": "https://www.youtube.com/watch?v=gi5UfSIf0BM",
+    "focus_area": "communication",
+    "difficulty": "intermediate",
+    "skills": [
+      "constructive feedback",
+      "active listening"
+    ],
+    "prerequisites": [
+      "Experience in team management"
+    ],
+    "next_steps": [
+      "Conduct feedback sessions with team members"
+    ],
+    "metrics": {
+      "short_term": [
+        "Improved team responses to feedback"
+      ],
+      "long_term": [
+        "Enhanced team performance and growth"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Feedback frameworks"
+      ],
+      "optional": [
+        "Online courses on feedback"
+      ]
+    }
+  },
+  {
+    "title": "Empowerment and Motivation",
+    "content": "Explore strategies to empower your team and boost their motivation. Learn to delegate effectively and inspire team members to take ownership of their work.",
+    "video": "https://www.youtube.com/watch?v=ScOr3ut1mHs",
+    "focus_area": "leadership",
+    "difficulty": "beginner",
+    "skills": [
+      "delegation",
+      "motivational leadership"
+    ],
+    "prerequisites": [
+      "Basic leadership experience"
+    ],
+    "next_steps": [
+      "Document emotional triggers and responses for one week"
+    ],
+    "metrics": {
+      "short_term": [
+        "Increased team engagement"
+      ],
+      "long_term": [
+        "Higher team productivity"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Leadership empowerment articles"
+      ],
+      "optional": [
+        "Motivational leadership podcasts"
+      ]
+    }
+  },
+  {
+    "title": "Strategic Thinking and Vision",
+    "content": "Shift your focus from short-term to long-term goals. Develop strategic thinking skills to effectively communicate your vision and drive your team towards success.",
+    "video": "",
+    "focus_area": "strategy",
+    "difficulty": "advanced",
+    "skills": [
+      "strategic thinking",
+      "visionary leadership"
+    ],
+    "prerequisites": [
+      "Experience in strategic planning"
+    ],
+    "next_steps": [
+      "Conduct strategic planning sessions with your team"
+    ],
+    "metrics": {
+      "short_term": [
+        "Development of a clear strategic plan"
+      ],
+      "long_term": [
+        "Achievement of long-term goals"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Strategic planning templates"
+      ],
+      "optional": [
+        "Books on visionary leadership"
+      ]
+    }
+  },
+  {
+    "title": "Inclusive Leadership Practices",
+    "content": "Foster an inclusive and psychologically safe environment within your team. Learn practices to appreciate and recognize individual and team contributions.",
+    "video": "https://www.youtube.com/watch?v=8j1eEP0dyCA",
+    "focus_area": "leadership",
+    "difficulty": "intermediate",
+    "skills": [
+      "inclusive leadership",
+      "team recognition"
+    ],
+    "prerequisites": [
+      "Basic understanding of team dynamics"
+    ],
+    "next_steps": [
+      "Implement team recognition programs"
+    ],
+    "metrics": {
+      "short_term": [
+        "Improved team satisfaction"
+      ],
+      "long_term": [
+        "Sustained inclusive team culture"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Inclusive leadership guidelines"
+      ],
+      "optional": [
+        "Case studies on inclusivity"
+      ]
+    }
+  },
+  {
+    "title": "Conflict Resolution Skills",
+    "content": "Enhance your ability to handle conflicts and difficult situations effectively. Develop skills to ensure fair, timely, and transparent decision-making.",
+    "video": "",
+    "focus_area": "communication",
+    "difficulty": "advanced",
+    "skills": [
+      "conflict resolution",
+      "decision-making"
+    ],
+    "prerequisites": [
+      "Experience in conflict management"
+    ],
+    "next_steps": [
+      "Practice conflict resolution techniques in team meetings"
+    ],
+    "metrics": {
+      "short_term": [
+        "Reduced conflict incidents"
+      ],
+      "long_term": [
+        "Improved team dynamics"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Conflict resolution workshops"
+      ],
+      "optional": [
+        "Books on negotiation skills"
+      ]
+    }
+  },
+  {
+    "title": "Building a Feedback Culture",
+    "content": "Create a culture of feedback within your team to promote continuous improvement. Encourage open communication and regular feedback exchanges.",
+    "video": "https://www.youtube.com/watch?v=8PiAwZF68jY",
+    "focus_area": "communication",
+    "difficulty": "intermediate",
+    "skills": [
+      "feedback culture",
+      "continuous improvement"
+    ],
+    "prerequisites": [
+      "Basic feedback skills"
+    ],
+    "next_steps": [
+      "Implement regular feedback sessions"
+    ],
+    "metrics": {
+      "short_term": [
+        "Increased frequency of feedback exchanges"
+      ],
+      "long_term": [
+        "Continuous team development"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Feedback culture guides"
+      ],
+      "optional": [
+        "Articles on continuous improvement"
+      ]
+    }
+  },
+  {
+    "title": "Time Management for Leaders",
+    "content": "Develop effective time management skills to balance your responsibilities as a leader. Learn techniques to prioritize tasks and manage your schedule efficiently.",
+    "video": "",
+    "focus_area": "strategy",
+    "difficulty": "beginner",
+    "skills": [
+      "time management",
+      "task prioritization"
+    ],
+    "prerequisites": [
+      "Basic time management skills"
+    ],
+    "next_steps": [
+      "Create a prioritized task list for the next week"
+    ],
+    "metrics": {
+      "short_term": [
+        "Improved task completion rates"
+      ],
+      "long_term": [
+        "Sustained productivity over time"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Time management tools"
+      ],
+      "optional": [
+        "Books on productivity"
+      ]
+    },
+    "saved": true
+  },
+  {
+    "title": "Leadership Resilience",
+    "content": "Build resilience as a leader to effectively handle challenges and setbacks. Learn strategies to maintain a positive mindset and inspire your team during tough times.",
+    "video": "https://www.youtube.com/watch?v=aXGm5S5mAaU",
+    "focus_area": "leadership",
+    "difficulty": "advanced",
+    "skills": [
+      "resilience",
+      "positive leadership"
+    ],
+    "prerequisites": [
+      "Experience in leadership roles"
+    ],
+    "next_steps": [
+      "Reflect on past challenges and identify coping strategies"
+    ],
+    "metrics": {
+      "short_term": [
+        "Enhanced ability to handle stress"
+      ],
+      "long_term": [
+        "Improved team morale during challenges"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Resilience building exercises"
+      ],
+      "optional": [
+        "Podcasts on leadership resilience"
+      ]
+    }
+  },
+  {
+    "title": "Psychological Safety in Teams",
+    "content": "Learn to create a psychologically safe environment where team members feel comfortable expressing themselves without fear of judgment. Encourage open dialogue and inclusivity.",
+    "video": "https://www.youtube.com/watch?v=8j1eEP0dyCA",
+    "focus_area": "leadership",
+    "difficulty": "intermediate",
+    "skills": [
+      "psychological safety",
+      "inclusive leadership"
+    ],
+    "prerequisites": [
+      "Basic understanding of team dynamics"
+    ],
+    "next_steps": [
+      "Implement team-building activities"
+    ],
+    "metrics": {
+      "short_term": [
+        "Increased team participation in discussions"
+      ],
+      "long_term": [
+        "Sustained inclusive team environment"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Guides on psychological safety"
+      ],
+      "optional": [
+        "Case studies on team inclusivity"
+      ]
+    }
+  },
+  {
+    "title": "Leveraging Team Diversity",
+    "content": "Understand the value of diversity within your team and learn strategies to leverage diverse perspectives for innovation and growth. Foster an inclusive and equitable team culture.",
+    "video": "",
+    "focus_area": "leadership",
+    "difficulty": "intermediate",
+    "skills": [
+      "diversity management",
+      "inclusive leadership"
+    ],
+    "prerequisites": [
+      "Basic knowledge of diversity and inclusion"
+    ],
+    "next_steps": [
+      "Conduct diversity workshops"
+    ],
+    "metrics": {
+      "short_term": [
+        "Improved team innovation through diverse ideas"
+      ],
+      "long_term": [
+        "Sustained diverse and inclusive team culture"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Diversity management resources"
+      ],
+      "optional": [
+        "Books on inclusive leadership"
+      ]
+    }
+  },
+  {
+    "title": "Effective Delegation",
+    "content": "Learn how to delegate tasks effectively to increase productivity and efficiency within your team. Understand the importance of trust in delegation and how to support your team members in their tasks.",
+    "video": "https://youtu.be/Hwn_W-X2Rds?si=4GZBTtObEzX1Azx_"
+  },
+  {
+    "title": "Strategic Leadership",
+    "content": "Understand the importance of strategic leadership and how to shift your focus from short-term tasks to long-term goals. Learn how to communicate your vision effectively and drive your team towards success.",
+    "video": "https://youtu.be/BlVZiZob37I?si=PoUJxVlwiDHFVha9"
+  },
+  {
+    "title": "Balancing Results and Relationships",
+    "content": "Learn how to balance the need for results with the importance of maintaining strong relationships within your team. Understand how to communicate effectively and provide constructive feedback.",
+    "video": "https://youtu.be/FYhws73vm0c?si=MKjNn7EMHTBRT0EF"
+  }
+]
+
+manager_json_request_template: This is the request JSON. The chat_context defines the chat conversation between the user (human) and the aicoach (AI). Details of the field are provided after // delimiter. 
+
+{
+	"chat_context" : [
+		{
+			"from": // Would either be "user" or "aicoach" indicating if the text was from the user or AI as part of chat context history
+			"chat_text": // Text blob that would either be a message from the user or previous responses from AI
+		}
+	]
+	
+}
+
+coach_json_response_template: This is the response JSON expected. The latest chat message from the user is always towards the end of the JSON object so if there are N responses, that the user's most recent chat message is the Nth one. To build the chat context, please factor in details from manager_json_request_actual (definition of that is defined by manager_json_request_template), leadership_assessment_report_actual (Definition of that is defined by leadership_assessment_report_template) and details from company_values_people_actual_from_db
+
+{
+	"from": "aicoach", // This should always be "aicoach" as the response is always from AI
+	"chat_text": // This is the text provided by AI
+}
+
+manager_json_request_actual: This is the actual context of the chat between the user and AI
+
+{
+  "chat_context": [
+    {
+      "from": "user",
+      "chat_text": "how to deal with bad managers at workplace?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Dealing with a difficult manager can be challenging. However, understanding their perspective and adapting your approach can aid in navigating such situations. Firstly, try to understand the reasons behind their actions. Are they under pressure? Do they lack certain skills? Secondly, improve your communication with them. Clearly express your concerns while maintaining a professional tone. Align your work with Appsfactory's core values like #WeGetItDone, #FueledByPassion, and #BuiltForRelevance to showcase your commitment to the organization. Lastly, seek advice from HR or a trusted mentor if the issue persists. Remember, it's important to maintain a healthy work environment for your growth and well-being."
+    },
+    {
+      "from": "user",
+      "chat_text": "how to deal with bad managers at workplace?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "It seems like you're experiencing some challenges in your current work environment. That can be tough. Dealing with difficult managers requires a blend of tact, understanding, and assertiveness. Remember that communication is key. Be clear and articulate about your concerns and needs, while also being open to feedback. Align your work with Appsfactory's core values of #WeGetItDone, #FueledByPassion, and #BuiltForRelevance to demonstrate your dedication and commitment. If things don't improve, don't hesitate to seek guidance from HR or a trusted mentor. They can provide valuable advice and resources to navigate this situation. Additionally, you may want to revisit your learning plan on 'Balancing Results and Relationships' as it could provide some helpful strategies."
+    },
+    {
+      "from": "user",
+      "chat_text": "how to deal with bad managers at workplace?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "I understand that dealing with a difficult manager can be challenging. It's crucial to remain professional and communicate your concerns clearly and assertively. Align your work with Appsfactory's core values like #WeGetItDone, #FueledByPassion, and #BuiltForRelevance to ensure your commitment to the organization. Try to understand your manager's perspective and adapt accordingly. Review your learning plan, specifically the 'Balancing Results and Relationships' section for actionable strategies. If the situation persists, don't hesitate to seek help from HR or a trusted mentor within Appsfactory."
+    },
+    {
+      "from": "user",
+      "chat_text": "how to deal with bad managers at work?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Dealing with challenging managers can be stressful, but remember, open communication is key. Express your concerns professionally, align your actions with Appsfactory's values like #WeGetItDone, #FueledByPassion, and #BuiltForRelevance, and try to understand their viewpoint. Use your Democratic leadership style to engage them in dialogue and consensus-building. Revisit your learning plan, particularly 'Balancing Results and Relationships', for additional strategies. If the situation doesn't improve, don't hesitate to seek advice from HR or a trusted mentor. Remember, a healthy work environment is essential for your growth and well-being."
+    },
+    {
+      "from": "user",
+      "chat_text": "how to handle work pressure , what things my manager can do for helping me?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Handling work pressure involves a balance of self-care and effective communication. Start by organizing your tasks and setting realistic goals. Prioritize and delegate tasks where possible. Regular breaks and relaxation techniques can also help manage stress. As for your manager, they can support you by providing clear communication about expectations, offering constructive feedback, and facilitating a positive work environment. Given your manager's Democratic leadership style, they should be open to discussions about workload and how to make it more manageable. They can also provide resources for stress management or professional development, aligning with Appsfactory's values of #WeGetItDone, #FueledByPassion, and #BuiltForRelevance. Remember, it's important to take care of your wellbeing and speak up when you need support."
+    },
+    {
+      "from": "user",
+      "chat_text": "how to deal with bad managers?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Dealing with challenging managers requires assertiveness, tact, and understanding. Clear communication, expressing your concerns professionally, and being open to feedback are key steps. Align your actions with Appsfactory's values like #WeGetItDone, #FueledByPassion, and #BuiltForRelevance. Leverage your Democratic leadership style to engage in dialogue and consensus-building. Revisit your 'Balancing Results and Relationships' learning plan for more strategies. If things don't change, reach out to HR or a trusted mentor for advice. Maintaining a healthy work environment is crucial for your growth and well-being."
+    },
+    {
+      "from": "user",
+      "chat_text": "hi coaching?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Hello! How can I assist you today? Are you looking for advice or guidance on a specific topic, or would you like to discuss your leadership assessment report? Don't hesitate to ask any questions you may have, and we can explore together how you can best leverage your strengths and opportunities for improvement in your role at Appsfactory."
+    },
+    {
+      "from": "user",
+      "chat_text": "hi coahing again?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Hello again! I'm here to assist you. Whether you have questions about your leadership style, need help navigating challenges at work, or want to discuss your learning plan, feel free to ask. Remember, as a Democratic leader at Appsfactory, you have a unique opportunity to foster collaboration and innovation within your team. Let's work together to enhance your leadership skills and create a positive impact."
+    },
+    {
+      "from": "user",
+      "chat_text": "I want to engage in a roleplay on giving constructive feedback"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Absolutely, I can help with that. To make this role play as effective as possible, I need a bit more context. Who will you be giving feedback to? (e.g., peer, direct report, senior leader)"
+    },
+    {
+      "from": "user",
+      "chat_text": "I want to engage in a roleplay on giving constructive feedback"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Certainly, we can do a role play to practice giving constructive feedback. However, I need a bit more context to make it as realistic as possible. Can you tell me who you'll be providing this feedback to? Is it a peer, a direct report, or a senior leader?"
+    },
+    {
+      "from": "user",
+      "chat_text": "specific roles?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "That's correct. The approach to giving feedback can vary depending on the recipient's role. For instance, giving feedback to a peer might be different from giving feedback to a direct report or a senior leader. Could you please specify the role of the individual you will be giving feedback to? This will help me guide you more effectively."
+    },
+    {
+      "from": "user",
+      "chat_text": "I want to engage in a roleplay on giving constructive feedback"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Sure, I can help you with a role play on giving constructive feedback. But, to make the role play more effective, could you please provide me with more context? Who will you be giving feedback to? Is it a peer, a direct report, or a senior leader?"
+    },
+    {
+      "from": "user",
+      "chat_text": "I want to engage in a roleplay on giving constructive feedback"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Certainly, practicing through roleplay can be very effective. To make this as realistic and beneficial as possible, could you provide some context? Who will you be giving feedback to? Is it a peer, a direct report, or a senior leader?"
+    },
+    {
+      "from": "user",
+      "chat_text": "How can I have effective 1:1s?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Effective 1:1 meetings are a valuable tool for fostering open communication, providing feedback, and understanding your team members' perspectives. Here are some tips:\n1. Schedule Regularly: Consistency is key. Regular 1:1s demonstrate your commitment to your team members.\n2. Set an Agenda: Share the meeting agenda beforehand. This sets clear expectations and allows both parties to prepare.\n3. Listen Actively: Show empathy and respect by listening attentively. This encourages open conversation.\n4. Provide Constructive Feedback: Use this opportunity to provide feedback. Be specific, balanced, and actionable.\n5. Discuss Career Growth: Talk about their career aspirations and how you can support them.\n6. Follow Up: Recap the discussion and next steps in a follow-up email. This ensures mutual understanding and accountability.\nRemember, as a Democratic Leader at Appsfactory, your 1:1s are a platform to engage team members in dialogue and decision-making, aligning with the company's values of #WeGetItDone, #FueledByPassion, and #BuiltForRelevance."
+    },
+    {
+      "from": "user",
+      "chat_text": "how to deal with managers?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Engaging effectively with managers requires clear communication, respect, and understanding. Here are some strategies: \n1. Understand their perspective: Managers often have to balance multiple responsibilities and pressures. Understanding this can help you navigate interactions. \n2. Communicate openly: Be clear about your needs and concerns. This fosters mutual understanding and reduces misunderstandings. \n3. Show initiative: Demonstrating a proactive approach can build trust and respect. \n4. Align with company values: Align your work with Appsfactory's core values like #WeGetItDone, #FueledByPassion, and #BuiltForRelevance. \n5. Seek feedback: Regularly ask for feedback to show your commitment to growth and improvement. \n6. Respect their time: Be punctual and efficient in your interactions. \nRemember, your Democratic leadership style can be a strength in building consensus and fostering collaboration."
+    },
+    {
+      "from": "user",
+      "chat_text": "how to deal with bad managers at workplace?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "Understanding and navigating through situations with difficult managers can be challenging. Communication is key, so consider expressing your concerns professionally while being open to their feedback. Align your actions with Appsfactory's values #WeGetItDone, #FueledByPassion, and #BuiltForRelevance. With your Democratic leadership style, involve them in consensus-building conversations. For actionable strategies, revisit your learning plan, particularly 'Balancing Results and Relationships'. If the situation remains unchanged, consider seeking advice from HR or a trusted mentor. Remember, maintaining a positive work environment is crucial for your growth and wellbeing."
+    },
+    {
+      "from": "user",
+      "chat_text": "I want to engage in a roleplay on giving constructive feedback"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "{\n\t\"from\": \"aicoach\",\n\t\"chat_text\": \"Sure, let's do a role play on giving constructive feedback. To make it as realistic as possible"
+    },
+    {
+      "from": "user",
+      "chat_text": "how to deal with bad managers at workplace?"
+    },
+    {
+      "from": "aicoach",
+      "chat_text": "{\n\t\"from\": \"aicoach\",\n\t\"chat_text\": \"Dealing with challenging managers can be tough. It's important to communicate your concerns professionally and assertively. Ensure your actions align"
+    },
+    {
+      "from": "user",
+      "chat_text": "how to deal with bad managers?"
+    }
+  ]
+}

@@ -6,6 +6,8 @@ import { useState, useRef, useEffect } from "react";
 import scenariosData from "./chatbox.json";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
+import { Sparkles } from "lucide-react";
+import { FiPlus } from "react-icons/fi";
 import { logout } from "../../store/userSlice";
 import { useCookies } from "react-cookie";
 import Chat from "./Chat";
@@ -138,7 +140,7 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
           );
         }
 
-        // setMessages(formattedMessages);
+        setMessages(formattedMessages);
       }
       setIsLoadingMessage(false);
     } catch (error) {
@@ -478,15 +480,17 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
     setShowFeedback(false);
   };
 
-  if(isLoadingMessage) {
+  if (isLoadingMessage) {
     return (
-       <div className="flex h-screen flex-col items-center justify-center gap-6">
-      <div className="relative h-20 w-20">
-        <div className="absolute inset-0 animate-[spin_1.5s_linear_infinite] rounded-full border-4 border-transparent border-t-[#0029ff] border-r-[#0029ff]"></div>
-        <div className="absolute inset-4 animate-[pulse_2s_ease-in-out_infinite] rounded-full bg-[#0029ff] opacity-20"></div>
+      <div className="flex h-screen flex-col items-center justify-center gap-6">
+        <div className="relative h-20 w-20">
+          <div className="absolute inset-0 animate-[spin_1.5s_linear_infinite] rounded-full border-4 border-transparent border-t-[#0029ff] border-r-[#0029ff]"></div>
+          <div className="absolute inset-4 animate-[pulse_2s_ease-in-out_infinite] rounded-full bg-[#0029ff] opacity-20"></div>
+        </div>
+        <p className="text-lg font-medium text-gray-700">
+          Loading your chat history
+        </p>
       </div>
-      <p className="text-lg font-medium text-gray-700">Loading your chat history</p>
-    </div>
     );
   }
 
@@ -511,85 +515,156 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
         {activeView === "scenarios" ? (
           <motion.div
             key="scenarios-view"
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 10 }}
-            transition={{
-              type: "spring",
-              damping: 25,
-              stiffness: 400,
-              mass: 0.5,
-            }}
-            className="relative mx-auto flex h-[calc(100vh-100px)] max-w-md flex-col pt-4 pb-[100px]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="relative mx-auto flex h-[calc(100vh-100px)] max-w-4xl flex-col px-4 py-8"
           >
+            {/* Animated background elements */}
             <motion.div
-              className="mb-6 text-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.1 }}
+              className="absolute inset-0 -z-10 opacity-10"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
             >
-              <motion.h3
-                className="mb-3 text-xl font-semibold text-gray-800"
-                initial={{ y: -10 }}
-                animate={{ y: 0 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <span className="bg-gradient-to-r from-[var(--primary-color)] to-purple-500 bg-clip-text text-transparent">
-                  {firstName}
-                </span>
-                <span className="text-gray-600">, choose your scenario!</span>
-              </motion.h3>
-              <motion.div
-                className="mx-auto h-0.5 w-16 rounded-full bg-gradient-to-r from-[var(--primary-color)] to-purple-300"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-              />
-            </motion.div>
-
-            <motion.div
-              className="flex w-full flex-1 flex-col gap-3 overflow-y-auto pr-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ staggerChildren: 0.05 }}
-            >
-              {scenariosData.scenarios.slice(0, 6).map((sc) => (
+              {[...Array(8)].map((_, i) => (
                 <motion.div
-                  key={sc.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{
-                    scale: 1.02,
-                    boxShadow:
-                      "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                  key={i}
+                  className="absolute h-32 w-32 rounded-full bg-[var(--primary-color)]"
+                  style={{
+                    top: `${Math.random() * 100}%`,
+                    left: `${Math.random() * 100}%`,
                   }}
-                  whileTap={{ scale: 0.98 }}
-                  className="group relative min-h-[70px] cursor-pointer overflow-hidden rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all"
-                  onClick={() => startScenarioChat(sc)}
-                >
-                  <motion.div className="absolute inset-0 bg-gradient-to-r from-[var(--primary-color)/10] to-purple-100 opacity-0 transition-opacity group-hover:opacity-100" />
-                  <div className="relative flex h-full items-center gap-3">
-                    <motion.div
-                      className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-xs font-medium text-amber-900 shadow-inner"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: 0.2 }}
-                    >
-                      RP
-                    </motion.div>
-                    <h4 className="text-lg font-medium text-gray-700 transition-colors group-hover:text-[var(--primary-color)]">
-                      {sc.title}
-                    </h4>
-                  </div>
-                </motion.div>
+                  animate={{
+                    y: [0, Math.random() * 100 - 50],
+                    x: [0, Math.random() * 100 - 50],
+                    opacity: [0.05, 0.15, 0.05],
+                    transition: {
+                      duration: 10 + Math.random() * 20,
+                      repeat: Infinity,
+                      repeatType: "reverse",
+                    },
+                  }}
+                />
               ))}
             </motion.div>
 
+            {/* Header section */}
             <motion.div
-              className="text-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
+              className="mb-8 text-center"
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <motion.h2
+                className="mb-2 text-3xl font-bold"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 }}
+              >
+                <span className="bg-gradient-to-r from-[var(--primary-color)] to-purple-600 bg-clip-text text-transparent">
+                  Leadership Simulator
+                </span>
+              </motion.h2>
+              <motion.p
+                className="text-lg text-gray-600"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                Practice real-world scenarios, {firstName}
+              </motion.p>
+              <motion.div
+                className="mx-auto mt-4 h-1 w-24 rounded-full bg-gradient-to-r from-[var(--primary-color)] to-purple-400"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: 0.3, type: "spring" }}
+              />
+            </motion.div>
+
+            {/* Scenarios grid */}
+         <motion.div
+  className="flex flex-col gap-4 overflow-x-auto py-2"
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ staggerChildren: 0.1 }}
+>
+  {scenariosData.scenarios.slice(0, 2).map((sc) => (
+    <motion.div
+      key={sc.id}
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      whileHover={{ 
+        y: -4,
+        boxShadow: "0 6px 12px -2px rgba(0, 41, 255, 0.2)"
+      }}
+      whileTap={{ scale: 0.98 }}
+      className="group relative flex h-32 min-w-[280px] cursor-pointer items-center rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+      onClick={() => startScenarioChat(sc)}
+    >
+      {/* Difficulty indicator */}
+      <motion.div 
+        className="absolute right-3 top-3 h-2 w-2 rounded-full"
+        style={{
+          backgroundColor: 
+            sc.difficulty === 'hard' ? '#ef4444' : 
+            sc.difficulty === 'medium' ? '#f59e0b' : '#10b981'
+        }}
+        animate={{
+          scale: [1, 1.3, 1],
+          transition: { duration: 2, repeat: Infinity }
+        }}
+      />
+
+      {/* Icon with gradient background */}
+      <motion.div
+        className="mr-4 flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--primary-color)] to-blue-500 text-white"
+        whileHover={{ rotate: 8 }}
+      >
+        <Sparkles className="h-5 w-5" />
+      </motion.div>
+
+      {/* Content */}
+      <div className="overflow-hidden">
+        <h3 className="truncate text-lg font-medium text-gray-800 group-hover:text-[var(--primary-color)]">
+          {sc.title}
+        </h3>
+        <p className="mt-1 line-clamp-2 text-sm text-gray-600">
+          {sc.description}
+        </p>
+      </div>
+
+      {/* Hover overlay */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-[var(--primary-color)/5] to-blue-50/50 opacity-0 group-hover:opacity-100"
+        transition={{ duration: 0.3 }}
+      />
+      
+      {/* Shimmer effect on hover */}
+      <motion.div
+        className="absolute inset-0 overflow-hidden"
+        initial={{ x: '-100%' }}
+        whileHover={{ x: '100%' }}
+        transition={{ duration: 0.6 }}
+        style={{
+          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)'
+        }}
+      />
+    </motion.div>
+  ))}
+</motion.div>
+
+            {/* Custom scenario button */}
+            <motion.div
+              className="mt-6 text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
             >
               <motion.button
                 whileHover={{
@@ -598,10 +673,17 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
                     "linear-gradient(to right, var(--primary-color), #8b5cf6)",
                 }}
                 whileTap={{ scale: 0.98 }}
-                className="bottom-14 w-full rounded-full bg-gradient-to-r from-[var(--primary-color)] to-purple-500 px-5 py-3 font-medium text-white shadow-md transition-all"
+                className="group relative overflow-hidden rounded-full bg-gradient-to-r from-[var(--primary-color)] to-purple-600 px-8 py-4 font-medium text-white shadow-lg"
                 onClick={startCustomChat}
               >
-                Define your own scenario
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  <FiPlus className="h-5 w-5 transition-transform group-hover:rotate-90" />
+                  Create Custom Scenario
+                </span>
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-purple-600 to-[var(--primary-color)] opacity-0 group-hover:opacity-100"
+                  transition={{ duration: 0.3 }}
+                />
               </motion.button>
             </motion.div>
           </motion.div>

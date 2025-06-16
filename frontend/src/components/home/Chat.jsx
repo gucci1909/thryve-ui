@@ -10,7 +10,7 @@ import {
   Lightbulb,
   Target,
 } from "lucide-react";
-import { ShinyButton } from "../../components/magicui/shiny-button";
+import { LeadershipButton } from "../../components/magicui/shiny-button";
 import React, { memo, useEffect, useState } from "react";
 import ChatFeedback from "./ChatFeedback";
 
@@ -463,36 +463,12 @@ const Chat = memo(
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <ShinyButton
+              <LeadershipButton 
                 onClick={goBackToScenarios}
-                className="group flex items-center justify-center gap-2 bg-gradient-to-r from-[var(--primary-color)] to-blue-600 px-6 py-3"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                animate={{
-                  ...animationProps.animate,
-                  boxShadow: [
-                    "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-                    "0 10px 15px -3px rgb(0 0 0 / 0.2)",
-                    "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-                  ],
-                }}
-                transition={{
-                  ...animationProps.transition,
-                  boxShadow: {
-                    duration: 2,
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                    ease: "easeInOut",
-                  },
-                  scale: { type: "spring", stiffness: 400, damping: 10 },
-                }}
+                isCompact={messages.length > 0}
               >
-                <Sparkles
-                  className="transition-transform group-hover:rotate-12"
-                  size={20}
-                />
-                <span className="font-medium">Role-play Scenario</span>
-              </ShinyButton>
+                Role-play Scenario
+              </LeadershipButton>
             </motion.div>
           )}
 
