@@ -17,13 +17,10 @@ import goalRoutes from './api/goals/goals.js';
 import inviteTeamRoutes from './api/invite-team/invite-team.js';
 import learningPlanRoutes from './api/learning-plan/learning-plan.js';
 import feedRoutes from './api/feed/explore.js';
-import { connectToDb, getDb } from './config/db.js';
-import authenticate from './middleware/authenticate.js';
+import { connectToDb } from './config/db.js';
 import { v4 as uuidv4 } from 'uuid';
-// import { initializeChangeStream } from './controllers/chat-box/sse-controller.js';
-// import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
-import './controllers/daily-task/daily-task.js'; // Import the cron job
+import './controllers/daily-task/daily-task.js';
 
 const argv = yargs(hideBin(process.argv))
   .option('envFilePath', {
@@ -60,17 +57,28 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 
 const allowedOrigins = {
-  dev: process.env.DEV_CORS_ORIGIN || 'http://localhost:5173',
-  stg: process.env.STG_CORS_ORIGIN || 'http://localhost:5173',
-  prod: process.env.PROD_CORS_ORIGIN,
+  dev: [process.env.ALLOWED_HOST],
+  stg: [process.env.ALLOWED_HOST],
+  prod: [process.env.ALLOWED_HOST],
 };
 
 app.use(
   cors({
-    origin: allowedOrigins[argv.mode],
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins[argv.mode].indexOf(origin) !== -1 || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+    exposedHeaders: ['Content-Range', 'X-Content-Range'],
+    maxAge: 86400 // 24 hours
   }),
 );
 
@@ -141,7 +149,7 @@ app.use('/api/feed', feedRoutes);
 app.listen(PORT, async () => {
   await connectToDb();
   logger.info(`Server started on port ${PORT} in ${argv.mode} mode`);
-  logger.info('Daily learning plan update cron job initialized');
+  // logger.info('Daily learning plan update cron job initialized');
 
   console.info(
     `\x1b[32m✅ SUCCESS:\x1b[0m Server running on: \x1b[4;36mhttp://localhost:${PORT}/api-docs\x1b[0m`,
