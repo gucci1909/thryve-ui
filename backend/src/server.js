@@ -65,20 +65,23 @@ const allowedOrigins = {
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
+      const mode = argv.mode || 'dev';
+      const modeAllowed = allowedOrigins[mode];
+
+      // Allow requests with no origin (like curl, mobile apps)
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins[argv.mode].indexOf(origin) !== -1 || !origin) {
-        callback(null, true);
+      if (modeAllowed.includes('*') || modeAllowed.includes(origin)) {
+        return callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        return callback(new Error('Not allowed by CORS'));
       }
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
     exposedHeaders: ['Content-Range', 'X-Content-Range'],
-    maxAge: 86400, // 24 hours
+    maxAge: 86400,
   }),
 );
 
