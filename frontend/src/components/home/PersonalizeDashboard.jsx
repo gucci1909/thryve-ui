@@ -610,7 +610,7 @@ function PersonalizeDashboard() {
                       }}
                     >
                       <span className="text-xl font-bold text-white">
-                        {streakDays}
+                        {streakDays || 0}
                       </span>
                     </motion.div>
                     <p className="text-lg font-medium text-white">Days</p>
@@ -643,7 +643,7 @@ function PersonalizeDashboard() {
                     />
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="text-sm font-semibold text-white">
-                        {pointsNeeded} points needed
+                        {pointsNeeded || 0} points needed
                       </span>
                     </div>
                   </div>
