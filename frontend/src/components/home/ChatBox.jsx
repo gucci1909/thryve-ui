@@ -165,6 +165,15 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
     setSelectedScenario(scenario);
     setIsRolePlay(true);
     setIsLoading(true);
+
+     setMessages([
+      {
+        id: 1,
+        text: scenario.question,
+        sender: "user",
+        timestamp: new Date(),
+      }
+    ]);
   };
 
   const startCustomChat = () => {
@@ -260,13 +269,13 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
     const trimmed = question?.trim() || inputValue?.trim();
 
     setIsLoading(true);
-    const newMessage = {
-      id: messages.length + 1,
-      text: trimmed,
-      sender: "user",
-      timestamp: new Date(),
-    };
-    setMessages((prev) => [...prev, newMessage]);
+    // const newMessage = {
+    //   id: messages.length + 1,
+    //   text: trimmed,
+    //   sender: "user",
+    //   timestamp: new Date(),
+    // };
+    // setMessages((prev) => [...prev, newMessage]);
     setInputValue("");
 
     try {
