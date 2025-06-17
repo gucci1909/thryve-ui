@@ -9,6 +9,7 @@ const initialState = {
   personalize: JSON.parse(localStorage.getItem("personalize")) || null,
   companyCode: JSON.parse(localStorage.getItem("companyCode")) || null,
   points: parseInt(localStorage.getItem("points")) || 0,
+  chatMode: "none",
 };
 
 const userSlice = createSlice({
@@ -72,6 +73,9 @@ const userSlice = createSlice({
     updateProfile: (state, action) => {
       state.profile = action.payload;
     },
+    setChatMode: (state, action) => {
+      state.chatMode = action.payload;
+    },
   },
 });
 
@@ -81,6 +85,7 @@ export const {
   updateProfile, 
   reportDatafunc, 
   updateCompanyCode,
-  updatePoints 
+  updatePoints,
+  setChatMode
 } = userSlice.actions;
 export default userSlice.reducer;

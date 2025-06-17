@@ -1,27 +1,89 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import {
-  FiMessageCircle,
-  FiX,
-} from "react-icons/fi";
+import { FiMessageCircle, FiX } from "react-icons/fi";
 import { Home, Calendar, PieChart, User, MessageCircle } from "lucide-react";
 import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { setChatMode } from "../../store/userSlice";
 
-const FloatingNav = () => {
+const FloatingNav = ({setMessages,   setShowFeedback}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const chatMode = useSelector((state) => state.user.chatMode);
 
-  const navItems = [
-    { icon: Home, path: "/personalize-home", label: "Home" },
-    { icon: Calendar, path: "/personalize-check-in", label: "Check-in" },
-    // { icon: MessageCircle, path: "/personalize-chat-box", label: "Chat" },
-    { icon: PieChart, path: "/personalize-dashboard", label: "Dashboard" },
-    { icon: User, path: "/personalize-profile", label: "Profile" },
-  ];
+  console.log({ a: chatMode });
 
-  const handleNavigation = (path) => {
+  const getNavItems = () => {
+    const baseItems = [
+      { icon: Home, path: "/personalize-home", label: "Home" },
+    ];
+
+    if (chatMode === "none") {
+      return [
+        ...baseItems,
+        {
+          icon: MessageCircle,
+          action: () => {
+            setMessages([]);
+              setShowFeedback(false);
+            dispatch(setChatMode("roleplay"));
+            navigate("/personalize-chat-box");
+          },
+          label: "Start Roleplay",
+        },
+        {
+          icon: MessageCircle,
+          action: () => {
+            setMessages([]);
+                setShowFeedback(false);
+            dispatch(setChatMode("coaching"));
+            navigate("/personalize-chat-box");
+          },
+          label: "Start Coaching",
+        },
+      ];
+    } else if (chatMode === "roleplay") {
+      return [
+        ...baseItems,
+        {
+          icon: MessageCircle,
+          action: () => {
+             setMessages([]);
+                 setShowFeedback(false);
+            dispatch(setChatMode("coaching"));
+          },
+          label: "Start Coaching",
+        },
+      ];
+    } else if (chatMode === "coaching") {
+      return [
+        ...baseItems,
+        {
+          icon: MessageCircle,
+          action: () => {
+            setMessages([]);
+                setShowFeedback(false);
+            dispatch(setChatMode("roleplay"));
+          },
+          label: "Start Roleplay",
+        },
+      ];
+    }
+
+    return baseItems;
+  };
+
+  const handleNavigation = (item) => {
     setIsExpanded(false);
-    navigate(path);
+    if (item.action) {
+      item.action();
+    } else {
+      setMessages([]);
+          setShowFeedback(false);
+      dispatch(setChatMode("none"));
+      navigate(item.path);
+    }
   };
 
   return (
@@ -29,7 +91,6 @@ const FloatingNav = () => {
       className="fixed top-6 right-6 z-50"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      // transition={{ duration: 0.3 }}
     >
       <AnimatePresence>
         {isExpanded && (
@@ -37,19 +98,20 @@ const FloatingNav = () => {
             initial={{ opacity: 0, scale: 0.8, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: -20 }}
-            className="absolute top-12 right-0 mt-4 rounded-2xl bg-white p-2 shadow-lg"
+            className="absolute top-12 right-0 mt-4 min-w-[120px] rounded-2xl bg-white p-2 shadow-lg"
           >
-            {navItems.map((item, index) => (
+            {getNavItems().map((item, index) => (
               <motion.button
-                key={item.path}
+                key={item.label}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                // transition={{ delay: index * 0.1 }}
-                onClick={() => handleNavigation(item.path)}
-                className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-50"
+                onClick={() => handleNavigation(item)}
+                className="flex w-full items-center gap-3 rounded-xl px-4 py-3 whitespace-nowrap text-gray-700 hover:bg-gray-50"
               >
-                <item.icon className="h-5 w-5 text-[var(--primary-color)]" />
-                <span className="text-sm font-medium">{item.label}</span>
+                <item.icon className="h-5 w-5 shrink-0 text-[var(--primary-color)]" />
+                <span className="overflow-hidden text-sm font-medium text-ellipsis">
+                  {item.label}
+                </span>
               </motion.button>
             ))}
           </motion.div>

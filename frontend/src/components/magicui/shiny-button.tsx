@@ -3,23 +3,39 @@ import { motion, useAnimation } from "framer-motion";
 import {
   Sparkles,
   Trophy,
-  Users,
   Target,
   BarChart2,
   Mic,
-  Star,
+  MessageSquare,
+  Brain,
+  Lightbulb,
+  BookOpen,
+  GraduationCap,
+  Heart,
+  Shield,
+  Zap,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { cn } from "../../lib/utils";
 
-const leadershipMessages = [
-  { text: "Empower Your Team", icon: Users },
-  { text: "Lead With Vision", icon: Star },
-  { text: "Master Difficult Conversations", icon: Mic },
-  { text: "Boost Team Performance", icon: BarChart2 },
-  { text: "Develop Executive Presence", icon: Trophy },
-  { text: "Strategic Decision Making", icon: Target },
-];
+const leadershipMessages = {
+  roleplay: [
+    { text: "Practice Real Scenarios", icon: Target },
+    { text: "Master Difficult Conversations", icon: Mic },
+    { text: "Develop Executive Presence", icon: Trophy },
+    { text: "Strategic Decision Making", icon: Brain },
+    { text: "Lead With Confidence", icon: Shield },
+    { text: "Boost Team Performance", icon: BarChart2 },
+  ],
+  coaching: [
+    { text: "Personal Growth Journey", icon: Heart },
+    { text: "Unlock Your Potential", icon: Zap },
+    { text: "Learn & Develop", icon: BookOpen },
+    { text: "Expert Guidance", icon: GraduationCap },
+    { text: "Get Actionable Insights", icon: Lightbulb },
+    { text: "Continuous Improvement", icon: MessageSquare },
+  ],
+};
 
 export const LeadershipButton = React.forwardRef<
   HTMLButtonElement,
@@ -28,8 +44,9 @@ export const LeadershipButton = React.forwardRef<
     className?: string;
     onClick?: () => void;
     isCompact?: boolean;
+    mode?: "roleplay" | "coaching";
   }
->(({ children, className, onClick, isCompact = false }, ref) => {
+>(({ children, className, onClick, isCompact = false, mode = "roleplay" }, ref) => {
   const [currentMessage, setCurrentMessage] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const controls = useAnimation();
@@ -37,10 +54,10 @@ export const LeadershipButton = React.forwardRef<
   // Animate leadership messages
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentMessage((prev) => (prev + 1) % leadershipMessages.length);
+      setCurrentMessage((prev) => (prev + 1) % leadershipMessages[mode].length);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [mode]);
 
   // Background animation
   useEffect(() => {
@@ -50,8 +67,15 @@ export const LeadershipButton = React.forwardRef<
     });
   }, [controls]);
 
+  const getGradientColors = () => {
+    if (mode === "roleplay") {
+      return "linear-gradient(90deg, rgba(0, 41, 255, 0.9) 0%, rgba(100, 140, 255, 0.9) 50%, rgba(0, 41, 255, 0.9) 100%)";
+    }
+    return "linear-gradient(90deg, rgba(147, 51, 234, 0.9) 0%, rgba(236, 72, 153, 0.9) 50%, rgba(147, 51, 234, 0.9) 100%)";
+  };
+
   return (
-    <div className={cn("relative w-full overflow-hidden rounded-xl", isCompact ? "h-12" : "h-auto")}>
+    <div className={cn("relative w-full overflow-hidden rounded-xl", isCompact ? "h-10" : "h-auto")}>
       {/* Animated leadership messages in background */}
       <motion.div
         className="absolute inset-0 flex items-center justify-center px-4"
@@ -64,7 +88,7 @@ export const LeadershipButton = React.forwardRef<
           },
         }}
       >
-        {leadershipMessages.map((msg, i) => (
+        {leadershipMessages[mode].map((msg, i) => (
           <motion.div
             key={i}
             className="absolute flex items-center gap-3"
@@ -96,14 +120,14 @@ export const LeadershipButton = React.forwardRef<
           y: 0,
           boxShadow: isHovered
             ? [
-                "0 0 20px rgba(0, 41, 255, 0.6)",
-                "0 0 40px rgba(0, 41, 255, 0.8)",
-                "0 0 20px rgba(0, 41, 255, 0.6)",
+                `0 0 20px ${mode === "roleplay" ? "rgba(0, 41, 255, 0.6)" : "rgba(147, 51, 234, 0.6)"}`,
+                `0 0 40px ${mode === "roleplay" ? "rgba(0, 41, 255, 0.8)" : "rgba(147, 51, 234, 0.8)"}`,
+                `0 0 20px ${mode === "roleplay" ? "rgba(0, 41, 255, 0.6)" : "rgba(147, 51, 234, 0.6)"}`,
               ]
             : [
-                "0 0 10px rgba(0, 41, 255, 0.5)",
-                "0 0 20px rgba(0, 41, 255, 0.8)",
-                "0 0 10px rgba(0, 41, 255, 0.5)",
+                `0 0 10px ${mode === "roleplay" ? "rgba(0, 41, 255, 0.5)" : "rgba(147, 51, 234, 0.5)"}`,
+                `0 0 20px ${mode === "roleplay" ? "rgba(0, 41, 255, 0.8)" : "rgba(147, 51, 234, 0.8)"}`,
+                `0 0 10px ${mode === "roleplay" ? "rgba(0, 41, 255, 0.5)" : "rgba(147, 51, 234, 0.5)"}`,
               ],
         }}
         transition={{
@@ -117,22 +141,16 @@ export const LeadershipButton = React.forwardRef<
           "text-lg font-bold text-white",
           "border-2 border-white/30 backdrop-blur-sm",
           "transform-gpu transition-all duration-300",
-          isCompact ? "h-12 px-4 py-2" : "px-8 py-6",
+          isCompact ? "h-10 px-4 py-2" : "px-8 py-6",
           className,
         )}
         style={{
-          background: `
-            linear-gradient(
-              90deg,
-              rgba(0, 41, 255, 0.9) 0%,
-              rgba(100, 140, 255, 0.9) 50%,
-              rgba(0, 41, 255, 0.9) 100%
-            )`,
+          background: getGradientColors(),
           backgroundSize: "200% 100%",
         }}
       >
         {/* Floating leadership icons - only show in non-compact mode */}
-        {!isCompact && leadershipMessages.map(({ icon: Icon }, i) => (
+        {!isCompact && leadershipMessages[mode].map(({ icon: Icon }, i) => (
           <motion.div
             key={i}
             className="absolute text-white/10"
@@ -197,7 +215,7 @@ export const LeadershipButton = React.forwardRef<
               }}
             >
               <Sparkles className={cn(
-                "text-yellow-300",
+                mode === "roleplay" ? "text-yellow-300" : "text-pink-300",
                 isCompact ? "h-5 w-5" : "h-8 w-8"
               )} />
             </motion.div>
@@ -217,10 +235,10 @@ export const LeadershipButton = React.forwardRef<
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
             >
-              {React.createElement(leadershipMessages[currentMessage].icon, {
+              {React.createElement(leadershipMessages[mode][currentMessage].icon, {
                 className: "h-4 w-4",
               })}
-              <span>{leadershipMessages[currentMessage].text}</span>
+              <span>{leadershipMessages[mode][currentMessage].text}</span>
             </motion.div>
           )}
 

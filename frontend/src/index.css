@@ -48,6 +48,23 @@
   --color-5: oklch(90.7% 0.231 133);
 }
 
+@keyframes float-up {
+  0% {
+    transform: translateY(0) scale(var(--scale, 1));
+    opacity: var(--opacity, 0.5);
+  }
+  100% {
+    transform: translateY(-100vh) scale(calc(var(--scale, 1) * 0.8));
+    opacity: 0;
+  }
+}
+
+.animate-float-up {
+  animation-name: float-up;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -248,7 +265,21 @@
     opacity: 0;
     }
   }
-}
+  --animate-meteor: meteor 5s linear infinite
+;
+  @keyframes meteor {
+  0% {
+    transform: rotate(var(--angle)) translateX(0);
+    opacity: 1;
+    }
+  70% {
+    opacity: 1;
+    }
+  100% {
+    transform: rotate(var(--angle)) translateX(-500px);
+    opacity: 0;
+    }
+  }}
 
 .dark {
   --background: oklch(0.145 0 0);

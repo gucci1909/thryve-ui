@@ -8,18 +8,21 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { Sparkles } from "lucide-react";
 import { FiPlus } from "react-icons/fi";
-import { logout } from "../../store/userSlice";
+import { logout, setChatMode } from "../../store/userSlice";
 import { useCookies } from "react-cookie";
 import Chat from "./Chat";
 import FloatingNav from "./FloatingNav";
+import { RainbowButton } from "../magicui/rainbow-button";
 import LoadingSpinner from "./PersonalizeHome/LoadingSpinner";
+import { CoachingBubbles } from "../magicui/meteors";
 
 export default function ChatBox({ pointAdded, setPointAdded }) {
   const token = useSelector((state) => state.user.token);
   const userId = useSelector((state) => state.user._id);
   const firstName = useSelector((state) => state.user.firstName);
-  const [cookies, setCookie, removeCookie] = useCookies(["authToken"]);
+  const chatMode = useSelector((state) => state.user.chatMode);
   const dispatch = useDispatch();
+  const [cookies, setCookie, removeCookie] = useCookies(["authToken"]);
   const navigate = useNavigate();
 
   const [messages, setMessages] = useState([]);
@@ -54,6 +57,14 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
     }
     setPreviousView(activeView);
   }, [activeView]);
+
+  useEffect(() => {
+    if (chatMode === "roleplay") {
+      setActiveView("scenarios");
+    } else if (chatMode === "coaching") {
+      setActiveView("chat");
+    }
+  }, [chatMode]);
 
   useEffect(() => {
     if (isRolePlay) {
@@ -160,6 +171,11 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
     setIsRolePlay(false);
     setSelectedScenario(null);
     setActiveView("chat");
+    if (chatMode === "roleplay") {
+      setMessages([]);
+    }
+    setShowFeedback(false);
+    dispatch(setChatMode("coaching"));
   };
 
   const handleSend = async () => {
@@ -519,40 +535,15 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="relative mx-auto flex h-[calc(100vh-100px)] max-w-4xl flex-col px-4 py-8"
+            className="relative mx-auto h-[calc(100vh-100px)] max-w-4xl flex-col px-4 py-8"
           >
             {/* Animated background elements */}
-            <motion.div
-              className="absolute inset-0 -z-10 opacity-10"
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                repeatType: "reverse",
-              }}
-            >
-              {[...Array(8)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute h-32 w-32 rounded-full bg-[var(--primary-color)]"
-                  style={{
-                    top: `${Math.random() * 100}%`,
-                    left: `${Math.random() * 100}%`,
-                  }}
-                  animate={{
-                    y: [0, Math.random() * 100 - 50],
-                    x: [0, Math.random() * 100 - 50],
-                    opacity: [0.05, 0.15, 0.05],
-                    transition: {
-                      duration: 10 + Math.random() * 20,
-                      repeat: Infinity,
-                      repeatType: "reverse",
-                    },
-                  }}
-                />
-              ))}
-            </motion.div>
+            <CoachingBubbles
+              number={20}
+              delayBetween={1}
+              minDuration={10}
+              maxDuration={25}
+            />
 
             {/* Header section */}
             <motion.div
@@ -562,17 +553,17 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
               transition={{ type: "spring", stiffness: 300 }}
             >
               <motion.h2
-                className="mb-2 text-3xl font-bold"
+                className="mb-2 text-3xl font-bold md:text-4xl"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.1 }}
               >
                 <span className="bg-gradient-to-r from-[var(--primary-color)] to-purple-600 bg-clip-text text-transparent">
-                  Leadership Simulator
+                  Leadership Scenarios
                 </span>
               </motion.h2>
               <motion.p
-                className="text-lg text-gray-600"
+                className="text-base text-gray-600 md:text-lg"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
@@ -588,71 +579,57 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
             </motion.div>
 
             {/* Scenarios grid */}
-         <motion.div
-  className="flex flex-col gap-4 overflow-x-auto py-2"
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  transition={{ staggerChildren: 0.1 }}
->
-  {scenariosData.scenarios.slice(0, 2).map((sc) => (
-    <motion.div
-      key={sc.id}
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      whileHover={{ 
-        y: -4,
-        boxShadow: "0 6px 12px -2px rgba(0, 41, 255, 0.2)"
-      }}
-      whileTap={{ scale: 0.98 }}
-      className="group relative flex h-32 min-w-[280px] cursor-pointer items-center rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
-      onClick={() => startScenarioChat(sc)}
-    >
-      {/* Difficulty indicator */}
-      <motion.div 
-        className="absolute right-3 top-3 h-2 w-2 rounded-full"
+            <motion.div
+              className="grid max-h-[calc(100vh-300px)] grid-cols-1 gap-4 overflow-y-auto py-2 pr-2 md:grid-cols-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ staggerChildren: 0.1 }}
+            >
+              {scenariosData.scenarios.map((sc) => (
+                <motion.div
+                  key={sc.id}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  whileHover={{
+                    y: -4,
+                    boxShadow: "0 6px 12px -2px rgba(0, 41, 255, 0.2)",
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                  className="group relative flex h-20 min-w-[280px] cursor-pointer items-center rounded-xl border border-gray-200 bg-white/80 p-4 shadow-sm backdrop-blur-sm"
+                  onClick={() => startScenarioChat(sc)}
+                >
+                  <motion.div
+                    className="mr-4 flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--primary-color)] to-blue-500 text-white"
+                    whileHover={{ rotate: 8 }}
+                  >
+                    <Sparkles className="h-5 w-5" />
+                  </motion.div>
 
-        animate={{
-          scale: [1, 1.3, 1],
-          transition: { duration: 2, repeat: Infinity }
-        }}
-      />
+                  <div className="overflow-hidden">
+                    <h3 className="truncate text-base font-medium text-gray-800 group-hover:text-[var(--primary-color)] md:text-lg">
+                      {sc.title}
+                    </h3>
+                  </div>
 
-      {/* Icon with gradient background */}
-      <motion.div
-        className="mr-4 flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--primary-color)] to-blue-500 text-white"
-        whileHover={{ rotate: 8 }}
-      >
-        <Sparkles className="h-5 w-5" />
-      </motion.div>
+                  <motion.div
+                    className="absolute inset-0 rounded-xl bg-gradient-to-r from-[var(--primary-color)/5] to-blue-50/50 opacity-0 group-hover:opacity-100"
+                    transition={{ duration: 0.3 }}
+                  />
 
-      {/* Content */}
-      <div className="overflow-hidden">
-        <h3 className="truncate text-lg font-medium text-gray-800 group-hover:text-[var(--primary-color)]">
-          {sc.title}
-        </h3>
-      </div>
+                  <motion.div
+                    className="absolute inset-0 overflow-hidden rounded-xl"
+                    initial={{ x: "-100%" }}
+                    whileHover={{ x: "100%" }}
+                    transition={{ duration: 0.6 }}
+                    style={{
+                      background:
+                        "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
+                    }}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
 
-      {/* Hover overlay */}
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-[var(--primary-color)/5] to-blue-50/50 opacity-0 group-hover:opacity-100"
-        transition={{ duration: 0.3 }}
-      />
-      
-      {/* Shimmer effect on hover */}
-      <motion.div
-        className="absolute inset-0 overflow-hidden"
-        initial={{ x: '-100%' }}
-        whileHover={{ x: '100%' }}
-        transition={{ duration: 0.6 }}
-        style={{
-          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)'
-        }}
-      />
-    </motion.div>
-  ))}
-</motion.div>
-
-            {/* Custom scenario button */}
             <motion.div
               className="mt-6 text-center"
               initial={{ opacity: 0, y: 20 }}
@@ -666,7 +643,7 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
                     "linear-gradient(to right, var(--primary-color), #8b5cf6)",
                 }}
                 whileTap={{ scale: 0.98 }}
-                className="group relative overflow-hidden rounded-full bg-gradient-to-r from-[var(--primary-color)] to-purple-600 px-8 py-4 font-medium text-white shadow-lg"
+                className="group relative overflow-hidden rounded-full bg-gradient-to-r from-[var(--primary-color)] to-purple-600 px-6 py-3 font-medium text-white shadow-lg md:px-8 md:py-4"
                 onClick={startCustomChat}
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
@@ -684,6 +661,7 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
           <Chat
             startRecording={startRecording}
             stopRecording={stopRecording}
+            setShowFeedback={setShowFeedback}
             messages={messages}
             isLoading={isLoading}
             messagesEndRef={messagesEndRef}
@@ -700,13 +678,17 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
             showFeedback={showFeedback}
             sessionId={currentSessionId}
             userId={userId}
+            setMessages={setMessages}
             token={token}
             onContinueChat={handleContinueChat}
           />
         )}
       </AnimatePresence>
 
-      <FloatingNav />
+      <FloatingNav
+        setMessages={setMessages}
+        setShowFeedback={setShowFeedback}
+      />
     </main>
   );
 }

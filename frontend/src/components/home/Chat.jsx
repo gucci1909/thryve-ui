@@ -13,6 +13,9 @@ import {
 import { LeadershipButton } from "../../components/magicui/shiny-button";
 import React, { memo, useEffect, useState } from "react";
 import ChatFeedback from "./ChatFeedback";
+import { useSelector, useDispatch } from "react-redux";
+import { setChatMode } from "../../store/userSlice";
+// import { addMessage } from "../../store/userSlice";
 
 const Chat = memo(
   function Chat({
@@ -25,6 +28,7 @@ const Chat = memo(
     goBackToScenarios,
     animationProps,
     isProcessing,
+    setShowFeedback,
     inputValue,
     handleSend,
     setInputValues,
@@ -33,17 +37,33 @@ const Chat = memo(
     isRolePlay,
     showFeedback,
     sessionId,
+    setMessages,
     userId,
     token,
     onContinueChat,
   }) {
     const [expandedMessages, setExpandedMessages] = useState({});
+    const dispatch = useDispatch();
+    const { firstName, chatMode } = useSelector((state) => state.user);
 
     useEffect(() => {
       if (messagesEndRef?.current) {
         messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
       }
     }, [messages, isLoading, messagesEndRef]);
+
+    // Add effect to show welcome message when chat mode changes
+    useEffect(() => {
+      if (chatMode === "coaching" && messages.length === 0) {
+        const newMessage = {
+          id: messages?.length + 1,
+          sender: "bot",
+          text: `Hi ${firstName}! 👋 I'm your AI coach. I'm here to help you develop your leadership skills and guide you through your professional journey. What would you like to work on today?`,
+          timestamp: new Date().toISOString(),
+        };
+        setMessages((prev) => [...prev, newMessage]);
+      }
+    }, [chatMode, messages.length, firstName]);
 
     const formatMessage = (text) => {
       // Replace \n\n with <br><br> and \n with <br>
@@ -102,7 +122,7 @@ const Chat = memo(
           }}
         >
           <div className="space-y-4">
-            {messages.length === 0 && !isLoading ? (
+            {messages.length === 0 && !isLoading && chatMode === "none" ? (
               <motion.div
                 className="flex h-full flex-col items-center justify-center px-4"
                 initial={{ opacity: 0 }}
@@ -150,99 +170,11 @@ const Chat = memo(
 
                   {/* Manager character illustration */}
                   <div className="relative">
-                    <svg width="180" height="180" viewBox="0 0 200 200">
-                      {/* Head */}
-                      <motion.circle
-                        cx="100"
-                        cy="80"
-                        r="40"
-                        fill="#FEF3C7"
-                        initial={{ scale: 0.9 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", delay: 0.3 }}
-                      />
-
-                      {/* Body */}
-                      <motion.rect
-                        x="70"
-                        y="120"
-                        width="60"
-                        height="70"
-                        rx="5"
-                        fill="#3B82F6"
-                        initial={{ y: 10 }}
-                        animate={{ y: 0 }}
-                        transition={{ delay: 0.4 }}
-                      />
-
-                      {/* Tie */}
-                      <motion.path
-                        d="M100,125 L90,140 L110,140 Z"
-                        fill="#1D4ED8"
-                        initial={{ scaleY: 0 }}
-                        animate={{ scaleY: 1 }}
-                        transition={{ delay: 0.5 }}
-                      />
-
-                      {/* Arms */}
-                      <motion.line
-                        x1="60"
-                        y1="130"
-                        x2="30"
-                        y2="160"
-                        stroke="#3B82F6"
-                        strokeWidth="12"
-                        initial={{ pathLength: 0 }}
-                        animate={{ pathLength: 1 }}
-                        transition={{ delay: 0.6 }}
-                      />
-                      <motion.line
-                        x1="140"
-                        y1="130"
-                        x2="170"
-                        y2="160"
-                        stroke="#3B82F6"
-                        strokeWidth="12"
-                        initial={{ pathLength: 0 }}
-                        animate={{ pathLength: 1 }}
-                        transition={{ delay: 0.6 }}
-                      />
-
-                      {/* Clipboard */}
-                      <motion.rect
-                        x="25"
-                        y="150"
-                        width="40"
-                        height="30"
-                        rx="2"
-                        fill="#FFFFFF"
-                        initial={{ rotate: -5, scale: 0.9 }}
-                        animate={{ rotate: 0, scale: 1 }}
-                        transition={{ delay: 0.7 }}
-                      />
-                      <motion.line
-                        x1="35"
-                        y1="155"
-                        x2="55"
-                        y2="155"
-                        stroke="#E5E7EB"
-                        strokeWidth="2"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.8 }}
-                      />
-                      <motion.line
-                        x1="35"
-                        y1="160"
-                        x2="55"
-                        y2="160"
-                        stroke="#E5E7EB"
-                        strokeWidth="2"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.85 }}
-                      />
-                    </svg>
+                    <img
+                      src="/chat-1.png"
+                      alt="Thryve Logo"
+                      className="h-40 w-auto"
+                    />
                   </div>
                 </motion.div>
 
@@ -348,10 +280,10 @@ const Chat = memo(
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ type: "spring", stiffness: 500 }}
-                    className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"} mb-3 px-4`}
+                    className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"} mb-3 px-2`}
                   >
                     <div
-                      className={`group relative max-w-[85%] rounded-2xl px-4 py-2 ${
+                      className={`group relative max-w-[85%] rounded-2xl px-2 py-2 ${
                         m.sender === "user"
                           ? "rounded-tr-none bg-[var(--primary-color)] text-white"
                           : "rounded-tl-none bg-gray-100 text-gray-800"
@@ -466,100 +398,207 @@ const Chat = memo(
           </div>
         </motion.div>
 
-        {/* Rest of your component remains the same */}
-        {/* Bottom section - contains roleplay button and input area */}
         <div className="sticky w-full bg-white">
-          {/* Roleplay button - only shown when not recording */}
-          {!isRecording && (
+          {chatMode === "none" && (
             <motion.div
-              className="flex justify-center p-2"
+              className="flex justify-center px-2 py-1"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
               <LeadershipButton
-                onClick={goBackToScenarios}
+                onClick={() => {
+                  setMessages([]);
+                  setShowFeedback(false);
+                  dispatch(setChatMode("roleplay"));
+                  goBackToScenarios();
+                }}
                 isCompact={messages.length > 0}
+                mode="roleplay"
               >
                 Role-play Scenario
               </LeadershipButton>
             </motion.div>
           )}
 
-          {/* Input area - sticks to bottom */}
-          <motion.div
-            className="border-t border-gray-200 bg-white p-3"
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            style={{
-              paddingBottom: "max(env(safe-area-inset-bottom, 0px), 12px)",
-            }}
-          >
-            <div className="flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2">
-              <textarea
-                rows={1}
-                value={inputValue}
-                onChange={(e) => setInputValues(e.target.value)}
-                onKeyDown={async (e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    if (isRolePlay) {
-                      await handleRolePlaySend();
-                    } else {
-                      await handleSend();
-                    }
-                  }
-                }}
-                placeholder="Type your message..."
-                disabled={isRecording || isProcessing}
-                style={{ height: "80px" }}
-                className="flex-1 resize-none overflow-y-auto border-none bg-transparent text-gray-800 outline-none"
-              />
-
-              <button
-                type="button"
-                onClick={isRecording ? stopRecording : startRecording}
-                disabled={isProcessing}
-                className={`rounded-full p-2 ${
-                  isRecording
-                    ? "bg-red-500 text-white"
-                    : "text-[var(--primary-color)] hover:bg-gray-200"
-                } transition-colors`}
-              >
-                {isProcessing ? (
-                  <span className="processing">…</span>
-                ) : isRecording ? (
-                  <MicOff size={18} />
-                ) : (
-                  <Mic size={18} />
-                )}
-              </button>
-
-              <button
+          {chatMode === "none" && (
+            <motion.div
+              className="flex justify-center px-2 py-1"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <LeadershipButton
                 onClick={() => {
-                  if (isRolePlay) {
-                    handleRolePlaySend();
-                  } else {
-                    handleSend();
-                  }
+                  setMessages([]);
+                  setShowFeedback(false);
+                  dispatch(setChatMode("coaching"));
                 }}
-                disabled={
-                  !inputValue.trim() || isRecording || isProcessing || isLoading
-                }
-                className="rounded-full bg-[var(--primary-color)] p-2 text-white disabled:opacity-50"
+                isCompact={messages.length > 0}
+                mode="coaching"
               >
-                <Send size={18} />
-              </button>
-            </div>
+                Start Coaching
+              </LeadershipButton>
+            </motion.div>
+          )}
 
-            <canvas
-              ref={canvasRef}
-              width="300"
-              height="40"
-              className={`voice-visualizer ${isRecording ? "active" : ""} mt-2`}
-            />
-          </motion.div>
+          {chatMode === "coaching" && (
+            <motion.div
+              className="border-t border-gray-200 bg-white p-3"
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              style={{
+                paddingBottom: "max(env(safe-area-inset-bottom, 0px), 12px)",
+              }}
+            >
+              <div className="flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2">
+                <textarea
+                  rows={1}
+                  value={inputValue}
+                  onChange={(e) => setInputValues(e.target.value)}
+                  onKeyDown={async (e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      if (isRolePlay) {
+                        await handleRolePlaySend();
+                      } else {
+                        await handleSend();
+                      }
+                    }
+                  }}
+                  placeholder="Type your message..."
+                  disabled={isRecording || isProcessing}
+                  style={{ height: "80px" }}
+                  className="flex-1 resize-none overflow-y-auto border-none bg-transparent text-gray-800 outline-none"
+                />
+
+                <button
+                  type="button"
+                  onClick={isRecording ? stopRecording : startRecording}
+                  disabled={isProcessing}
+                  className={`rounded-full p-2 ${
+                    isRecording
+                      ? "bg-red-500 text-white"
+                      : "text-[var(--primary-color)] hover:bg-gray-200"
+                  } transition-colors`}
+                >
+                  {isProcessing ? (
+                    <span className="processing">…</span>
+                  ) : isRecording ? (
+                    <MicOff size={18} />
+                  ) : (
+                    <Mic size={18} />
+                  )}
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (isRolePlay) {
+                      handleRolePlaySend();
+                    } else {
+                      handleSend();
+                    }
+                  }}
+                  disabled={
+                    !inputValue.trim() ||
+                    isRecording ||
+                    isProcessing ||
+                    isLoading
+                  }
+                  className="rounded-full bg-[var(--primary-color)] p-2 text-white disabled:opacity-50"
+                >
+                  <Send size={18} />
+                </button>
+              </div>
+
+              <canvas
+                ref={canvasRef}
+                width="300"
+                height="40"
+                className={`voice-visualizer ${isRecording ? "active" : ""} mt-2`}
+              />
+            </motion.div>
+          )}
+
+          {chatMode === "roleplay" && (
+            <motion.div
+              className="border-t border-gray-200 bg-white p-3"
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              style={{
+                paddingBottom: "max(env(safe-area-inset-bottom, 0px), 12px)",
+              }}
+            >
+              <div className="flex items-center gap-2 rounded-xl bg-gray-100 px-4 py-2">
+                <textarea
+                  rows={1}
+                  value={inputValue}
+                  onChange={(e) => setInputValues(e.target.value)}
+                  onKeyDown={async (e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      if (isRolePlay) {
+                        await handleRolePlaySend();
+                      } else {
+                        await handleSend();
+                      }
+                    }
+                  }}
+                  placeholder="Type your message..."
+                  disabled={isRecording || isProcessing}
+                  style={{ height: "80px" }}
+                  className="flex-1 resize-none overflow-y-auto border-none bg-transparent text-gray-800 outline-none"
+                />
+
+                <button
+                  type="button"
+                  onClick={isRecording ? stopRecording : startRecording}
+                  disabled={isProcessing}
+                  className={`rounded-full p-2 ${
+                    isRecording
+                      ? "bg-red-500 text-white"
+                      : "text-[var(--primary-color)] hover:bg-gray-200"
+                  } transition-colors`}
+                >
+                  {isProcessing ? (
+                    <span className="processing">…</span>
+                  ) : isRecording ? (
+                    <MicOff size={18} />
+                  ) : (
+                    <Mic size={18} />
+                  )}
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (isRolePlay) {
+                      handleRolePlaySend();
+                    } else {
+                      handleSend();
+                    }
+                  }}
+                  disabled={
+                    !inputValue.trim() ||
+                    isRecording ||
+                    isProcessing ||
+                    isLoading
+                  }
+                  className="rounded-full bg-[var(--primary-color)] p-2 text-white disabled:opacity-50"
+                >
+                  <Send size={18} />
+                </button>
+              </div>
+
+              <canvas
+                ref={canvasRef}
+                width="300"
+                height="40"
+                className={`voice-visualizer ${isRecording ? "active" : ""} mt-2`}
+              />
+            </motion.div>
+          )}
         </div>
       </motion.div>
     );
