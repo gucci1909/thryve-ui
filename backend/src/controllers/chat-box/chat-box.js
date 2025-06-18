@@ -39,70 +39,115 @@ export const chatBoxController = async (req, res) => {
   const startTime = Date.now();
 
   try {
-    const { question, userId } = req.body;
+    const { question, userId, sessionStart } = req.body;
 
     if (!question || !userId) {
       return res.status(400).json({ error: 'Question and userId are required' });
     }
 
     const usersCollection = db.collection('users');
-    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
-
     const companiesCollection = db.collection('companies');
     const leadershipReportsCollection = db.collection('leadership-reports');
+    const chatCollection = db.collection('chats');
+    const sessionsCollection = db.collection('sessions');
+    const learningPlansCollection = db.collection('learning-plans');
 
+    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
     if (!user) {
       throw new Error('User or company ID not found');
     }
 
     const currentTimestamp = new Date();
 
-    // Create a session ID based on 12-hour window
-    const sessionStartTime = new Date(currentTimestamp);
-    sessionStartTime.setHours(Math.floor(sessionStartTime.getHours() / 12) * 12, 0, 0, 0);
-    const sessionId = `${userId}_${sessionStartTime.getTime()}`;
+    let sessionId;
 
-    // Prepare user message
+    if (sessionStart === true) {
+      await sessionsCollection.updateMany(
+        { userId: userId, chatMode: 'coaching', status: 'active' },
+        { $set: { status: 'closed', endedAt: currentTimestamp } },
+      );
+
+      // Create new sessionId
+      sessionId = `${userId}_${currentTimestamp.getTime()}`;
+
+      await sessionsCollection.insertOne({
+        userId: userId,
+        chatMode: 'coaching',
+        sessionId: sessionId,
+        startedAt: currentTimestamp,
+        status: 'active',
+      });
+    } else {
+      // Check if there's already a session for this user
+      const sessionDoc = await sessionsCollection.findOne(
+        {
+          userId: userId,
+          chatMode: 'coaching',
+          status: 'active',
+        },
+        { sort: { startedAt: -1 } },
+      );
+
+      if (sessionDoc) {
+        sessionId = sessionDoc.sessionId;
+      } else {
+        sessionId = `${userId}_${currentTimestamp.getTime()}`;
+
+        await sessionsCollection.insertOne({
+          userId: userId,
+          chatMode: 'coaching',
+          sessionId: sessionId,
+          startedAt: currentTimestamp,
+          status: 'active',
+        });
+      }
+    }
+
     const userMessage = {
       from: 'user',
       chat_text: question,
-      timestamp: currentTimestamp,
       messageType: 'question',
-      sessionId: sessionId,
       chatType: 'coaching',
+      sessionId: sessionId,
+      timestamp: currentTimestamp,
     };
 
-    const chatCollection = db.collection('chats');
-    const existingChat = await chatCollection.findOne({ user_id: userId });
-
-    if (user?.companyId) {
-    }
+    const existingChat = await chatCollection
+      .find({ user_id: userId })
+      .sort({ updated_at: -1 })
+      .toArray();
+    const existingLearningPlans = await learningPlansCollection
+      .find({ userId })
+      .sort({ updated_at: -1 })
+      .toArray();
 
     const company = await companiesCollection.findOne({ INVITE_CODE: user?.companyId });
     const leadershipReport = await leadershipReportsCollection.findOne({ userId: userId });
 
-    const learningPlansCollection = db.collection('learning-plans');
-    const existingLearningPlans = await learningPlansCollection.findOne({ userId });
+    const mergedLearningPlan = existingLearningPlans?.reduce((acc, existingLearningPlan) => {
+      return acc.concat(existingLearningPlan?.learning_plan);
+    }, []);
+
+    const mergedExistingChat = existingChat?.reduce((acc, chat) => {
+      return acc.concat(chat.chat_context);
+    }, []);
 
     const { learning_plan, ...restOfAssessment } = leadershipReport?.assessment || {};
 
-    const learning_cards = [
-      ...(existingLearningPlans?.learning_plan || []),
-      ...(learning_plan || []),
-    ];
+    const learning_cards = [...(mergedLearningPlan || []), ...(learning_plan || [])];
+
+    // we are here just making a coaching-prompt.txt file
+    // start of file append
 
     const coachingPrompt = getCoachPrompt(
       question,
       restOfAssessment || {},
       company || {},
-      existingChat || {},
+      { chat_context: mergedExistingChat } || {},
       learning_cards || {},
     );
 
-    // File path to store prompt
     const filePath = path.join(__dirname, 'coaching-prompt.txt');
-
-    // Append the prompt with a timestamp
     const timestamp = new Date().toISOString();
     const logContent = `\n\n===== ${timestamp} =====\n${coachingPrompt}\n`;
 
@@ -113,8 +158,8 @@ export const chatBoxController = async (req, res) => {
         console.log(`✅ Prompt successfully appended to: ${filePath}`);
       }
     });
+    // end of file append
 
-    // Make OpenAI API call with timing
     const openAIStartTime = Date.now();
     const response = await fetch(process.env.OpenAIAPI, {
       method: 'POST',
@@ -131,7 +176,7 @@ export const chatBoxController = async (req, res) => {
               question,
               restOfAssessment || {},
               company || {},
-              existingChat || {},
+              { chat_context: mergedExistingChat } || {},
               learning_cards || {},
             ),
           },
@@ -153,7 +198,7 @@ export const chatBoxController = async (req, res) => {
         error,
         responseTime: openAIResponseTime,
         chatType: 'COACHING',
-        tokensUsed: data.usage?.total_tokens
+        tokensUsed: data.usage?.total_tokens,
       });
       throw error;
     }
@@ -167,30 +212,29 @@ export const chatBoxController = async (req, res) => {
       response: responseContent,
       responseTime: openAIResponseTime,
       chatType: 'COACHING',
-      tokensUsed: data.usage?.total_tokens
+      tokensUsed: data.usage?.total_tokens,
     });
 
-    // Prepare server message with session ID
-    let thirdRound = false;
     const serverMessage = {
       from: 'aicoach',
       chat_text: responseContent,
-      timestamp: new Date(),
       messageType: 'response',
-      sessionId: sessionId,
       chatType: 'coaching',
+      sessionId: sessionId,
+      timestamp: new Date(),
     };
 
-    if (existingChat) {
-      const coachingMessages = existingChat.chat_context.filter(
-        (msg) => msg.chatType === 'coaching',
-      );
-      const messageRound = coachingMessages.length || 1;
-      const updatedMessageRound = messageRound + 2;
-      thirdRound = updatedMessageRound % 6 === 0;
-
+    if (sessionStart === true) {
+      await chatCollection.insertOne({
+        user_id: userId,
+        session_id: sessionId,
+        chat_context: [userMessage, serverMessage],
+        created_at: new Date(),
+        updated_at: new Date(),
+      });
+    } else {
       await chatCollection.updateOne(
-        { user_id: userId },
+        { user_id: userId, session_id: sessionId },
         {
           $push: {
             chat_context: {
@@ -198,21 +242,11 @@ export const chatBoxController = async (req, res) => {
             },
           },
           $set: {
-            updated_at: currentTimestamp,
+            updated_at: new Date(),
           },
         },
       );
-    } else {
-      await chatCollection.insertOne({
-        user_id: userId,
-        chat_context: [userMessage, serverMessage],
-        created_at: currentTimestamp,
-        updated_at: currentTimestamp,
-        message_round: 1,
-      });
     }
-
-    // start points to the user
 
     if (!user || !user.companyId) {
       return res.status(404).json({
@@ -224,7 +258,6 @@ export const chatBoxController = async (req, res) => {
     const points = company?.CoachingChatInteractionPoint || 0;
     const interactionsCollection = db.collection('interactions');
 
-    // Record the new interaction as a separate event
     const interactionDoc = {
       user_id: userId,
       interaction_type: 'COACHING',
@@ -233,9 +266,7 @@ export const chatBoxController = async (req, res) => {
       interaction_timestamp: new Date(),
     };
 
-    const result = await interactionsCollection.insertOne(interactionDoc);
-
-    // Emit points update event
+    await interactionsCollection.insertOne(interactionDoc);
     const clients = req.app.locals.clients || new Map();
     const userClients = clients.get(userId);
     if (userClients) {
@@ -244,7 +275,6 @@ export const chatBoxController = async (req, res) => {
       });
     }
 
-    // Emit total points (aggregate for user)
     const totalPoints = await interactionsCollection
       .aggregate([
         { $match: { user_id: userId } },
@@ -253,8 +283,6 @@ export const chatBoxController = async (req, res) => {
       .toArray();
 
     const updatedPoints = totalPoints[0]?.total || 0;
-
-    // ✅ Update total points in users collection
     await usersCollection.updateOne(
       { _id: new ObjectId(userId) },
       { $set: { totalPoints: updatedPoints } },
@@ -275,8 +303,6 @@ export const chatBoxController = async (req, res) => {
     req.logger = logger.withRequestContext(req);
     req.logger.info('Coaching Interaction recorded', logMetadata);
 
-    // end points
-
     res.status(200).json({
       success: true,
       response: serverMessage.text,
@@ -284,23 +310,25 @@ export const chatBoxController = async (req, res) => {
         userMessage,
         serverMessage,
       },
-      thirdRound: thirdRound,
     });
   } catch (error) {
     console.error('Chat box error:', error);
-    
+
     // Log the error with OpenAI call details if it's an OpenAI error
-    if (error.message.includes('OpenAI') || error.message.includes('Invalid response from OpenAI')) {
+    if (
+      error.message.includes('OpenAI') ||
+      error.message.includes('Invalid response from OpenAI')
+    ) {
       logger.logOpenAICall(req, {
         model: 'gpt-4o-mini',
         userInput: req.body?.question,
         systemPrompt: 'Coaching prompt generation failed',
         error,
         responseTime: Date.now() - startTime,
-        chatType: 'COACHING'
+        chatType: 'COACHING',
       });
     }
-    
+
     res.status(500).json({
       error: 'An error occurred while processing your request',
       details: error.message,

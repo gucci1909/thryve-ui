@@ -5,6 +5,20 @@ export const getLearningPlanPrompt = (
   reflections_of_context,
   leadership_assessment,
 ) => {
+  const cleanContext =
+    coaching_history &&
+    typeof coaching_history === 'object' &&
+    Array.isArray(coaching_history.chat_context)
+      ? coaching_history.chat_context.map((entry) => ({
+          from: entry.from,
+          chat_text: entry.chat_text,
+          messageType: entry.messageType,
+          chatType: entry.chatType,
+        }))
+      : [];
+
+  const updatedChat = { chat_context: cleanContext };
+
   return `You are an expert Leadership Coach specializing in creating personalized learning and development plans. 
 
 Your role is to analyze multiple data sources as defined in the 5 sections under "INPUT-COMPONENTS-AND-TEMPLATE-STRUCTURES" and create a comprehensive, actionable learning plan that addresses the specific needs of each manager. The actual input data about the manager that represents the categories defined under "INPUT-COMPONENTS-AND-TEMPLATE-STRUCTURES" are mentioned in "ACTUAL-INPUT-DATA" Please provide **ONLY** 4 learning plan out **ONLY* as a json object that I can use to directly send an API output
@@ -130,15 +144,13 @@ Previous coaching conversations and insights. The real data is mentioned under C
       "from": "user", // question asked by the user
       "messageType": "question",
       "chatType": // coaching or roleplay
-      "chat_text": // question from the user,
-      "timestamp": // timestamp of the response
+      "chat_text": // question from the user
     },
     {
       "from": "aicoach", // response from the AI Coach
       "messageType": "response",
       "chatType": // coaching or roleplay
-      "chat_text": // answer from the coach,
-      "timestamp": // timestamp of the response
+      "chat_text": // answer from the coach
     }
   ]
 }
@@ -205,7 +217,7 @@ TEAM-FEEDBACK-ACTUAL:
 ${JSON.stringify(team_feedback, null, 2)}
 
 COACHING-HISTORY-ACTUAL:
-${JSON.stringify(coaching_history, null, 2)}
+${JSON.stringify(updatedChat, null, 2)}
 
 REFLECTIONS-ACTUAL:
 ${JSON.stringify(reflections_of_context, null, 2)}

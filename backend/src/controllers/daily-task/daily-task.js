@@ -16,9 +16,11 @@ async function processUserBatch(users, db) {
 
   for (const user of users) {
     try {
+      debugger;
       // Get all required collections
       const leadershipReportsCollection = db.collection('leadership-reports');
       const chatsCollection = db.collection('chats');
+      const rolePlayChatCollection = db.collection('role-play-chats');
       const teamMembersCollection = db.collection('team_members');
       const reflectionsCollection = db.collection('reflections');
       const learningPlansCollection = db.collection('learning-plans');
@@ -27,7 +29,15 @@ async function processUserBatch(users, db) {
       const leadershipReport = await leadershipReportsCollection.findOne({
         userId: user._id.toString(),
       });
-      const chats = await chatsCollection.findOne({ user_id: user._id.toString() });
+
+      const existingChat = await chatsCollection
+        .find({ user_id: user._id.toString() })
+        .sort({ updated_at: -1 })
+        .toArray();
+      const existingRolePlayChat = await rolePlayChatCollection
+        .find({ user_id: user._id.toString() })
+        .sort({ updated_at: -1 })
+        .toArray();
       const teamMembers = await teamMembersCollection
         .find({ userId: user._id.toString() })
         .toArray();
@@ -48,10 +58,23 @@ async function processUserBatch(users, db) {
         ...(leadershipReport?.assessment?.learning_plan || []),
       ];
 
+      const mergedExistingChat = existingChat?.reduce((acc, chat) => {
+        return acc.concat(chat.chat_context);
+      }, []);
+
+      const mergedExistingRolePlayChat = existingRolePlayChat?.reduce((acc, chat) => {
+        return acc.concat(chat?.chat_context);
+      }, []);
+
       const team_feedback = teamMembers
         .filter((member) => member.feedbackData !== undefined)
         .map((member) => member.feedbackData);
-      const coaching_history = chats?.chat_context || [];
+      const coaching_history = {
+        chat_context: [
+          ...(Array.isArray(mergedExistingChat) ? mergedExistingChat : []),
+          ...(Array.isArray(mergedExistingRolePlayChat) ? mergedExistingRolePlayChat : []),
+        ],
+      };
       const reflections_of_context = reflections.map((reflection) => ({
         content: reflection.content,
       }));
@@ -149,7 +172,7 @@ async function updateAllUsersLearningPlans() {
 
 // Schedule the job to run at 4 PM daily
 cron.schedule(
-  '0 16 * * *',
+  '4 3 * * *',
   async () => {
     let retryCount = 0;
 

@@ -38,18 +38,19 @@ export const rolePlayController = async (req, res) => {
   const startTime = Date.now();
 
   try {
-    const { question, userId } = req.body;
+    const { question, userId, sessionStart } = req.body;
 
     if (!question || !userId) {
       return res.status(400).json({ error: 'Question and userId are required' });
     }
 
-    // Get user's company ID from users collection
     const usersCollection = db.collection('users');
     const companiesCollection = db.collection('companies');
     const leadershipReportsCollection = db.collection('leadership-reports');
     const learningPlansCollection = db.collection('learning-plans');
-    const existingLearningPlans = await learningPlansCollection.findOne({ userId });
+    const rolePlayChatCollection = db.collection('role-play-chats');
+    const sessionsCollection = db.collection('sessions');
+
     const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
 
     if (!user) {
@@ -58,33 +59,92 @@ export const rolePlayController = async (req, res) => {
 
     const currentTimestamp = new Date();
 
-    // Prepare user message
+    let sessionId;
+
+    if (sessionStart === true) {
+      await sessionsCollection.updateMany(
+        { userId: userId, chatMode: 'role-play', status: 'active' },
+        { $set: { status: 'closed', endedAt: currentTimestamp } },
+      );
+
+      // Create new sessionId
+      sessionId = `${userId}_${currentTimestamp.getTime()}`;
+
+      await sessionsCollection.insertOne({
+        userId: userId,
+        chatMode: 'role-play',
+        sessionId: sessionId,
+        startedAt: currentTimestamp,
+        status: 'active',
+      });
+    } else {
+      // Check if there's already a session for this user
+      const sessionDoc = await sessionsCollection.findOne(
+        {
+          userId: userId,
+          chatMode: 'role-play',
+          status: 'active',
+        },
+        { sort: { startedAt: -1 } },
+      );
+
+      if (sessionDoc) {
+        sessionId = sessionDoc.sessionId;
+      } else {
+        sessionId = `${userId}_${currentTimestamp.getTime()}`;
+
+        await sessionsCollection.insertOne({
+          userId: userId,
+          chatMode: 'role-play',
+          sessionId: sessionId,
+          startedAt: currentTimestamp,
+          status: 'active',
+        });
+      }
+    }
+
     const userMessage = {
       from: 'user',
       chat_text: question,
-      timestamp: currentTimestamp,
       messageType: 'question',
-      chatType: 'roleplay',
+      chatType: 'role-play',
+      sessionId: sessionId,
+      timestamp: currentTimestamp,
     };
 
-    const chatCollection = db.collection('chats');
-    const existingChat = await chatCollection.findOne({ user_id: userId });
+    const existingRolePlayChat = await rolePlayChatCollection
+      .find({ user_id: userId })
+      .sort({ updated_at: -1 })
+      .toArray();
+
+    const existingLearningPlans = await learningPlansCollection
+      .find({ userId })
+      .sort({ updated_at: -1 })
+      .toArray();
 
     const company = await companiesCollection.findOne({ INVITE_CODE: user?.companyId });
-
     const leadershipReport = await leadershipReportsCollection.findOne({ userId: userId });
+
+    const mergedLearningPlan = existingLearningPlans?.reduce((acc, existingLearningPlan) => {
+      return acc.concat(existingLearningPlan?.learning_plan);
+    }, []);
+
+    const mergedExistingChat = existingRolePlayChat?.reduce((acc, chat) => {
+      return acc.concat(chat?.chat_context);
+    }, []);
+
     const { learning_plan, ...restOfAssessment } = leadershipReport?.assessment || {};
 
-    const learning_cards = [
-      ...(existingLearningPlans?.learning_plan || []),
-      ...(learning_plan || []),
-    ];
+    const learning_cards = [...(mergedLearningPlan || []), ...(learning_plan || [])];
+
+    // we are here just making a role-play-prompt.txt file
+    // start of file append
 
     const rolePlayPrompt = getRolePlayingPrompt(
       question,
       restOfAssessment || {},
       company || {},
-      existingChat || {},
+      { chat_context: mergedExistingChat } || {},
       learning_cards || {},
     );
 
@@ -103,6 +163,8 @@ export const rolePlayController = async (req, res) => {
       }
     });
 
+    // end of file append
+
     // Make OpenAI API call with timing
     const openAIStartTime = Date.now();
     const response = await fetch(process.env.OpenAIAPI, {
@@ -120,7 +182,7 @@ export const rolePlayController = async (req, res) => {
               question,
               restOfAssessment || {},
               company || {},
-              existingChat || {},
+              { chat_context: mergedExistingChat } || {},
               learning_cards || {},
             ),
           },
@@ -142,7 +204,7 @@ export const rolePlayController = async (req, res) => {
         error,
         responseTime: openAIResponseTime,
         chatType: 'ROLEPLAY',
-        tokensUsed: data.usage?.total_tokens
+        tokensUsed: data.usage?.total_tokens,
       });
       throw error;
     }
@@ -156,53 +218,44 @@ export const rolePlayController = async (req, res) => {
       response: responseContent,
       responseTime: openAIResponseTime,
       chatType: 'ROLEPLAY',
-      tokensUsed: data.usage?.total_tokens
+      tokensUsed: data.usage?.total_tokens,
     });
 
     // Prepare server message
     const serverMessage = {
       from: 'aicoach',
       chat_text: responseContent,
-      timestamp: new Date(),
       messageType: 'response',
-      chatType: 'roleplay',
+      chatType: 'role-play',
+      sessionId: sessionId,
+      timestamp: new Date(),
     };
 
-    // Find existing conversation or create new one
-    let thirdRound = false;
-
-    if (existingChat) {
-      // Count messages of roleplay type only
-      const roleplayMessages = existingChat.chat_context.filter(
-        (msg) => msg.chatType === 'roleplay',
-      );
-      const messageRound = roleplayMessages.length || 1;
-      const updatedMessageRound = messageRound + 2;
-      thirdRound = updatedMessageRound % 6 === 0;
-
-      // Update existing conversation
-      await chatCollection.updateOne(
-        { user_id: userId },
+    if (sessionStart === true) {
+      await rolePlayChatCollection.insertOne({
+        user_id: userId,
+        session_id: sessionId,
+        chat_context: [userMessage, serverMessage],
+        created_at: new Date(),
+        updated_at: new Date(),
+      });
+    } else {
+      await rolePlayChatCollection.updateOne(
+        { user_id: userId, session_id: sessionId },
         {
           $push: {
             chat_context: {
               $each: [userMessage, serverMessage],
             },
           },
+          $set: {
+            updated_at: new Date(),
+          },
         },
       );
-    } else {
-      // Create new conversation
-      await chatCollection.insertOne({
-        user_id: userId,
-        chat_context: [userMessage, serverMessage],
-        created_at: currentTimestamp,
-        updated_at: currentTimestamp,
-      });
     }
 
     // start points to the user
-
     if (!user || !user.companyId) {
       return res.status(404).json({
         status: 'Not OK',
@@ -273,23 +326,25 @@ export const rolePlayController = async (req, res) => {
         userMessage,
         serverMessage,
       },
-      thirdRound: thirdRound,
     });
   } catch (error) {
     console.error('Chat box error:', error);
-    
+
     // Log the error with OpenAI call details if it's an OpenAI error
-    if (error.message.includes('OpenAI') || error.message.includes('Invalid response from OpenAI')) {
+    if (
+      error.message.includes('OpenAI') ||
+      error.message.includes('Invalid response from OpenAI')
+    ) {
       logger.logOpenAICall(req, {
         model: 'gpt-4o-mini',
         userInput: req.body?.question,
         systemPrompt: 'Roleplay prompt generation failed',
         error,
         responseTime: Date.now() - startTime,
-        chatType: 'ROLEPLAY'
+        chatType: 'ROLEPLAY',
       });
     }
-    
+
     res.status(500).json({
       error: 'An error occurred while processing your request',
       details: error.message,
