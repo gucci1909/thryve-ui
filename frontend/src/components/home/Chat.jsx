@@ -44,7 +44,8 @@ const Chat = memo(
   }) {
     const [expandedMessages, setExpandedMessages] = useState({});
     const dispatch = useDispatch();
-    const { firstName, chatMode } = useSelector((state) => state.user);
+    const { firstName } = useSelector((state) => state.user);
+    const chatMode = useSelector((state) => state.user.chatMode) || 'none';
 
     useEffect(() => {
       if (messagesEndRef?.current) {

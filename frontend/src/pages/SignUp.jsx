@@ -218,7 +218,7 @@ const SignupPage = () => {
 
 
         dispatch(login({ token, _id: id, email, firstName }));
-        navigate("/selection-page");
+        navigate("/personalize");
       }
 
       setIsLoading(false);

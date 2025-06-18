@@ -20,7 +20,7 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
   const token = useSelector((state) => state.user.token);
   const userId = useSelector((state) => state.user._id);
   const firstName = useSelector((state) => state.user.firstName);
-  const chatMode = useSelector((state) => state.user.chatMode);
+  const chatMode = useSelector((state) => state.user.chatMode) || 'none';
   const dispatch = useDispatch();
   const [cookies, setCookie, removeCookie] = useCookies(["authToken"]);
   const navigate = useNavigate();

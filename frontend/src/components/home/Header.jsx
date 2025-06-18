@@ -135,12 +135,12 @@ function Header({ pointAdded, setPointAdded }) {
 
             <motion.div className="relative">
               <motion.span
-                key={points}
+                key={points || 0}
                 initial={showPointsUpdate ? { y: -20, opacity: 0 } : false}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
               >
-                {points}
+                {points || 0}
               </motion.span>
 
               {showPointsUpdate && points > previousPoints && (

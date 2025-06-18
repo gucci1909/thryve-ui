@@ -8,8 +8,7 @@ const PublicRoute = ({ children }) => {
 
   if (
     token &&
-    (location.pathname === "/selection-page" ||
-      location.pathname === "/personalize" ||
+    (location.pathname === "/personalize" ||
       location.pathname === "/waiting" ||
       location.pathname === "/leadership-swot-analysis")
   ) {
@@ -20,7 +19,7 @@ const PublicRoute = ({ children }) => {
     if (personalize) {
       return <Navigate to="/personalize-home" />;
     } else {
-      return <Navigate to="/selection-page" />;
+      return <Navigate to="/personalize" />;
     }
   }
 

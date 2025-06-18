@@ -10,7 +10,7 @@ const FloatingNav = ({setMessages,   setShowFeedback}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const chatMode = useSelector((state) => state.user.chatMode);
+  const chatMode = useSelector((state) => state.user.chatMode) || 'none';
 
   console.log({ a: chatMode });
 
