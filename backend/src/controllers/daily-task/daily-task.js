@@ -24,18 +24,33 @@ async function processUserBatch(users, db) {
       const learningPlansCollection = db.collection('learning-plans');
 
       // Fetch all required data
-      const leadershipReport = await leadershipReportsCollection.findOne({ userId: user._id });
-      const existingLearningPlans = await learningPlansCollection.findOne({ userId: user._id });
-      const chats = await chatsCollection.findOne({ user_id: user._id });
-      const teamMembers = await teamMembersCollection.find({ userId: user._id }).toArray();
-      const reflections = await reflectionsCollection.find({ userId: user._id }).toArray();
+      const leadershipReport = await leadershipReportsCollection.findOne({
+        userId: user._id.toString(),
+      });
+      const chats = await chatsCollection.findOne({ user_id: user._id.toString() });
+      const teamMembers = await teamMembersCollection
+        .find({ userId: user._id.toString() })
+        .toArray();
+      const reflections = await reflectionsCollection
+        .find({ userId: user._id.toString() })
+        .toArray();
+      const existingLearningPlans = await learningPlansCollection
+        .find({ userId: user._id.toString() })
+        .sort({ updated_at: -1 })
+        .toArray();
+
+      const mergedLearningPlan = existingLearningPlans?.reduce((acc, existingLearningPlan) => {
+        return acc.concat(existingLearningPlan?.learning_plan);
+      }, []);
 
       const past_learning_cards = [
-        ...(existingLearningPlans?.learning_plan || []),
+        ...(mergedLearningPlan || []),
         ...(leadershipReport?.assessment?.learning_plan || []),
       ];
 
-      const team_feedback = teamMembers.map((feedback) => feedback.feedbackData);
+      const team_feedback = teamMembers
+        .filter((member) => member.feedbackData !== undefined)
+        .map((member) => member.feedbackData);
       const coaching_history = chats?.chat_context || [];
       const reflections_of_context = reflections.map((reflection) => ({
         content: reflection.content,

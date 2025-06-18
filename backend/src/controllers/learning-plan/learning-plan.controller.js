@@ -95,21 +95,21 @@ export const learningPlanGetController = async (req, res) => {
     }
 
     // Merge learning_plan arrays while keeping latest plans first
-    const mergedLearningPlan = plans.reduce((acc, plan) => {
-      return acc.concat(plan.learning_plan);
-    }, []);
-
-    // const seenVideos = [];
-
     // const mergedLearningPlan = plans.reduce((acc, plan) => {
-    //   plan.learning_plan.forEach((item) => {
-    //     if (!seenVideos.includes(item.video)) {
-    //       seenVideos.push(item.video);
-    //       acc.push(item);
-    //     }
-    //   });
-    //   return acc;
+    //   return acc.concat(plan.learning_plan);
     // }, []);
+
+    const seenVideos = [];
+
+    const mergedLearningPlan = plans.reduce((acc, plan) => {
+      plan.learning_plan.forEach((item) => {
+        if (!seenVideos.includes(item.video)) {
+          seenVideos.push(item.video);
+          acc.push(item);
+        }
+      });
+      return acc;
+    }, []);
 
     return res.status(200).json({
       status: 'OK',

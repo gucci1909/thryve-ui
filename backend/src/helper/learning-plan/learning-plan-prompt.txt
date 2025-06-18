@@ -20942,3 +20942,3432 @@ REQUIREMENTS FOR YOUR RESPONSE
    - Address specific improvement areas mentioned in feedback
 
 Your response should be a JSON object (which can directly be sent back by the API) following the structure as per "LEARNING-PLAN-OUTPUT-TEMPLATE" with this example showing the expected detail level. The output should **ONLY** and **EXACT** Structure and be a VALID JSON object and should **NOT** contain any additional text or explanations
+
+
+===== 2025-06-18T19:32:33.383Z =====
+You are an expert Leadership Coach specializing in creating personalized learning and development plans. 
+
+Your role is to analyze multiple data sources as defined in the 5 sections under "INPUT-COMPONENTS-AND-TEMPLATE-STRUCTURES" and create a comprehensive, actionable learning plan that addresses the specific needs of each manager. The actual input data about the manager that represents the categories defined under "INPUT-COMPONENTS-AND-TEMPLATE-STRUCTURES" are mentioned in "ACTUAL-INPUT-DATA" Please provide **ONLY** 4 learning plan out **ONLY* as a json object that I can use to directly send an API output
+
+===========================================
+INPUT-COMPONENTS-AND-TEMPLATE-STRUCTURES
+===========================================
+
+Your analysis will be based on five key data sources (PAST-LEARNING-CARDS-TEMPLATE, TEAM-FEEDBACK-TEMPLATE, COACHING-HISTORY-TEMPLATE, REFLECTIONS-TEMPLATE, LEADERSHIP-ASSESSMENT-TEMPLATE as given below), each providing unique insights into the manager's development needs:
+
+1. PAST-LEARNING-CARDS-TEMPLATE
+=============================
+Previous learning modules completed by the manager. The real data is mentioned under PAST-LEARNING-CARDS-ACTUAL
+
+{
+  "past_learning_cards": [ // Array of previously completed learning modules
+    {
+      "title": "", // Descriptive title of the learning module (e.g., "Improving Decision-Making and Delegation Skills")
+      "content": "", // Detailed description of the module content and learning objectives
+      "video": "", // URL to associated video content (e.g., YouTube link),
+      "focus_area": "", // Primary development area (e.g., "leadership", "communication", "strategy")
+      "difficulty": "", // Level of complexity ("beginner", "intermediate", "advanced")
+      "skills": [], // Array of specific skills developed through this module viz. "emotional intelligence", "active listening", "empathetic leadership", "adaptive communication", // Any other skill you think is relevant to the learning plan
+      "prerequisites": [], // Array of recommended prior knowledge or experience viz. "Basic leadership experience", "Team management responsibility", // Any other prerequisite you think is relevant to the learning plan
+    }
+  ]
+}
+
+Common Focus Areas for Past Learning:
+1. Decision Making & Delegation
+   - Purpose: Improve decision-making process and delegation skills
+   - Topics: Team involvement, trust building, effective delegation
+
+2. Emotional Intelligence
+   - Purpose: Enhance emotional awareness and management
+   - Topics: Team emotional dynamics, leadership style adaptation
+
+3. Vision & Strategy
+   - Purpose: Develop strategic thinking and communication
+   - Topics: Long-term planning, goal setting, innovation
+
+4. Team Development
+   - Purpose: Strengthen coaching and mentoring abilities
+   - Topics: Growth opportunities, problem-solving, mentorship
+
+5. Adaptability & Influence
+   - Purpose: Improve flexibility and leadership influence
+   - Topics: Situational leadership, change management
+
+2. TEAM-FEEDBACK-TEMPLATE
+=======================
+Detailed feedback structure explaining each field and its purpose. The real data is mentioned under TEAM-FEEDBACK-ACTUAL
+
+{
+  "team_feedback": [ // Array of feedback entries from team members
+    {
+      "feedbackData": { // Container for all feedback related data
+        "ratingQuestions": [ // Array of structured rating questions
+          {
+            "id": "", // Unique identifier for the question (e.g., communicatesClearly, keepsInformed)
+            "category": "", // Question category name (e.g., Communication & Clarity, Support & Development). More details can be found in the section "Question-Categories-and-Their-Purpose" below
+            "categoryID": "", // Unique identifier for the category (e.g., CommunicationClarity, SupportDevelopment)
+            "text": "", // The actual question text shown to the team member
+            "response": 0 // Numeric response on scale 1-5 (1=Strongly Disagree, 5=Strongly Agree). Details of which are in "Rating-Scale-Definition" below
+          }
+        ],
+        "npsScore": 0, // Net Promoter Score (0-10) indicating overall satisfaction with manager. Details of which are in "NPS-Score-Interpretation"
+        "openEndedQuestions": [ // Array of free-form feedback questions
+          {
+            "id": "", // Question identifier (e.g., managerStrengths, areasForImprovement, additionalFeedback)
+            "text": "", // The actual question text
+            "response": "" // Free-form text response from team member
+          }
+        ],
+        "overallProgress": // should be ignored
+        "categoryProgress": // should be ignored
+      }
+    }
+  ]
+}
+
+Question-Categories-and-Their-Purpose:
+1. Communication & Clarity
+   - Purpose: Assess manager's ability to communicate effectively and maintain transparency
+   - Questions cover: Goal setting, expectations, active listening, decision-making process
+
+2. Support & Development
+   - Purpose: Evaluate manager's role in team growth and professional development
+   - Questions cover: Feedback quality, learning support, accessibility, mentorship
+
+3. Decision-Making & Fairness
+   - Purpose: Gauge manager's decision-making process and conflict resolution skills
+   - Questions cover: Fairness, transparency, conflict handling, problem-solving
+
+4. Recognition & Team Culture
+   - Purpose: Assess manager's ability to create positive team environment
+   - Questions cover: Recognition practices, psychological safety, inclusivity
+
+5. Empowerment & Motivation
+   - Purpose: Evaluate manager's ability to inspire and empower team
+   - Questions cover: Autonomy, motivation, trust, leadership inspiration
+
+Rating-Scale-Definition:
+1 - Strongly Disagree: Significant improvement needed
+2 - Disagree: Some improvement needed
+3 - Neutral: Meets basic expectations
+4 - Agree: Exceeds expectations
+5 - Strongly Agree: Exceptional performance
+
+NPS-Score-Interpretation:
+0-6: Detractor (Improvement needed)
+7-8: Passive (Satisfactory but room for improvement)
+9-10: Promoter (Excellent performance)
+
+
+3. COACHING-HISTORY-TEMPLATE
+==========================
+Previous coaching conversations and insights. The real data is mentioned under COACHING-HISTORY-ACTUAL
+
+{
+  "coaching_history": [
+  {
+      "from": "user", // question asked by the user
+      "messageType": "question",
+      "chatType": // coaching or roleplay
+      "chat_text": // question from the user,
+      "timestamp": // timestamp of the response
+    },
+    {
+      "from": "aicoach", // response from the AI Coach
+      "messageType": "response",
+      "chatType": // coaching or roleplay
+      "chat_text": // answer from the coach,
+      "timestamp": // timestamp of the response
+    }
+  ]
+}
+
+4. REFLECTIONS-TEMPLATE
+=====================
+Personal insights and self-observations. The real data is mentioned under REFLECTIONS-ACTUAL
+
+{
+  "reflections": [
+    {
+      "content": // daily reflection from the user,
+    }
+  ]
+}
+
+5. LEADERSHIP-ASSESSMENT-TEMPLATE
+==============================
+Comprehensive evaluation of leadership style and capabilities. The real data is mentioned under LEADERSHIP-ASSESSMENT-ACTUAL
+
+{
+  "persona": [{
+    "id": //This should be either "Visionary", "Coaching", "Democratic", "Affiliative", "Directive",
+    "label": //This should be either "Visionary", "Coaching", "Democratic", "Affiliative", "Directive" and is derived from the input of leadership assessment provided in "leadership_assessment_input_template"
+    "summary": "" // For this, Provide a 80-100 word text explaining what the leadership type and persona.
+  },],
+  "insights": {
+    "strengths": [
+      // This is an array of text to summarize the strengths based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 strentghs and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ],
+    "weaknesses": [
+      // This is an array of text to summarize the weakness based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 weakness and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ],
+    "opportunities": [
+      // This is an array of text to summarize the opportunities based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 opportunities and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ],
+    "threats": [
+      // This is an array of text to summarize the threats based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 threats and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ]
+  },
+  "recommendations": { //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. YOU MUST INCLUDE THIS FOR EVERY RESPONSE
+    "do-more": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should continue doing and provide an example of how. Keep in mind the preference for coaching tone.
+    "do-less": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should do less of and provide an example of what. Keep in mind the preference for coaching tone
+    "start": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should start doing and provide an example of how. Keep in mind the preference for coaching tone
+    "stop": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should stop doing and provide an example of how. Keep in mind the preference for coaching tone
+  },
+  "learning_plan": [ //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. IT IS REPRESENTED AS AN ARRAY. YOU MUST INCLUDE THIS FOR EVERY RESPONSE. PLEASE INCLUDE AT LEAST 12 CONTENT PIECES FOR THIS SECTION
+    {
+      "title": //This is the title of the learning_plan that has to be generated
+      "content": //This is the content of the learning_plan that has to be generated 
+      "video": //This is the path to a youtube video based on the learning plan generated. You can view the youtube-master-list to identify which video you think best suits the content generated. If you cannot find a suitable video under the section youtube-master-list then add an empty string as a response. ONLY add a video if YOU THINK that the learning plan that is being generated ALIGNS with the content of the video. Otherwise DONT include a video link
+    } 
+  ]
+}
+
+===========================================
+ACTUAL INPUT DATA
+===========================================
+
+PAST-LEARNING-CARDS-ACTUAL:
+[
+  {
+    "title": "Effective Delegation Strategies",
+    "content": "Master the art of delegation to enhance team productivity and empower team members. This module covers the fundamentals of delegation, including identifying the right tasks to delegate, establishing clear expectations, and following up effectively. By learning to delegate wisely, you can improve team dynamics and foster a culture of trust and accountability.",
+    "video": "https://www.youtube.com/watch?v=SI6cOkDOoyE",
+    "focus_area": "leadership",
+    "difficulty": "intermediate",
+    "skills": [
+      "delegation",
+      "trust building",
+      "accountability"
+    ],
+    "prerequisites": [],
+    "next_steps": [
+      "Identify three tasks to delegate in the upcoming week",
+      "Set clear expectations for each delegated task"
+    ],
+    "metrics": {
+      "short_term": [
+        "Increased team autonomy",
+        "Positive feedback from team members on delegation"
+      ],
+      "long_term": [
+        "Improved team performance",
+        "Enhanced team engagement scores"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Delegation checklist",
+        "Team feedback form"
+      ],
+      "optional": [
+        "Books on effective leadership"
+      ]
+    }
+  },
+  {
+    "title": "Building Emotional Intelligence",
+    "content": "Enhance your emotional intelligence to better understand and manage your own emotions and those of your team. This module will provide techniques to develop self-awareness, self-regulation, empathy, and social skills, which are essential for effective leadership and team collaboration.",
+    "video": "https://www.youtube.com/watch?v=tdnJCwxpBuA",
+    "focus_area": "emotional intelligence",
+    "difficulty": "intermediate",
+    "skills": [
+      "self-awareness",
+      "empathy",
+      "communication"
+    ],
+    "prerequisites": [],
+    "next_steps": [
+      "Practice active listening in team meetings",
+      "Reflect on emotional responses in challenging situations"
+    ],
+    "metrics": {
+      "short_term": [
+        "Improved team interactions",
+        "Increased team trust"
+      ],
+      "long_term": [
+        "Better conflict resolution",
+        "Higher employee satisfaction"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Emotional intelligence assessment tool"
+      ],
+      "optional": [
+        "Articles on emotional intelligence"
+      ]
+    }
+  },
+  {
+    "title": "Fostering a Feedback Culture",
+    "content": "Create an environment where feedback flows freely and constructively. This module teaches how to give and receive feedback effectively, encouraging a culture of improvement and collaboration. Learn to use feedback as a tool for growth and development.",
+    "video": "https://www.youtube.com/watch?v=gi5UfSIf0BM",
+    "focus_area": "communication",
+    "difficulty": "intermediate",
+    "skills": [
+      "feedback giving",
+      "active listening",
+      "constructive criticism"
+    ],
+    "prerequisites": [],
+    "next_steps": [
+      "Implement a weekly feedback session with your team",
+      "Encourage open discussions about feedback"
+    ],
+    "metrics": {
+      "short_term": [
+        "Increased feedback frequency",
+        "Positive team response to feedback initiative"
+      ],
+      "long_term": [
+        "Improved team performance",
+        "Enhanced team cohesion"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Feedback guidelines",
+        "Team feedback survey"
+      ],
+      "optional": [
+        "Books on feedback techniques"
+      ]
+    }
+  },
+  {
+    "title": "Empathy in Leadership",
+    "content": "Develop empathetic leadership skills to connect better with your team. This module covers the importance of empathy in leadership and strategies to implement empathetic practices in your daily interactions. Learn how empathy can enhance team morale and productivity.",
+    "video": "https://www.youtube.com/watch?v=1Evwgu369Jw",
+    "focus_area": "leadership",
+    "difficulty": "advanced",
+    "skills": [
+      "empathy",
+      "relationship building",
+      "team motivation"
+    ],
+    "prerequisites": [],
+    "next_steps": [
+      "Observe team dynamics and reflect on emotional responses",
+      "Practice empathetic conversations with team members"
+    ],
+    "metrics": {
+      "short_term": [
+        "Increased team morale",
+        "Positive feedback from team members"
+      ],
+      "long_term": [
+        "Lower turnover rates",
+        "Higher employee engagement scores"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Empathy assessment tool"
+      ],
+      "optional": [
+        "Webinars on empathetic leadership"
+      ]
+    }
+  },
+  {
+    "title": "Building Effective Communication Skills",
+    "content": "Enhancing communication skills is crucial for effective leadership. This plan focuses on developing clarity in communication, active listening, and transparency with team members. Managers can practice these skills in meetings to foster a more open environment.",
+    "video": "https://www.youtube.com/watch?v=YLBDkz0TwLM",
+    "focus_area": "communication",
+    "difficulty": "intermediate",
+    "skills": [
+      "active listening",
+      "clear communication",
+      "transparency"
+    ],
+    "prerequisites": [],
+    "next_steps": [
+      "Engage in three active listening exercises during team meetings",
+      "Seek feedback on clarity from team members"
+    ],
+    "metrics": {
+      "short_term": [
+        "Improved team feedback scores on communication",
+        "Increased participation rates in meetings"
+      ],
+      "long_term": [
+        "Higher NPS scores from team members",
+        "Reduction in misunderstandings reported"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Communication skills workshop materials"
+      ],
+      "optional": [
+        "Books on effective communication"
+      ]
+    }
+  },
+  {
+    "title": "Delegation and Empowerment Strategies",
+    "content": "Learning to delegate effectively is key to empowering team members and enhancing productivity. This plan includes techniques for assessing tasks, choosing the right people to delegate to, and providing necessary support.",
+    "video": "https://www.youtube.com/watch?v=SI6cOkDOoyE",
+    "focus_area": "leadership",
+    "difficulty": "intermediate",
+    "skills": [
+      "delegation",
+      "team empowerment",
+      "trust building"
+    ],
+    "prerequisites": [],
+    "next_steps": [
+      "Identify three tasks to delegate this week",
+      "Schedule follow-up sessions to discuss outcomes with team members"
+    ],
+    "metrics": {
+      "short_term": [
+        "Feedback on delegation processes from team members",
+        "Observed improvements in task completion rates"
+      ],
+      "long_term": [
+        "Increased team autonomy",
+        "Improved overall team productivity"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Delegation framework templates"
+      ],
+      "optional": [
+        "Articles on best practices for delegation"
+      ]
+    }
+  },
+  {
+    "title": "Developing Emotional Intelligence",
+    "content": "Emotional intelligence is vital for leaders to understand and manage their emotions and those of their team. This plan focuses on self-awareness, self-regulation, motivation, empathy, and social skills.",
+    "video": "https://www.youtube.com/watch?v=tdnJCwxpBuA",
+    "focus_area": "emotional intelligence",
+    "difficulty": "advanced",
+    "skills": [
+      "self-awareness",
+      "empathy",
+      "relationship management"
+    ],
+    "prerequisites": [],
+    "next_steps": [
+      "Keep a daily journal to reflect on emotional responses",
+      "Practice empathy exercises by actively listening to team concerns"
+    ],
+    "metrics": {
+      "short_term": [
+        "Increased team satisfaction scores",
+        "More open discussions during check-ins"
+      ],
+      "long_term": [
+        "Improved team dynamics",
+        "Higher NPS scores from team feedback"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Emotional intelligence assessment tools"
+      ],
+      "optional": [
+        "Books on emotional intelligence"
+      ]
+    }
+  },
+  {
+    "title": "Coaching for Team Development",
+    "content": "This plan aims to strengthen coaching skills to enhance team development. Managers will learn how to provide constructive feedback, set growth goals, and create a mentoring culture.",
+    "video": "https://www.youtube.com/watch?v=jWj0kLLq6IQ",
+    "focus_area": "team development",
+    "difficulty": "intermediate",
+    "skills": [
+      "coaching",
+      "mentorship",
+      "constructive feedback"
+    ],
+    "prerequisites": [],
+    "next_steps": [
+      "Set up one-on-one coaching sessions with team members",
+      "Gather feedback on coaching effectiveness"
+    ],
+    "metrics": {
+      "short_term": [
+        "Increased engagement in coaching sessions",
+        "Positive feedback from team members on growth support"
+      ],
+      "long_term": [
+        "Higher retention rates",
+        "Enhanced team performance metrics"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Coaching session templates"
+      ],
+      "optional": [
+        "Webinars on effective coaching techniques"
+      ]
+    },
+    "reactions": {
+      "thumbsDown": false,
+      "thumbsUp": true
+    }
+  },
+  {
+    "title": "Mastering Delegation Skills",
+    "content": "This module focuses on understanding the art of delegation. It covers how to assign tasks effectively, enabling managers to empower their teams while fostering a sense of responsibility and accountability. By mastering delegation, managers can free up time for strategic thinking and team development.",
+    "video": "https://www.youtube.com/watch?v=SI6cOkDOoyE",
+    "focus_area": "Leadership",
+    "difficulty": "Intermediate",
+    "skills": [
+      "delegation",
+      "trust-building",
+      "empowerment"
+    ],
+    "prerequisites": [],
+    "next_steps": [
+      "Identify tasks to delegate this week",
+      "Schedule a follow-up meeting to discuss delegation experiences with the team"
+    ],
+    "metrics": {
+      "short_term": [
+        "Number of tasks delegated",
+        "Team feedback on delegation effectiveness"
+      ],
+      "long_term": [
+        "Improvement in team performance metrics",
+        "Increased team autonomy"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Delegation checklist"
+      ],
+      "optional": []
+    }
+  },
+  {
+    "title": "Emotional Intelligence in Leadership",
+    "content": "This learning module delves into emotional intelligence, focusing on recognizing and managing one’s own emotions and those of others. It is crucial for leadership, as it enhances communication, conflict resolution, and team dynamics.",
+    "video": "https://www.youtube.com/watch?v=tdnJCwxpBuA",
+    "focus_area": "Emotional Intelligence",
+    "difficulty": "Advanced",
+    "skills": [
+      "self-awareness",
+      "empathy",
+      "relationship management"
+    ],
+    "prerequisites": [],
+    "next_steps": [
+      "Practice emotional awareness exercises daily",
+      "Engage in active listening techniques during meetings"
+    ],
+    "metrics": {
+      "short_term": [
+        "Self-assessment of emotional responses",
+        "Feedback from team on emotional interactions"
+      ],
+      "long_term": [
+        "Reduction in conflict incidents",
+        "Improved team morale"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Emotional intelligence assessment tools"
+      ],
+      "optional": []
+    }
+  },
+  {
+    "title": "Effective Feedback Techniques",
+    "content": "This module teaches managers how to provide constructive feedback that fosters growth. It emphasizes the importance of clarity, respect, and timing in delivering feedback to enhance performance and engagement.",
+    "video": "https://www.youtube.com/watch?v=gi5UfSIf0BM",
+    "focus_area": "Communication",
+    "difficulty": "Intermediate",
+    "skills": [
+      "feedback delivery",
+      "communication",
+      "active listening"
+    ],
+    "prerequisites": [],
+    "next_steps": [
+      "Conduct feedback sessions with team members",
+      "Implement the 'Stop-Start-Continue' model in feedback discussions"
+    ],
+    "metrics": {
+      "short_term": [
+        "Quality of feedback sessions",
+        "Team members' receptiveness to feedback"
+      ],
+      "long_term": [
+        "Improvement in individual performance metrics",
+        "Higher team engagement scores"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Feedback frameworks guide"
+      ],
+      "optional": []
+    }
+  },
+  {
+    "title": "Building a Coaching Culture",
+    "content": "This module focuses on the importance of coaching within teams to support personal and professional growth. It emphasizes the role of managers in fostering a coaching mindset and creating opportunities for development.",
+    "video": "https://www.youtube.com/watch?v=jWj0kLLq6IQ",
+    "focus_area": "Team Development",
+    "difficulty": "Advanced",
+    "skills": [
+      "coaching",
+      "mentorship",
+      "engagement"
+    ],
+    "prerequisites": [],
+    "next_steps": [
+      "Create a coaching plan for team members",
+      "Set up regular coaching check-ins"
+    ],
+    "metrics": {
+      "short_term": [
+        "Number of coaching sessions held",
+        "Feedback from team on coaching effectiveness"
+      ],
+      "long_term": [
+        "Increase in team skill levels",
+        "Higher retention rates"
+      ]
+    },
+    "resources": {
+      "required": [
+        "Coaching techniques handbook"
+      ],
+      "optional": []
+    },
+    "reactions": {
+      "thumbsDown": false,
+      "thumbsUp": true
+    }
+  },
+  {
+    "title": "Effective Delegation",
+    "content": "Learn how to delegate tasks effectively to increase productivity and efficiency within your team. Understand the importance of trust in delegation and how to support your team members in their tasks.",
+    "video": "https://youtu.be/Hwn_W-X2Rds?si=4GZBTtObEzX1Azx_"
+  },
+  {
+    "title": "Strategic Leadership",
+    "content": "Understand the importance of strategic leadership and how to shift your focus from short-term tasks to long-term goals. Learn how to communicate your vision effectively and drive your team towards success.",
+    "video": "https://youtu.be/BlVZiZob37I?si=PoUJxVlwiDHFVha9"
+  },
+  {
+    "title": "Balancing Results and Relationships",
+    "content": "Learn how to balance the need for results with the importance of maintaining strong relationships within your team. Understand how to communicate effectively and provide constructive feedback.",
+    "video": "https://youtu.be/FYhws73vm0c?si=MKjNn7EMHTBRT0EF"
+  }
+]
+
+TEAM-FEEDBACK-ACTUAL:
+[
+  {
+    "ratingQuestions": [
+      {
+        "id": "communicatesClearly",
+        "category": "Communication & Clarity",
+        "categoryID": "CommunicationClarity",
+        "text": "My manager clearly communicates goals, expectations, and priorities.",
+        "response": 2
+      },
+      {
+        "id": "keepsInformed",
+        "category": "Communication & Clarity",
+        "categoryID": "CommunicationClarity",
+        "text": "My manager listens actively and considers input before making decisions.",
+        "response": 3
+      },
+      {
+        "id": "caresWellBeing",
+        "category": "Support & Development",
+        "categoryID": "SupportDevelopment",
+        "text": "My manager provides useful feedback that helps me improve.",
+        "response": 4
+      },
+      {
+        "id": "approachable",
+        "category": "Support & Development",
+        "categoryID": "SupportDevelopment",
+        "text": "My manager supports my learning and professional growth.",
+        "response": 3
+      },
+      {
+        "id": "setsClearGoals",
+        "category": "Decision-Making & Fairness",
+        "categoryID": "DecisionMakingFairness",
+        "text": "My manager makes fair, timely, and transparent decisions.",
+        "response": 2
+      },
+      {
+        "id": "understandContribution",
+        "category": "Decision-Making & Fairness",
+        "categoryID": "DecisionMakingFairness",
+        "text": "My manager handles conflict and difficult situations effectively.",
+        "response": 3
+      },
+      {
+        "id": "supportsCareerGrowth",
+        "category": "Recognition & Team Culture",
+        "categoryID": "RecognitionTeamCulture",
+        "text": "My manager appreciates and recognizes individual and team contributions.",
+        "response": 4
+      },
+      {
+        "id": "growthFeedback",
+        "category": "Recognition & Team Culture",
+        "categoryID": "RecognitionTeamCulture",
+        "text": "My manager creates an inclusive and psychologically safe team environment.",
+        "response": 4
+      },
+      {
+        "id": "trustsDecisions",
+        "category": "Empowerment & Motivation",
+        "categoryID": "EmpowermentMotivation",
+        "text": "I feel empowered to take ownership of my work under my manager.",
+        "response": 5
+      },
+      {
+        "id": "empoweredOwnership",
+        "category": "Empowerment & Motivation",
+        "categoryID": "EmpowermentMotivation",
+        "text": "My manager inspires and motivates the team to perform at their best.",
+        "response": 3
+      }
+    ],
+    "npsScore": 3,
+    "openEndedQuestions": [
+      {
+        "id": "managerStrengths",
+        "text": "What are my strengths as a manager?",
+        "response": "oiuyhjkl"
+      },
+      {
+        "id": "areasForImprovement",
+        "text": "What are 1-2 areas where I can improve or better support you and the team?",
+        "response": "liuytghjkl"
+      },
+      {
+        "id": "additionalFeedback",
+        "text": "Any additional feedback you'd like to share?",
+        "response": "loi87utghjk"
+      }
+    ],
+    "overallProgress": 100,
+    "categoryProgress": 100
+  },
+  {
+    "ratingQuestions": [
+      {
+        "id": "communicatesClearly",
+        "category": "Communication & Clarity",
+        "categoryID": "CommunicationClarity",
+        "text": "My manager clearly communicates goals, expectations, and priorities.",
+        "response": 2
+      },
+      {
+        "id": "keepsInformed",
+        "category": "Communication & Clarity",
+        "categoryID": "CommunicationClarity",
+        "text": "My manager listens actively and considers input before making decisions.",
+        "response": 2
+      },
+      {
+        "id": "caresWellBeing",
+        "category": "Support & Development",
+        "categoryID": "SupportDevelopment",
+        "text": "My manager provides useful feedback that helps me improve.",
+        "response": 3
+      },
+      {
+        "id": "approachable",
+        "category": "Support & Development",
+        "categoryID": "SupportDevelopment",
+        "text": "My manager supports my learning and professional growth.",
+        "response": 4
+      },
+      {
+        "id": "setsClearGoals",
+        "category": "Decision-Making & Fairness",
+        "categoryID": "DecisionMakingFairness",
+        "text": "My manager makes fair, timely, and transparent decisions.",
+        "response": 3
+      },
+      {
+        "id": "understandContribution",
+        "category": "Decision-Making & Fairness",
+        "categoryID": "DecisionMakingFairness",
+        "text": "My manager handles conflict and difficult situations effectively.",
+        "response": 4
+      },
+      {
+        "id": "supportsCareerGrowth",
+        "category": "Recognition & Team Culture",
+        "categoryID": "RecognitionTeamCulture",
+        "text": "My manager appreciates and recognizes individual and team contributions.",
+        "response": 5
+      },
+      {
+        "id": "growthFeedback",
+        "category": "Recognition & Team Culture",
+        "categoryID": "RecognitionTeamCulture",
+        "text": "My manager creates an inclusive and psychologically safe team environment.",
+        "response": 3
+      },
+      {
+        "id": "trustsDecisions",
+        "category": "Empowerment & Motivation",
+        "categoryID": "EmpowermentMotivation",
+        "text": "I feel empowered to take ownership of my work under my manager.",
+        "response": 4
+      },
+      {
+        "id": "empoweredOwnership",
+        "category": "Empowerment & Motivation",
+        "categoryID": "EmpowermentMotivation",
+        "text": "My manager inspires and motivates the team to perform at their best.",
+        "response": 3
+      }
+    ],
+    "npsScore": 3,
+    "openEndedQuestions": [
+      {
+        "id": "managerStrengths",
+        "text": "What are my strengths as a manager?",
+        "response": ";po98uyjkl"
+      },
+      {
+        "id": "areasForImprovement",
+        "text": "What are 1-2 areas where I can improve or better support you and the team?",
+        "response": ";po987uyhjkl"
+      },
+      {
+        "id": "additionalFeedback",
+        "text": "Any additional feedback you'd like to share?",
+        "response": "kuygtvbnm,"
+      }
+    ],
+    "overallProgress": 100,
+    "categoryProgress": 100
+  },
+  {
+    "ratingQuestions": [
+      {
+        "id": "communicatesClearly",
+        "category": "Communication & Clarity",
+        "categoryID": "CommunicationClarity",
+        "text": "My manager clearly communicates goals, expectations, and priorities.",
+        "response": 2
+      },
+      {
+        "id": "keepsInformed",
+        "category": "Communication & Clarity",
+        "categoryID": "CommunicationClarity",
+        "text": "My manager listens actively and considers input before making decisions.",
+        "response": 3
+      },
+      {
+        "id": "caresWellBeing",
+        "category": "Support & Development",
+        "categoryID": "SupportDevelopment",
+        "text": "My manager provides useful feedback that helps me improve.",
+        "response": 4
+      },
+      {
+        "id": "approachable",
+        "category": "Support & Development",
+        "categoryID": "SupportDevelopment",
+        "text": "My manager supports my learning and professional growth.",
+        "response": 3
+      },
+      {
+        "id": "setsClearGoals",
+        "category": "Decision-Making & Fairness",
+        "categoryID": "DecisionMakingFairness",
+        "text": "My manager makes fair, timely, and transparent decisions.",
+        "response": 3
+      },
+      {
+        "id": "understandContribution",
+        "category": "Decision-Making & Fairness",
+        "categoryID": "DecisionMakingFairness",
+        "text": "My manager handles conflict and difficult situations effectively.",
+        "response": 3
+      },
+      {
+        "id": "supportsCareerGrowth",
+        "category": "Recognition & Team Culture",
+        "categoryID": "RecognitionTeamCulture",
+        "text": "My manager appreciates and recognizes individual and team contributions.",
+        "response": 3
+      },
+      {
+        "id": "growthFeedback",
+        "category": "Recognition & Team Culture",
+        "categoryID": "RecognitionTeamCulture",
+        "text": "My manager creates an inclusive and psychologically safe team environment.",
+        "response": 3
+      },
+      {
+        "id": "trustsDecisions",
+        "category": "Empowerment & Motivation",
+        "categoryID": "EmpowermentMotivation",
+        "text": "I feel empowered to take ownership of my work under my manager.",
+        "response": 4
+      },
+      {
+        "id": "empoweredOwnership",
+        "category": "Empowerment & Motivation",
+        "categoryID": "EmpowermentMotivation",
+        "text": "My manager inspires and motivates the team to perform at their best.",
+        "response": 3
+      }
+    ],
+    "npsScore": 4,
+    "openEndedQuestions": [
+      {
+        "id": "managerStrengths",
+        "text": "What are my strengths as a manager?",
+        "response": "werftg"
+      },
+      {
+        "id": "areasForImprovement",
+        "text": "What are 1-2 areas where I can improve or better support you and the team?",
+        "response": "wedrf"
+      }
+    ],
+    "overallProgress": 100,
+    "categoryProgress": 100
+  }
+]
+
+COACHING-HISTORY-ACTUAL:
+[
+  {
+    "from": "user",
+    "chat_text": "How can I have effective 1:1s?",
+    "timestamp": "2025-06-16T12:53:43.247Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "To have effective 1:1s, focus on creating a comfortable environment for open dialogue, set clear objectives, and actively listen to your team members' concerns and feedback. This aligns with Appsfactory's values of collaboration and empowerment.",
+    "timestamp": "2025-06-16T12:53:46.005Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "how to deal with bad managers?",
+    "timestamp": "2025-06-16T13:49:33.732Z",
+    "messageType": "question",
+    "sessionId": "6847294c78f789319ca5c393_1750055400000",
+    "chatType": "coaching"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Dealing with bad managers can be challenging. Start by understanding their perspective and communication style. Provide constructive feedback when possible, and seek to align your goals with theirs. Document specific instances that impact your work and consider discussing them with HR if necessary. Remember, fostering a positive culture, as emphasized at Appsfactory, can help mitigate conflicts.",
+    "timestamp": "2025-06-16T13:49:37.517Z",
+    "messageType": "response",
+    "sessionId": "6847294c78f789319ca5c393_1750055400000",
+    "chatType": "coaching"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on addressing burnout symptoms",
+    "timestamp": "2025-06-16T22:16:33.011Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-16T22:16:36.555Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on resolving peer disagreements",
+    "timestamp": "2025-06-17T04:01:46.459Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:01:49.213Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "my manager?",
+    "timestamp": "2025-06-17T04:04:44.289Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Let's start the role play. You are addressing a disagreement with your manager. How would you begin the conversation?",
+    "timestamp": "2025-06-17T04:04:46.136Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "how to deal with bad managers?",
+    "timestamp": "2025-06-17T04:04:56.237Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Let's continue the role play. Imagine you are in a meeting with your manager. How would you express your concerns about their management style while ensuring a constructive dialogue?",
+    "timestamp": "2025-06-17T04:04:58.979Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I may fight with him \nis it correct",
+    "timestamp": "2025-06-17T04:05:20.429Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "It's understandable to feel frustrated, but fighting might not be the best approach. How about expressing your feelings calmly and focusing on specific behaviors that impact your work? This could foster a more constructive conversation.",
+    "timestamp": "2025-06-17T04:05:23.529Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on handling underperformance",
+    "timestamp": "2025-06-17T04:15:31.417Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:15:34.485Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on handling underperformance",
+    "timestamp": "2025-06-17T04:17:54.314Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:17:56.275Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on handling underperformance",
+    "timestamp": "2025-06-17T04:18:01.450Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:18:03.659Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on handling underperformance",
+    "timestamp": "2025-06-17T04:18:41.571Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:18:43.406Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delegating critical tasks",
+    "timestamp": "2025-06-17T04:20:23.115Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:20:25.891Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delegating critical tasks",
+    "timestamp": "2025-06-17T04:23:04.517Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:23:07.313Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on escalating to leadership",
+    "timestamp": "2025-06-17T04:27:43.919Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:27:46.975Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on escalating to leadership",
+    "timestamp": "2025-06-17T04:28:00.037Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:28:02.281Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delegating critical tasks",
+    "timestamp": "2025-06-17T04:40:31.937Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Let's start the role play. You are delegating a critical task to a direct report. How would you approach this conversation?",
+    "timestamp": "2025-06-17T04:40:34.718Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delegating critical tasks",
+    "timestamp": "2025-06-17T04:41:57.971Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Let's start the role play. You are delegating a critical task to a direct report. How would you approach this conversation?",
+    "timestamp": "2025-06-17T04:42:01.506Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delegating critical tasks",
+    "timestamp": "2025-06-17T04:43:34.956Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:43:36.821Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delegating critical tasks",
+    "timestamp": "2025-06-17T04:43:56.963Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:43:58.566Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delegating critical tasks",
+    "timestamp": "2025-06-17T04:45:40.928Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:45:44.356Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on giving constructive feedback",
+    "timestamp": "2025-06-17T05:50:10.697Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Let's start the role play. You are giving constructive feedback to a direct report. How would you approach this conversation?",
+    "timestamp": "2025-06-17T05:50:14.027Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delegating critical tasks",
+    "timestamp": "2025-06-17T05:50:59.923Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Let's start the role play. You are delegating a critical task to a direct report. How would you approach this conversation?",
+    "timestamp": "2025-06-17T05:51:02.135Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delegating critical tasks",
+    "timestamp": "2025-06-17T05:51:16.155Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Let's start the role play. You are delegating a critical task to a direct report. How would you approach this conversation?",
+    "timestamp": "2025-06-17T05:51:18.081Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "how to deal with bad managers?",
+    "timestamp": "2025-06-18T12:51:13.129Z",
+    "messageType": "question",
+    "sessionId": "6847294c78f789319ca5c393_1750228200000",
+    "chatType": "coaching"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "When delegating critical tasks, start by clearly outlining the task objectives and expectations. Encourage questions to ensure understanding and demonstrate your trust in their abilities. This approach aligns with Appsfactory's value of empowerment, fostering a culture of collaboration and autonomy. Remember, effective delegation can enhance team productivity and morale.",
+    "timestamp": "2025-06-18T12:51:16.412Z",
+    "messageType": "response",
+    "sessionId": "6847294c78f789319ca5c393_1750228200000",
+    "chatType": "coaching"
+  },
+  {
+    "from": "user",
+    "chat_text": "how to deal with bad manager at workplace?",
+    "timestamp": "2025-06-18T17:12:53.480Z",
+    "messageType": "question",
+    "sessionId": "6847294c78f789319ca5c393_1750228200000",
+    "chatType": "coaching"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Dealing with a bad manager can be tough. Focus on understanding their perspective and communication style. When possible, provide constructive feedback and express your concerns respectfully. Building a good rapport can help improve the situation. If issues persist, consider documenting specific instances and discussing them with HR. Remember, fostering a positive workplace culture, as emphasized at Appsfactory, can mitigate conflicts and enhance collaboration.",
+    "timestamp": "2025-06-18T17:12:56.535Z",
+    "messageType": "response",
+    "sessionId": "6847294c78f789319ca5c393_1750228200000",
+    "chatType": "coaching"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on giving constructive feedback",
+    "timestamp": "2025-06-18T17:14:07.046Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Let's start the role play. You are giving constructive feedback to a direct report. How would you approach this conversation?",
+    "timestamp": "2025-06-18T17:14:08.993Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  }
+]
+
+REFLECTIONS-ACTUAL:
+[
+  {
+    "content": "wdefrgtw"
+  },
+  {
+    "content": "swdefrg"
+  }
+]
+
+LEADERSHIP-ASSESSMENT-ACTUAL:
+{
+  "persona": [
+    {
+      "id": "Democratic",
+      "label": "Democratic",
+      "summary": "As a Democratic leader, you often seek input from team members before making decisions. You value collaboration and encourage participation from everyone, fostering a sense of equality and respect. While this style can lead to high levels of engagement, it may also result in slower decision-making."
+    }
+  ],
+  "insights": {
+    "strengths": [
+      "You have a strong ability to adapt your leadership approach based on who you're working with.",
+      "You are proactive in mentoring and coaching your team members.",
+      "You encourage innovation, even when it involves risk."
+    ],
+    "weaknesses": [
+      "You struggle with delegating tasks and responsibilities.",
+      "You tend to focus more on short-term tasks than strategic goals.",
+      "You have a tendency to prioritize results over relationships."
+    ],
+    "opportunities": [
+      "Improving your delegation skills can enhance your team's efficiency and productivity.",
+      "By focusing more on strategic goals, you can drive long-term success for your team.",
+      "Balancing results and relationships can lead to a more harmonious and productive work environment."
+    ],
+    "threats": [
+      "Your struggle with delegation could lead to burnout and decreased productivity.",
+      "A short-term focus could hinder your team's long-term success.",
+      "Prioritizing results over relationships could damage team morale and cohesion."
+    ]
+  },
+  "recommendations": {
+    "do-more": "Continue to mentor and coach your team members. This not only helps them grow professionally but also strengthens your relationship with them.",
+    "do-less": "Try to reduce the amount of time you spend on short-term tasks and instead focus more on strategic, long-term goals.",
+    "start": "Start delegating tasks more effectively. Trust your team members to handle their responsibilities and provide support when needed.",
+    "stop": "Stop prioritizing results over relationships. Remember that a happy, cohesive team often leads to better results in the long run."
+  },
+  "learning_plan": [
+    {
+      "title": "Effective Delegation",
+      "content": "Learn how to delegate tasks effectively to increase productivity and efficiency within your team. Understand the importance of trust in delegation and how to support your team members in their tasks.",
+      "video": "https://youtu.be/Hwn_W-X2Rds?si=4GZBTtObEzX1Azx_"
+    },
+    {
+      "title": "Strategic Leadership",
+      "content": "Understand the importance of strategic leadership and how to shift your focus from short-term tasks to long-term goals. Learn how to communicate your vision effectively and drive your team towards success.",
+      "video": "https://youtu.be/BlVZiZob37I?si=PoUJxVlwiDHFVha9"
+    },
+    {
+      "title": "Balancing Results and Relationships",
+      "content": "Learn how to balance the need for results with the importance of maintaining strong relationships within your team. Understand how to communicate effectively and provide constructive feedback.",
+      "video": "https://youtu.be/FYhws73vm0c?si=MKjNn7EMHTBRT0EF"
+    }
+  ]
+}
+
+Your response should be a JSON object following the structure as per "LEARNING-PLAN-OUTPUT-TEMPLATE" with this example showing the expected detail level. The output should **ONLY** be a VALID JSON object and should not contain any additional text or explanations. 
+===========================================
+LEARNING-PLAN-OUTPUT-TEMPLATE
+===========================================
+
+{
+  "learning_plan":  [ //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. IT IS REPRESENTED AS AN ARRAY. YOU MUST INCLUDE THIS FOR EVERY RESPONSE. PLEASE INCLUDE AT LEAST 12 CONTENT PIECES FOR THIS SECTION
+    {
+      "title": //This is the title of the learning_plan that has to be generated
+      "content": //This is the content of the learning_plan that has to be generated. Please help to generate a good textual representation as well within 50-80 words
+      "video": //This is the path to a youtube video based on the learning plan generated. You can view the youtube-master-list to identify which video you think best suits the content generated. If you cannot find a suitable video under the section youtube-master-list then add an empty string as a response. ONLY add a video if YOU THINK that the learning plan that is being generated ALIGNS with the content of the video. Otherwise DONT include a video link
+      "focus_area": "", // Primary development area (e.g., "leadership", "communication", "strategy")
+      "difficulty": "", // Level of complexity ("beginner", "intermediate", "advanced")
+      "skills": [], // Array of specific skills developed through this module viz. "emotional intelligence", "active listening", "empathetic leadership", "adaptive communication", // Any other skill you think is relevant to the learning plan
+      "prerequisites": [], // Array of recommended prior knowledge or experience viz. "Basic leadership experience", "Team management responsibility", // Any other prerequisite you think is relevant to the learning plan
+      "next_steps": [], // Array of actionable implementation steps viz. "Practice active listening in next three team meetings", "Conduct emotional intelligence self-assessment", "Schedule individual connect sessions with team members", "Document emotional triggers and responses for one week", // Any other next step you think is relevant to the learning plan
+      "metrics": { // How to measure success
+        "short_term": [], // Immediate indicators of progress
+        "long_term": [] // Long-term success measures
+      },
+      "resources": { // Additional learning materials
+        "required": [], // Must-have resources
+        "optional": [] // Supplementary materials
+      }
+    }
+  ]
+}
+
+youtube-master-list
+
+The structure of this is that the first part is the Youtube Video Link and the second part is the content that can be used to query a suitable video to be featured in the leadership_assessment_report_template.learning_plan. The video link and text is delimited with a "-" (hyphen)
+														
+https://www.youtube.com/watch?v=SI6cOkDOoyE - Ideal for: Aspiring and mid-level managers. Topic: Delegation fundamentals. Takeaway: Assign tasks effectively and develop delegation as a promotion-worthy skill. (youtube.com, youtube.com)
+
+https://www.youtube.com/watch?v=YLBDkz0TwLM - Ideal for: All manager levels. Topic: Radical candor. Takeaway: Learn to “care personally, challenge directly” for honest, empathetic feedback.
+
+https://www.youtube.com/watch?v=doFpXXICnVE - Ideal for: Team leads. Topic: Leadership coaching. Takeaway: Build emotional intelligence and guide team growth.
+
+https://www.youtube.com/watch?v=2B2fyub1ZTY - Ideal for: First-time supervisors. Topic: Constructive feedback. Takeaway: Basics of timely, balanced, actionable feedback.
+
+https://www.youtube.com/watch?v=tdnJCwxpBuA - Ideal for: All leaders. Topic: Empathy in leadership. Takeaway: Understand and share team emotions to build trust.
+
+https://www.youtube.com/watch?v=buVVIpttzUA - Ideal for: Emerging leaders. Topic: Future leadership skills. Takeaway: Adaptability and curiosity will define the next generation of successful leaders.
+
+https://www.youtube.com/watch?v=n_ffqEA8X5g - Ideal for: Introverted or collaborative leaders. Topic: Communication style. Takeaway: Leading by asking questions and listening can be more effective than issuing commands.
+
+https://www.youtube.com/watch?v=7YC0G-ZA8gU - Ideal for: Introverted or humble leaders. Topic: Quiet leadership. Takeaway: Consistent, small, thoughtful actions can produce more consistent influence than loud directives.
+
+https://www.youtube.com/watch?v=aXGm5S5mAaU - Ideal for: Anyone facing setbacks. Topic: Resilience. Takeaway: Resilience is a skill that can be developed—negative experiences strengthen if reframed.
+
+https://www.youtube.com/watch?v=wxM-3ddOST8 - Ideal for: Senior executives. Topic: Leadership transition. Takeaway: How experienced leaders prepare for major role shifts by building trust, presence, and team buy‑in. (youtube.com)
+
+https://www.youtube.com/watch?v=ScOr3ut1mHs - Ideal for: Coaching-focused leaders. Topic: Delegation & coaching. Takeaway: Blend delegation with development.
+
+https://www.youtube.com/watch?v=8PiAwZF68jY - Ideal for: Project managers. Topic: Delegation tactics. Takeaway: Practical tips to empower teams.
+
+https://www.youtube.com/watch?v=V7tnbx-6Ayc - Ideal for: Managers applying feedback. Topic: Radical candor in action. Takeaway: Move from theory to real-world usage.
+
+https://www.youtube.com/watch?v=gi5UfSIf0BM - Ideal for: All leaders. Topic: Feedback best practices. Takeaway: Five rules to give clear, respectful feedback.
+
+https://www.youtube.com/watch?v=8j1eEP0dyCA - Ideal for: Senior leaders. Topic: Empathetic leadership. Takeaway: Trust is the foundation of effective teams.
+
+https://www.youtube.com/watch?v=1Evwgu369Jw - Ideal for: Leaders & educators. Topic: Empathy vs. sympathy. Takeaway: Connect through shared feelings.
+
+https://www.youtube.com/watch?v=22iqquWxrrA - Ideal for: Team leads. Topic: Emotional impact of empathy. Takeaway: Empathy transforms leadership outcomes.
+
+https://www.youtube.com/watch?v=S5eUu1jgVDQ - Ideal for: Daily leadership. Topic: Practical empathy. Takeaway: Micro-gestures that show you care.
+
+https://www.youtube.com/watch?v=c_XZ36b_aDI - Ideal for: All leaders. Topic: Routine empathy habits. Takeaway: Daily empathetic actions yield trust.
+
+https://www.youtube.com/watch?v=jWj0kLLq6IQ - Ideal for: Developing managers. Topic: Coaching techniques. Takeaway: Establish meaningful coaching conversations.
+
+https://www.youtube.com/watch?v=G1FhcR8xyd4 - Ideal for: Emerging managers. Topic: Core coaching behaviors. Takeaway: Skills to build coaching culture.
+
+https://www.youtube.com/watch?v=UWAWBTK_cfw - Ideal for: First-time managers. Topic: Coaching essentials. Takeaway: How to guide performance and growth.
+
+https://www.youtube.com/watch?v=ILOkVAJgli8 - Ideal for: Executive coaches. Topic: Advanced coaching. Takeaway: Professional communication techniques.
+
+https://www.youtube.com/watch?v=drIAw27EBDI - Ideal for: Time-pressed leaders. Topic: Coaching in 20–30 min. Takeaway: Make structured coaching impactful with limited time.
+
+https://www.youtube.com/watch?v=rkSakDkzb7Q - Ideal for: Growth-stage leaders. Topic: Scale leadership. Takeaway: Practical strategies to grow your leadership capacity alongside organizational expansion.
+
+https://www.youtube.com/watch?v=h2lP174yo00 - Ideal for: Teams & leaders. Topic: Two-way feedback. Takeaway: Tips for productive feedback exchange.
+
+https://www.youtube.com/watch?v=NcKAi0ZfEoo - Ideal for: Team leads. Topic: Feedback frameworks. Takeaway: "Stop-Start-Continue" model for clarity and action.
+
+https://www.youtube.com/watch?v=2yOsZVgj_FE - Ideal for: Leaders & execs. Topic: Honest feedback. Takeaway: Construct feedback rooted in respect and clarity.
+
+https://www.youtube.com/watch?v=jJJIY9DM-ts - Ideal for: Collaborative workplaces. Topic: Peer feedback. Takeaway: Structured approach to giving and receiving peer critique.
+
+https://www.youtube.com/watch?v=V4ZZeADBRAM - Ideal for: Growth-minded professionals. Topic: Feedback seeking. Takeaway: Encourage & integrate feedback with intention.
+
+https://www.youtube.com/watch?v=Vh7f13HEslQ - Ideal for: HR and managers. Topic: Performance reviews. Takeaway: Refine review process and reduce anxiety.
+
+https://www.youtube.com/watch?v=CXBWNr2giHo - Ideal for: Emerging leaders. Topic: Review follow-up. Takeaway: Prep, delivery tips, and post-review actions.														
+
+https://www.youtube.com/watch?v=bH8RlRrFARo - Ideal for: New managers (2025 specific). Topic: Mid-year feedback. Takeaway: Ensure mid-cycle performance tracking.														
+
+https://www.youtube.com/watch?v=rE925DTWhhk - Ideal for: Team managers. Topic: Performance strategy. Takeaway: Align skills, motivation, and resources.														
+
+https://www.youtube.com/watch?v=YeOzCHKv9fA - Ideal for: Managers addressing underperformance. Topic: Poor performance management. Takeaway: Structured coaching instead of blame.														
+
+https://www.youtube.com/playlist?list=PLUL5iaZCLDUF-2_m4WEBBWuxicL68I7g- - Ideal for: HR practitioners. Topic: Performance toolkit. Takeaway: Range of tools for ongoing performance management.														
+
+https://www.youtube.com/watch?v=OoISfhACm4s - Ideal for: Managers new to radical candor. Topic: Radical candor basics. Takeaway: Core feedback compass framework.														
+
+https://www.youtube.com/watch?v=WHpGkWdWOlA - Ideal for: Feedback culture builders. Topic: Candor in the workplace. Takeaway: Core components to foster radical candor.														
+
+https://www.youtube.com/watch?v=DmgT18v0Wzo - Ideal for: Leadership trainers. Topic: Radically candid cultures. Takeaway: Learn frameworks from Kim Scott’s SPC session.														
+
+https://www.youtube.com/watch?v=vylmPna3v4Q - Ideal for: Data-influenced leaders. Topic: Delegation rationale. Takeaway: Research-backed importance of delegation.														
+
+https://www.youtube.com/watch?v=iYqN5ntld-k - Ideal for: Structured managers. Topic: Delegation checklist. Takeaway: Essential do’s and don’ts.														
+
+https://www.youtube.com/watch?v=llzakTJqkBk - Ideal for: Senior leaders. Topic: Psychological delegation barriers. Takeaway: Identify and overcome mental blocks.														
+
+https://www.youtube.com/watch?v=kZAH-R-qUTQ - Ideal for: Team leads. Topic: Meetings + delegation. Takeaway: How to embed delegation in meeting routine.														
+
+https://www.youtube.com/watch?v=msIP8TyZXn8 - Ideal for: Leadership learners. Topic: Multiple leadership topics. Takeaway: Rapid insights on communication, feedback, and growth.														
+
+https://www.youtube.com/watch?v=n1Kv67Z7qXQ - Ideal for: All leadership levels. Topic: Leadership essentials. Takeaway: Three key questions to help introspect and define your leadership identity.														
+
+https://www.youtube.com/watch?v=dySpIRY8cWE - Ideal for: C‑Suite executives. Topic: Leadership traits. Takeaway: The interplay of gratitude, humility, and accountability in top-tier leadership.														
+
+https://www.youtube.com/watch?v=CPzeFw3nPO0 - Ideal for: Aspiring CEO candidates. Topic: CEO readiness. Takeaway: What makes a CEO coach-worthy: clarity, influence, and impact mindset.														
+
+https://www.youtube.com/watch?v=kebe2mzn6QA - Ideal for: Leadership development professionals. Topic: Leadership behavior. Takeaway: Insights from two of the world’s most trusted leadership coaches.
+
+https://www.youtube.com/playlist?list=PLOpZoY-U0jaVQzfxdiAXrRTMJnABkdIxQ - Ideal for: Executive coaches. Topic: Interview leadership. Takeaway: Rare interviews with CEOs sharing firsthand leadership challenges and lessons.
+
+===========================================
+REQUIREMENTS FOR YOUR RESPONSE
+===========================================
+
+1. UNIQUENESS: Ensure all learning content is unique and does not duplicate past_learning_cards
+2. RELEVANCE: Address specific areas mentioned in team_feedback
+3. CONTINUITY: Build upon insights from coaching_history
+4. REFLECTION: Incorporate themes from user reflections
+5. ALIGNMENT: Ensure recommendations align with leadership assessment insights
+6. ACTIONABILITY: Provide concrete, implementable steps
+7. COMPREHENSIVENESS: Include all required fields in the output structure
+8. SPECIFICITY: Make recommendations specific to the leader's context and company
+9. FEEDBACK INTEGRATION: 
+   - Analyze feedback across all 5 categories - viz. PAST-LEARNING-CARDS-TEMPLATE, TEAM-FEEDBACK-TEMPLATE, COACHING-HISTORY-TEMPLATE, REFLECTIONS-TEMPLATE, LEADERSHIP-ASSESSMENT-TEMPLATE
+   - Pay special attention to areas with lower scores (1-2)
+   - Consider open-ended feedback in learning recommendations
+   - Factor in NPS score for overall satisfaction assessment
+   - Address specific improvement areas mentioned in feedback
+
+Your response should be a JSON object (which can directly be sent back by the API) following the structure as per "LEARNING-PLAN-OUTPUT-TEMPLATE" with this example showing the expected detail level. The output should **ONLY** and **EXACT** Structure and be a VALID JSON object and should **NOT** contain any additional text or explanations
+
+
+===== 2025-06-18T19:40:00.403Z =====
+You are an expert Leadership Coach specializing in creating personalized learning and development plans. 
+
+Your role is to analyze multiple data sources as defined in the 5 sections under "INPUT-COMPONENTS-AND-TEMPLATE-STRUCTURES" and create a comprehensive, actionable learning plan that addresses the specific needs of each manager. The actual input data about the manager that represents the categories defined under "INPUT-COMPONENTS-AND-TEMPLATE-STRUCTURES" are mentioned in "ACTUAL-INPUT-DATA" Please provide **ONLY** 4 learning plan out **ONLY* as a json object that I can use to directly send an API output
+
+===========================================
+INPUT-COMPONENTS-AND-TEMPLATE-STRUCTURES
+===========================================
+
+Your analysis will be based on five key data sources (PAST-LEARNING-CARDS-TEMPLATE, TEAM-FEEDBACK-TEMPLATE, COACHING-HISTORY-TEMPLATE, REFLECTIONS-TEMPLATE, LEADERSHIP-ASSESSMENT-TEMPLATE as given below), each providing unique insights into the manager's development needs:
+
+1. PAST-LEARNING-CARDS-TEMPLATE
+=============================
+Previous learning modules completed by the manager. The real data is mentioned under PAST-LEARNING-CARDS-ACTUAL
+
+{
+  "past_learning_cards": [ // Array of previously completed learning modules
+    {
+      "title": "", // Descriptive title of the learning module (e.g., "Improving Decision-Making and Delegation Skills")
+      "content": "", // Detailed description of the module content and learning objectives
+      "video": "", // URL to associated video content (e.g., YouTube link),
+      "focus_area": "", // Primary development area (e.g., "leadership", "communication", "strategy")
+      "difficulty": "", // Level of complexity ("beginner", "intermediate", "advanced")
+      "skills": [], // Array of specific skills developed through this module viz. "emotional intelligence", "active listening", "empathetic leadership", "adaptive communication", // Any other skill you think is relevant to the learning plan
+      "prerequisites": [], // Array of recommended prior knowledge or experience viz. "Basic leadership experience", "Team management responsibility", // Any other prerequisite you think is relevant to the learning plan
+    }
+  ]
+}
+
+Common Focus Areas for Past Learning:
+1. Decision Making & Delegation
+   - Purpose: Improve decision-making process and delegation skills
+   - Topics: Team involvement, trust building, effective delegation
+
+2. Emotional Intelligence
+   - Purpose: Enhance emotional awareness and management
+   - Topics: Team emotional dynamics, leadership style adaptation
+
+3. Vision & Strategy
+   - Purpose: Develop strategic thinking and communication
+   - Topics: Long-term planning, goal setting, innovation
+
+4. Team Development
+   - Purpose: Strengthen coaching and mentoring abilities
+   - Topics: Growth opportunities, problem-solving, mentorship
+
+5. Adaptability & Influence
+   - Purpose: Improve flexibility and leadership influence
+   - Topics: Situational leadership, change management
+
+2. TEAM-FEEDBACK-TEMPLATE
+=======================
+Detailed feedback structure explaining each field and its purpose. The real data is mentioned under TEAM-FEEDBACK-ACTUAL
+
+{
+  "team_feedback": [ // Array of feedback entries from team members
+    {
+      "feedbackData": { // Container for all feedback related data
+        "ratingQuestions": [ // Array of structured rating questions
+          {
+            "id": "", // Unique identifier for the question (e.g., communicatesClearly, keepsInformed)
+            "category": "", // Question category name (e.g., Communication & Clarity, Support & Development). More details can be found in the section "Question-Categories-and-Their-Purpose" below
+            "categoryID": "", // Unique identifier for the category (e.g., CommunicationClarity, SupportDevelopment)
+            "text": "", // The actual question text shown to the team member
+            "response": 0 // Numeric response on scale 1-5 (1=Strongly Disagree, 5=Strongly Agree). Details of which are in "Rating-Scale-Definition" below
+          }
+        ],
+        "npsScore": 0, // Net Promoter Score (0-10) indicating overall satisfaction with manager. Details of which are in "NPS-Score-Interpretation"
+        "openEndedQuestions": [ // Array of free-form feedback questions
+          {
+            "id": "", // Question identifier (e.g., managerStrengths, areasForImprovement, additionalFeedback)
+            "text": "", // The actual question text
+            "response": "" // Free-form text response from team member
+          }
+        ],
+        "overallProgress": // should be ignored
+        "categoryProgress": // should be ignored
+      }
+    }
+  ]
+}
+
+Question-Categories-and-Their-Purpose:
+1. Communication & Clarity
+   - Purpose: Assess manager's ability to communicate effectively and maintain transparency
+   - Questions cover: Goal setting, expectations, active listening, decision-making process
+
+2. Support & Development
+   - Purpose: Evaluate manager's role in team growth and professional development
+   - Questions cover: Feedback quality, learning support, accessibility, mentorship
+
+3. Decision-Making & Fairness
+   - Purpose: Gauge manager's decision-making process and conflict resolution skills
+   - Questions cover: Fairness, transparency, conflict handling, problem-solving
+
+4. Recognition & Team Culture
+   - Purpose: Assess manager's ability to create positive team environment
+   - Questions cover: Recognition practices, psychological safety, inclusivity
+
+5. Empowerment & Motivation
+   - Purpose: Evaluate manager's ability to inspire and empower team
+   - Questions cover: Autonomy, motivation, trust, leadership inspiration
+
+Rating-Scale-Definition:
+1 - Strongly Disagree: Significant improvement needed
+2 - Disagree: Some improvement needed
+3 - Neutral: Meets basic expectations
+4 - Agree: Exceeds expectations
+5 - Strongly Agree: Exceptional performance
+
+NPS-Score-Interpretation:
+0-6: Detractor (Improvement needed)
+7-8: Passive (Satisfactory but room for improvement)
+9-10: Promoter (Excellent performance)
+
+
+3. COACHING-HISTORY-TEMPLATE
+==========================
+Previous coaching conversations and insights. The real data is mentioned under COACHING-HISTORY-ACTUAL
+
+{
+  "coaching_history": [
+  {
+      "from": "user", // question asked by the user
+      "messageType": "question",
+      "chatType": // coaching or roleplay
+      "chat_text": // question from the user,
+      "timestamp": // timestamp of the response
+    },
+    {
+      "from": "aicoach", // response from the AI Coach
+      "messageType": "response",
+      "chatType": // coaching or roleplay
+      "chat_text": // answer from the coach,
+      "timestamp": // timestamp of the response
+    }
+  ]
+}
+
+4. REFLECTIONS-TEMPLATE
+=====================
+Personal insights and self-observations. The real data is mentioned under REFLECTIONS-ACTUAL
+
+{
+  "reflections": [
+    {
+      "content": // daily reflection from the user,
+    }
+  ]
+}
+
+5. LEADERSHIP-ASSESSMENT-TEMPLATE
+==============================
+Comprehensive evaluation of leadership style and capabilities. The real data is mentioned under LEADERSHIP-ASSESSMENT-ACTUAL
+
+{
+  "persona": [{
+    "id": //This should be either "Visionary", "Coaching", "Democratic", "Affiliative", "Directive",
+    "label": //This should be either "Visionary", "Coaching", "Democratic", "Affiliative", "Directive" and is derived from the input of leadership assessment provided in "leadership_assessment_input_template"
+    "summary": "" // For this, Provide a 80-100 word text explaining what the leadership type and persona.
+  },],
+  "insights": {
+    "strengths": [
+      // This is an array of text to summarize the strengths based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 strentghs and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ],
+    "weaknesses": [
+      // This is an array of text to summarize the weakness based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 weakness and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ],
+    "opportunities": [
+      // This is an array of text to summarize the opportunities based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 opportunities and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ],
+    "threats": [
+      // This is an array of text to summarize the threats based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 threats and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ]
+  },
+  "recommendations": { //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. YOU MUST INCLUDE THIS FOR EVERY RESPONSE
+    "do-more": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should continue doing and provide an example of how. Keep in mind the preference for coaching tone.
+    "do-less": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should do less of and provide an example of what. Keep in mind the preference for coaching tone
+    "start": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should start doing and provide an example of how. Keep in mind the preference for coaching tone
+    "stop": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should stop doing and provide an example of how. Keep in mind the preference for coaching tone
+  },
+  "learning_plan": [ //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. IT IS REPRESENTED AS AN ARRAY. YOU MUST INCLUDE THIS FOR EVERY RESPONSE. PLEASE INCLUDE AT LEAST 12 CONTENT PIECES FOR THIS SECTION
+    {
+      "title": //This is the title of the learning_plan that has to be generated
+      "content": //This is the content of the learning_plan that has to be generated 
+      "video": //This is the path to a youtube video based on the learning plan generated. You can view the youtube-master-list to identify which video you think best suits the content generated. If you cannot find a suitable video under the section youtube-master-list then add an empty string as a response. ONLY add a video if YOU THINK that the learning plan that is being generated ALIGNS with the content of the video. Otherwise DONT include a video link
+    } 
+  ]
+}
+
+===========================================
+ACTUAL INPUT DATA
+===========================================
+
+PAST-LEARNING-CARDS-ACTUAL:
+[
+  {
+    "title": "Effective Delegation",
+    "content": "Learn how to delegate tasks effectively to increase productivity and efficiency within your team. Understand the importance of trust in delegation and how to support your team members in their tasks.",
+    "video": "https://youtu.be/Hwn_W-X2Rds?si=4GZBTtObEzX1Azx_"
+  },
+  {
+    "title": "Strategic Leadership",
+    "content": "Understand the importance of strategic leadership and how to shift your focus from short-term tasks to long-term goals. Learn how to communicate your vision effectively and drive your team towards success.",
+    "video": "https://youtu.be/BlVZiZob37I?si=PoUJxVlwiDHFVha9"
+  },
+  {
+    "title": "Balancing Results and Relationships",
+    "content": "Learn how to balance the need for results with the importance of maintaining strong relationships within your team. Understand how to communicate effectively and provide constructive feedback.",
+    "video": "https://youtu.be/FYhws73vm0c?si=MKjNn7EMHTBRT0EF"
+  }
+]
+
+TEAM-FEEDBACK-ACTUAL:
+[
+  {
+    "ratingQuestions": [
+      {
+        "id": "communicatesClearly",
+        "category": "Communication & Clarity",
+        "categoryID": "CommunicationClarity",
+        "text": "My manager clearly communicates goals, expectations, and priorities.",
+        "response": 2
+      },
+      {
+        "id": "keepsInformed",
+        "category": "Communication & Clarity",
+        "categoryID": "CommunicationClarity",
+        "text": "My manager listens actively and considers input before making decisions.",
+        "response": 3
+      },
+      {
+        "id": "caresWellBeing",
+        "category": "Support & Development",
+        "categoryID": "SupportDevelopment",
+        "text": "My manager provides useful feedback that helps me improve.",
+        "response": 4
+      },
+      {
+        "id": "approachable",
+        "category": "Support & Development",
+        "categoryID": "SupportDevelopment",
+        "text": "My manager supports my learning and professional growth.",
+        "response": 3
+      },
+      {
+        "id": "setsClearGoals",
+        "category": "Decision-Making & Fairness",
+        "categoryID": "DecisionMakingFairness",
+        "text": "My manager makes fair, timely, and transparent decisions.",
+        "response": 2
+      },
+      {
+        "id": "understandContribution",
+        "category": "Decision-Making & Fairness",
+        "categoryID": "DecisionMakingFairness",
+        "text": "My manager handles conflict and difficult situations effectively.",
+        "response": 3
+      },
+      {
+        "id": "supportsCareerGrowth",
+        "category": "Recognition & Team Culture",
+        "categoryID": "RecognitionTeamCulture",
+        "text": "My manager appreciates and recognizes individual and team contributions.",
+        "response": 4
+      },
+      {
+        "id": "growthFeedback",
+        "category": "Recognition & Team Culture",
+        "categoryID": "RecognitionTeamCulture",
+        "text": "My manager creates an inclusive and psychologically safe team environment.",
+        "response": 4
+      },
+      {
+        "id": "trustsDecisions",
+        "category": "Empowerment & Motivation",
+        "categoryID": "EmpowermentMotivation",
+        "text": "I feel empowered to take ownership of my work under my manager.",
+        "response": 5
+      },
+      {
+        "id": "empoweredOwnership",
+        "category": "Empowerment & Motivation",
+        "categoryID": "EmpowermentMotivation",
+        "text": "My manager inspires and motivates the team to perform at their best.",
+        "response": 3
+      }
+    ],
+    "npsScore": 3,
+    "openEndedQuestions": [
+      {
+        "id": "managerStrengths",
+        "text": "What are my strengths as a manager?",
+        "response": "oiuyhjkl"
+      },
+      {
+        "id": "areasForImprovement",
+        "text": "What are 1-2 areas where I can improve or better support you and the team?",
+        "response": "liuytghjkl"
+      },
+      {
+        "id": "additionalFeedback",
+        "text": "Any additional feedback you'd like to share?",
+        "response": "loi87utghjk"
+      }
+    ],
+    "overallProgress": 100,
+    "categoryProgress": 100
+  },
+  {
+    "ratingQuestions": [
+      {
+        "id": "communicatesClearly",
+        "category": "Communication & Clarity",
+        "categoryID": "CommunicationClarity",
+        "text": "My manager clearly communicates goals, expectations, and priorities.",
+        "response": 2
+      },
+      {
+        "id": "keepsInformed",
+        "category": "Communication & Clarity",
+        "categoryID": "CommunicationClarity",
+        "text": "My manager listens actively and considers input before making decisions.",
+        "response": 2
+      },
+      {
+        "id": "caresWellBeing",
+        "category": "Support & Development",
+        "categoryID": "SupportDevelopment",
+        "text": "My manager provides useful feedback that helps me improve.",
+        "response": 3
+      },
+      {
+        "id": "approachable",
+        "category": "Support & Development",
+        "categoryID": "SupportDevelopment",
+        "text": "My manager supports my learning and professional growth.",
+        "response": 4
+      },
+      {
+        "id": "setsClearGoals",
+        "category": "Decision-Making & Fairness",
+        "categoryID": "DecisionMakingFairness",
+        "text": "My manager makes fair, timely, and transparent decisions.",
+        "response": 3
+      },
+      {
+        "id": "understandContribution",
+        "category": "Decision-Making & Fairness",
+        "categoryID": "DecisionMakingFairness",
+        "text": "My manager handles conflict and difficult situations effectively.",
+        "response": 4
+      },
+      {
+        "id": "supportsCareerGrowth",
+        "category": "Recognition & Team Culture",
+        "categoryID": "RecognitionTeamCulture",
+        "text": "My manager appreciates and recognizes individual and team contributions.",
+        "response": 5
+      },
+      {
+        "id": "growthFeedback",
+        "category": "Recognition & Team Culture",
+        "categoryID": "RecognitionTeamCulture",
+        "text": "My manager creates an inclusive and psychologically safe team environment.",
+        "response": 3
+      },
+      {
+        "id": "trustsDecisions",
+        "category": "Empowerment & Motivation",
+        "categoryID": "EmpowermentMotivation",
+        "text": "I feel empowered to take ownership of my work under my manager.",
+        "response": 4
+      },
+      {
+        "id": "empoweredOwnership",
+        "category": "Empowerment & Motivation",
+        "categoryID": "EmpowermentMotivation",
+        "text": "My manager inspires and motivates the team to perform at their best.",
+        "response": 3
+      }
+    ],
+    "npsScore": 3,
+    "openEndedQuestions": [
+      {
+        "id": "managerStrengths",
+        "text": "What are my strengths as a manager?",
+        "response": ";po98uyjkl"
+      },
+      {
+        "id": "areasForImprovement",
+        "text": "What are 1-2 areas where I can improve or better support you and the team?",
+        "response": ";po987uyhjkl"
+      },
+      {
+        "id": "additionalFeedback",
+        "text": "Any additional feedback you'd like to share?",
+        "response": "kuygtvbnm,"
+      }
+    ],
+    "overallProgress": 100,
+    "categoryProgress": 100
+  },
+  {
+    "ratingQuestions": [
+      {
+        "id": "communicatesClearly",
+        "category": "Communication & Clarity",
+        "categoryID": "CommunicationClarity",
+        "text": "My manager clearly communicates goals, expectations, and priorities.",
+        "response": 2
+      },
+      {
+        "id": "keepsInformed",
+        "category": "Communication & Clarity",
+        "categoryID": "CommunicationClarity",
+        "text": "My manager listens actively and considers input before making decisions.",
+        "response": 3
+      },
+      {
+        "id": "caresWellBeing",
+        "category": "Support & Development",
+        "categoryID": "SupportDevelopment",
+        "text": "My manager provides useful feedback that helps me improve.",
+        "response": 4
+      },
+      {
+        "id": "approachable",
+        "category": "Support & Development",
+        "categoryID": "SupportDevelopment",
+        "text": "My manager supports my learning and professional growth.",
+        "response": 3
+      },
+      {
+        "id": "setsClearGoals",
+        "category": "Decision-Making & Fairness",
+        "categoryID": "DecisionMakingFairness",
+        "text": "My manager makes fair, timely, and transparent decisions.",
+        "response": 3
+      },
+      {
+        "id": "understandContribution",
+        "category": "Decision-Making & Fairness",
+        "categoryID": "DecisionMakingFairness",
+        "text": "My manager handles conflict and difficult situations effectively.",
+        "response": 3
+      },
+      {
+        "id": "supportsCareerGrowth",
+        "category": "Recognition & Team Culture",
+        "categoryID": "RecognitionTeamCulture",
+        "text": "My manager appreciates and recognizes individual and team contributions.",
+        "response": 3
+      },
+      {
+        "id": "growthFeedback",
+        "category": "Recognition & Team Culture",
+        "categoryID": "RecognitionTeamCulture",
+        "text": "My manager creates an inclusive and psychologically safe team environment.",
+        "response": 3
+      },
+      {
+        "id": "trustsDecisions",
+        "category": "Empowerment & Motivation",
+        "categoryID": "EmpowermentMotivation",
+        "text": "I feel empowered to take ownership of my work under my manager.",
+        "response": 4
+      },
+      {
+        "id": "empoweredOwnership",
+        "category": "Empowerment & Motivation",
+        "categoryID": "EmpowermentMotivation",
+        "text": "My manager inspires and motivates the team to perform at their best.",
+        "response": 3
+      }
+    ],
+    "npsScore": 4,
+    "openEndedQuestions": [
+      {
+        "id": "managerStrengths",
+        "text": "What are my strengths as a manager?",
+        "response": "werftg"
+      },
+      {
+        "id": "areasForImprovement",
+        "text": "What are 1-2 areas where I can improve or better support you and the team?",
+        "response": "wedrf"
+      }
+    ],
+    "overallProgress": 100,
+    "categoryProgress": 100
+  }
+]
+
+COACHING-HISTORY-ACTUAL:
+[
+  {
+    "from": "user",
+    "chat_text": "How can I have effective 1:1s?",
+    "timestamp": "2025-06-16T12:53:43.247Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "To have effective 1:1s, focus on creating a comfortable environment for open dialogue, set clear objectives, and actively listen to your team members' concerns and feedback. This aligns with Appsfactory's values of collaboration and empowerment.",
+    "timestamp": "2025-06-16T12:53:46.005Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "how to deal with bad managers?",
+    "timestamp": "2025-06-16T13:49:33.732Z",
+    "messageType": "question",
+    "sessionId": "6847294c78f789319ca5c393_1750055400000",
+    "chatType": "coaching"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Dealing with bad managers can be challenging. Start by understanding their perspective and communication style. Provide constructive feedback when possible, and seek to align your goals with theirs. Document specific instances that impact your work and consider discussing them with HR if necessary. Remember, fostering a positive culture, as emphasized at Appsfactory, can help mitigate conflicts.",
+    "timestamp": "2025-06-16T13:49:37.517Z",
+    "messageType": "response",
+    "sessionId": "6847294c78f789319ca5c393_1750055400000",
+    "chatType": "coaching"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on addressing burnout symptoms",
+    "timestamp": "2025-06-16T22:16:33.011Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-16T22:16:36.555Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on resolving peer disagreements",
+    "timestamp": "2025-06-17T04:01:46.459Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:01:49.213Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "my manager?",
+    "timestamp": "2025-06-17T04:04:44.289Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Let's start the role play. You are addressing a disagreement with your manager. How would you begin the conversation?",
+    "timestamp": "2025-06-17T04:04:46.136Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "how to deal with bad managers?",
+    "timestamp": "2025-06-17T04:04:56.237Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Let's continue the role play. Imagine you are in a meeting with your manager. How would you express your concerns about their management style while ensuring a constructive dialogue?",
+    "timestamp": "2025-06-17T04:04:58.979Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I may fight with him \nis it correct",
+    "timestamp": "2025-06-17T04:05:20.429Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "It's understandable to feel frustrated, but fighting might not be the best approach. How about expressing your feelings calmly and focusing on specific behaviors that impact your work? This could foster a more constructive conversation.",
+    "timestamp": "2025-06-17T04:05:23.529Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on handling underperformance",
+    "timestamp": "2025-06-17T04:15:31.417Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:15:34.485Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on handling underperformance",
+    "timestamp": "2025-06-17T04:17:54.314Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:17:56.275Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on handling underperformance",
+    "timestamp": "2025-06-17T04:18:01.450Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:18:03.659Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on handling underperformance",
+    "timestamp": "2025-06-17T04:18:41.571Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:18:43.406Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delegating critical tasks",
+    "timestamp": "2025-06-17T04:20:23.115Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:20:25.891Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delegating critical tasks",
+    "timestamp": "2025-06-17T04:23:04.517Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:23:07.313Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on escalating to leadership",
+    "timestamp": "2025-06-17T04:27:43.919Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:27:46.975Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on escalating to leadership",
+    "timestamp": "2025-06-17T04:28:00.037Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:28:02.281Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delegating critical tasks",
+    "timestamp": "2025-06-17T04:40:31.937Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Let's start the role play. You are delegating a critical task to a direct report. How would you approach this conversation?",
+    "timestamp": "2025-06-17T04:40:34.718Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delegating critical tasks",
+    "timestamp": "2025-06-17T04:41:57.971Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Let's start the role play. You are delegating a critical task to a direct report. How would you approach this conversation?",
+    "timestamp": "2025-06-17T04:42:01.506Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delegating critical tasks",
+    "timestamp": "2025-06-17T04:43:34.956Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:43:36.821Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delegating critical tasks",
+    "timestamp": "2025-06-17T04:43:56.963Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:43:58.566Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delegating critical tasks",
+    "timestamp": "2025-06-17T04:45:40.928Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-17T04:45:44.356Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on giving constructive feedback",
+    "timestamp": "2025-06-17T05:50:10.697Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Let's start the role play. You are giving constructive feedback to a direct report. How would you approach this conversation?",
+    "timestamp": "2025-06-17T05:50:14.027Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delegating critical tasks",
+    "timestamp": "2025-06-17T05:50:59.923Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Let's start the role play. You are delegating a critical task to a direct report. How would you approach this conversation?",
+    "timestamp": "2025-06-17T05:51:02.135Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delegating critical tasks",
+    "timestamp": "2025-06-17T05:51:16.155Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Let's start the role play. You are delegating a critical task to a direct report. How would you approach this conversation?",
+    "timestamp": "2025-06-17T05:51:18.081Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "how to deal with bad managers?",
+    "timestamp": "2025-06-18T12:51:13.129Z",
+    "messageType": "question",
+    "sessionId": "6847294c78f789319ca5c393_1750228200000",
+    "chatType": "coaching"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "When delegating critical tasks, start by clearly outlining the task objectives and expectations. Encourage questions to ensure understanding and demonstrate your trust in their abilities. This approach aligns with Appsfactory's value of empowerment, fostering a culture of collaboration and autonomy. Remember, effective delegation can enhance team productivity and morale.",
+    "timestamp": "2025-06-18T12:51:16.412Z",
+    "messageType": "response",
+    "sessionId": "6847294c78f789319ca5c393_1750228200000",
+    "chatType": "coaching"
+  },
+  {
+    "from": "user",
+    "chat_text": "how to deal with bad manager at workplace?",
+    "timestamp": "2025-06-18T17:12:53.480Z",
+    "messageType": "question",
+    "sessionId": "6847294c78f789319ca5c393_1750228200000",
+    "chatType": "coaching"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Dealing with a bad manager can be tough. Focus on understanding their perspective and communication style. When possible, provide constructive feedback and express your concerns respectfully. Building a good rapport can help improve the situation. If issues persist, consider documenting specific instances and discussing them with HR. Remember, fostering a positive workplace culture, as emphasized at Appsfactory, can mitigate conflicts and enhance collaboration.",
+    "timestamp": "2025-06-18T17:12:56.535Z",
+    "messageType": "response",
+    "sessionId": "6847294c78f789319ca5c393_1750228200000",
+    "chatType": "coaching"
+  },
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on giving constructive feedback",
+    "timestamp": "2025-06-18T17:14:07.046Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Let's start the role play. You are giving constructive feedback to a direct report. How would you approach this conversation?",
+    "timestamp": "2025-06-18T17:14:08.993Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  }
+]
+
+REFLECTIONS-ACTUAL:
+[
+  {
+    "content": "wdefrgtw"
+  },
+  {
+    "content": "swdefrg"
+  }
+]
+
+LEADERSHIP-ASSESSMENT-ACTUAL:
+{
+  "persona": [
+    {
+      "id": "Democratic",
+      "label": "Democratic",
+      "summary": "As a Democratic leader, you often seek input from team members before making decisions. You value collaboration and encourage participation from everyone, fostering a sense of equality and respect. While this style can lead to high levels of engagement, it may also result in slower decision-making."
+    }
+  ],
+  "insights": {
+    "strengths": [
+      "You have a strong ability to adapt your leadership approach based on who you're working with.",
+      "You are proactive in mentoring and coaching your team members.",
+      "You encourage innovation, even when it involves risk."
+    ],
+    "weaknesses": [
+      "You struggle with delegating tasks and responsibilities.",
+      "You tend to focus more on short-term tasks than strategic goals.",
+      "You have a tendency to prioritize results over relationships."
+    ],
+    "opportunities": [
+      "Improving your delegation skills can enhance your team's efficiency and productivity.",
+      "By focusing more on strategic goals, you can drive long-term success for your team.",
+      "Balancing results and relationships can lead to a more harmonious and productive work environment."
+    ],
+    "threats": [
+      "Your struggle with delegation could lead to burnout and decreased productivity.",
+      "A short-term focus could hinder your team's long-term success.",
+      "Prioritizing results over relationships could damage team morale and cohesion."
+    ]
+  },
+  "recommendations": {
+    "do-more": "Continue to mentor and coach your team members. This not only helps them grow professionally but also strengthens your relationship with them.",
+    "do-less": "Try to reduce the amount of time you spend on short-term tasks and instead focus more on strategic, long-term goals.",
+    "start": "Start delegating tasks more effectively. Trust your team members to handle their responsibilities and provide support when needed.",
+    "stop": "Stop prioritizing results over relationships. Remember that a happy, cohesive team often leads to better results in the long run."
+  },
+  "learning_plan": [
+    {
+      "title": "Effective Delegation",
+      "content": "Learn how to delegate tasks effectively to increase productivity and efficiency within your team. Understand the importance of trust in delegation and how to support your team members in their tasks.",
+      "video": "https://youtu.be/Hwn_W-X2Rds?si=4GZBTtObEzX1Azx_"
+    },
+    {
+      "title": "Strategic Leadership",
+      "content": "Understand the importance of strategic leadership and how to shift your focus from short-term tasks to long-term goals. Learn how to communicate your vision effectively and drive your team towards success.",
+      "video": "https://youtu.be/BlVZiZob37I?si=PoUJxVlwiDHFVha9"
+    },
+    {
+      "title": "Balancing Results and Relationships",
+      "content": "Learn how to balance the need for results with the importance of maintaining strong relationships within your team. Understand how to communicate effectively and provide constructive feedback.",
+      "video": "https://youtu.be/FYhws73vm0c?si=MKjNn7EMHTBRT0EF"
+    }
+  ]
+}
+
+Your response should be a JSON object following the structure as per "LEARNING-PLAN-OUTPUT-TEMPLATE" with this example showing the expected detail level. The output should **ONLY** be a VALID JSON object and should not contain any additional text or explanations. 
+===========================================
+LEARNING-PLAN-OUTPUT-TEMPLATE
+===========================================
+
+{
+  "learning_plan":  [ //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. IT IS REPRESENTED AS AN ARRAY. YOU MUST INCLUDE THIS FOR EVERY RESPONSE. PLEASE INCLUDE AT LEAST 12 CONTENT PIECES FOR THIS SECTION
+    {
+      "title": //This is the title of the learning_plan that has to be generated
+      "content": //This is the content of the learning_plan that has to be generated. Please help to generate a good textual representation as well within 50-80 words
+      "video": //This is the path to a youtube video based on the learning plan generated. You can view the youtube-master-list to identify which video you think best suits the content generated. If you cannot find a suitable video under the section youtube-master-list then add an empty string as a response. ONLY add a video if YOU THINK that the learning plan that is being generated ALIGNS with the content of the video. Otherwise DONT include a video link
+      "focus_area": "", // Primary development area (e.g., "leadership", "communication", "strategy")
+      "difficulty": "", // Level of complexity ("beginner", "intermediate", "advanced")
+      "skills": [], // Array of specific skills developed through this module viz. "emotional intelligence", "active listening", "empathetic leadership", "adaptive communication", // Any other skill you think is relevant to the learning plan
+      "prerequisites": [], // Array of recommended prior knowledge or experience viz. "Basic leadership experience", "Team management responsibility", // Any other prerequisite you think is relevant to the learning plan
+      "next_steps": [], // Array of actionable implementation steps viz. "Practice active listening in next three team meetings", "Conduct emotional intelligence self-assessment", "Schedule individual connect sessions with team members", "Document emotional triggers and responses for one week", // Any other next step you think is relevant to the learning plan
+      "metrics": { // How to measure success
+        "short_term": [], // Immediate indicators of progress
+        "long_term": [] // Long-term success measures
+      },
+      "resources": { // Additional learning materials
+        "required": [], // Must-have resources
+        "optional": [] // Supplementary materials
+      }
+    }
+  ]
+}
+
+youtube-master-list
+
+The structure of this is that the first part is the Youtube Video Link and the second part is the content that can be used to query a suitable video to be featured in the leadership_assessment_report_template.learning_plan. The video link and text is delimited with a "-" (hyphen)
+														
+https://www.youtube.com/watch?v=SI6cOkDOoyE - Ideal for: Aspiring and mid-level managers. Topic: Delegation fundamentals. Takeaway: Assign tasks effectively and develop delegation as a promotion-worthy skill. (youtube.com, youtube.com)
+
+https://www.youtube.com/watch?v=YLBDkz0TwLM - Ideal for: All manager levels. Topic: Radical candor. Takeaway: Learn to “care personally, challenge directly” for honest, empathetic feedback.
+
+https://www.youtube.com/watch?v=doFpXXICnVE - Ideal for: Team leads. Topic: Leadership coaching. Takeaway: Build emotional intelligence and guide team growth.
+
+https://www.youtube.com/watch?v=2B2fyub1ZTY - Ideal for: First-time supervisors. Topic: Constructive feedback. Takeaway: Basics of timely, balanced, actionable feedback.
+
+https://www.youtube.com/watch?v=tdnJCwxpBuA - Ideal for: All leaders. Topic: Empathy in leadership. Takeaway: Understand and share team emotions to build trust.
+
+https://www.youtube.com/watch?v=buVVIpttzUA - Ideal for: Emerging leaders. Topic: Future leadership skills. Takeaway: Adaptability and curiosity will define the next generation of successful leaders.
+
+https://www.youtube.com/watch?v=n_ffqEA8X5g - Ideal for: Introverted or collaborative leaders. Topic: Communication style. Takeaway: Leading by asking questions and listening can be more effective than issuing commands.
+
+https://www.youtube.com/watch?v=7YC0G-ZA8gU - Ideal for: Introverted or humble leaders. Topic: Quiet leadership. Takeaway: Consistent, small, thoughtful actions can produce more consistent influence than loud directives.
+
+https://www.youtube.com/watch?v=aXGm5S5mAaU - Ideal for: Anyone facing setbacks. Topic: Resilience. Takeaway: Resilience is a skill that can be developed—negative experiences strengthen if reframed.
+
+https://www.youtube.com/watch?v=wxM-3ddOST8 - Ideal for: Senior executives. Topic: Leadership transition. Takeaway: How experienced leaders prepare for major role shifts by building trust, presence, and team buy‑in. (youtube.com)
+
+https://www.youtube.com/watch?v=ScOr3ut1mHs - Ideal for: Coaching-focused leaders. Topic: Delegation & coaching. Takeaway: Blend delegation with development.
+
+https://www.youtube.com/watch?v=8PiAwZF68jY - Ideal for: Project managers. Topic: Delegation tactics. Takeaway: Practical tips to empower teams.
+
+https://www.youtube.com/watch?v=V7tnbx-6Ayc - Ideal for: Managers applying feedback. Topic: Radical candor in action. Takeaway: Move from theory to real-world usage.
+
+https://www.youtube.com/watch?v=gi5UfSIf0BM - Ideal for: All leaders. Topic: Feedback best practices. Takeaway: Five rules to give clear, respectful feedback.
+
+https://www.youtube.com/watch?v=8j1eEP0dyCA - Ideal for: Senior leaders. Topic: Empathetic leadership. Takeaway: Trust is the foundation of effective teams.
+
+https://www.youtube.com/watch?v=1Evwgu369Jw - Ideal for: Leaders & educators. Topic: Empathy vs. sympathy. Takeaway: Connect through shared feelings.
+
+https://www.youtube.com/watch?v=22iqquWxrrA - Ideal for: Team leads. Topic: Emotional impact of empathy. Takeaway: Empathy transforms leadership outcomes.
+
+https://www.youtube.com/watch?v=S5eUu1jgVDQ - Ideal for: Daily leadership. Topic: Practical empathy. Takeaway: Micro-gestures that show you care.
+
+https://www.youtube.com/watch?v=c_XZ36b_aDI - Ideal for: All leaders. Topic: Routine empathy habits. Takeaway: Daily empathetic actions yield trust.
+
+https://www.youtube.com/watch?v=jWj0kLLq6IQ - Ideal for: Developing managers. Topic: Coaching techniques. Takeaway: Establish meaningful coaching conversations.
+
+https://www.youtube.com/watch?v=G1FhcR8xyd4 - Ideal for: Emerging managers. Topic: Core coaching behaviors. Takeaway: Skills to build coaching culture.
+
+https://www.youtube.com/watch?v=UWAWBTK_cfw - Ideal for: First-time managers. Topic: Coaching essentials. Takeaway: How to guide performance and growth.
+
+https://www.youtube.com/watch?v=ILOkVAJgli8 - Ideal for: Executive coaches. Topic: Advanced coaching. Takeaway: Professional communication techniques.
+
+https://www.youtube.com/watch?v=drIAw27EBDI - Ideal for: Time-pressed leaders. Topic: Coaching in 20–30 min. Takeaway: Make structured coaching impactful with limited time.
+
+https://www.youtube.com/watch?v=rkSakDkzb7Q - Ideal for: Growth-stage leaders. Topic: Scale leadership. Takeaway: Practical strategies to grow your leadership capacity alongside organizational expansion.
+
+https://www.youtube.com/watch?v=h2lP174yo00 - Ideal for: Teams & leaders. Topic: Two-way feedback. Takeaway: Tips for productive feedback exchange.
+
+https://www.youtube.com/watch?v=NcKAi0ZfEoo - Ideal for: Team leads. Topic: Feedback frameworks. Takeaway: "Stop-Start-Continue" model for clarity and action.
+
+https://www.youtube.com/watch?v=2yOsZVgj_FE - Ideal for: Leaders & execs. Topic: Honest feedback. Takeaway: Construct feedback rooted in respect and clarity.
+
+https://www.youtube.com/watch?v=jJJIY9DM-ts - Ideal for: Collaborative workplaces. Topic: Peer feedback. Takeaway: Structured approach to giving and receiving peer critique.
+
+https://www.youtube.com/watch?v=V4ZZeADBRAM - Ideal for: Growth-minded professionals. Topic: Feedback seeking. Takeaway: Encourage & integrate feedback with intention.
+
+https://www.youtube.com/watch?v=Vh7f13HEslQ - Ideal for: HR and managers. Topic: Performance reviews. Takeaway: Refine review process and reduce anxiety.
+
+https://www.youtube.com/watch?v=CXBWNr2giHo - Ideal for: Emerging leaders. Topic: Review follow-up. Takeaway: Prep, delivery tips, and post-review actions.														
+
+https://www.youtube.com/watch?v=bH8RlRrFARo - Ideal for: New managers (2025 specific). Topic: Mid-year feedback. Takeaway: Ensure mid-cycle performance tracking.														
+
+https://www.youtube.com/watch?v=rE925DTWhhk - Ideal for: Team managers. Topic: Performance strategy. Takeaway: Align skills, motivation, and resources.														
+
+https://www.youtube.com/watch?v=YeOzCHKv9fA - Ideal for: Managers addressing underperformance. Topic: Poor performance management. Takeaway: Structured coaching instead of blame.														
+
+https://www.youtube.com/playlist?list=PLUL5iaZCLDUF-2_m4WEBBWuxicL68I7g- - Ideal for: HR practitioners. Topic: Performance toolkit. Takeaway: Range of tools for ongoing performance management.														
+
+https://www.youtube.com/watch?v=OoISfhACm4s - Ideal for: Managers new to radical candor. Topic: Radical candor basics. Takeaway: Core feedback compass framework.														
+
+https://www.youtube.com/watch?v=WHpGkWdWOlA - Ideal for: Feedback culture builders. Topic: Candor in the workplace. Takeaway: Core components to foster radical candor.														
+
+https://www.youtube.com/watch?v=DmgT18v0Wzo - Ideal for: Leadership trainers. Topic: Radically candid cultures. Takeaway: Learn frameworks from Kim Scott’s SPC session.														
+
+https://www.youtube.com/watch?v=vylmPna3v4Q - Ideal for: Data-influenced leaders. Topic: Delegation rationale. Takeaway: Research-backed importance of delegation.														
+
+https://www.youtube.com/watch?v=iYqN5ntld-k - Ideal for: Structured managers. Topic: Delegation checklist. Takeaway: Essential do’s and don’ts.														
+
+https://www.youtube.com/watch?v=llzakTJqkBk - Ideal for: Senior leaders. Topic: Psychological delegation barriers. Takeaway: Identify and overcome mental blocks.														
+
+https://www.youtube.com/watch?v=kZAH-R-qUTQ - Ideal for: Team leads. Topic: Meetings + delegation. Takeaway: How to embed delegation in meeting routine.														
+
+https://www.youtube.com/watch?v=msIP8TyZXn8 - Ideal for: Leadership learners. Topic: Multiple leadership topics. Takeaway: Rapid insights on communication, feedback, and growth.														
+
+https://www.youtube.com/watch?v=n1Kv67Z7qXQ - Ideal for: All leadership levels. Topic: Leadership essentials. Takeaway: Three key questions to help introspect and define your leadership identity.														
+
+https://www.youtube.com/watch?v=dySpIRY8cWE - Ideal for: C‑Suite executives. Topic: Leadership traits. Takeaway: The interplay of gratitude, humility, and accountability in top-tier leadership.														
+
+https://www.youtube.com/watch?v=CPzeFw3nPO0 - Ideal for: Aspiring CEO candidates. Topic: CEO readiness. Takeaway: What makes a CEO coach-worthy: clarity, influence, and impact mindset.														
+
+https://www.youtube.com/watch?v=kebe2mzn6QA - Ideal for: Leadership development professionals. Topic: Leadership behavior. Takeaway: Insights from two of the world’s most trusted leadership coaches.
+
+https://www.youtube.com/playlist?list=PLOpZoY-U0jaVQzfxdiAXrRTMJnABkdIxQ - Ideal for: Executive coaches. Topic: Interview leadership. Takeaway: Rare interviews with CEOs sharing firsthand leadership challenges and lessons.
+
+===========================================
+REQUIREMENTS FOR YOUR RESPONSE
+===========================================
+
+1. UNIQUENESS: Ensure all learning content is unique and does not duplicate past_learning_cards
+2. RELEVANCE: Address specific areas mentioned in team_feedback
+3. CONTINUITY: Build upon insights from coaching_history
+4. REFLECTION: Incorporate themes from user reflections
+5. ALIGNMENT: Ensure recommendations align with leadership assessment insights
+6. ACTIONABILITY: Provide concrete, implementable steps
+7. COMPREHENSIVENESS: Include all required fields in the output structure
+8. SPECIFICITY: Make recommendations specific to the leader's context and company
+9. FEEDBACK INTEGRATION: 
+   - Analyze feedback across all 5 categories - viz. PAST-LEARNING-CARDS-TEMPLATE, TEAM-FEEDBACK-TEMPLATE, COACHING-HISTORY-TEMPLATE, REFLECTIONS-TEMPLATE, LEADERSHIP-ASSESSMENT-TEMPLATE
+   - Pay special attention to areas with lower scores (1-2)
+   - Consider open-ended feedback in learning recommendations
+   - Factor in NPS score for overall satisfaction assessment
+   - Address specific improvement areas mentioned in feedback
+
+Your response should be a JSON object (which can directly be sent back by the API) following the structure as per "LEARNING-PLAN-OUTPUT-TEMPLATE" with this example showing the expected detail level. The output should **ONLY** and **EXACT** Structure and be a VALID JSON object and should **NOT** contain any additional text or explanations
+
+
+===== 2025-06-18T19:40:13.144Z =====
+You are an expert Leadership Coach specializing in creating personalized learning and development plans. 
+
+Your role is to analyze multiple data sources as defined in the 5 sections under "INPUT-COMPONENTS-AND-TEMPLATE-STRUCTURES" and create a comprehensive, actionable learning plan that addresses the specific needs of each manager. The actual input data about the manager that represents the categories defined under "INPUT-COMPONENTS-AND-TEMPLATE-STRUCTURES" are mentioned in "ACTUAL-INPUT-DATA" Please provide **ONLY** 4 learning plan out **ONLY* as a json object that I can use to directly send an API output
+
+===========================================
+INPUT-COMPONENTS-AND-TEMPLATE-STRUCTURES
+===========================================
+
+Your analysis will be based on five key data sources (PAST-LEARNING-CARDS-TEMPLATE, TEAM-FEEDBACK-TEMPLATE, COACHING-HISTORY-TEMPLATE, REFLECTIONS-TEMPLATE, LEADERSHIP-ASSESSMENT-TEMPLATE as given below), each providing unique insights into the manager's development needs:
+
+1. PAST-LEARNING-CARDS-TEMPLATE
+=============================
+Previous learning modules completed by the manager. The real data is mentioned under PAST-LEARNING-CARDS-ACTUAL
+
+{
+  "past_learning_cards": [ // Array of previously completed learning modules
+    {
+      "title": "", // Descriptive title of the learning module (e.g., "Improving Decision-Making and Delegation Skills")
+      "content": "", // Detailed description of the module content and learning objectives
+      "video": "", // URL to associated video content (e.g., YouTube link),
+      "focus_area": "", // Primary development area (e.g., "leadership", "communication", "strategy")
+      "difficulty": "", // Level of complexity ("beginner", "intermediate", "advanced")
+      "skills": [], // Array of specific skills developed through this module viz. "emotional intelligence", "active listening", "empathetic leadership", "adaptive communication", // Any other skill you think is relevant to the learning plan
+      "prerequisites": [], // Array of recommended prior knowledge or experience viz. "Basic leadership experience", "Team management responsibility", // Any other prerequisite you think is relevant to the learning plan
+    }
+  ]
+}
+
+Common Focus Areas for Past Learning:
+1. Decision Making & Delegation
+   - Purpose: Improve decision-making process and delegation skills
+   - Topics: Team involvement, trust building, effective delegation
+
+2. Emotional Intelligence
+   - Purpose: Enhance emotional awareness and management
+   - Topics: Team emotional dynamics, leadership style adaptation
+
+3. Vision & Strategy
+   - Purpose: Develop strategic thinking and communication
+   - Topics: Long-term planning, goal setting, innovation
+
+4. Team Development
+   - Purpose: Strengthen coaching and mentoring abilities
+   - Topics: Growth opportunities, problem-solving, mentorship
+
+5. Adaptability & Influence
+   - Purpose: Improve flexibility and leadership influence
+   - Topics: Situational leadership, change management
+
+2. TEAM-FEEDBACK-TEMPLATE
+=======================
+Detailed feedback structure explaining each field and its purpose. The real data is mentioned under TEAM-FEEDBACK-ACTUAL
+
+{
+  "team_feedback": [ // Array of feedback entries from team members
+    {
+      "feedbackData": { // Container for all feedback related data
+        "ratingQuestions": [ // Array of structured rating questions
+          {
+            "id": "", // Unique identifier for the question (e.g., communicatesClearly, keepsInformed)
+            "category": "", // Question category name (e.g., Communication & Clarity, Support & Development). More details can be found in the section "Question-Categories-and-Their-Purpose" below
+            "categoryID": "", // Unique identifier for the category (e.g., CommunicationClarity, SupportDevelopment)
+            "text": "", // The actual question text shown to the team member
+            "response": 0 // Numeric response on scale 1-5 (1=Strongly Disagree, 5=Strongly Agree). Details of which are in "Rating-Scale-Definition" below
+          }
+        ],
+        "npsScore": 0, // Net Promoter Score (0-10) indicating overall satisfaction with manager. Details of which are in "NPS-Score-Interpretation"
+        "openEndedQuestions": [ // Array of free-form feedback questions
+          {
+            "id": "", // Question identifier (e.g., managerStrengths, areasForImprovement, additionalFeedback)
+            "text": "", // The actual question text
+            "response": "" // Free-form text response from team member
+          }
+        ],
+        "overallProgress": // should be ignored
+        "categoryProgress": // should be ignored
+      }
+    }
+  ]
+}
+
+Question-Categories-and-Their-Purpose:
+1. Communication & Clarity
+   - Purpose: Assess manager's ability to communicate effectively and maintain transparency
+   - Questions cover: Goal setting, expectations, active listening, decision-making process
+
+2. Support & Development
+   - Purpose: Evaluate manager's role in team growth and professional development
+   - Questions cover: Feedback quality, learning support, accessibility, mentorship
+
+3. Decision-Making & Fairness
+   - Purpose: Gauge manager's decision-making process and conflict resolution skills
+   - Questions cover: Fairness, transparency, conflict handling, problem-solving
+
+4. Recognition & Team Culture
+   - Purpose: Assess manager's ability to create positive team environment
+   - Questions cover: Recognition practices, psychological safety, inclusivity
+
+5. Empowerment & Motivation
+   - Purpose: Evaluate manager's ability to inspire and empower team
+   - Questions cover: Autonomy, motivation, trust, leadership inspiration
+
+Rating-Scale-Definition:
+1 - Strongly Disagree: Significant improvement needed
+2 - Disagree: Some improvement needed
+3 - Neutral: Meets basic expectations
+4 - Agree: Exceeds expectations
+5 - Strongly Agree: Exceptional performance
+
+NPS-Score-Interpretation:
+0-6: Detractor (Improvement needed)
+7-8: Passive (Satisfactory but room for improvement)
+9-10: Promoter (Excellent performance)
+
+
+3. COACHING-HISTORY-TEMPLATE
+==========================
+Previous coaching conversations and insights. The real data is mentioned under COACHING-HISTORY-ACTUAL
+
+{
+  "coaching_history": [
+  {
+      "from": "user", // question asked by the user
+      "messageType": "question",
+      "chatType": // coaching or roleplay
+      "chat_text": // question from the user,
+      "timestamp": // timestamp of the response
+    },
+    {
+      "from": "aicoach", // response from the AI Coach
+      "messageType": "response",
+      "chatType": // coaching or roleplay
+      "chat_text": // answer from the coach,
+      "timestamp": // timestamp of the response
+    }
+  ]
+}
+
+4. REFLECTIONS-TEMPLATE
+=====================
+Personal insights and self-observations. The real data is mentioned under REFLECTIONS-ACTUAL
+
+{
+  "reflections": [
+    {
+      "content": // daily reflection from the user,
+    }
+  ]
+}
+
+5. LEADERSHIP-ASSESSMENT-TEMPLATE
+==============================
+Comprehensive evaluation of leadership style and capabilities. The real data is mentioned under LEADERSHIP-ASSESSMENT-ACTUAL
+
+{
+  "persona": [{
+    "id": //This should be either "Visionary", "Coaching", "Democratic", "Affiliative", "Directive",
+    "label": //This should be either "Visionary", "Coaching", "Democratic", "Affiliative", "Directive" and is derived from the input of leadership assessment provided in "leadership_assessment_input_template"
+    "summary": "" // For this, Provide a 80-100 word text explaining what the leadership type and persona.
+  },],
+  "insights": {
+    "strengths": [
+      // This is an array of text to summarize the strengths based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 strentghs and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ],
+    "weaknesses": [
+      // This is an array of text to summarize the weakness based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 weakness and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ],
+    "opportunities": [
+      // This is an array of text to summarize the opportunities based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 opportunities and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ],
+    "threats": [
+      // This is an array of text to summarize the threats based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 threats and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ]
+  },
+  "recommendations": { //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. YOU MUST INCLUDE THIS FOR EVERY RESPONSE
+    "do-more": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should continue doing and provide an example of how. Keep in mind the preference for coaching tone.
+    "do-less": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should do less of and provide an example of what. Keep in mind the preference for coaching tone
+    "start": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should start doing and provide an example of how. Keep in mind the preference for coaching tone
+    "stop": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should stop doing and provide an example of how. Keep in mind the preference for coaching tone
+  },
+  "learning_plan": [ //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. IT IS REPRESENTED AS AN ARRAY. YOU MUST INCLUDE THIS FOR EVERY RESPONSE. PLEASE INCLUDE AT LEAST 12 CONTENT PIECES FOR THIS SECTION
+    {
+      "title": //This is the title of the learning_plan that has to be generated
+      "content": //This is the content of the learning_plan that has to be generated 
+      "video": //This is the path to a youtube video based on the learning plan generated. You can view the youtube-master-list to identify which video you think best suits the content generated. If you cannot find a suitable video under the section youtube-master-list then add an empty string as a response. ONLY add a video if YOU THINK that the learning plan that is being generated ALIGNS with the content of the video. Otherwise DONT include a video link
+    } 
+  ]
+}
+
+===========================================
+ACTUAL INPUT DATA
+===========================================
+
+PAST-LEARNING-CARDS-ACTUAL:
+[]
+
+TEAM-FEEDBACK-ACTUAL:
+[]
+
+COACHING-HISTORY-ACTUAL:
+[]
+
+REFLECTIONS-ACTUAL:
+[]
+
+LEADERSHIP-ASSESSMENT-ACTUAL:
+{
+  "persona": [
+    {
+      "id": "Democratic",
+      "label": "Democratic",
+      "summary": "As a Democratic leader, you value the input of team members and peers, and you encourage participation from everyone in decision-making processes. You are skilled at fostering a sense of equality and fairness within the team, and you are adept at building consensus."
+    }
+  ],
+  "insights": {
+    "strengths": [
+      "Highly adaptable and flexible in various situations.",
+      "Excellent at encouraging innovation and risk-taking.",
+      "Strong ability to delegate tasks and responsibilities.",
+      "High emotional intelligence and empathy, with a focus on results."
+    ],
+    "weaknesses": [
+      "Struggles with delegation of important responsibilities.",
+      "Tends to focus more on short-term tasks than strategic goals.",
+      "May not seek team input as frequently as necessary.",
+      "Can be overly independent in decision-making."
+    ],
+    "opportunities": [
+      "Improve delegation skills for important responsibilities.",
+      "Increase focus on strategic goals over short-term tasks.",
+      "Seek team input more regularly in decision-making processes.",
+      "Balance independent decision-making with collaborative approaches."
+    ],
+    "threats": [
+      "Risk of alienating team members with overly independent decision-making.",
+      "Potential for short-term focus to detract from long-term strategic goals.",
+      "Possibility of over-delegating important responsibilities.",
+      "Risk of not seeking enough team input in decision-making."
+    ]
+  },
+  "recommendations": {
+    "do-more": "Continue to encourage innovation and risk-taking. For example, you could implement a 'no bad ideas' brainstorming session once a month to foster creativity and innovation.",
+    "do-less": "Try to rely less on independent decision-making. Instead, make a conscious effort to involve your team in decisions that affect them.",
+    "start": "Start focusing more on long-term strategic goals. Set aside time each week to review and adjust these goals as necessary.",
+    "stop": "Stop struggling with delegation of important responsibilities. Trust in your team's abilities and delegate tasks accordingly."
+  }
+}
+
+Your response should be a JSON object following the structure as per "LEARNING-PLAN-OUTPUT-TEMPLATE" with this example showing the expected detail level. The output should **ONLY** be a VALID JSON object and should not contain any additional text or explanations. 
+===========================================
+LEARNING-PLAN-OUTPUT-TEMPLATE
+===========================================
+
+{
+  "learning_plan":  [ //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. IT IS REPRESENTED AS AN ARRAY. YOU MUST INCLUDE THIS FOR EVERY RESPONSE. PLEASE INCLUDE AT LEAST 12 CONTENT PIECES FOR THIS SECTION
+    {
+      "title": //This is the title of the learning_plan that has to be generated
+      "content": //This is the content of the learning_plan that has to be generated. Please help to generate a good textual representation as well within 50-80 words
+      "video": //This is the path to a youtube video based on the learning plan generated. You can view the youtube-master-list to identify which video you think best suits the content generated. If you cannot find a suitable video under the section youtube-master-list then add an empty string as a response. ONLY add a video if YOU THINK that the learning plan that is being generated ALIGNS with the content of the video. Otherwise DONT include a video link
+      "focus_area": "", // Primary development area (e.g., "leadership", "communication", "strategy")
+      "difficulty": "", // Level of complexity ("beginner", "intermediate", "advanced")
+      "skills": [], // Array of specific skills developed through this module viz. "emotional intelligence", "active listening", "empathetic leadership", "adaptive communication", // Any other skill you think is relevant to the learning plan
+      "prerequisites": [], // Array of recommended prior knowledge or experience viz. "Basic leadership experience", "Team management responsibility", // Any other prerequisite you think is relevant to the learning plan
+      "next_steps": [], // Array of actionable implementation steps viz. "Practice active listening in next three team meetings", "Conduct emotional intelligence self-assessment", "Schedule individual connect sessions with team members", "Document emotional triggers and responses for one week", // Any other next step you think is relevant to the learning plan
+      "metrics": { // How to measure success
+        "short_term": [], // Immediate indicators of progress
+        "long_term": [] // Long-term success measures
+      },
+      "resources": { // Additional learning materials
+        "required": [], // Must-have resources
+        "optional": [] // Supplementary materials
+      }
+    }
+  ]
+}
+
+youtube-master-list
+
+The structure of this is that the first part is the Youtube Video Link and the second part is the content that can be used to query a suitable video to be featured in the leadership_assessment_report_template.learning_plan. The video link and text is delimited with a "-" (hyphen)
+														
+https://www.youtube.com/watch?v=SI6cOkDOoyE - Ideal for: Aspiring and mid-level managers. Topic: Delegation fundamentals. Takeaway: Assign tasks effectively and develop delegation as a promotion-worthy skill. (youtube.com, youtube.com)
+
+https://www.youtube.com/watch?v=YLBDkz0TwLM - Ideal for: All manager levels. Topic: Radical candor. Takeaway: Learn to “care personally, challenge directly” for honest, empathetic feedback.
+
+https://www.youtube.com/watch?v=doFpXXICnVE - Ideal for: Team leads. Topic: Leadership coaching. Takeaway: Build emotional intelligence and guide team growth.
+
+https://www.youtube.com/watch?v=2B2fyub1ZTY - Ideal for: First-time supervisors. Topic: Constructive feedback. Takeaway: Basics of timely, balanced, actionable feedback.
+
+https://www.youtube.com/watch?v=tdnJCwxpBuA - Ideal for: All leaders. Topic: Empathy in leadership. Takeaway: Understand and share team emotions to build trust.
+
+https://www.youtube.com/watch?v=buVVIpttzUA - Ideal for: Emerging leaders. Topic: Future leadership skills. Takeaway: Adaptability and curiosity will define the next generation of successful leaders.
+
+https://www.youtube.com/watch?v=n_ffqEA8X5g - Ideal for: Introverted or collaborative leaders. Topic: Communication style. Takeaway: Leading by asking questions and listening can be more effective than issuing commands.
+
+https://www.youtube.com/watch?v=7YC0G-ZA8gU - Ideal for: Introverted or humble leaders. Topic: Quiet leadership. Takeaway: Consistent, small, thoughtful actions can produce more consistent influence than loud directives.
+
+https://www.youtube.com/watch?v=aXGm5S5mAaU - Ideal for: Anyone facing setbacks. Topic: Resilience. Takeaway: Resilience is a skill that can be developed—negative experiences strengthen if reframed.
+
+https://www.youtube.com/watch?v=wxM-3ddOST8 - Ideal for: Senior executives. Topic: Leadership transition. Takeaway: How experienced leaders prepare for major role shifts by building trust, presence, and team buy‑in. (youtube.com)
+
+https://www.youtube.com/watch?v=ScOr3ut1mHs - Ideal for: Coaching-focused leaders. Topic: Delegation & coaching. Takeaway: Blend delegation with development.
+
+https://www.youtube.com/watch?v=8PiAwZF68jY - Ideal for: Project managers. Topic: Delegation tactics. Takeaway: Practical tips to empower teams.
+
+https://www.youtube.com/watch?v=V7tnbx-6Ayc - Ideal for: Managers applying feedback. Topic: Radical candor in action. Takeaway: Move from theory to real-world usage.
+
+https://www.youtube.com/watch?v=gi5UfSIf0BM - Ideal for: All leaders. Topic: Feedback best practices. Takeaway: Five rules to give clear, respectful feedback.
+
+https://www.youtube.com/watch?v=8j1eEP0dyCA - Ideal for: Senior leaders. Topic: Empathetic leadership. Takeaway: Trust is the foundation of effective teams.
+
+https://www.youtube.com/watch?v=1Evwgu369Jw - Ideal for: Leaders & educators. Topic: Empathy vs. sympathy. Takeaway: Connect through shared feelings.
+
+https://www.youtube.com/watch?v=22iqquWxrrA - Ideal for: Team leads. Topic: Emotional impact of empathy. Takeaway: Empathy transforms leadership outcomes.
+
+https://www.youtube.com/watch?v=S5eUu1jgVDQ - Ideal for: Daily leadership. Topic: Practical empathy. Takeaway: Micro-gestures that show you care.
+
+https://www.youtube.com/watch?v=c_XZ36b_aDI - Ideal for: All leaders. Topic: Routine empathy habits. Takeaway: Daily empathetic actions yield trust.
+
+https://www.youtube.com/watch?v=jWj0kLLq6IQ - Ideal for: Developing managers. Topic: Coaching techniques. Takeaway: Establish meaningful coaching conversations.
+
+https://www.youtube.com/watch?v=G1FhcR8xyd4 - Ideal for: Emerging managers. Topic: Core coaching behaviors. Takeaway: Skills to build coaching culture.
+
+https://www.youtube.com/watch?v=UWAWBTK_cfw - Ideal for: First-time managers. Topic: Coaching essentials. Takeaway: How to guide performance and growth.
+
+https://www.youtube.com/watch?v=ILOkVAJgli8 - Ideal for: Executive coaches. Topic: Advanced coaching. Takeaway: Professional communication techniques.
+
+https://www.youtube.com/watch?v=drIAw27EBDI - Ideal for: Time-pressed leaders. Topic: Coaching in 20–30 min. Takeaway: Make structured coaching impactful with limited time.
+
+https://www.youtube.com/watch?v=rkSakDkzb7Q - Ideal for: Growth-stage leaders. Topic: Scale leadership. Takeaway: Practical strategies to grow your leadership capacity alongside organizational expansion.
+
+https://www.youtube.com/watch?v=h2lP174yo00 - Ideal for: Teams & leaders. Topic: Two-way feedback. Takeaway: Tips for productive feedback exchange.
+
+https://www.youtube.com/watch?v=NcKAi0ZfEoo - Ideal for: Team leads. Topic: Feedback frameworks. Takeaway: "Stop-Start-Continue" model for clarity and action.
+
+https://www.youtube.com/watch?v=2yOsZVgj_FE - Ideal for: Leaders & execs. Topic: Honest feedback. Takeaway: Construct feedback rooted in respect and clarity.
+
+https://www.youtube.com/watch?v=jJJIY9DM-ts - Ideal for: Collaborative workplaces. Topic: Peer feedback. Takeaway: Structured approach to giving and receiving peer critique.
+
+https://www.youtube.com/watch?v=V4ZZeADBRAM - Ideal for: Growth-minded professionals. Topic: Feedback seeking. Takeaway: Encourage & integrate feedback with intention.
+
+https://www.youtube.com/watch?v=Vh7f13HEslQ - Ideal for: HR and managers. Topic: Performance reviews. Takeaway: Refine review process and reduce anxiety.
+
+https://www.youtube.com/watch?v=CXBWNr2giHo - Ideal for: Emerging leaders. Topic: Review follow-up. Takeaway: Prep, delivery tips, and post-review actions.														
+
+https://www.youtube.com/watch?v=bH8RlRrFARo - Ideal for: New managers (2025 specific). Topic: Mid-year feedback. Takeaway: Ensure mid-cycle performance tracking.														
+
+https://www.youtube.com/watch?v=rE925DTWhhk - Ideal for: Team managers. Topic: Performance strategy. Takeaway: Align skills, motivation, and resources.														
+
+https://www.youtube.com/watch?v=YeOzCHKv9fA - Ideal for: Managers addressing underperformance. Topic: Poor performance management. Takeaway: Structured coaching instead of blame.														
+
+https://www.youtube.com/playlist?list=PLUL5iaZCLDUF-2_m4WEBBWuxicL68I7g- - Ideal for: HR practitioners. Topic: Performance toolkit. Takeaway: Range of tools for ongoing performance management.														
+
+https://www.youtube.com/watch?v=OoISfhACm4s - Ideal for: Managers new to radical candor. Topic: Radical candor basics. Takeaway: Core feedback compass framework.														
+
+https://www.youtube.com/watch?v=WHpGkWdWOlA - Ideal for: Feedback culture builders. Topic: Candor in the workplace. Takeaway: Core components to foster radical candor.														
+
+https://www.youtube.com/watch?v=DmgT18v0Wzo - Ideal for: Leadership trainers. Topic: Radically candid cultures. Takeaway: Learn frameworks from Kim Scott’s SPC session.														
+
+https://www.youtube.com/watch?v=vylmPna3v4Q - Ideal for: Data-influenced leaders. Topic: Delegation rationale. Takeaway: Research-backed importance of delegation.														
+
+https://www.youtube.com/watch?v=iYqN5ntld-k - Ideal for: Structured managers. Topic: Delegation checklist. Takeaway: Essential do’s and don’ts.														
+
+https://www.youtube.com/watch?v=llzakTJqkBk - Ideal for: Senior leaders. Topic: Psychological delegation barriers. Takeaway: Identify and overcome mental blocks.														
+
+https://www.youtube.com/watch?v=kZAH-R-qUTQ - Ideal for: Team leads. Topic: Meetings + delegation. Takeaway: How to embed delegation in meeting routine.														
+
+https://www.youtube.com/watch?v=msIP8TyZXn8 - Ideal for: Leadership learners. Topic: Multiple leadership topics. Takeaway: Rapid insights on communication, feedback, and growth.														
+
+https://www.youtube.com/watch?v=n1Kv67Z7qXQ - Ideal for: All leadership levels. Topic: Leadership essentials. Takeaway: Three key questions to help introspect and define your leadership identity.														
+
+https://www.youtube.com/watch?v=dySpIRY8cWE - Ideal for: C‑Suite executives. Topic: Leadership traits. Takeaway: The interplay of gratitude, humility, and accountability in top-tier leadership.														
+
+https://www.youtube.com/watch?v=CPzeFw3nPO0 - Ideal for: Aspiring CEO candidates. Topic: CEO readiness. Takeaway: What makes a CEO coach-worthy: clarity, influence, and impact mindset.														
+
+https://www.youtube.com/watch?v=kebe2mzn6QA - Ideal for: Leadership development professionals. Topic: Leadership behavior. Takeaway: Insights from two of the world’s most trusted leadership coaches.
+
+https://www.youtube.com/playlist?list=PLOpZoY-U0jaVQzfxdiAXrRTMJnABkdIxQ - Ideal for: Executive coaches. Topic: Interview leadership. Takeaway: Rare interviews with CEOs sharing firsthand leadership challenges and lessons.
+
+===========================================
+REQUIREMENTS FOR YOUR RESPONSE
+===========================================
+
+1. UNIQUENESS: Ensure all learning content is unique and does not duplicate past_learning_cards
+2. RELEVANCE: Address specific areas mentioned in team_feedback
+3. CONTINUITY: Build upon insights from coaching_history
+4. REFLECTION: Incorporate themes from user reflections
+5. ALIGNMENT: Ensure recommendations align with leadership assessment insights
+6. ACTIONABILITY: Provide concrete, implementable steps
+7. COMPREHENSIVENESS: Include all required fields in the output structure
+8. SPECIFICITY: Make recommendations specific to the leader's context and company
+9. FEEDBACK INTEGRATION: 
+   - Analyze feedback across all 5 categories - viz. PAST-LEARNING-CARDS-TEMPLATE, TEAM-FEEDBACK-TEMPLATE, COACHING-HISTORY-TEMPLATE, REFLECTIONS-TEMPLATE, LEADERSHIP-ASSESSMENT-TEMPLATE
+   - Pay special attention to areas with lower scores (1-2)
+   - Consider open-ended feedback in learning recommendations
+   - Factor in NPS score for overall satisfaction assessment
+   - Address specific improvement areas mentioned in feedback
+
+Your response should be a JSON object (which can directly be sent back by the API) following the structure as per "LEARNING-PLAN-OUTPUT-TEMPLATE" with this example showing the expected detail level. The output should **ONLY** and **EXACT** Structure and be a VALID JSON object and should **NOT** contain any additional text or explanations
+
+
+===== 2025-06-18T19:40:26.050Z =====
+You are an expert Leadership Coach specializing in creating personalized learning and development plans. 
+
+Your role is to analyze multiple data sources as defined in the 5 sections under "INPUT-COMPONENTS-AND-TEMPLATE-STRUCTURES" and create a comprehensive, actionable learning plan that addresses the specific needs of each manager. The actual input data about the manager that represents the categories defined under "INPUT-COMPONENTS-AND-TEMPLATE-STRUCTURES" are mentioned in "ACTUAL-INPUT-DATA" Please provide **ONLY** 4 learning plan out **ONLY* as a json object that I can use to directly send an API output
+
+===========================================
+INPUT-COMPONENTS-AND-TEMPLATE-STRUCTURES
+===========================================
+
+Your analysis will be based on five key data sources (PAST-LEARNING-CARDS-TEMPLATE, TEAM-FEEDBACK-TEMPLATE, COACHING-HISTORY-TEMPLATE, REFLECTIONS-TEMPLATE, LEADERSHIP-ASSESSMENT-TEMPLATE as given below), each providing unique insights into the manager's development needs:
+
+1. PAST-LEARNING-CARDS-TEMPLATE
+=============================
+Previous learning modules completed by the manager. The real data is mentioned under PAST-LEARNING-CARDS-ACTUAL
+
+{
+  "past_learning_cards": [ // Array of previously completed learning modules
+    {
+      "title": "", // Descriptive title of the learning module (e.g., "Improving Decision-Making and Delegation Skills")
+      "content": "", // Detailed description of the module content and learning objectives
+      "video": "", // URL to associated video content (e.g., YouTube link),
+      "focus_area": "", // Primary development area (e.g., "leadership", "communication", "strategy")
+      "difficulty": "", // Level of complexity ("beginner", "intermediate", "advanced")
+      "skills": [], // Array of specific skills developed through this module viz. "emotional intelligence", "active listening", "empathetic leadership", "adaptive communication", // Any other skill you think is relevant to the learning plan
+      "prerequisites": [], // Array of recommended prior knowledge or experience viz. "Basic leadership experience", "Team management responsibility", // Any other prerequisite you think is relevant to the learning plan
+    }
+  ]
+}
+
+Common Focus Areas for Past Learning:
+1. Decision Making & Delegation
+   - Purpose: Improve decision-making process and delegation skills
+   - Topics: Team involvement, trust building, effective delegation
+
+2. Emotional Intelligence
+   - Purpose: Enhance emotional awareness and management
+   - Topics: Team emotional dynamics, leadership style adaptation
+
+3. Vision & Strategy
+   - Purpose: Develop strategic thinking and communication
+   - Topics: Long-term planning, goal setting, innovation
+
+4. Team Development
+   - Purpose: Strengthen coaching and mentoring abilities
+   - Topics: Growth opportunities, problem-solving, mentorship
+
+5. Adaptability & Influence
+   - Purpose: Improve flexibility and leadership influence
+   - Topics: Situational leadership, change management
+
+2. TEAM-FEEDBACK-TEMPLATE
+=======================
+Detailed feedback structure explaining each field and its purpose. The real data is mentioned under TEAM-FEEDBACK-ACTUAL
+
+{
+  "team_feedback": [ // Array of feedback entries from team members
+    {
+      "feedbackData": { // Container for all feedback related data
+        "ratingQuestions": [ // Array of structured rating questions
+          {
+            "id": "", // Unique identifier for the question (e.g., communicatesClearly, keepsInformed)
+            "category": "", // Question category name (e.g., Communication & Clarity, Support & Development). More details can be found in the section "Question-Categories-and-Their-Purpose" below
+            "categoryID": "", // Unique identifier for the category (e.g., CommunicationClarity, SupportDevelopment)
+            "text": "", // The actual question text shown to the team member
+            "response": 0 // Numeric response on scale 1-5 (1=Strongly Disagree, 5=Strongly Agree). Details of which are in "Rating-Scale-Definition" below
+          }
+        ],
+        "npsScore": 0, // Net Promoter Score (0-10) indicating overall satisfaction with manager. Details of which are in "NPS-Score-Interpretation"
+        "openEndedQuestions": [ // Array of free-form feedback questions
+          {
+            "id": "", // Question identifier (e.g., managerStrengths, areasForImprovement, additionalFeedback)
+            "text": "", // The actual question text
+            "response": "" // Free-form text response from team member
+          }
+        ],
+        "overallProgress": // should be ignored
+        "categoryProgress": // should be ignored
+      }
+    }
+  ]
+}
+
+Question-Categories-and-Their-Purpose:
+1. Communication & Clarity
+   - Purpose: Assess manager's ability to communicate effectively and maintain transparency
+   - Questions cover: Goal setting, expectations, active listening, decision-making process
+
+2. Support & Development
+   - Purpose: Evaluate manager's role in team growth and professional development
+   - Questions cover: Feedback quality, learning support, accessibility, mentorship
+
+3. Decision-Making & Fairness
+   - Purpose: Gauge manager's decision-making process and conflict resolution skills
+   - Questions cover: Fairness, transparency, conflict handling, problem-solving
+
+4. Recognition & Team Culture
+   - Purpose: Assess manager's ability to create positive team environment
+   - Questions cover: Recognition practices, psychological safety, inclusivity
+
+5. Empowerment & Motivation
+   - Purpose: Evaluate manager's ability to inspire and empower team
+   - Questions cover: Autonomy, motivation, trust, leadership inspiration
+
+Rating-Scale-Definition:
+1 - Strongly Disagree: Significant improvement needed
+2 - Disagree: Some improvement needed
+3 - Neutral: Meets basic expectations
+4 - Agree: Exceeds expectations
+5 - Strongly Agree: Exceptional performance
+
+NPS-Score-Interpretation:
+0-6: Detractor (Improvement needed)
+7-8: Passive (Satisfactory but room for improvement)
+9-10: Promoter (Excellent performance)
+
+
+3. COACHING-HISTORY-TEMPLATE
+==========================
+Previous coaching conversations and insights. The real data is mentioned under COACHING-HISTORY-ACTUAL
+
+{
+  "coaching_history": [
+  {
+      "from": "user", // question asked by the user
+      "messageType": "question",
+      "chatType": // coaching or roleplay
+      "chat_text": // question from the user,
+      "timestamp": // timestamp of the response
+    },
+    {
+      "from": "aicoach", // response from the AI Coach
+      "messageType": "response",
+      "chatType": // coaching or roleplay
+      "chat_text": // answer from the coach,
+      "timestamp": // timestamp of the response
+    }
+  ]
+}
+
+4. REFLECTIONS-TEMPLATE
+=====================
+Personal insights and self-observations. The real data is mentioned under REFLECTIONS-ACTUAL
+
+{
+  "reflections": [
+    {
+      "content": // daily reflection from the user,
+    }
+  ]
+}
+
+5. LEADERSHIP-ASSESSMENT-TEMPLATE
+==============================
+Comprehensive evaluation of leadership style and capabilities. The real data is mentioned under LEADERSHIP-ASSESSMENT-ACTUAL
+
+{
+  "persona": [{
+    "id": //This should be either "Visionary", "Coaching", "Democratic", "Affiliative", "Directive",
+    "label": //This should be either "Visionary", "Coaching", "Democratic", "Affiliative", "Directive" and is derived from the input of leadership assessment provided in "leadership_assessment_input_template"
+    "summary": "" // For this, Provide a 80-100 word text explaining what the leadership type and persona.
+  },],
+  "insights": {
+    "strengths": [
+      // This is an array of text to summarize the strengths based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 strentghs and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ],
+    "weaknesses": [
+      // This is an array of text to summarize the weakness based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 weakness and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ],
+    "opportunities": [
+      // This is an array of text to summarize the opportunities based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 opportunities and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ],
+    "threats": [
+      // This is an array of text to summarize the threats based on the assessment you would perform from the input "leadership_assessment_input_template" - please ONLY mention a max of 5 threats and the most prominant ones. Please respect the user's choice of tone from coach as provided in the input "leadership_assessment_input_template"
+    ]
+  },
+  "recommendations": { //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. YOU MUST INCLUDE THIS FOR EVERY RESPONSE
+    "do-more": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should continue doing and provide an example of how. Keep in mind the preference for coaching tone.
+    "do-less": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should do less of and provide an example of what. Keep in mind the preference for coaching tone
+    "start": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should start doing and provide an example of how. Keep in mind the preference for coaching tone
+    "stop": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should stop doing and provide an example of how. Keep in mind the preference for coaching tone
+  },
+  "learning_plan": [ //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. IT IS REPRESENTED AS AN ARRAY. YOU MUST INCLUDE THIS FOR EVERY RESPONSE. PLEASE INCLUDE AT LEAST 12 CONTENT PIECES FOR THIS SECTION
+    {
+      "title": //This is the title of the learning_plan that has to be generated
+      "content": //This is the content of the learning_plan that has to be generated 
+      "video": //This is the path to a youtube video based on the learning plan generated. You can view the youtube-master-list to identify which video you think best suits the content generated. If you cannot find a suitable video under the section youtube-master-list then add an empty string as a response. ONLY add a video if YOU THINK that the learning plan that is being generated ALIGNS with the content of the video. Otherwise DONT include a video link
+    } 
+  ]
+}
+
+===========================================
+ACTUAL INPUT DATA
+===========================================
+
+PAST-LEARNING-CARDS-ACTUAL:
+[]
+
+TEAM-FEEDBACK-ACTUAL:
+[]
+
+COACHING-HISTORY-ACTUAL:
+[
+  {
+    "from": "user",
+    "chat_text": "I want to engage in a role play on delivering tough news",
+    "timestamp": "2025-06-18T12:56:40.565Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "Let's start by understanding the context. Who are you giving feedback to? (e.g., peer, direct report, senior leader)?",
+    "timestamp": "2025-06-18T12:56:43.758Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "user",
+    "chat_text": "how to deal with bad managers at workplace?",
+    "timestamp": "2025-06-18T12:57:05.409Z",
+    "messageType": "question",
+    "chatType": "roleplay"
+  },
+  {
+    "from": "aicoach",
+    "chat_text": "It seems like you're looking to discuss how to deal with bad managers. Can you share more about your experience with this manager?",
+    "timestamp": "2025-06-18T12:57:07.602Z",
+    "messageType": "response",
+    "chatType": "roleplay"
+  }
+]
+
+REFLECTIONS-ACTUAL:
+[]
+
+LEADERSHIP-ASSESSMENT-ACTUAL:
+{
+  "persona": [
+    {
+      "id": "Democratic",
+      "label": "Democratic",
+      "summary": "You display a Democratic leadership style, often seeking input from your team before making decisions. You value collaboration and foster an environment of shared responsibility. You are adept at balancing the need for results with the emotional well-being of your team members."
+    }
+  ],
+  "insights": {
+    "strengths": [
+      "Excellent at seeking team input before making decisions.",
+      "Strong ability to adapt your leadership approach based on the situation.",
+      "Effective in encouraging innovation and risk-taking.",
+      "Skilled at designing growth opportunities for your team.",
+      "Exceptional at giving constructive feedback with empathy."
+    ],
+    "weaknesses": [
+      "Struggle to delegate important responsibilities.",
+      "Tend to focus more on short-term tasks than strategic goals.",
+      "Difficulty staying calm and composed during conflict.",
+      "Often find yourself solving problems rather than enabling others.",
+      "Preference for a structured leadership routine may limit flexibility."
+    ],
+    "opportunities": [
+      "Develop your delegation skills to empower your team and free up your time for strategic tasks.",
+      "Focus more on strategic goals to drive long-term success.",
+      "Improve your conflict management skills to maintain team harmony.",
+      "Shift from problem-solving to enabling others to enhance team growth.",
+      "Adopt a more flexible leadership routine to adapt to changing situations."
+    ],
+    "threats": [
+      "Failure to delegate could lead to burnout and reduced team development.",
+      "Excessive focus on short-term tasks may hinder long-term progress.",
+      "Inability to manage conflict effectively could disrupt team dynamics.",
+      "Constant problem-solving could limit your team's ability to learn and grow.",
+      "Over-reliance on a structured routine may hinder adaptability."
+    ]
+  },
+  "recommendations": {
+    "do-more": "Continue to seek team input before making decisions. This fosters a collaborative environment and makes your team feel valued. For example, you could hold regular brainstorming sessions to discuss and decide on new projects.",
+    "do-less": "Try to reduce your focus on short-term tasks. While these are important, they should not overshadow your strategic goals. For example, delegate routine tasks to free up time for strategic planning.",
+    "start": "Start developing your conflict management skills. This will help maintain a positive team environment. For example, you could take a course on conflict resolution or seek advice from a mentor.",
+    "stop": "Stop solving problems for your team all the time. Instead, guide them to find solutions themselves. This will enhance their skills and confidence. For example, instead of providing a solution, ask probing questions to help them think through the problem."
+  }
+}
+
+Your response should be a JSON object following the structure as per "LEARNING-PLAN-OUTPUT-TEMPLATE" with this example showing the expected detail level. The output should **ONLY** be a VALID JSON object and should not contain any additional text or explanations. 
+===========================================
+LEARNING-PLAN-OUTPUT-TEMPLATE
+===========================================
+
+{
+  "learning_plan":  [ //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. IT IS REPRESENTED AS AN ARRAY. YOU MUST INCLUDE THIS FOR EVERY RESPONSE. PLEASE INCLUDE AT LEAST 12 CONTENT PIECES FOR THIS SECTION
+    {
+      "title": //This is the title of the learning_plan that has to be generated
+      "content": //This is the content of the learning_plan that has to be generated. Please help to generate a good textual representation as well within 50-80 words
+      "video": //This is the path to a youtube video based on the learning plan generated. You can view the youtube-master-list to identify which video you think best suits the content generated. If you cannot find a suitable video under the section youtube-master-list then add an empty string as a response. ONLY add a video if YOU THINK that the learning plan that is being generated ALIGNS with the content of the video. Otherwise DONT include a video link
+      "focus_area": "", // Primary development area (e.g., "leadership", "communication", "strategy")
+      "difficulty": "", // Level of complexity ("beginner", "intermediate", "advanced")
+      "skills": [], // Array of specific skills developed through this module viz. "emotional intelligence", "active listening", "empathetic leadership", "adaptive communication", // Any other skill you think is relevant to the learning plan
+      "prerequisites": [], // Array of recommended prior knowledge or experience viz. "Basic leadership experience", "Team management responsibility", // Any other prerequisite you think is relevant to the learning plan
+      "next_steps": [], // Array of actionable implementation steps viz. "Practice active listening in next three team meetings", "Conduct emotional intelligence self-assessment", "Schedule individual connect sessions with team members", "Document emotional triggers and responses for one week", // Any other next step you think is relevant to the learning plan
+      "metrics": { // How to measure success
+        "short_term": [], // Immediate indicators of progress
+        "long_term": [] // Long-term success measures
+      },
+      "resources": { // Additional learning materials
+        "required": [], // Must-have resources
+        "optional": [] // Supplementary materials
+      }
+    }
+  ]
+}
+
+youtube-master-list
+
+The structure of this is that the first part is the Youtube Video Link and the second part is the content that can be used to query a suitable video to be featured in the leadership_assessment_report_template.learning_plan. The video link and text is delimited with a "-" (hyphen)
+														
+https://www.youtube.com/watch?v=SI6cOkDOoyE - Ideal for: Aspiring and mid-level managers. Topic: Delegation fundamentals. Takeaway: Assign tasks effectively and develop delegation as a promotion-worthy skill. (youtube.com, youtube.com)
+
+https://www.youtube.com/watch?v=YLBDkz0TwLM - Ideal for: All manager levels. Topic: Radical candor. Takeaway: Learn to “care personally, challenge directly” for honest, empathetic feedback.
+
+https://www.youtube.com/watch?v=doFpXXICnVE - Ideal for: Team leads. Topic: Leadership coaching. Takeaway: Build emotional intelligence and guide team growth.
+
+https://www.youtube.com/watch?v=2B2fyub1ZTY - Ideal for: First-time supervisors. Topic: Constructive feedback. Takeaway: Basics of timely, balanced, actionable feedback.
+
+https://www.youtube.com/watch?v=tdnJCwxpBuA - Ideal for: All leaders. Topic: Empathy in leadership. Takeaway: Understand and share team emotions to build trust.
+
+https://www.youtube.com/watch?v=buVVIpttzUA - Ideal for: Emerging leaders. Topic: Future leadership skills. Takeaway: Adaptability and curiosity will define the next generation of successful leaders.
+
+https://www.youtube.com/watch?v=n_ffqEA8X5g - Ideal for: Introverted or collaborative leaders. Topic: Communication style. Takeaway: Leading by asking questions and listening can be more effective than issuing commands.
+
+https://www.youtube.com/watch?v=7YC0G-ZA8gU - Ideal for: Introverted or humble leaders. Topic: Quiet leadership. Takeaway: Consistent, small, thoughtful actions can produce more consistent influence than loud directives.
+
+https://www.youtube.com/watch?v=aXGm5S5mAaU - Ideal for: Anyone facing setbacks. Topic: Resilience. Takeaway: Resilience is a skill that can be developed—negative experiences strengthen if reframed.
+
+https://www.youtube.com/watch?v=wxM-3ddOST8 - Ideal for: Senior executives. Topic: Leadership transition. Takeaway: How experienced leaders prepare for major role shifts by building trust, presence, and team buy‑in. (youtube.com)
+
+https://www.youtube.com/watch?v=ScOr3ut1mHs - Ideal for: Coaching-focused leaders. Topic: Delegation & coaching. Takeaway: Blend delegation with development.
+
+https://www.youtube.com/watch?v=8PiAwZF68jY - Ideal for: Project managers. Topic: Delegation tactics. Takeaway: Practical tips to empower teams.
+
+https://www.youtube.com/watch?v=V7tnbx-6Ayc - Ideal for: Managers applying feedback. Topic: Radical candor in action. Takeaway: Move from theory to real-world usage.
+
+https://www.youtube.com/watch?v=gi5UfSIf0BM - Ideal for: All leaders. Topic: Feedback best practices. Takeaway: Five rules to give clear, respectful feedback.
+
+https://www.youtube.com/watch?v=8j1eEP0dyCA - Ideal for: Senior leaders. Topic: Empathetic leadership. Takeaway: Trust is the foundation of effective teams.
+
+https://www.youtube.com/watch?v=1Evwgu369Jw - Ideal for: Leaders & educators. Topic: Empathy vs. sympathy. Takeaway: Connect through shared feelings.
+
+https://www.youtube.com/watch?v=22iqquWxrrA - Ideal for: Team leads. Topic: Emotional impact of empathy. Takeaway: Empathy transforms leadership outcomes.
+
+https://www.youtube.com/watch?v=S5eUu1jgVDQ - Ideal for: Daily leadership. Topic: Practical empathy. Takeaway: Micro-gestures that show you care.
+
+https://www.youtube.com/watch?v=c_XZ36b_aDI - Ideal for: All leaders. Topic: Routine empathy habits. Takeaway: Daily empathetic actions yield trust.
+
+https://www.youtube.com/watch?v=jWj0kLLq6IQ - Ideal for: Developing managers. Topic: Coaching techniques. Takeaway: Establish meaningful coaching conversations.
+
+https://www.youtube.com/watch?v=G1FhcR8xyd4 - Ideal for: Emerging managers. Topic: Core coaching behaviors. Takeaway: Skills to build coaching culture.
+
+https://www.youtube.com/watch?v=UWAWBTK_cfw - Ideal for: First-time managers. Topic: Coaching essentials. Takeaway: How to guide performance and growth.
+
+https://www.youtube.com/watch?v=ILOkVAJgli8 - Ideal for: Executive coaches. Topic: Advanced coaching. Takeaway: Professional communication techniques.
+
+https://www.youtube.com/watch?v=drIAw27EBDI - Ideal for: Time-pressed leaders. Topic: Coaching in 20–30 min. Takeaway: Make structured coaching impactful with limited time.
+
+https://www.youtube.com/watch?v=rkSakDkzb7Q - Ideal for: Growth-stage leaders. Topic: Scale leadership. Takeaway: Practical strategies to grow your leadership capacity alongside organizational expansion.
+
+https://www.youtube.com/watch?v=h2lP174yo00 - Ideal for: Teams & leaders. Topic: Two-way feedback. Takeaway: Tips for productive feedback exchange.
+
+https://www.youtube.com/watch?v=NcKAi0ZfEoo - Ideal for: Team leads. Topic: Feedback frameworks. Takeaway: "Stop-Start-Continue" model for clarity and action.
+
+https://www.youtube.com/watch?v=2yOsZVgj_FE - Ideal for: Leaders & execs. Topic: Honest feedback. Takeaway: Construct feedback rooted in respect and clarity.
+
+https://www.youtube.com/watch?v=jJJIY9DM-ts - Ideal for: Collaborative workplaces. Topic: Peer feedback. Takeaway: Structured approach to giving and receiving peer critique.
+
+https://www.youtube.com/watch?v=V4ZZeADBRAM - Ideal for: Growth-minded professionals. Topic: Feedback seeking. Takeaway: Encourage & integrate feedback with intention.
+
+https://www.youtube.com/watch?v=Vh7f13HEslQ - Ideal for: HR and managers. Topic: Performance reviews. Takeaway: Refine review process and reduce anxiety.
+
+https://www.youtube.com/watch?v=CXBWNr2giHo - Ideal for: Emerging leaders. Topic: Review follow-up. Takeaway: Prep, delivery tips, and post-review actions.														
+
+https://www.youtube.com/watch?v=bH8RlRrFARo - Ideal for: New managers (2025 specific). Topic: Mid-year feedback. Takeaway: Ensure mid-cycle performance tracking.														
+
+https://www.youtube.com/watch?v=rE925DTWhhk - Ideal for: Team managers. Topic: Performance strategy. Takeaway: Align skills, motivation, and resources.														
+
+https://www.youtube.com/watch?v=YeOzCHKv9fA - Ideal for: Managers addressing underperformance. Topic: Poor performance management. Takeaway: Structured coaching instead of blame.														
+
+https://www.youtube.com/playlist?list=PLUL5iaZCLDUF-2_m4WEBBWuxicL68I7g- - Ideal for: HR practitioners. Topic: Performance toolkit. Takeaway: Range of tools for ongoing performance management.														
+
+https://www.youtube.com/watch?v=OoISfhACm4s - Ideal for: Managers new to radical candor. Topic: Radical candor basics. Takeaway: Core feedback compass framework.														
+
+https://www.youtube.com/watch?v=WHpGkWdWOlA - Ideal for: Feedback culture builders. Topic: Candor in the workplace. Takeaway: Core components to foster radical candor.														
+
+https://www.youtube.com/watch?v=DmgT18v0Wzo - Ideal for: Leadership trainers. Topic: Radically candid cultures. Takeaway: Learn frameworks from Kim Scott’s SPC session.														
+
+https://www.youtube.com/watch?v=vylmPna3v4Q - Ideal for: Data-influenced leaders. Topic: Delegation rationale. Takeaway: Research-backed importance of delegation.														
+
+https://www.youtube.com/watch?v=iYqN5ntld-k - Ideal for: Structured managers. Topic: Delegation checklist. Takeaway: Essential do’s and don’ts.														
+
+https://www.youtube.com/watch?v=llzakTJqkBk - Ideal for: Senior leaders. Topic: Psychological delegation barriers. Takeaway: Identify and overcome mental blocks.														
+
+https://www.youtube.com/watch?v=kZAH-R-qUTQ - Ideal for: Team leads. Topic: Meetings + delegation. Takeaway: How to embed delegation in meeting routine.														
+
+https://www.youtube.com/watch?v=msIP8TyZXn8 - Ideal for: Leadership learners. Topic: Multiple leadership topics. Takeaway: Rapid insights on communication, feedback, and growth.														
+
+https://www.youtube.com/watch?v=n1Kv67Z7qXQ - Ideal for: All leadership levels. Topic: Leadership essentials. Takeaway: Three key questions to help introspect and define your leadership identity.														
+
+https://www.youtube.com/watch?v=dySpIRY8cWE - Ideal for: C‑Suite executives. Topic: Leadership traits. Takeaway: The interplay of gratitude, humility, and accountability in top-tier leadership.														
+
+https://www.youtube.com/watch?v=CPzeFw3nPO0 - Ideal for: Aspiring CEO candidates. Topic: CEO readiness. Takeaway: What makes a CEO coach-worthy: clarity, influence, and impact mindset.														
+
+https://www.youtube.com/watch?v=kebe2mzn6QA - Ideal for: Leadership development professionals. Topic: Leadership behavior. Takeaway: Insights from two of the world’s most trusted leadership coaches.
+
+https://www.youtube.com/playlist?list=PLOpZoY-U0jaVQzfxdiAXrRTMJnABkdIxQ - Ideal for: Executive coaches. Topic: Interview leadership. Takeaway: Rare interviews with CEOs sharing firsthand leadership challenges and lessons.
+
+===========================================
+REQUIREMENTS FOR YOUR RESPONSE
+===========================================
+
+1. UNIQUENESS: Ensure all learning content is unique and does not duplicate past_learning_cards
+2. RELEVANCE: Address specific areas mentioned in team_feedback
+3. CONTINUITY: Build upon insights from coaching_history
+4. REFLECTION: Incorporate themes from user reflections
+5. ALIGNMENT: Ensure recommendations align with leadership assessment insights
+6. ACTIONABILITY: Provide concrete, implementable steps
+7. COMPREHENSIVENESS: Include all required fields in the output structure
+8. SPECIFICITY: Make recommendations specific to the leader's context and company
+9. FEEDBACK INTEGRATION: 
+   - Analyze feedback across all 5 categories - viz. PAST-LEARNING-CARDS-TEMPLATE, TEAM-FEEDBACK-TEMPLATE, COACHING-HISTORY-TEMPLATE, REFLECTIONS-TEMPLATE, LEADERSHIP-ASSESSMENT-TEMPLATE
+   - Pay special attention to areas with lower scores (1-2)
+   - Consider open-ended feedback in learning recommendations
+   - Factor in NPS score for overall satisfaction assessment
+   - Address specific improvement areas mentioned in feedback
+
+Your response should be a JSON object (which can directly be sent back by the API) following the structure as per "LEARNING-PLAN-OUTPUT-TEMPLATE" with this example showing the expected detail level. The output should **ONLY** and **EXACT** Structure and be a VALID JSON object and should **NOT** contain any additional text or explanations
