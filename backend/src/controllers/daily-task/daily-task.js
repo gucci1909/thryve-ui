@@ -134,7 +134,7 @@ async function updateAllUsersLearningPlans() {
 
 // Schedule the job to run at 4 PM daily
 cron.schedule(
-  '13 0 * * *',
+  '0 16 * * *',
   async () => {
     let retryCount = 0;
 
