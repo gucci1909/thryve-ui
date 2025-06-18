@@ -6,6 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getLearningPlanPrompt } from './learningPlanPromptTemplate.js';
+import logger from '../../utils/logger.js';
 
 const argv = yargs(hideBin(process.argv))
   .option('envFilePath', {
@@ -28,8 +29,10 @@ async function generateLearningPlan(
   coaching_history,
   reflections_of_context,
   leadership_assessment,
+  req = null
 ) {
   const openaiEndpoint = process.env.OpenAIAPI;
+  const startTime = Date.now();
 
   const systemPrompt = getLearningPlanPrompt(
     past_learning_cards,
@@ -38,17 +41,6 @@ async function generateLearningPlan(
     reflections_of_context,
     leadership_assessment,
   );
-
-  // Log system prompt to console
-  console.log(`
-    ================ SYSTEM PROMPT START ================
-
-  `);
-  console.dir(systemPrompt, { depth: null, colors: true });
-  console.log(`
-    ================ SYSTEM PROMPT END ================
-
-  `);
 
   // File path to store prompt
   const filePath = path.join(__dirname, 'learning-plan-prompt.txt');
@@ -66,6 +58,8 @@ async function generateLearningPlan(
   });
 
   try {
+    // Make OpenAI API call with timing
+    const openAIStartTime = Date.now();
     const response = await fetch(openaiEndpoint, {
       method: 'POST',
       headers: {
@@ -85,34 +79,83 @@ async function generateLearningPlan(
     });
 
     const data = await response.json();
+    const openAIResponseTime = Date.now() - openAIStartTime;
 
-    if (response.ok) {
-      let outputText = data.choices[0].message.content;
-
-      // Remove code block markers if present
-      if (outputText.startsWith('```json')) {
-        outputText = outputText.replace(/^```json\s*/, '').replace(/```$/, '');
-      } else if (outputText.startsWith('```')) {
-        outputText = outputText.replace(/^```\w*\s*/, '').replace(/```$/, '');
-      }
-
-      let outputJson;
-
-      try {
-        outputJson = JSON.parse(outputText);
-      } catch (error) {
-        console.error('Failed to parse JSON:', error);
-        throw new Error('Invalid JSON format in response');
-      }
-
-      const learningPlan = outputJson.learning_plan || [];
-
-      return learningPlan;
-    } else {
-      throw new Error(`OpenAI Error: ${data.error.message}`);
+    // Log OpenAI API call
+    if (!response.ok || !data.choices || !data.choices[0]) {
+      const error = new Error(data.error?.message || 'Invalid response from OpenAI');
+      logger.logOpenAICall(req, {
+        model: 'gpt-4o-mini',
+        userInput: 'Learning plan generation request',
+        systemPrompt,
+        error,
+        responseTime: openAIResponseTime,
+        chatType: 'LEARNING_PLAN',
+        tokensUsed: data.usage?.total_tokens
+      });
+      throw error;
     }
+
+    let outputText = data.choices[0].message.content;
+
+    // Remove code block markers if present
+    if (outputText.startsWith('```json')) {
+      outputText = outputText.replace(/^```json\s*/, '').replace(/```$/, '');
+    } else if (outputText.startsWith('```')) {
+      outputText = outputText.replace(/^```\w*\s*/, '').replace(/```$/, '');
+    }
+
+    let outputJson;
+
+    try {
+      outputJson = JSON.parse(outputText);
+    } catch (error) {
+      console.error('Failed to parse JSON:', error);
+      
+      // Log parsing error
+      logger.logOpenAICall(req, {
+        model: 'gpt-4o-mini',
+        userInput: 'Learning plan generation request',
+        systemPrompt,
+        response: outputText,
+        error: new Error('Invalid JSON format in response'),
+        responseTime: openAIResponseTime,
+        chatType: 'LEARNING_PLAN',
+        tokensUsed: data.usage?.total_tokens
+      });
+      
+      throw new Error('Invalid JSON format in response');
+    }
+
+    const learningPlan = outputJson.learning_plan || [];
+
+    // Log successful OpenAI API call
+    logger.logOpenAICall(req, {
+      model: 'gpt-4o-mini',
+      userInput: 'Learning plan generation request',
+      systemPrompt,
+      response: JSON.stringify(learningPlan),
+      responseTime: openAIResponseTime,
+      chatType: 'LEARNING_PLAN',
+      tokensUsed: data.usage?.total_tokens
+    });
+
+    return learningPlan;
   } catch (error) {
     console.error('Error generating learning plan:', error.message);
+    
+    // Log any other errors
+    if (!error.message.includes('OpenAI') && !error.message.includes('Invalid JSON format')) {
+      logger.logOpenAICall(req, {
+        model: 'gpt-4o-mini',
+        userInput: 'Learning plan generation request',
+        systemPrompt,
+        error,
+        responseTime: Date.now() - startTime,
+        chatType: 'LEARNING_PLAN'
+      });
+    }
+    
     throw error;
   }
 }

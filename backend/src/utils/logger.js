@@ -113,6 +113,13 @@ const logger = winston.createLogger({
       level: 'error',
       maxsize: process.env.LOG_MAX_SIZE || 5242880,
       maxFiles: process.env.LOG_MAX_FILES || 5,
+    }),
+    // Separate file for OpenAI API calls
+    new winston.transports.File({
+      filename: path.join(LOG_DIR, 'openai-api.log'),
+      level: 'info',
+      maxsize: process.env.LOG_MAX_SIZE || 5242880,
+      maxFiles: process.env.LOG_MAX_FILES || 5,
     })
   ],
 });
@@ -124,6 +131,94 @@ if (process.env.NODE_ENV !== 'production') {
       format: winston.format.combine(
         winston.format.colorize(),
         logFormat
+      ),
+    })
+  );
+}
+
+// Create a separate logger for OpenAI API calls
+const openAILogger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.printf(({ timestamp, level, message, metadata, stack }) => {
+      let log = `[${formatDate(timestamp)}] [OPENAI_API]`;
+      
+      if (metadata) {
+        const { requestId, userId, userEmail, ip, method, path: reqPath, chatType, model, tokensUsed, responseTime, ...rest } = metadata;
+        
+        if (requestId) log += ` [ReqID: ${requestId}]`;
+        if (userId) log += ` [UserID: ${userId}]`;
+        if (userEmail) log += ` [Email: ${userEmail}]`;
+        if (ip) log += ` [IP: ${ip}]`;
+        if (method && reqPath) log += ` [${method} ${reqPath}]`;
+        if (chatType) log += ` [Type: ${chatType}]`;
+        if (model) log += ` [Model: ${model}]`;
+        if (tokensUsed) log += ` [Tokens: ${tokensUsed}]`;
+        if (responseTime) log += ` [Time: ${responseTime}]`;
+        
+        // Add any remaining metadata
+        if (Object.keys(rest).length > 0) {
+          log += ` ${JSON.stringify(rest)}`;
+        }
+      }
+      
+      log += `: ${message}`;
+      
+      // Add stack trace for errors
+      if (stack) {
+        log += `\n${stack}`;
+      }
+      
+      return log;
+    })
+  ),
+  transports: [
+    new winston.transports.File({
+      filename: path.join(LOG_DIR, 'openai-api.log'),
+      maxsize: process.env.LOG_MAX_SIZE || 5242880,
+      maxFiles: process.env.LOG_MAX_FILES || 5,
+    })
+  ],
+});
+
+// Add console transport for OpenAI logs in non-production
+if (process.env.NODE_ENV !== 'production') {
+  openAILogger.add(
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.printf(({ timestamp, level, message, metadata, stack }) => {
+          let log = `[${formatDate(timestamp)}] [OPENAI_API]`;
+          
+          if (metadata) {
+            const { requestId, userId, userEmail, ip, method, path: reqPath, chatType, model, tokensUsed, responseTime, ...rest } = metadata;
+            
+            if (requestId) log += ` [ReqID: ${requestId}]`;
+            if (userId) log += ` [UserID: ${userId}]`;
+            if (userEmail) log += ` [Email: ${userEmail}]`;
+            if (ip) log += ` [IP: ${ip}]`;
+            if (method && reqPath) log += ` [${method} ${reqPath}]`;
+            if (chatType) log += ` [Type: ${chatType}]`;
+            if (model) log += ` [Model: ${model}]`;
+            if (tokensUsed) log += ` [Tokens: ${tokensUsed}]`;
+            if (responseTime) log += ` [Time: ${responseTime}]`;
+            
+            // Add any remaining metadata
+            if (Object.keys(rest).length > 0) {
+              log += ` ${JSON.stringify(rest)}`;
+            }
+          }
+          
+          log += `: ${message}`;
+          
+          // Add stack trace for errors
+          if (stack) {
+            log += `\n${stack}`;
+          }
+          
+          return log;
+        })
       ),
     })
   );
@@ -196,6 +291,59 @@ logger.withRequestContext = (req) => {
       });
     }
   };
+};
+
+// OpenAI API call logging helper
+logger.logOpenAICall = (req, callDetails) => {
+  const {
+    model,
+    userInput,
+    systemPrompt,
+    response,
+    error,
+    tokensUsed,
+    responseTime,
+    chatType = 'UNKNOWN'
+  } = callDetails;
+
+  const baseMetadata = {
+    requestId: req?.id,
+    userId: req?.user?.id || req?.body?.userId,
+    userEmail: req?.user?.email,
+    ip: req?.ip,
+    method: req?.method,
+    path: req?.path,
+    chatType,
+    model,
+    tokensUsed,
+    responseTime: responseTime ? `${responseTime}ms` : undefined,
+    timestamp: new Date().toISOString()
+  };
+
+  if (error) {
+    // Log error
+    openAILogger.error('OpenAI API call failed', {
+      metadata: {
+        ...baseMetadata,
+        error: error.message,
+        errorCode: error.code,
+        userInput: userInput?.substring(0, 500) + (userInput?.length > 500 ? '...' : ''),
+        systemPromptLength: systemPrompt?.length
+      },
+      stack: error.stack
+    });
+  } else {
+    // Log successful response
+    openAILogger.info('OpenAI API call successful', {
+      metadata: {
+        ...baseMetadata,
+        userInput: userInput?.substring(0, 500) + (userInput?.length > 500 ? '...' : ''),
+        systemPromptLength: systemPrompt?.length,
+        responseLength: response?.length,
+        responsePreview: response?.substring(0, 200) + (response?.length > 200 ? '...' : '')
+      }
+    });
+  }
 };
 
 export default logger;

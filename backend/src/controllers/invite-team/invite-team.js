@@ -39,61 +39,125 @@ const generateEmailTemplate = (teamMember, manager, company) => {
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
+  <title>Leadership Assessment Invitation</title>
   <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .header { text-align: center; margin-bottom: 30px; }
-    .logo { width: 120px; height: auto; }
-    .content { background: #f9f9f9; padding: 30px; border-radius: 10px; }
-    .button { 
-      display: inline-block;
-      padding: 12px 24px;
-      background-color: #0029ff;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-      margin: 20px 0;
+    body { 
+      font-family: Arial, sans-serif !important; 
+      line-height: 1.6 !important; 
+      color: #333 !important; 
+      margin: 0 !important; 
+      padding: 0 !important; 
+      background-color: #f4f4f4 !important;
     }
-    .footer { margin-top: 30px; text-align: center; color: #666; }
+    .container { 
+      max-width: 600px !important; 
+      margin: 30px auto !important; 
+      padding: 20px !important; 
+      background-color: #ffffff !important; 
+      border-radius: 10px !important; 
+      box-shadow: 0 0 10px rgba(0,0,0,0.1) !important; 
+    }
+    .header { 
+      text-align: center !important; 
+      margin-bottom: 30px !important; 
+    }
+    .logo-container { 
+      background-color: #0029ff !important; 
+      padding: 20px !important; 
+      display: flex !important;
+      flex-direction: row !important;
+      border-top-left-radius: 10px !important; 
+      border-top-right-radius: 10px !important;
+      justify-content: center !important;
+    }
+    .logo { 
+      width: 45px !important; 
+      height: 45px !important; 
+      margin-right: 5px !important;
+      margin-top: auto !important;
+      margin-bottom: auto !important;
+    }
+    h1 { 
+      color: white !important; 
+      margin: 10px 0 0 0 !important; 
+      font-size: 28px !important; 
+    }
+    .content { 
+      padding: 30px 20px !important; 
+    }
+    h2 { 
+      color: #0029ff !important; 
+      font-size: 24px !important; 
+      margin-bottom: 20px !important; 
+    }
+    .button { 
+      display: inline-block !important;
+      padding: 14px 28px !important;
+      background-color: #0029ff !important;
+      color: #ffffff !important;
+      text-decoration: none !important;
+      border-radius: 5px !important;
+      font-weight: bold !important;
+      margin: 30px auto !important;
+    }
+    .footer { 
+      margin-top: 40px !important; 
+      text-align: center !important; 
+      color: #777 !important; 
+      font-size: 12px !important; 
+    }
+    .header-1 {
+      margin-top: auto !important;
+      margin-bottom: auto !important;
+    }
+    ul { 
+      padding-left: 20px !important; 
+      margin-top: 10px !important; 
+    }
+    p { 
+      margin: 15px 0 !important; 
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <img src="[THRYVE_LOGO_URL]" alt="Thryve Logo" class="logo">
+    <div class="logo-container" style="justify-content: center; gap: 5px;">
+      <img src="https://i.ibb.co/r9hJXZ3/logo-thryve.png" alt="Thryve Logo" class="logo">
+      <h1 class="header-1">thryve</h1>
     </div>
     <div class="content">
-      <h2>Leadership Assessment Invitation</h2>
+      <h2>You're Invited to a Leadership Assessment</h2>
       <p>Dear ${teamMember.name},</p>
-      
-      <p>I hope this email finds you well. You have been invited by <strong>${manager.firstName}</strong> from <strong>${company.COMPANY_NAME}</strong> to participate in a comprehensive leadership assessment through Thryve.</p>
-      
-      <p>This assessment is designed to:</p>
+
+      <p><strong>${manager.firstName}</strong> from <strong>${company.COMPANY_NAME}</strong> has nominated you to participate in Thryve's leadership assessment program.</p>
+
+      <p>This carefully designed assessment will help you:</p>
       <ul>
-        <li>Evaluate key leadership competencies</li>
-        <li>Provide valuable insights into your leadership style</li>
-        <li>Help identify areas for growth and development</li>
-        <li>Contribute to your professional development journey</li>
+        <li>Evaluate your leadership competencies</li>
+        <li>Gain deeper insights into your leadership style</li>
+        <li>Identify growth areas for professional development</li>
+        <li>Receive personalized feedback to support your career</li>
       </ul>
 
-      <p>The assessment should take approximately 15-20 minutes to complete. Your responses will be kept confidential and will be used to generate personalized insights and recommendations.</p>
+      <p>The assessment will take approximately <strong>15-20 minutes</strong>. Your responses are confidential and will be analyzed to provide valuable recommendations tailored specifically for you.</p>
 
-      <div style="text-align: center;">
-        <a href="${assessmentLink}" class="button">Start Assessment</a>
+      <div style="text-align: center !important;">
+        <a href="${assessmentLink}" class="button">Start My Assessment</a>
       </div>
 
-      <p><strong>Important Notes:</strong></p>
+      <p><strong>Please keep in mind:</strong></p>
       <ul>
-        <li>Please complete the assessment within 7 days</li>
-        <li>Choose a quiet time and place to ensure best results</li>
-        <li>Answer questions honestly - there are no right or wrong answers</li>
+        <li>Complete the assessment within <strong>7 days</strong></li>
+        <li>Choose a quiet environment for best focus</li>
+        <li>Answer honestly — there are no right or wrong answers</li>
       </ul>
 
-      <p>If you have any questions or technical issues, please don't hesitate to reach out to our support team at support@thryve.ai</p>
+      <p>If you have any questions or face any issues, feel free to contact us at <a href="mailto:support@thryve.ai">support@thryve.ai</a>.</p>
     </div>
-    
+
     <div class="footer">
-      <p>© 2024 Thryve. All rights reserved.</p>
+      <p>© 2025 Thryve. All rights reserved.</p>
       <p>This email was sent to ${teamMember.email}</p>
     </div>
   </div>
@@ -145,19 +209,19 @@ export const addTeamMembers = async (req, res) => {
       const emailResult = await sendEmail(
         { name: teamMember.name, email: teamMember.email },
         'Leadership Assessment Invitation',
-        emailTemplate
+        emailTemplate,
       );
 
       // Update team member status based on email sending result
       if (emailResult.success) {
         await teamMembersCollection.updateOne(
           { _id: teamMember._id },
-          { $set: { status: 'email_sent', updatedAt: new Date() } }
+          { $set: { status: 'email_sent', updatedAt: new Date() } },
         );
       } else {
         await teamMembersCollection.updateOne(
           { _id: teamMember._id },
-          { $set: { status: 'email_failed', updatedAt: new Date() } }
+          { $set: { status: 'email_failed', updatedAt: new Date() } },
         );
       }
 
@@ -174,8 +238,8 @@ export const addTeamMembers = async (req, res) => {
         teamMembers: teamMemberDocuments,
         emailResults: emailResults.map((result, index) => ({
           email: teamMemberDocuments[index].email,
-          success: result.success
-        }))
+          success: result.success,
+        })),
       },
     });
   } catch (error) {

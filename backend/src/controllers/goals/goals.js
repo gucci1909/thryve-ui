@@ -209,13 +209,9 @@ export const addReflection = async (req, res) => {
       });
     }
 
-    const companyId = user.companyId;
-    const pointsKey = `ReflectionInteractionPoint_${companyId}`;
-    const points = parseInt(process.env[pointsKey]) || 0;
-
-    if (!points) {
-      console.warn(`No points configuration found for ${pointsKey}`);
-    }
+    const companiesCollection = db.collection('companies');
+    const company = await companiesCollection.findOne({ INVITE_CODE: user?.companyId });
+    const points = company?.ReflectionInteractionPoint || 0;
 
     const interactionsCollection = db.collection('interactions');
 

@@ -6,6 +6,7 @@ import { ObjectId } from 'mongodb';
 export const leadershipReportControllers = async (req, res) => {
   try {
     const db = getDb();
+    const { userId } = req.body;
     const leadershipReportsCollection = db.collection('leadership-reports');
     const learningPlanCollection = db.collection('learning-plans');
     const usersCollection = db.collection('users');
@@ -14,7 +15,7 @@ export const leadershipReportControllers = async (req, res) => {
     leadershipReportSchema.parse(req.body);
 
     // 2. Generate leadership assessment
-    const leadershipAssessment = await generateLeadershipAssessment(req.body);
+    const leadershipAssessment = await generateLeadershipAssessment(req.body, req);
 
     // 3. Destructure learning_plan from assessment
     const { learning_plan, ...restOfAssessment } = leadershipAssessment;

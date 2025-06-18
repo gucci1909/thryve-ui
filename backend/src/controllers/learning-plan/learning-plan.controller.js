@@ -41,11 +41,13 @@ export const learningPlanController = async (req, res) => {
       coaching_history,
       reflections_of_context,
       leadershipReport?.assessment,
+      req,
     );
 
     // Save the generated plan
     const result = await learningPlansCollection.insertOne({
       userId,
+      userEmail: req.user.email,
       learning_plan: generatedPlan,
       created_at: new Date(),
       updated_at: new Date(),
@@ -83,21 +85,37 @@ export const learningPlanGetController = async (req, res) => {
     const learningPlansCollection = db.collection('learning-plans');
 
     // Get the latest learning plan for the user
-    const latestPlan = await learningPlansCollection
-      .find({ userId })
-      .sort({ updated_at: -1 })
-      .toArray();
+    const plans = await learningPlansCollection.find({ userId }).sort({ updated_at: -1 }).toArray();
 
-    if (!latestPlan || latestPlan.length === 0) {
+    if (!plans || plans.length === 0) {
       return res.status(404).json({
         status: 'Not OK',
         error: 'No learning plan found',
       });
     }
 
+    // Merge learning_plan arrays while keeping latest plans first
+    const mergedLearningPlan = plans.reduce((acc, plan) => {
+      return acc.concat(plan.learning_plan);
+    }, []);
+
+    // const seenVideos = [];
+
+    // const mergedLearningPlan = plans.reduce((acc, plan) => {
+    //   plan.learning_plan.forEach((item) => {
+    //     if (!seenVideos.includes(item.video)) {
+    //       seenVideos.push(item.video);
+    //       acc.push(item);
+    //     }
+    //   });
+    //   return acc;
+    // }, []);
+
     return res.status(200).json({
       status: 'OK',
-      data: latestPlan[0],
+      data: {
+        learning_plan: mergedLearningPlan,
+      },
     });
   } catch (error) {
     console.error('Get Learning Plan Error:', error);

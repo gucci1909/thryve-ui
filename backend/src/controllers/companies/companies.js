@@ -66,6 +66,10 @@ Client-Centric Solutions: Tailoring products to meet specific client needs, ensu
 Global Perspective: Operating in multiple countries, they embrace cultural diversity and global best practices.
 
 These elements contribute to a dynamic and inclusive culture that drives both employee satisfaction and client success.`,
+        LearningPlanInteractionPoint: 2,
+        CoachingChatInteractionPoint: 1,
+        RoleplayInteractionPoint: 5,
+        ReflectionInteractionPoint: 5,
       },
       {
         COMPANY_NAME: 'Doyensys',
@@ -114,6 +118,10 @@ Community Engagement: Events like "Doyensys Day Out" foster unity and camaraderi
 
 
 These elements contribute to Doyensys being recognized as a Great Place to Work in India, reflecting their dedication to creating a high-trust, high-performance culture`,
+        LearningPlanInteractionPoint: 2,
+        CoachingChatInteractionPoint: 1,
+        RoleplayInteractionPoint: 5,
+        ReflectionInteractionPoint: 5,
       },
     ];
 

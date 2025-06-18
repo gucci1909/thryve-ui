@@ -311,12 +311,9 @@ export const interActWithFeedItemController = async (req, res) => {
     }
 
     const companyId = user.companyId;
-    const pointsKey = `LearningPlanInteractionPoint_${companyId}`;
-    const points = parseInt(process.env[pointsKey]) || 0;
-
-    if (!points) {
-      console.warn(`No points configuration found for ${pointsKey}`);
-    }
+    const companiesCollection = db.collection('companies');
+    const company = await companiesCollection.findOne({ INVITE_CODE: user?.companyId });
+    const points = company?.LearningPlanInteractionPoint || 0;
 
     const interactionsCollection = db.collection('interactions');
 

@@ -36,6 +36,7 @@ function safeParseJSON(content) {
 
 export const chatBoxController = async (req, res) => {
   const db = getDb();
+  const startTime = Date.now();
 
   try {
     const { question, userId } = req.body;
@@ -98,17 +99,6 @@ export const chatBoxController = async (req, res) => {
       learning_cards || {},
     );
 
-    // Log system prompt to console
-    console.log(`
-    ================ SYSTEM PROMPT START ================
-
-  `);
-    console.dir(coachingPrompt, { depth: null, colors: true });
-    console.log(`
-    ================ SYSTEM PROMPT END ================
-
-  `);
-
     // File path to store prompt
     const filePath = path.join(__dirname, 'coaching-prompt.txt');
 
@@ -124,6 +114,8 @@ export const chatBoxController = async (req, res) => {
       }
     });
 
+    // Make OpenAI API call with timing
+    const openAIStartTime = Date.now();
     const response = await fetch(process.env.OpenAIAPI, {
       method: 'POST',
       headers: {
@@ -149,16 +141,40 @@ export const chatBoxController = async (req, res) => {
     });
 
     const data = await response.json();
+    const openAIResponseTime = Date.now() - openAIStartTime;
 
-    if (!data.choices || !data.choices[0]) {
-      throw new Error('Invalid response from OpenAI');
+    // Log OpenAI API call
+    if (!response.ok || !data.choices || !data.choices[0]) {
+      const error = new Error(data.error?.message || 'Invalid response from OpenAI');
+      logger.logOpenAICall(req, {
+        model: 'gpt-4o-mini',
+        userInput: question,
+        systemPrompt: coachingPrompt,
+        error,
+        responseTime: openAIResponseTime,
+        chatType: 'COACHING',
+        tokensUsed: data.usage?.total_tokens
+      });
+      throw error;
     }
+
+    // Log successful OpenAI API call
+    const responseContent = safeParseJSON(data.choices[0].message.content).chat_text;
+    logger.logOpenAICall(req, {
+      model: 'gpt-4o-mini',
+      userInput: question,
+      systemPrompt: coachingPrompt,
+      response: responseContent,
+      responseTime: openAIResponseTime,
+      chatType: 'COACHING',
+      tokensUsed: data.usage?.total_tokens
+    });
 
     // Prepare server message with session ID
     let thirdRound = false;
     const serverMessage = {
       from: 'aicoach',
-      chat_text: safeParseJSON(data.choices[0].message.content).chat_text,
+      chat_text: responseContent,
       timestamp: new Date(),
       messageType: 'response',
       sessionId: sessionId,
@@ -205,14 +221,7 @@ export const chatBoxController = async (req, res) => {
       });
     }
 
-    const companyId = user.companyId;
-    const pointsKey = `CoachingChatInteractionPoint_${companyId}`;
-    const points = parseInt(process.env[pointsKey]) || 0;
-
-    if (!points) {
-      console.warn(`No points configuration found for ${pointsKey}`);
-    }
-
+    const points = company?.CoachingChatInteractionPoint || 0;
     const interactionsCollection = db.collection('interactions');
 
     // Record the new interaction as a separate event
@@ -279,6 +288,19 @@ export const chatBoxController = async (req, res) => {
     });
   } catch (error) {
     console.error('Chat box error:', error);
+    
+    // Log the error with OpenAI call details if it's an OpenAI error
+    if (error.message.includes('OpenAI') || error.message.includes('Invalid response from OpenAI')) {
+      logger.logOpenAICall(req, {
+        model: 'gpt-4o-mini',
+        userInput: req.body?.question,
+        systemPrompt: 'Coaching prompt generation failed',
+        error,
+        responseTime: Date.now() - startTime,
+        chatType: 'COACHING'
+      });
+    }
+    
     res.status(500).json({
       error: 'An error occurred while processing your request',
       details: error.message,
