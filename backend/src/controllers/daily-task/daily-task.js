@@ -16,7 +16,6 @@ async function processUserBatch(users, db) {
 
   for (const user of users) {
     try {
-      debugger;
       // Get all required collections
       const leadershipReportsCollection = db.collection('leadership-reports');
       const chatsCollection = db.collection('chats');
@@ -172,7 +171,7 @@ async function updateAllUsersLearningPlans() {
 
 // Schedule the job to run at 4 PM daily
 cron.schedule(
-  '4 3 * * *',
+  '0 16 * * *',
   async () => {
     let retryCount = 0;
 

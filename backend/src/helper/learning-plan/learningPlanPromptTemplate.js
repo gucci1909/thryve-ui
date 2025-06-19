@@ -255,7 +255,7 @@ LEARNING-PLAN-OUTPUT-TEMPLATE
 
 youtube-master-list
 
-The structure of this is that the first part is the Youtube Video Link and the second part is the content that can be used to query a suitable video to be featured in the leadership_assessment_report_template.learning_plan. The video link and text is delimited with a "-" (hyphen)
+The structure of this is that the first part is the Youtube Video Link and the second part is the content that can be used to query a suitable video to be featured in the leadership_assessment_report_template.learning_plan. The video link and text is delimited with a "-" (hyphen). When generating a response, ensure that the selected video is **NOT A DUPLICATE** of any video that already exists in my PAST-LEARNING-CARDS-ACTUAL collection. Avoid any video that matches or overlaps with those previously used.
 														
 https://www.youtube.com/watch?v=SI6cOkDOoyE - Ideal for: Aspiring and mid-level managers. Topic: Delegation fundamentals. Takeaway: Assign tasks effectively and develop delegation as a promotion-worthy skill. (youtube.com, youtube.com)
 
