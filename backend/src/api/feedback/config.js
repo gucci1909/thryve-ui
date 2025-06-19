@@ -1,6 +1,7 @@
 import express from 'express';
 import apiLimiter from '../../middleware/rateLimiter.js';
 import authenticate from '../../middleware/authenticate.js';
+import { configController } from '../../controllers/feedback/configController.js';
 
 const router = express.Router();
 

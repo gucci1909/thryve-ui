@@ -17,6 +17,7 @@ import goalRoutes from './api/goals/goals.js';
 import inviteTeamRoutes from './api/invite-team/invite-team.js';
 import learningPlanRoutes from './api/learning-plan/learning-plan.js';
 import feedRoutes from './api/feed/explore.js';
+import feedbackConfigRoutes from './api/feedback/config.js';
 import { connectToDb } from './config/db.js';
 import { v4 as uuidv4 } from 'uuid';
 import cookieParser from 'cookie-parser';
@@ -146,6 +147,7 @@ app.use('/api/goals-list', goalRoutes);
 app.use('/api/invite-team', inviteTeamRoutes);
 
 app.use('/api/personalizeLearning', learningPlanRoutes);
+app.use('/api/feedback', feedbackConfigRoutes);
 
 app.use('/api/feed', feedRoutes);
 
