@@ -107,7 +107,6 @@ function PersonalizeHomePage({ pointAdded, setPointAdded }) {
       }
 
       const data = await response.json();
-      console.log("Interaction recorded successfully:", data);
     } catch (error) {
       console.error("Error recording interaction:", error);
     } finally {

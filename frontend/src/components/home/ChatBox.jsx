@@ -144,8 +144,6 @@ export default function ChatBox({ setPointAdded }) {
     }
   }, [rolePlayCounter, coachingCounter, feedbackConfig]);
 
-  console.log({ f: feedbackConfig, d: rolePlayCounter, d1: coachingCounter });
-
   // const loadChatHistory = async () => {
   //   setIsLoadingMessage(true);
   //   try {

@@ -111,7 +111,6 @@ function PersonalizeHomePage({ setPointAdded }) {
   };
 
   const handleCardClick = (index, e) => {
-    // console.log("Card clicked:", index, e);
     if (
       e.target.closest(".ytp-chrome-bottom") ||
       e.target.closest("button") ||
@@ -518,7 +517,6 @@ function PersonalizeHomePage({ setPointAdded }) {
     const observer = new IntersectionObserver(
       (entries) => {
         const target = entries[0];
-        console.log("Intersection Observer Triggered:", target.isIntersecting);
         if (
           target.isIntersecting &&
           visibleCount < learningData?.learning_plan.length
@@ -554,17 +552,12 @@ function PersonalizeHomePage({ setPointAdded }) {
 
   useEffect(() => {
     if (contentRef.current) {
-      console.log({ 1: true }, { 2: true });
       contentRef.current.scrollTo({
         top: 0,
         behavior: "smooth",
       });
     }
   }, [activeActionView]);
-
- 
-
-  console.log("loadingRef", loaderRef);
 
   if (loading) {
     return <LoadingSpinner />;

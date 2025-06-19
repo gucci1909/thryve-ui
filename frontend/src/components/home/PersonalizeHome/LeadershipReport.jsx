@@ -37,7 +37,6 @@ const LeadershipReport = ({ reportData }) => {
       },
     },
   };
-  console.log("LeadershipReport Data:", reportData);
 
   return (
     <motion.div
