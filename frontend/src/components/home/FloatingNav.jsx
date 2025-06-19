@@ -6,13 +6,11 @@ import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setChatMode } from "../../store/userSlice";
 
-const FloatingNav = ({setMessages,   setShowFeedback}) => {
+const FloatingNav = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const chatMode = useSelector((state) => state.user.chatMode) || 'none';
-
-  console.log({ a: chatMode });
+  const chatMode = useSelector((state) => state.user.chatMode) || "none";
 
   const getNavItems = () => {
     const baseItems = [
@@ -25,20 +23,14 @@ const FloatingNav = ({setMessages,   setShowFeedback}) => {
         {
           icon: MessageCircle,
           action: () => {
-            setMessages([]);
-              setShowFeedback(false);
             dispatch(setChatMode("roleplay"));
-            navigate("/personalize-chat-box");
           },
           label: "Start Roleplay",
         },
         {
           icon: MessageCircle,
           action: () => {
-            setMessages([]);
-                setShowFeedback(false);
             dispatch(setChatMode("coaching"));
-            navigate("/personalize-chat-box");
           },
           label: "Start Coaching",
         },
@@ -49,8 +41,6 @@ const FloatingNav = ({setMessages,   setShowFeedback}) => {
         {
           icon: MessageCircle,
           action: () => {
-             setMessages([]);
-                 setShowFeedback(false);
             dispatch(setChatMode("coaching"));
           },
           label: "Start Coaching",
@@ -62,8 +52,6 @@ const FloatingNav = ({setMessages,   setShowFeedback}) => {
         {
           icon: MessageCircle,
           action: () => {
-            setMessages([]);
-                setShowFeedback(false);
             dispatch(setChatMode("roleplay"));
           },
           label: "Start Roleplay",
@@ -79,8 +67,6 @@ const FloatingNav = ({setMessages,   setShowFeedback}) => {
     if (item.action) {
       item.action();
     } else {
-      setMessages([]);
-          setShowFeedback(false);
       dispatch(setChatMode("none"));
       navigate(item.path);
     }
@@ -100,7 +86,7 @@ const FloatingNav = ({setMessages,   setShowFeedback}) => {
             exit={{ opacity: 0, scale: 0.8, y: -20 }}
             className="absolute top-12 right-0 mt-4 min-w-[120px] rounded-2xl bg-white p-2 shadow-lg"
           >
-            {getNavItems().map((item, index) => (
+            {getNavItems().map((item) => (
               <motion.button
                 key={item.label}
                 initial={{ opacity: 0, x: 20 }}

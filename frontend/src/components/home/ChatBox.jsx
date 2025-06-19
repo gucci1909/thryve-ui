@@ -9,20 +9,17 @@ import { useNavigate } from "react-router";
 import { Sparkles } from "lucide-react";
 import { FiPlus } from "react-icons/fi";
 import { logout, setChatMode } from "../../store/userSlice";
-import { useCookies } from "react-cookie";
 import Chat from "./Chat";
 import FloatingNav from "./FloatingNav";
-import { RainbowButton } from "../magicui/rainbow-button";
 import LoadingSpinner from "./PersonalizeHome/LoadingSpinner";
 import { CoachingBubbles } from "../magicui/meteors";
 
-export default function ChatBox({ pointAdded, setPointAdded }) {
+export default function ChatBox({ setPointAdded }) {
   const token = useSelector((state) => state.user.token);
   const userId = useSelector((state) => state.user._id);
   const firstName = useSelector((state) => state.user.firstName);
-  const chatMode = useSelector((state) => state.user.chatMode) || 'none';
+  const chatMode = useSelector((state) => state.user.chatMode) || "none";
   const dispatch = useDispatch();
-  const [cookies, setCookie, removeCookie] = useCookies(["authToken"]);
   const navigate = useNavigate();
 
   const [messages, setMessages] = useState([]);
@@ -30,14 +27,13 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
   const [activeView, setActiveView] = useState("chat");
   const [selectedScenario, setSelectedScenario] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingMessage, setIsLoadingMessage] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [previousView, setPreviousView] = useState(null);
   const [isRolePlay, setIsRolePlay] = useState(null);
-  const [currentSessionId, setCurrentSessionId] = useState(null);
-  const [eventSource, setEventSource] = useState(null);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackConfig, setFeedbackConfig] = useState({});
+  const [rolePlayCounter, setRolePlayCounter] = useState(0);
+  const [coachingCounter, setCoachingCounter] = useState(0);
 
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -52,35 +48,34 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
   };
 
   useEffect(() => {
-    if (activeView === "chat" && previousView !== "scenarios") {
-      loadChatHistory();
-    }
-    setPreviousView(activeView);
-  }, [activeView]);
-
-  useEffect(() => {
     if (chatMode === "roleplay") {
       setActiveView("scenarios");
+      setRolePlayCounter(0);
+      setCoachingCounter(0);
+      setShowFeedback(false);
+      setIsRolePlay(false);
+      setSelectedScenario(null);
+      setMessages([]);
     } else if (chatMode === "coaching") {
+      const newMessage = {
+        id: messages?.length + 1,
+        sender: "bot",
+        text: `Hi ${firstName}! 👋 I'm your AI coach. I'm here to help you develop your leadership skills and guide you through your professional journey. What would you like to work on today?`,
+        timestamp: new Date().toISOString(),
+      };
+      setCoachingCounter(0);
+      setRolePlayCounter(0);
+      setMessages([newMessage]);
+      setShowFeedback(false);
       setActiveView("chat");
     }
   }, [chatMode]);
 
   useEffect(() => {
     if (isRolePlay) {
-      // setMessages((prev) => [
-      //   ...prev,
-      //   {
-      //     id: prev.length + 1,
-      //     text: selectedScenario.question,
-      //     sender: "user",
-      //     timestamp: new Date(),
-      //   },
-      // ]);
-
       handleRolePlaySend(selectedScenario.question);
     }
-  }, [isRolePlay]);
+  }, [isRolePlay, selectedScenario]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -88,33 +83,10 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
     }
   }, [messages, activeView]);
 
-  const groupMessagesBySession = (messages) => {
-    const sessions = {};
-    messages.forEach((msg) => {
-      if (!sessions[msg.sessionId]) {
-        sessions[msg.sessionId] = [];
-      }
-      sessions[msg.sessionId].push(msg);
-    });
-    return Object.values(sessions);
-  };
-
-  const formatSessionTime = (timestamp) => {
-    const date = new Date(timestamp);
-    return date.toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
-    });
-  };
-
-  const loadChatHistory = async () => {
-    setIsLoadingMessage(true);
+  const getFeedbackConfig = async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/chat-box/get-message`,
+        `${import.meta.env.VITE_API_BASE_URL}/feedback/config`,
         {
           method: "GET",
           headers: {
@@ -131,65 +103,121 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
         return;
       }
 
-      if (!response.ok) {
-        throw new Error("Failed to load chat history");
-      }
-
       const data = await response.json();
-      if (data.success && data.chat_context) {
-        const formattedMessages = data.chat_context.map((msg, index) => ({
-          id: index + 1,
-          text: msg.chat_text,
-          sender: msg.from === "user" ? "user" : "bot",
-          timestamp: new Date(msg.timestamp),
-          sessionId: msg.sessionId,
-        }));
 
-        if (formattedMessages.length > 0) {
-          setCurrentSessionId(
-            formattedMessages[formattedMessages.length - 1].sessionId,
-          );
-        }
-
-        // setMessages(formattedMessages);
+      if (data["feedback-back-and-fourth"]) {
+        setFeedbackConfig(data["feedback-back-and-fourth"]);
       }
-      setIsLoadingMessage(false);
     } catch (error) {
-      setIsLoadingMessage(false);
-      console.error("Error loading chat history:", error);
+      console.error("Error loading config:", error);
     }
   };
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      await getFeedbackConfig();
+    };
+    fetchConfig();
+  }, []);
+
+  useEffect(() => {
+    if (chatMode === "coaching") {
+      if (messages?.length >= 10) {
+        if (coachingCounter === feedbackConfig?.firstFeedback) {
+          setShowFeedback(true);
+          setCoachingCounter(0);
+        } else if (coachingCounter === feedbackConfig?.others) {
+          setShowFeedback(true);
+          setCoachingCounter(0);
+        }
+      }
+    } else if (chatMode === "roleplay") {
+      if (messages?.length >= 10) {
+        if (rolePlayCounter === feedbackConfig?.firstFeedback) {
+          setShowFeedback(true);
+          setRolePlayCounter(0);
+        } else if (rolePlayCounter === feedbackConfig?.others) {
+          setShowFeedback(true);
+          setRolePlayCounter(0);
+        }
+      }
+    }
+  }, [rolePlayCounter, coachingCounter, feedbackConfig]);
+
+  console.log({ f: feedbackConfig, d: rolePlayCounter, d1: coachingCounter });
+
+  // const loadChatHistory = async () => {
+  //   setIsLoadingMessage(true);
+  //   try {
+  //     const response = await fetch(
+  //       `${import.meta.env.VITE_API_BASE_URL}/chat-box/get-message`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       },
+  //     );
+
+  //     const statusCode = response.status;
+  //     if (statusCode === 401) {
+  //       dispatch(logout());
+  //       navigate("/");
+  //       return;
+  //     }
+
+  //     if (!response.ok) {
+  //       throw new Error("Failed to load chat history");
+  //     }
+
+  //     const data = await response.json();
+  //     if (data.success && data.chat_context) {
+  //       const formattedMessages = data.chat_context.map((msg, index) => ({
+  //         id: index + 1,
+  //         text: msg.chat_text,
+  //         sender: msg.from === "user" ? "user" : "bot",
+  //         timestamp: new Date(msg.timestamp),
+  //         sessionId: msg.sessionId,
+  //       }));
+
+  //       // setMessages(formattedMessages);
+  //     }
+  //     setIsLoadingMessage(false);
+  //   } catch (error) {
+  //     setIsLoadingMessage(false);
+  //     console.error("Error loading chat history:", error);
+  //   }
+  // };
 
   const startScenarioChat = (scenario) => {
     setActiveView("chat");
     setSelectedScenario(scenario);
     setIsRolePlay(true);
     setIsLoading(true);
-
-     setMessages([
-      {
-        id: 1,
-        text: scenario.question,
-        sender: "user",
-        timestamp: new Date(),
-      }
-    ]);
   };
 
   const startCustomChat = () => {
+    setActiveView("chat");
     setIsRolePlay(false);
     setSelectedScenario(null);
-    setActiveView("chat");
-    if (chatMode === "roleplay") {
-      setMessages([]);
-    }
-    setShowFeedback(false);
     dispatch(setChatMode("coaching"));
   };
 
   const handleSend = async () => {
     scrollToBottom();
+
+    if (showFeedback) {
+      setShowFeedback(false);
+    }
+
     const trimmed = inputValue.trim();
+
+    let sessionStart = false;
+
+    if (messages.length === 1) {
+      sessionStart = true;
+    }
 
     setIsLoading(true);
     const newMessage = {
@@ -213,11 +241,11 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
           body: JSON.stringify({
             question: trimmed,
             userId: userId,
+            sessionStart: sessionStart,
           }),
         },
       );
 
-      // Access status code
       const statusCode = response.status;
       if (statusCode === 401) {
         dispatch(logout());
@@ -242,10 +270,7 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
           },
         ]);
 
-        // Show feedback if it's a third round
-        if (data.thirdRound) {
-          setShowFeedback(true);
-        }
+        setCoachingCounter((prev) => prev + 1);
       }
     } catch (error) {
       console.error("Chat error:", error);
@@ -266,16 +291,27 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
 
   const handleRolePlaySend = async (question) => {
     scrollToBottom();
+
+    if (showFeedback) {
+      setShowFeedback(false);
+    }
+
     const trimmed = question?.trim() || inputValue?.trim();
 
+    let sessionStart = false;
+
+    if (messages.length === 0) {
+      sessionStart = true;
+    }
+
     setIsLoading(true);
-    // const newMessage = {
-    //   id: messages.length + 1,
-    //   text: trimmed,
-    //   sender: "user",
-    //   timestamp: new Date(),
-    // };
-    // setMessages((prev) => [...prev, newMessage]);
+    const newMessage = {
+      id: messages.length + 1,
+      text: trimmed,
+      sender: "user",
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, newMessage]);
     setInputValue("");
 
     try {
@@ -290,6 +326,7 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
           body: JSON.stringify({
             question: trimmed,
             userId: userId,
+            sessionStart: sessionStart,
           }),
         },
       );
@@ -319,10 +356,7 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
           },
         ]);
 
-        // Show feedback if it's a third round
-        if (data.thirdRound) {
-          setShowFeedback(true);
-        }
+        setRolePlayCounter((prev) => prev + 1);
       }
     } catch (error) {
       console.error("Chat error:", error);
@@ -339,12 +373,6 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
       setIsLoading(false);
       setPointAdded(true);
     }
-  };
-
-  const goBackToScenarios = () => {
-    setActiveView("scenarios");
-    setIsRolePlay(false);
-    setSelectedScenario(null);
   };
 
   /* ====================================================== */
@@ -480,44 +508,9 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
     };
   }, []);
 
-  const animationProps = {
-    initial: { "--x": "100%", scale: 0.8 },
-    animate: { "--x": "-100%", scale: 1 },
-    whileTap: { scale: 0.95 },
-    transition: {
-      repeat: Infinity,
-      repeatType: "loop",
-      repeatDelay: 1,
-      type: "spring",
-      stiffness: 20,
-      damping: 15,
-      mass: 2,
-      scale: {
-        type: "spring",
-        stiffness: 200,
-        damping: 5,
-        mass: 0.5,
-      },
-    },
-  };
-
   const handleContinueChat = () => {
     setShowFeedback(false);
   };
-
-  if (isLoadingMessage) {
-    return (
-      <div className="flex h-screen flex-col items-center justify-center gap-6">
-        <div className="relative h-20 w-20">
-          <div className="absolute inset-0 animate-[spin_1.5s_linear_infinite] rounded-full border-4 border-transparent border-t-[#0029ff] border-r-[#0029ff]"></div>
-          <div className="absolute inset-4 animate-[pulse_2s_ease-in-out_infinite] rounded-full bg-[#0029ff] opacity-20"></div>
-        </div>
-        <p className="text-lg font-medium text-gray-700">
-          Loading your chat history
-        </p>
-      </div>
-    );
-  }
 
   return (
     <main className="flex h-screen flex-col overflow-hidden bg-gradient-to-b from-[#f0f4ff] to-[#e6ecff]">
@@ -670,13 +663,10 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
           <Chat
             startRecording={startRecording}
             stopRecording={stopRecording}
-            setShowFeedback={setShowFeedback}
             messages={messages}
             isLoading={isLoading}
             messagesEndRef={messagesEndRef}
             isRecording={isRecording}
-            goBackToScenarios={goBackToScenarios}
-            animationProps={animationProps}
             isProcessing={isProcessing}
             inputValue={inputValue}
             setInputValues={setInputValue}
@@ -685,19 +675,14 @@ export default function ChatBox({ pointAdded, setPointAdded }) {
             isRolePlay={isRolePlay}
             canvasRef={canvasRef}
             showFeedback={showFeedback}
-            sessionId={currentSessionId}
             userId={userId}
-            setMessages={setMessages}
             token={token}
             onContinueChat={handleContinueChat}
           />
         )}
       </AnimatePresence>
 
-      <FloatingNav
-        setMessages={setMessages}
-        setShowFeedback={setShowFeedback}
-      />
+      <FloatingNav />
     </main>
   );
 }

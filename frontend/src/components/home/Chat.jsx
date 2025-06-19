@@ -4,7 +4,6 @@ import {
   Send,
   Mic,
   MicOff,
-  Sparkles,
   ChevronDown,
   MessageSquare,
   Lightbulb,
@@ -15,7 +14,6 @@ import React, { memo, useEffect, useState } from "react";
 import ChatFeedback from "./ChatFeedback";
 import { useSelector, useDispatch } from "react-redux";
 import { setChatMode } from "../../store/userSlice";
-// import { addMessage } from "../../store/userSlice";
 
 const Chat = memo(
   function Chat({
@@ -25,10 +23,7 @@ const Chat = memo(
     isLoading,
     messagesEndRef,
     isRecording,
-    goBackToScenarios,
-    animationProps,
     isProcessing,
-    setShowFeedback,
     inputValue,
     handleSend,
     setInputValues,
@@ -37,34 +32,13 @@ const Chat = memo(
     isRolePlay,
     showFeedback,
     sessionId,
-    setMessages,
     userId,
     token,
     onContinueChat,
   }) {
     const [expandedMessages, setExpandedMessages] = useState({});
     const dispatch = useDispatch();
-    const { firstName } = useSelector((state) => state.user);
-    const chatMode = useSelector((state) => state.user.chatMode) || 'none';
-
-    useEffect(() => {
-      if (messagesEndRef?.current) {
-        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-      }
-    }, [messages, isLoading, messagesEndRef]);
-
-    // Add effect to show welcome message when chat mode changes
-    useEffect(() => {
-      if (chatMode === "coaching" && messages.length === 0) {
-        const newMessage = {
-          id: messages?.length + 1,
-          sender: "bot",
-          text: `Hi ${firstName}! 👋 I'm your AI coach. I'm here to help you develop your leadership skills and guide you through your professional journey. What would you like to work on today?`,
-          timestamp: new Date().toISOString(),
-        };
-        setMessages((prev) => [...prev, newMessage]);
-      }
-    }, [chatMode, messages.length, firstName]);
+    const chatMode = useSelector((state) => state.user.chatMode) || "none";
 
     const formatMessage = (text) => {
       // Replace \n\n with <br><br> and \n with <br>
@@ -409,10 +383,7 @@ const Chat = memo(
             >
               <LeadershipButton
                 onClick={() => {
-                  setMessages([]);
-                  setShowFeedback(false);
                   dispatch(setChatMode("roleplay"));
-                  goBackToScenarios();
                 }}
                 isCompact={messages.length > 0}
                 mode="roleplay"
@@ -431,8 +402,6 @@ const Chat = memo(
             >
               <LeadershipButton
                 onClick={() => {
-                  setMessages([]);
-                  setShowFeedback(false);
                   dispatch(setChatMode("coaching"));
                 }}
                 isCompact={messages.length > 0}
@@ -461,11 +430,7 @@ const Chat = memo(
                   onKeyDown={async (e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
-                      if (isRolePlay) {
-                        await handleRolePlaySend();
-                      } else {
-                        await handleSend();
-                      }
+                      await handleSend();
                     }
                   }}
                   placeholder="Type your message..."
@@ -540,11 +505,7 @@ const Chat = memo(
                   onKeyDown={async (e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
-                      if (isRolePlay) {
-                        await handleRolePlaySend();
-                      } else {
-                        await handleSend();
-                      }
+                      await handleRolePlaySend();
                     }
                   }}
                   placeholder="Type your message..."
@@ -573,11 +534,11 @@ const Chat = memo(
                 </button>
 
                 <button
-                  onClick={() => {
-                    if (isRolePlay) {
-                      handleRolePlaySend();
+                  onClick={async () => {
+                    if (chatMode == "roleplay") {
+                      await handleRolePlaySend();
                     } else {
-                      handleSend();
+                      await handleSend();
                     }
                   }}
                   disabled={

@@ -23,6 +23,7 @@ const userSlice = createSlice({
       state.firstName = action.payload.firstName;
       state.personalize = action.payload.personalized;
       state.points = action.payload.points || 0;
+      state.chatMode = 'none';
 
       localStorage.setItem("token", action.payload.token);
       localStorage.setItem("_id", JSON.stringify(action.payload._id));
