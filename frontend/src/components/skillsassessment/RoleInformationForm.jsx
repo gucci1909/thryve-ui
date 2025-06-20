@@ -380,8 +380,7 @@ const RoleInformationForm = ({ initialData, onNext, onBack }) => {
                   "flex w-[90px] flex-row items-center justify-center gap-1 border border-[#0029ff] text-[#0029ff] hover:bg-[#f5f8ff]",
                   isSubmitting ? "cursor-not-allowed opacity-80" : "",
                 )}
-                whileHover={{ scale: isSubmitting ? 1 : 1.03 }}
-              >
+                  >
                 <ChevronLeft className="h-4 w-4" />
                 Back
               </RippleButton>
@@ -395,12 +394,6 @@ const RoleInformationForm = ({ initialData, onNext, onBack }) => {
                   "flex w-[120px] items-center justify-center gap-1 bg-[#0029ff] text-white hover:bg-[#001fcc]",
                   (isSubmitting || !isFormValid()) ? "cursor-not-allowed opacity-50" : "",
                 )}
-                whileHover={{
-                  scale: (isSubmitting || !isFormValid()) ? 1 : 1.03,
-                  boxShadow: (isSubmitting || !isFormValid())
-                    ? "none"
-                    : "0 2px 8px rgba(0, 41, 255, 0.2)",
-                }}
               >
                 Continue
                 <ChevronRight className="h-4 w-4" />

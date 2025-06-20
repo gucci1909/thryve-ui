@@ -200,7 +200,7 @@ export default function PsychographicProfile({
                         ? "border-[var(--primary-color)] bg-[#f0f4ff] text-[var(--primary-color)] shadow-sm"
                         : "border-[#d6e0ff] bg-white text-[#0029ff] hover:border-[var(--primary-color)] hover:bg-[#f5f8ff]",
                     )}
-                    whileHover={{ scale: 1.01 }}
+                  
                     whileTap={{ scale: 0.99 }}
                   >
                     <motion.div className="flex items-center">
@@ -229,7 +229,7 @@ export default function PsychographicProfile({
                 onClick={onBack}
                 rippleColor="rgba(0, 41, 255, 0.15)"
                 className="flex items-center gap-1 border border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[#f5f8ff]"
-                whileHover={{ scale: 1.03 }}
+             
               >
                 <ChevronLeft className="h-4 w-4" />
                 Back
@@ -239,7 +239,6 @@ export default function PsychographicProfile({
                 onClick={handlePrevious}
                 rippleColor="rgba(0, 41, 255, 0.15)"
                 className="flex items-center gap-1 border border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[#f5f8ff]"
-                whileHover={{ scale: 1.03 }}
               >
                 <ChevronLeft className="h-4 w-4" />
                 Previous
@@ -258,9 +257,6 @@ export default function PsychographicProfile({
                       ? "cursor-not-allowed opacity-50"
                       : "",
                   )}
-                  whileHover={{
-                    scale: !answers[currentQuestion.id]?.length ? 1 : 1.03,
-                  }}
                 >
                   Next
                   <ChevronRight className="h-4 w-4" />
@@ -283,9 +279,6 @@ export default function PsychographicProfile({
                       ? "cursor-not-allowed opacity-50"
                       : "",
                   )}
-                  whileHover={{
-                    scale: !answers[currentQuestion.id]?.length ? 1 : 1.03,
-                  }}
                 >
                   Complete Profile
                   <ChevronRight className="h-4 w-4" />

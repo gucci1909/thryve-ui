@@ -571,13 +571,6 @@ function PersonalizeHomePage({ setPointAdded }) {
     );
   }
 
-  console.log(
-    "Learning Data:",
-    learningData?.learning_plan.length,
-    visibleItems.length,
-    visibleCount,
-  );
-
   return (
     <main className="flex-1 overflow-y-auto px-[12px] pb-[50px]" ref={contentRef}>
       {activeActionView === "single_feed" ? (

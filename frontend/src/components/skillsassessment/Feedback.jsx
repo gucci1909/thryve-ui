@@ -234,7 +234,6 @@ const Feedback = ({ onNext, onBack }) => {
               onClick={() => onNext({ feedbackRequests: [] })}
               rippleColor="rgba(0, 41, 255, 0.15)"
               className="flex items-center justify-center gap-1 border border-gray-300 text-gray-700 hover:bg-gray-50"
-              whileHover={{ scale: 1.03 }}
             >
               Skip for later
             </RippleButton>
@@ -248,12 +247,6 @@ const Feedback = ({ onNext, onBack }) => {
                 "flex items-center justify-center gap-1 bg-[var(--primary-color)] text-white hover:bg-[#001fcc]",
                 isSubmitting ? "cursor-not-allowed opacity-80" : "",
               )}
-              whileHover={{
-                scale: isSubmitting ? 1 : 1.03,
-                boxShadow: isSubmitting
-                  ? "none"
-                  : "0 2px 8px rgba(0, 41, 255, 0.2)",
-              }}
             >
               Submit
             </RippleButton>
