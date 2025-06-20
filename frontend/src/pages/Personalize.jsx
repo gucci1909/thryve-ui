@@ -13,6 +13,7 @@ import { useSelector } from "react-redux";
 function Personalize() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({});
+  const [allDataPayload, setAllDataPayload] = useState({});
   const [progressPercentage, setProgressPercentage] = useState(0);
   const firstName = useSelector((state) => state.user.firstName);
   const navigate = useNavigate();
@@ -25,7 +26,21 @@ function Personalize() {
   ];
 
   const handleNext = (data) => {
-    setFormData((prev) => ({ ...prev, ...data }));
+    let payloadData;
+    let fullData;
+
+    if (currentStep === 1) {
+      payloadData = { leadership: data?.leadership };
+      fullData = { leadershipInfo: data?.leadershipInfo };
+    } else if (currentStep === 2) {
+      payloadData = { roleInfo: data?.roleInfo };
+      fullData = { roleInfo: data?.roleInfo };
+    } else if (currentStep === 3) {
+      payloadData = { psychographic: data?.psychographic };
+      fullData = { psychographicInfo: data?.psychographicInfo };
+    }
+    setAllDataPayload((prev) => ({ ...prev, ...fullData }));
+    setFormData((prev) => ({ ...prev, ...payloadData }));
     const newPercentage = (currentStep / steps.length) * 100;
     setProgressPercentage(newPercentage);
 
@@ -39,12 +54,12 @@ function Personalize() {
           challenges: Array.isArray(formData?.roleInfo?.challenges)
             ? formData?.roleInfo?.challenges
             : formData?.roleInfo?.challenges
-              ?.split(",")
-              .map((item) => item.trim())
-              .filter(Boolean),
+                ?.split(",")
+                .map((item) => item.trim())
+                .filter(Boolean),
         },
       };
-      
+
       setTimeout(() => {
         navigate("/waiting", {
           state: {
@@ -57,6 +72,9 @@ function Personalize() {
                 roleInfo: normalizedFormData.roleInfo,
                 psychographic: normalizedFormData.psychographic,
               },
+            },
+            fullReport: {
+              ...allDataPayload,
             },
           },
         });

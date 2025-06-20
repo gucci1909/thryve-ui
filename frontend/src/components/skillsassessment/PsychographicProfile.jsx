@@ -18,9 +18,11 @@ export default function PsychographicProfile({
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState(initialData || {});
   const [selectedOptions, setSelectedOptions] = useState({});
+  const [psychogaphicProfile, setPsychogaphicProfile] = useState({});
 
   const currentQuestion = questions.questions[currentQuestionIndex];
-  const isLastQuestion = currentQuestionIndex === questions.questions.length - 1;
+  const isLastQuestion =
+    currentQuestionIndex === questions.questions.length - 1;
   const isFirstQuestion = currentQuestionIndex === 0;
 
   // Calculate progress for this section (0-25% of total progress)
@@ -34,10 +36,26 @@ export default function PsychographicProfile({
     setProgressPercentage(scaledProgress);
   }, [answers, scaledProgress, setProgressPercentage]);
 
-  const handleOptionSelect = (value, index, questionId) => {
+  const handleOptionSelect = (value, ans, index, questionId, questionText) => {
+    setPsychogaphicProfile((prev) => {
+      let newOptions;
+
+      if (currentQuestion.type === "single-select") {
+        newOptions = [ans];
+      } else {
+        const currentOptions = prev[questionText] || [];
+        newOptions = currentOptions.includes(ans)
+          ? currentOptions.filter((opt) => opt !== ans)
+          : [...currentOptions, ans];
+      }
+
+      const updated = { ...prev, [questionText]: newOptions };
+
+      return updated;
+    });
     setSelectedOptions((prev) => {
       let newOptions;
-      
+
       if (currentQuestion.type === "single-select") {
         // For single select, just set the selected value
         newOptions = [value];
@@ -50,7 +68,7 @@ export default function PsychographicProfile({
       }
 
       const updated = { ...prev, [currentQuestionIndex]: newOptions };
-      
+
       // Update answers state
       setAnswers((ans) => ({ ...ans, [questionId]: newOptions }));
 
@@ -154,8 +172,8 @@ export default function PsychographicProfile({
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <AnimatePresence>
             {currentQuestion.options.map((option, optionIndex) => {
-              const isSelected = selectedOptions[currentQuestionIndex]?.includes(option.value) || 
-                                answers[currentQuestion.id]?.includes(option.value);
+              const isSelected = selectedOptions[currentQuestionIndex]?.includes(option.value) ||
+                answers[currentQuestion.id]?.includes(option.value);
 
               return (
                 <motion.div
@@ -166,7 +184,15 @@ export default function PsychographicProfile({
                   layout
                 >
                   <RippleButton
-                    onClick={() => handleOptionSelect(option.value, optionIndex, currentQuestion.id)}
+                    onClick={() =>
+                      handleOptionSelect(
+                        option.value,
+                        option.text,
+                        optionIndex,
+                        currentQuestion.id,
+                        currentQuestion?.text,
+                      )
+                    }
                     rippleColor="rgba(0, 41, 255, 0.15)"
                     className={cn(
                       "w-full border-2 p-3 transition-all duration-150 sm:p-4",
@@ -243,7 +269,12 @@ export default function PsychographicProfile({
 
               {isLastQuestion && (
                 <RippleButton
-                  onClick={() => onNext({ psychographic: answers })}
+                  onClick={() =>
+                    onNext({
+                      psychographic: answers,
+                      psychographicInfo: psychogaphicProfile,
+                    })
+                  }
                   disabled={!answers[currentQuestion.id]?.length}
                   rippleColor="rgba(0, 41, 255, 0.3)"
                   className={cn(

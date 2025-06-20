@@ -46,6 +46,7 @@ function WaitingScreen() {
   const dispatch = useDispatch();
   const firstName = useSelector((state) => state.user.firstName);
   const formData = location.state?.formData;
+  const fullReport = location.state?.fullReport;
   const token = useSelector((state) => state.user.token);
   const [progress, setProgress] = useState(0);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
@@ -68,7 +69,7 @@ function WaitingScreen() {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify(formData),
+            body: JSON.stringify({ formData, fullReport }),
           },
         );
 
@@ -131,7 +132,7 @@ function WaitingScreen() {
 
         if (apiCompleted && newProgress >= 99.5) {
           clearInterval(progressInterval);
-          
+
           setTimeout(() => {
             navigate("/leadership-swot-analysis", {
               state: { formData, reportData },

@@ -22,6 +22,10 @@ export default function LeadershipAssessment({
     })),
   );
 
+  const [questionAnswer, setQuestionAnswer] = useState({
+    leadership: {},
+  });
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [leadershipAnswers, setLeadershipAnswers] = useState({
     leadership: {},
@@ -42,7 +46,22 @@ export default function LeadershipAssessment({
 
   const handleOptionSelect = (questionId, value) => {
     const currentQuestion = allQuestions[currentQuestionIndex];
-    const { categoryID, id } = currentQuestion;
+    const { categoryID, text, category, id } = currentQuestion;
+
+    setQuestionAnswer((prev) => {
+      const updated = {
+        ...prev,
+        leadership: {
+          ...prev.leadership,
+          [category]: {
+            ...prev.leadership?.[category],
+            [text]: value,
+          },
+        },
+      };
+
+      return updated;
+    });
 
     // Use functional update to get the latest state
     setLeadershipAnswers((prev) => {
@@ -60,9 +79,6 @@ export default function LeadershipAssessment({
       // If this is the last question, call onNext with the updated value
       if (currentQuestionIndex === allQuestions.length - 1 && !isComplete) {
         setIsComplete(true);
-        setTimeout(() => {
-          onNext({ leadership: updated.leadership });
-        }, 800);
       }
 
       return updated;
@@ -110,6 +126,17 @@ export default function LeadershipAssessment({
     ).length;
     return (answeredInCategory / categoryQuestions.length) * 100;
   };
+
+  useEffect(() => {
+    if (isComplete) {
+      setTimeout(() => {
+        onNext({
+          leadership: leadershipAnswers?.leadership,
+          leadershipInfo: questionAnswer?.leadership,
+        });
+      }, 800);
+    }
+  }, [isComplete]);
 
   return (
     <>

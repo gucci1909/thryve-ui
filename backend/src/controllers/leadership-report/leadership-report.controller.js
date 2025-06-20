@@ -8,14 +8,15 @@ export const leadershipReportControllers = async (req, res) => {
     const db = getDb();
     const { userId } = req.body;
     const leadershipReportsCollection = db.collection('leadership-reports');
+    const leadershipReportInfoCollections = db.collection('leadership-report-info');
     const learningPlanCollection = db.collection('learning-plans');
     const usersCollection = db.collection('users');
 
     // 1. Validate request body
-    leadershipReportSchema.parse(req.body);
+    leadershipReportSchema.parse(req.body?.formData);
 
     // 2. Generate leadership assessment
-    const leadershipAssessment = await generateLeadershipAssessment(req.body, req);
+    const leadershipAssessment = await generateLeadershipAssessment(req.body?.formData, req);
 
     console.dir(leadershipAssessment, { depth: null, colors: true });
 
@@ -41,6 +42,15 @@ export const leadershipReportControllers = async (req, res) => {
       userEmail: req.user.email,
       assessment: restOfAssessment,
       ...(leadershipAssessment?.openAICollection || {}),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    await leadershipReportInfoCollections.insertOne({
+      userId: req.user.id,
+      userEmail: req.user.email,
+      formData: req.body?.formData,
+      fullReport: req.body?.fullReport,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
