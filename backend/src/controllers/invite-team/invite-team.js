@@ -40,130 +40,393 @@ const generateEmailTemplate = (teamMember, manager, company) => {
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Leadership Assessment Invitation</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     body { 
-      font-family: Arial, sans-serif !important; 
+      font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important; 
       line-height: 1.6 !important; 
       color: #333 !important; 
       margin: 0 !important; 
       padding: 0 !important; 
-      background-color: #f4f4f4 !important;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+      min-height: 100vh !important;
     }
-    .container { 
-      max-width: 600px !important; 
-      margin: 30px auto !important; 
-      padding: 20px !important; 
-      background-color: #ffffff !important; 
-      border-radius: 10px !important; 
-      box-shadow: 0 0 10px rgba(0,0,0,0.1) !important; 
-    }
-    .header { 
-      text-align: center !important; 
-      margin-bottom: 30px !important; 
-    }
-    .logo-container { 
-      background-color: #0029ff !important; 
-      padding: 20px !important; 
+    
+    .email-wrapper {
+      padding: 20px !important;
+      min-height: 100vh !important;
       display: flex !important;
-      flex-direction: row !important;
-      border-top-left-radius: 10px !important; 
-      border-top-right-radius: 10px !important;
+      align-items: center !important;
       justify-content: center !important;
     }
+    
+    .container { 
+      max-width: 650px !important; 
+      width: 100% !important;
+      margin: 0 auto !important; 
+      background-color: #ffffff !important; 
+      border-radius: 20px !important; 
+      box-shadow: 0 20px 60px rgba(0, 41, 255, 0.15) !important; 
+      overflow: hidden !important;
+      position: relative !important;
+    }
+    
+    .container::before {
+      content: '' !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      height: 4px !important;
+      background: linear-gradient(90deg, #0029ff 0%, #1a4bff 50%, #4d79ff 100%) !important;
+    }
+    
+    .logo-container { 
+      background: linear-gradient(135deg, #0029ff 0%, #1a4bff 50%, #4d79ff 100%) !important; 
+      padding: 20px; 
+      display: flex !important;
+      flex-direction: row !important;
+      justify-content: center !important;
+      align-items: center !important;
+      gap: 20px !important;
+      position: relative !important;
+      overflow: hidden !important;
+    }
+    
+    .logo-container::before {
+      content: '' !important;
+      position: absolute !important;
+      top: -50% !important;
+      right: -50% !important;
+      width: 200% !important;
+      height: 200% !important;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%) !important;
+      animation: float 6s ease-in-out infinite !important;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
     .logo { 
-      width: 45px !important; 
-      height: 45px !important; 
-      margin-right: 5px !important;
+      width: 50px !important; 
+      height: 50px !important; 
       margin-top: auto !important;
       margin-bottom: auto !important;
+      margin-right: 5px !important;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)) !important;
+      position: relative !important;
+      z-index: 2 !important;
     }
+    
     h1 { 
       color: white !important; 
-      margin: 10px 0 0 0 !important; 
-      font-size: 28px !important; 
+      margin: 0 !important; 
+      font-size: 36px !important; 
+      font-weight: 800 !important;
+      letter-spacing: 1px !important;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+      position: relative !important;
+      z-index: 2 !important;
     }
+    
     .content { 
-      padding: 30px 20px !important; 
+      padding: 30px; 
+      background-color: #ffffff !important;
+      position: relative !important;
     }
+    
+    .content::before {
+      content: '' !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      width: 80px !important;
+      height: 4px !important;
+      background: linear-gradient(90deg, #0029ff 0%, #1a4bff 100%) !important;
+      border-radius: 2px !important;
+    }
+    
     h2 { 
       color: #0029ff !important; 
-      font-size: 24px !important; 
-      margin-bottom: 20px !important; 
+      font-size: 28px !important; 
+      font-weight: 700 !important;
+      position: relative !important;
+      padding-bottom: 5px !important;
+      text-align: center !important;
     }
+    
+    h2:after {
+      content: "" !important;
+      position: absolute !important;
+      bottom: 0 !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      width: 80px !important;
+      height: 4px !important;
+      background: linear-gradient(90deg, #0029ff 0%, rgba(0,41,255,0.3) 100%) !important;
+      border-radius: 4px !important;
+    }
+    
+    .greeting {
+      text-align: center !important;
+      font-size: 18px !important;
+      font-weight: 500 !important;
+      color: #555 !important;
+    }
+    
+    .button-container {
+      text-align: center !important;
+      margin: 40px 0 !important;
+      padding: 12px !important;
+      background: linear-gradient(135deg, rgba(0, 41, 255, 0.05) 0%, rgba(26, 75, 255, 0.05) 100%) !important;
+      border-radius: 16px !important;
+      border: 2px solid rgba(0, 41, 255, 0.1) !important;
+    }
+    
     .button { 
       display: inline-block !important;
-      padding: 14px 28px !important;
-      background-color: #0029ff !important;
+      padding: 18px 40px !important;
+      background: linear-gradient(135deg, #0029ff 0%, #1a4bff 100%) !important;
       color: #ffffff !important;
       text-decoration: none !important;
-      border-radius: 5px !important;
-      font-weight: bold !important;
-      margin: 30px auto !important;
+      border-radius: 12px !important;
+      font-weight: 600 !important;
+      font-size: 16px !important;
+      box-shadow: 0 8px 25px rgba(0, 41, 255, 0.3) !important;
+      transition: all 0.3s ease !important;
+      border: none !important;
+      position: relative !important;
+      overflow: hidden !important;
     }
+    
+    .button::before {
+      content: '' !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: -100% !important;
+      width: 100% !important;
+      height: 100% !important;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent) !important;
+      transition: left 0.5s !important;
+    }
+    
+    .button:hover::before {
+      left: 100% !important;
+    }
+    
+    .button:hover {
+      transform: translateY(-3px) !important;
+      box-shadow: 0 12px 35px rgba(0, 41, 255, 0.4) !important;
+    }
+    
     .footer { 
-      margin-top: 40px !important; 
+      margin-top: 50px !important; 
       text-align: center !important; 
       color: #777 !important; 
-      font-size: 12px !important; 
+      font-size: 14px !important; 
+      padding: 30px 40px !important;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+      border-top: 1px solid #e9ecef !important;
+      position: relative !important;
     }
-    .header-1 {
-      margin-top: auto !important;
-      margin-bottom: auto !important;
+    
+    .footer::before {
+      content: '' !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      width: 60px !important;
+      height: 3px !important;
+      background: linear-gradient(90deg, #0029ff 0%, #1a4bff 100%) !important;
+      border-radius: 2px !important;
     }
-    ul { 
-      padding-left: 20px !important; 
-      margin-top: 10px !important; 
-    }
+    
     p { 
-      margin: 15px 0 !important; 
+      margin: 15px !important; 
+      font-size: 16px !important;
+      line-height: 1.8 !important;
+      color: #444 !important;
+    }
+    
+    .icon-text {
+      display: flex !important;
+      align-items: flex-start !important;
+      margin-bottom: 25px !important;
+      padding: 20px !important;
+      background: rgba(255, 255, 255, 0.8) !important;
+      border-radius: 12px !important;
+      border-left: 4px solid #0029ff !important;
+      box-shadow: 0 4px 15px rgba(0, 41, 255, 0.08) !important;
+      transition: transform 0.3s ease !important;
+    }
+    
+    .icon-text:hover {
+      transform: translateX(5px) !important;
+    }
+    
+    .icon {
+      color: #0029ff !important;
+      margin-right: 15px !important;
+      font-size: 20px !important;
+      margin-top: 2px !important;
+      flex-shrink: 0 !important;
+      width: 24px !important;
+      text-align: center !important;
+      background: rgba(0, 41, 255, 0.1) !important;
+      padding: 8px !important;
+      border-radius: 8px !important;
+    }
+    
+    .highlight-box {
+      background: linear-gradient(135deg, #f5f7ff 0%, #e8f0ff 100%) !important;
+      border: 2px solid rgba(0, 41, 255, 0.15) !important;
+      border-radius: 16px !important;
+      margin: 30px 0 !important;
+      padding: 25px !important;
+      position: relative !important;
+      overflow: hidden !important;
+    }
+    
+    .highlight-box::before {
+      content: '' !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 4px !important;
+      background: linear-gradient(90deg, #0029ff 0%, #1a4bff 100%) !important;
+    }
+    
+    .signature {
+      margin-top: 40px !important;
+      font-style: italic !important;
+      color: #666 !important;
+      text-align: center !important;
+      padding: 20px !important;
+      background: rgba(0, 41, 255, 0.03) !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(0, 41, 255, 0.1) !important;
+    }
+    
+    .divider {
+      height: 1px !important;
+      background: linear-gradient(90deg, transparent, #0029ff, transparent) !important;
+      margin: 30px 0 !important;
+      opacity: 0.3 !important;
+    }
+    
+    @media (max-width: 600px) {
+      .email-wrapper {
+        padding: 10px !important;
+      }
+      
+      .container {
+        border-radius: 16px !important;
+      }
+      
+      .logo-container {
+        padding: 30px 20px !important;
+        gap: 15px !important;
+      }
+      
+      .logo {
+        width: 50px !important;
+        height: 50px !important;
+      }
+      
+      h1 {
+        font-size: 28px !important;
+      }
+      
+      .content {
+        padding: 30px 20px !important;
+      }
+      
+      h2 {
+        font-size: 24px !important;
+      }
+      
+      .content-box {
+        color: #454545 !important;
+      }
+      .icon-text {
+        padding: 15px !important;
+        margin-bottom: 20px !important;
+      }
+      
+      .button {
+        padding: 16px 30px !important;
+        font-size: 15px !important;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="logo-container" style="justify-content: center; gap: 5px;">
-      <img src="https://i.ibb.co/r9hJXZ3/logo-thryve.png" alt="Thryve Logo" class="logo">
-      <h1 class="header-1">thryve</h1>
-    </div>
-    <div class="content">
-      <h2>You're Invited to a Leadership Assessment</h2>
-      <p>Dear ${teamMember.name},</p>
-
-      <p><strong>${manager.firstName}</strong> from <strong>${company.COMPANY_NAME}</strong> has nominated you to participate in Thryve's leadership assessment program.</p>
-
-      <p>This carefully designed assessment will help you:</p>
-      <ul>
-        <li>Evaluate your leadership competencies</li>
-        <li>Gain deeper insights into your leadership style</li>
-        <li>Identify growth areas for professional development</li>
-        <li>Receive personalized feedback to support your career</li>
-      </ul>
-
-      <p>The assessment will take approximately <strong>15-20 minutes</strong>. Your responses are confidential and will be analyzed to provide valuable recommendations tailored specifically for you.</p>
-
-      <div style="text-align: center !important;">
-        <a href="${assessmentLink}" class="button">Start My Assessment</a>
+  <div class="email-wrapper">
+    <div class="container">
+      <div class="logo-container">
+        <img src="https://i.ibb.co/r9hJXZ3/logo-thryve.png" alt="Thryve Logo" class="logo">
+        <h1>thryve</h1>
       </div>
+      <div class="content">
+        <h2><i class="fas fa-star" style="margin-right: 10px; color: #ffd700;"></i>Leadership Assessment Invitation</h2>
+        
+        <p class="greeting">Hi <strong>${teamMember.name}</strong>,</p>
+        
+        <div class="icon-text">
+          <div>
+            We're using <strong>Thryve</strong> to help our managers grow into better leaders — starting with honest input from the people who work with them every day: <strong>You</strong>.
+          </div>
+        </div>
 
-      <p><strong>Please keep in mind:</strong></p>
-      <ul>
-        <li>Complete the assessment within <strong>7 days</strong></li>
-        <li>Choose a quiet environment for best focus</li>
-        <li>Answer honestly — there are no right or wrong answers</li>
-      </ul>
+        <div class="highlight-box">
+          <div class="icon-text" style="background: transparent !important; padding: 0 !important; margin: 0 !important; border-left: none !important; box-shadow: none !important;">
+            <div class="content-box">
+              This is <strong>not a performance review</strong>. It's a developmental tool designed to give managers insights into how their leadership is experienced by their team — what's working well, and where they can improve.
+            </div>
+          </div>
+        </div>
 
-      <p>If you have any questions or face any issues, feel free to contact us at <a href="mailto:support@thryve.ai">support@thryve.ai</a>.</p>
-    </div>
+        <div class="icon-text">
+          <div>
+            Your responses will remain <strong>confidential</strong>. By taking just a few minutes to complete the leadership assessment, you'll be helping your manager build stronger habits, improve team dynamics, and become the leader you deserve.
+          </div>
+        </div>
 
-    <div class="footer">
-      <p>© 2025 Thryve. All rights reserved.</p>
-      <p>This email was sent to ${teamMember.email}</p>
+        <div class="button-container">
+          <a href="${assessmentLink}" class="button">
+            <i class="fas fa-play" style="margin-right: 10px;"></i> Start the Leadership Assessment
+          </a>
+        </div>
+
+        <p class="signature">
+          <i class="fas fa-heart" style="color: #ff6b6b; margin-right: 8px;"></i>
+          Thank you for contributing to a culture of open, constructive feedback.
+        </p>
+      </div>
+      <div class="footer">
+        <p><i class="fas fa-copyright" style="margin-right: 8px; color: #0029ff;"></i> 2025 Thryve. All rights reserved.</p>
+        <p style="margin-top: 10px; font-size: 12px; color: #999;">
+          <i class="fas fa-shield-alt" style="margin-right: 5px;"></i>Your feedback is secure and confidential
+        </p>
+      </div>
     </div>
   </div>
 </body>
 </html>
-  `;
+`;
 };
 
 export const addTeamMembers = async (req, res) => {
@@ -208,7 +471,7 @@ export const addTeamMembers = async (req, res) => {
       const emailTemplate = generateEmailTemplate(teamMember, req.user, company);
       const emailResult = await sendEmail(
         { name: teamMember.name, email: teamMember.email },
-        'Leadership Assessment Invitation',
+        'Help Your Manager Grow – Share Feedback via Thryve',
         emailTemplate,
       );
 
