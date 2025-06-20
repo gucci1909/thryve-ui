@@ -151,13 +151,13 @@ export const chatBoxController = async (req, res) => {
     const timestamp = new Date().toISOString();
     const logContent = `\n\n===== ${timestamp} =====\n${coachingPrompt}\n`;
 
-    fs.appendFile(filePath, logContent, (err) => {
-      if (err) {
-        console.error('❌ Error writing to file:', err);
-      } else {
-        console.log(`✅ Prompt successfully appended to: ${filePath}`);
-      }
-    });
+    // fs.appendFile(filePath, logContent, (err) => {
+    //   if (err) {
+    //     console.error('❌ Error writing to file:', err);
+    //   } else {
+    //     console.log(`✅ Prompt successfully appended to: ${filePath}`);
+    //   }
+    // });
     // end of file append
 
     const openAIStartTime = Date.now();
@@ -199,6 +199,8 @@ export const chatBoxController = async (req, res) => {
         responseTime: openAIResponseTime,
         chatType: 'COACHING',
         tokensUsed: data.usage?.total_tokens,
+        completionToken: data.usage?.completion_tokens,
+        promptToken: data.usage?.prompt_tokens,
       });
       throw error;
     }
@@ -213,6 +215,8 @@ export const chatBoxController = async (req, res) => {
       responseTime: openAIResponseTime,
       chatType: 'COACHING',
       tokensUsed: data.usage?.total_tokens,
+      completionToken: data.usage?.completion_tokens,
+      promptToken: data.usage?.prompt_tokens,
     });
 
     const serverMessage = {
@@ -222,6 +226,10 @@ export const chatBoxController = async (req, res) => {
       chatType: 'coaching',
       sessionId: sessionId,
       timestamp: new Date(),
+      tokensUsed: data?.usage?.total_tokens || 0,
+      completionToken: data?.usage?.completion_tokens || 0,
+      promptToken: data?.usage?.prompt_tokens || 0,
+      responseTimeMs: openAIResponseTime || 0,
     };
 
     if (sessionStart === true) {

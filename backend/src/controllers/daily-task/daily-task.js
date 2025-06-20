@@ -91,7 +91,8 @@ async function processUserBatch(users, db) {
       await learningPlansCollection.insertOne({
         userId: user._id.toString(),
         userEmail: user.email,
-        learning_plan: generatedPlan,
+        learning_plan: generatedPlan?.learningPlan,
+        ...(generatedPlan?.openAICollection || {}),
         created_at: new Date(),
         updated_at: new Date(),
       });

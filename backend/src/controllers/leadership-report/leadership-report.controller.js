@@ -17,8 +17,10 @@ export const leadershipReportControllers = async (req, res) => {
     // 2. Generate leadership assessment
     const leadershipAssessment = await generateLeadershipAssessment(req.body, req);
 
+    console.dir(leadershipAssessment, { depth: null, colors: true });
+
     // 3. Destructure learning_plan from assessment
-    const { learning_plan, ...restOfAssessment } = leadershipAssessment;
+    const { learning_plan, ...restOfAssessment } = leadershipAssessment?.outputJson;
 
     // 4. Insert learning_plan into `learning-plans` collection
     if (learning_plan && Array.isArray(learning_plan) && learning_plan.length > 0) {
@@ -26,6 +28,8 @@ export const leadershipReportControllers = async (req, res) => {
         userId: req.user.id,
         userEmail: req.user.email,
         learning_plan: learning_plan,
+        coming_from_leadership_report: true,
+        ...(leadershipAssessment?.openAICollection || {}),
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -36,6 +40,7 @@ export const leadershipReportControllers = async (req, res) => {
       userId: req.user.id,
       userEmail: req.user.email,
       assessment: restOfAssessment,
+      ...(leadershipAssessment?.openAICollection || {}),
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -59,7 +64,6 @@ export const leadershipReportControllers = async (req, res) => {
     return res.status(200).json({
       status: 'OK',
       data: {
-        // reportId: result.insertedId,
         ...restOfAssessment,
       },
     });

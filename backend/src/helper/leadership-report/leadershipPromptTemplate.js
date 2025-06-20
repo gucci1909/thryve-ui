@@ -197,7 +197,7 @@ leadership_assessment_report_template: this is the template that I expect as the
     "start": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should start doing and provide an example of how. Keep in mind the preference for coaching tone
     "stop": // This is a string format. Based on the leadership assessment, provide a single line summary of an actionable insight that the manager should stop doing and provide an example of how. Keep in mind the preference for coaching tone
   },
-  "learning_plan": [ //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. IT IS REPRESENTED AS AN ARRAY. YOU MUST INCLUDE THIS FOR EVERY RESPONSE. PLEASE INCLUDE AT LEAST 12 CONTENT PIECES FOR THIS SECTION
+  "learning_plan": [ //THIS IS A MUST NEEDED SECTION OF THE RESPONSE. IT IS REPRESENTED AS AN ARRAY. YOU MUST INCLUDE THIS FOR EVERY RESPONSE. YOU **MUST** GENERATE A MINIMUM OF FOUR CONTENT PIECES FOR THE learning_plan WITH A MAXIMUM OF EIGHT CONTENT PIECES. I **REALLY** NEED YOU TO FOLLOW THIS TO GENERATE THE learning_plan
     {
       "title": //This is the title of the learning_plan that has to be generated
       "content": //This is the content of the learning_plan that has to be generated. Please help to generate a good textual representation as well within 50-80 words

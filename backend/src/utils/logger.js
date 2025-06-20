@@ -25,7 +25,7 @@ const ERROR_LOG_PATH = process.env.ERROR_LOG_PATH || path.join(LOG_DIR, 'error.l
 
 const getApiType = (path) => {
   if (!path) return 'UNKNOWN';
-  
+
   const apiMatches = {
     '/api/health': 'HEALTH',
     '/api/onboarding': 'ONBOARDING',
@@ -38,7 +38,7 @@ const getApiType = (path) => {
   for (const [prefix, type] of Object.entries(apiMatches)) {
     if (path.startsWith(prefix)) return type;
   }
-  
+
   return 'OTHER';
 };
 
@@ -48,7 +48,7 @@ const formatDate = (timestamp) => {
     if (typeof timestamp === 'string' && timestamp.includes('T')) {
       return timestamp;
     }
-    
+
     // Handle numeric timestamps
     const date = new Date(timestamp);
     if (isNaN(date.getTime())) {
@@ -66,18 +66,18 @@ const logFormat = winston.format.combine(
   winston.format.metadata(),
   winston.format.printf(({ timestamp, level, message, metadata, stack }) => {
     let log = `[${formatDate(timestamp)}]`;
-    
+
     // Add metadata if exists
     if (metadata && Object.keys(metadata).length > 0) {
       const { requestId, userId, ip, method, path: reqPath, ...rest } = metadata;
       const apiType = getApiType(reqPath);
-      
+
       // log += ` [${level.toUpperCase()}] [${apiType}]`;
       if (requestId) log += ` [ReqID: ${requestId}]`;
       if (userId) log += ` [UserID: ${userId}]`;
       if (ip) log += ` [IP: ${ip}]`;
       if (method && reqPath) log += ` [${method} ${reqPath}]`;
-      
+
       // Add any remaining metadata
       if (Object.keys(rest).length > 0) {
         log += ` ${JSON.stringify(rest)}`;
@@ -85,16 +85,16 @@ const logFormat = winston.format.combine(
     } else {
       log += ` [${level.toUpperCase()}]`;
     }
-    
+
     log += `: ${message}`;
-    
+
     // Add stack trace for errors
     if (stack) {
       log += `\n${stack}`;
     }
-    
+
     return log;
-  })
+  }),
 );
 
 const logger = winston.createLogger({
@@ -120,7 +120,7 @@ const logger = winston.createLogger({
       level: 'info',
       maxsize: process.env.LOG_MAX_SIZE || 5242880,
       maxFiles: process.env.LOG_MAX_FILES || 5,
-    })
+    }),
   ],
 });
 
@@ -128,11 +128,8 @@ const logger = winston.createLogger({
 if (process.env.NODE_ENV !== 'production') {
   logger.add(
     new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        logFormat
-      ),
-    })
+      format: winston.format.combine(winston.format.colorize(), logFormat),
+    }),
   );
 }
 
@@ -143,10 +140,24 @@ const openAILogger = winston.createLogger({
     winston.format.timestamp(),
     winston.format.printf(({ timestamp, level, message, metadata, stack }) => {
       let log = `[${formatDate(timestamp)}] [OPENAI_API]`;
-      
+
       if (metadata) {
-        const { requestId, userId, userEmail, ip, method, path: reqPath, chatType, model, tokensUsed, responseTime, ...rest } = metadata;
-        
+        const {
+          requestId,
+          userId,
+          userEmail,
+          ip,
+          method,
+          path: reqPath,
+          chatType,
+          model,
+          tokensUsed,
+          completionToken,
+          promptToken,
+          responseTime,
+          ...rest
+        } = metadata;
+
         if (requestId) log += ` [ReqID: ${requestId}]`;
         if (userId) log += ` [UserID: ${userId}]`;
         if (userEmail) log += ` [Email: ${userEmail}]`;
@@ -155,30 +166,32 @@ const openAILogger = winston.createLogger({
         if (chatType) log += ` [Type: ${chatType}]`;
         if (model) log += ` [Model: ${model}]`;
         if (tokensUsed) log += ` [Tokens: ${tokensUsed}]`;
+        if (completionToken) log += ` [completionToken: ${completionToken}]`;
+        if (promptToken) log += ` [promptToken: ${promptToken}]`;
         if (responseTime) log += ` [Time: ${responseTime}]`;
-        
+
         // Add any remaining metadata
         if (Object.keys(rest).length > 0) {
           log += ` ${JSON.stringify(rest)}`;
         }
       }
-      
+
       log += `: ${message}`;
-      
+
       // Add stack trace for errors
       if (stack) {
         log += `\n${stack}`;
       }
-      
+
       return log;
-    })
+    }),
   ),
   transports: [
     new winston.transports.File({
       filename: path.join(LOG_DIR, 'openai-api.log'),
       maxsize: process.env.LOG_MAX_SIZE || 5242880,
       maxFiles: process.env.LOG_MAX_FILES || 5,
-    })
+    }),
   ],
 });
 
@@ -190,10 +203,24 @@ if (process.env.NODE_ENV !== 'production') {
         winston.format.colorize(),
         winston.format.printf(({ timestamp, level, message, metadata, stack }) => {
           let log = `[${formatDate(timestamp)}] [OPENAI_API]`;
-          
+
           if (metadata) {
-            const { requestId, userId, userEmail, ip, method, path: reqPath, chatType, model, tokensUsed, responseTime, ...rest } = metadata;
-            
+            const {
+              requestId,
+              userId,
+              userEmail,
+              ip,
+              method,
+              path: reqPath,
+              chatType,
+              model,
+              tokensUsed,
+              completionToken,
+              promptToken,
+              responseTime,
+              ...rest
+            } = metadata;
+
             if (requestId) log += ` [ReqID: ${requestId}]`;
             if (userId) log += ` [UserID: ${userId}]`;
             if (userEmail) log += ` [Email: ${userEmail}]`;
@@ -202,25 +229,27 @@ if (process.env.NODE_ENV !== 'production') {
             if (chatType) log += ` [Type: ${chatType}]`;
             if (model) log += ` [Model: ${model}]`;
             if (tokensUsed) log += ` [Tokens: ${tokensUsed}]`;
+            if (completionToken) log += ` [completionToken: ${completionToken}]`;
+            if (promptToken) log += ` [promptToken: ${promptToken}]`
             if (responseTime) log += ` [Time: ${responseTime}]`;
-            
+
             // Add any remaining metadata
             if (Object.keys(rest).length > 0) {
               log += ` ${JSON.stringify(rest)}`;
             }
           }
-          
+
           log += `: ${message}`;
-          
+
           // Add stack trace for errors
           if (stack) {
             log += `\n${stack}`;
           }
-          
+
           return log;
-        })
+        }),
       ),
-    })
+    }),
   );
 }
 
@@ -234,8 +263,8 @@ logger.withRequestContext = (req) => {
         ip: req.ip,
         method: req.method,
         path: req.path,
-        userEmail: req.user?.email, 
-        ...meta
+        userEmail: req.user?.email,
+        ...meta,
       };
 
       // Enhance common log messages
@@ -247,7 +276,7 @@ logger.withRequestContext = (req) => {
       }
 
       logger.info(enhancedMessage, {
-        metadata: baseMetadata
+        metadata: baseMetadata,
       });
     },
     error: (message, error, meta = {}) => {
@@ -259,9 +288,9 @@ logger.withRequestContext = (req) => {
           ip: req.ip,
           method: req.method,
           path: req.path,
-          ...meta
+          ...meta,
         },
-        stack: error?.stack
+        stack: error?.stack,
       });
     },
     warn: (message, meta = {}) => {
@@ -273,8 +302,8 @@ logger.withRequestContext = (req) => {
           ip: req.ip,
           method: req.method,
           path: req.path,
-          ...meta
-        }
+          ...meta,
+        },
       });
     },
     debug: (message, meta = {}) => {
@@ -286,10 +315,10 @@ logger.withRequestContext = (req) => {
           ip: req.ip,
           method: req.method,
           path: req.path,
-          ...meta
-        }
+          ...meta,
+        },
       });
-    }
+    },
   };
 };
 
@@ -302,8 +331,10 @@ logger.logOpenAICall = (req, callDetails) => {
     response,
     error,
     tokensUsed,
+    completionToken,
+    promptToken,
     responseTime,
-    chatType = 'UNKNOWN'
+    chatType = 'UNKNOWN',
   } = callDetails;
 
   const baseMetadata = {
@@ -316,8 +347,10 @@ logger.logOpenAICall = (req, callDetails) => {
     chatType,
     model,
     tokensUsed,
+    completionToken,
+    promptToken,
     responseTime: responseTime ? `${responseTime}ms` : undefined,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 
   if (error) {
@@ -328,9 +361,9 @@ logger.logOpenAICall = (req, callDetails) => {
         error: error.message,
         errorCode: error.code,
         userInput: userInput?.substring(0, 500) + (userInput?.length > 500 ? '...' : ''),
-        systemPromptLength: systemPrompt?.length
+        systemPromptLength: systemPrompt?.length,
       },
-      stack: error.stack
+      stack: error.stack,
     });
   } else {
     // Log successful response
@@ -340,8 +373,8 @@ logger.logOpenAICall = (req, callDetails) => {
         userInput: userInput?.substring(0, 500) + (userInput?.length > 500 ? '...' : ''),
         systemPromptLength: systemPrompt?.length,
         responseLength: response?.length,
-        responsePreview: response?.substring(0, 200) + (response?.length > 200 ? '...' : '')
-      }
+        responsePreview: response?.substring(0, 200) + (response?.length > 200 ? '...' : ''),
+      },
     });
   }
 };

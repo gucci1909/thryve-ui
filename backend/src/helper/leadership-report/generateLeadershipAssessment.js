@@ -56,7 +56,9 @@ async function generateLeadershipAssessment(inputJson, req = null) {
         error,
         responseTime: openAIResponseTime,
         chatType: 'LEADERSHIP_ASSESSMENT',
-        tokensUsed: data.usage?.total_tokens
+        tokensUsed: data.usage?.total_tokens,
+        completionToken: data.usage?.completion_tokens,
+        promptToken: data.usage?.prompt_tokens,
       });
       throw error;
     }
@@ -68,7 +70,7 @@ async function generateLeadershipAssessment(inputJson, req = null) {
       outputJson = JSON.parse(outputText);
     } catch (error) {
       console.error('Failed to parse JSON:', error);
-      
+
       // Log parsing error
       logger.logOpenAICall(req, {
         model: 'gpt-4',
@@ -78,9 +80,11 @@ async function generateLeadershipAssessment(inputJson, req = null) {
         error: new Error('Invalid JSON format in response'),
         responseTime: openAIResponseTime,
         chatType: 'LEADERSHIP_ASSESSMENT',
-        tokensUsed: data.usage?.total_tokens
+        tokensUsed: data.usage?.total_tokens,
+        completionToken: data.usage?.completion_tokens,
+        promptToken: data.usage?.prompt_tokens,
       });
-      
+
       throw new Error('Invalid JSON format in response');
     }
 
@@ -92,13 +96,22 @@ async function generateLeadershipAssessment(inputJson, req = null) {
       response: JSON.stringify(outputJson),
       responseTime: openAIResponseTime,
       chatType: 'LEADERSHIP_ASSESSMENT',
-      tokensUsed: data.usage?.total_tokens
+      tokensUsed: data.usage?.total_tokens,
+      completionToken: data.usage?.completion_tokens,
+      promptToken: data.usage?.prompt_tokens,
     });
 
-    return outputJson;
+    const openAICollection = {
+      tokensUsed: data?.usage?.total_tokens || 0,
+      completionToken: data?.usage?.completion_tokens || 0,
+      promptToken: data?.usage?.prompt_tokens || 0,
+      responseTimeMs: openAIResponseTime || 0,
+    };
+
+    return { outputJson, openAICollection };
   } catch (error) {
     console.error('Error generating leadership assessment:', error.message);
-    
+
     // Log any other errors
     if (!error.message.includes('OpenAI') && !error.message.includes('Invalid JSON format')) {
       logger.logOpenAICall(req, {
@@ -107,10 +120,10 @@ async function generateLeadershipAssessment(inputJson, req = null) {
         systemPrompt,
         error,
         responseTime: Date.now() - startTime,
-        chatType: 'LEADERSHIP_ASSESSMENT'
+        chatType: 'LEADERSHIP_ASSESSMENT',
       });
     }
-    
+
     throw error;
   }
 }

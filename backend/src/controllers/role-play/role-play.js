@@ -150,18 +150,16 @@ export const rolePlayController = async (req, res) => {
 
     // File path to store prompt
     const filePath = path.join(__dirname, 'role-play-prompt.txt');
-
-    // Append the prompt with a timestamp
     const timestamp = new Date().toISOString();
     const logContent = `\n\n===== ${timestamp} =====\n${rolePlayPrompt}\n`;
 
-    fs.appendFile(filePath, logContent, (err) => {
-      if (err) {
-        console.error('❌ Error writing to file:', err);
-      } else {
-        console.log(`✅ Prompt successfully appended to: ${filePath}`);
-      }
-    });
+    // fs.appendFile(filePath, logContent, (err) => {
+    //   if (err) {
+    //     console.error('❌ Error writing to file:', err);
+    //   } else {
+    //     console.log(`✅ Prompt successfully appended to: ${filePath}`);
+    //   }
+    // });
 
     // end of file append
 
@@ -205,6 +203,8 @@ export const rolePlayController = async (req, res) => {
         responseTime: openAIResponseTime,
         chatType: 'ROLEPLAY',
         tokensUsed: data.usage?.total_tokens,
+        completionToken: data.usage?.completion_tokens,
+        promptToken: data.usage?.prompt_tokens,
       });
       throw error;
     }
@@ -219,6 +219,8 @@ export const rolePlayController = async (req, res) => {
       responseTime: openAIResponseTime,
       chatType: 'ROLEPLAY',
       tokensUsed: data.usage?.total_tokens,
+      completionToken: data.usage?.completion_tokens,
+      promptToken: data.usage?.prompt_tokens,
     });
 
     // Prepare server message
@@ -229,6 +231,10 @@ export const rolePlayController = async (req, res) => {
       chatType: 'role-play',
       sessionId: sessionId,
       timestamp: new Date(),
+      tokensUsed: data?.usage?.total_tokens || 0,
+      completionToken: data?.usage?.completion_tokens || 0,
+      promptToken: data?.usage?.prompt_tokens || 0,
+      responseTimeMs: openAIResponseTime || 0,
     };
 
     if (sessionStart === true) {

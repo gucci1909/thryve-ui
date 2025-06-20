@@ -29,7 +29,7 @@ async function generateLearningPlan(
   coaching_history,
   reflections_of_context,
   leadership_assessment,
-  req = null
+  req = null,
 ) {
   const openaiEndpoint = process.env.OpenAIAPI;
   const startTime = Date.now();
@@ -44,18 +44,16 @@ async function generateLearningPlan(
 
   // File path to store prompt
   const filePath = path.join(__dirname, 'learning-plan-prompt.txt');
-
-  // Append the prompt with a timestamp
   const timestamp = new Date().toISOString();
   const logContent = `\n\n===== ${timestamp} =====\n${systemPrompt}\n`;
 
-  fs.appendFile(filePath, logContent, (err) => {
-    if (err) {
-      console.error('❌ Error writing to file:', err);
-    } else {
-      console.log(`✅ Prompt successfully appended to: ${filePath}`);
-    }
-  });
+  // fs.appendFile(filePath, logContent, (err) => {
+  //   if (err) {
+  //     console.error('❌ Error writing to file:', err);
+  //   } else {
+  //     console.log(`✅ Prompt successfully appended to: ${filePath}`);
+  //   }
+  // });
 
   try {
     // Make OpenAI API call with timing
@@ -91,7 +89,9 @@ async function generateLearningPlan(
         error,
         responseTime: openAIResponseTime,
         chatType: 'LEARNING_PLAN',
-        tokensUsed: data.usage?.total_tokens
+        tokensUsed: data.usage?.total_tokens,
+        completionToken: data.usage?.completion_tokens,
+        promptToken: data.usage?.prompt_tokens,
       });
       throw error;
     }
@@ -111,7 +111,7 @@ async function generateLearningPlan(
       outputJson = JSON.parse(outputText);
     } catch (error) {
       console.error('Failed to parse JSON:', error);
-      
+
       // Log parsing error
       logger.logOpenAICall(req, {
         model: 'gpt-4o-mini',
@@ -121,9 +121,11 @@ async function generateLearningPlan(
         error: new Error('Invalid JSON format in response'),
         responseTime: openAIResponseTime,
         chatType: 'LEARNING_PLAN',
-        tokensUsed: data.usage?.total_tokens
+        tokensUsed: data.usage?.total_tokens,
+        completionToken: data.usage?.completion_tokens,
+        promptToken: data.usage?.prompt_tokens,
       });
-      
+
       throw new Error('Invalid JSON format in response');
     }
 
@@ -137,13 +139,22 @@ async function generateLearningPlan(
       response: JSON.stringify(learningPlan),
       responseTime: openAIResponseTime,
       chatType: 'LEARNING_PLAN',
-      tokensUsed: data.usage?.total_tokens
+      tokensUsed: data.usage?.total_tokens,
+      completionToken: data.usage?.completion_tokens,
+      promptToken: data.usage?.prompt_tokens,
     });
 
-    return learningPlan;
+    const openAICollection = {
+      tokensUsed: data?.usage?.total_tokens || 0,
+      completionToken: data?.usage?.completion_tokens || 0,
+      promptToken: data?.usage?.prompt_tokens || 0,
+      responseTimeMs: openAIResponseTime || 0,
+    };
+
+    return { learningPlan, openAICollection };
   } catch (error) {
     console.error('Error generating learning plan:', error.message);
-    
+
     // Log any other errors
     if (!error.message.includes('OpenAI') && !error.message.includes('Invalid JSON format')) {
       logger.logOpenAICall(req, {
@@ -152,10 +163,10 @@ async function generateLearningPlan(
         systemPrompt,
         error,
         responseTime: Date.now() - startTime,
-        chatType: 'LEARNING_PLAN'
+        chatType: 'LEARNING_PLAN',
       });
     }
-    
+
     throw error;
   }
 }
