@@ -4,6 +4,7 @@ import { Route, Routes } from "react-router-dom";
 
 const Loader = lazy(() => import("../components/common/Loader.jsx"));
 const PrivateRoute = lazy(() => import("../hooks/PrivateRoute.jsx"));
+const PrivateRouteHome = lazy(() => import("../hooks/PrivateRouteHome.jsx"));
 const PublicRoute = lazy(() => import("../hooks/PublicRoute.jsx"));
 const LogOut = lazy(() => import("../hooks/LogOut.jsx"));
 const Home = lazy(() => import("../pages/Home.jsx"));
@@ -23,7 +24,9 @@ const LeaderShipAnalysis = lazy(
 const EmailVerification = lazy(() => import("../pages/EmailVerification.jsx"));
 const OTP = lazy(() => import("../pages/OTP.jsx"));
 const ResetPassword = lazy(() => import("../pages/ResetPassword.jsx"));
-const FeedbackAssessment = lazy(() => import("../pages/FeedbackAssessment.jsx"));
+const FeedbackAssessment = lazy(
+  () => import("../pages/FeedbackAssessment.jsx"),
+);
 const FeedbackThankYou = lazy(() => import("../pages/FeedbackThankYou.jsx"));
 
 function AllRoutes() {
@@ -33,14 +36,8 @@ function AllRoutes() {
         <Routes>
           <Route path="/personalize" element={<Personalize />} />
 
-          <Route
-            path="/feedback-assessment"
-            element={<FeedbackAssessment />}
-          />
-          <Route
-            path="/feedback-thank-you"
-            element={<FeedbackThankYou />}
-          />
+          <Route path="/feedback-assessment" element={<FeedbackAssessment />} />
+          <Route path="/feedback-thank-you" element={<FeedbackThankYou />} />
           <Route
             path="/login"
             element={
@@ -58,15 +55,6 @@ function AllRoutes() {
               </PublicRoute>
             }
           />
-
-          {/* <Route
-            path="/email-verify"
-            element={
-              <PublicRoute>
-                <EmailVerification />
-              </PublicRoute>
-            }
-          /> */}
 
           <Route
             path="/otp-verify"
@@ -93,7 +81,7 @@ function AllRoutes() {
               </PublicRoute>
             }
           />
-          <Route path="/selection-page" element={<SelectionPage />} />
+          {/* <Route path="/selection-page" element={<SelectionPage />} /> */}
           <Route path="/waiting" element={<WaitingScreen />} />
           <Route path="/logout" element={<LogOut />} />
           <Route
@@ -213,14 +201,7 @@ function AllRoutes() {
               </PublicRoute>
             }
           />
-          <Route
-            path="/*"
-            element={
-              <PrivateRoute>
-                <SelectionPage />
-              </PrivateRoute>
-            }
-          />
+          <Route path="/*" element={<PrivateRouteHome />} />
         </Routes>
       </AnimatePresence>
     </Suspense>

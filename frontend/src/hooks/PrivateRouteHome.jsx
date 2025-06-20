@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router";
 
-const PrivateRoute = ({ children }) => {
+const PrivateRouteHome = () => {
   const { personalize, token } = useSelector((state) => state.user);
 
   if (!token) {
@@ -13,8 +13,8 @@ const PrivateRoute = ({ children }) => {
   }
 
   if (personalize) {
-    return children;
+    return <Navigate to="/personalize-home" />;
   }
 };
 
-export default PrivateRoute;
+export default PrivateRouteHome;
