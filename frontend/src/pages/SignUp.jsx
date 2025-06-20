@@ -11,6 +11,7 @@ import 'react-phone-number-input/style.css';
 import { useDispatch } from "react-redux";
 import { login, updateCompanyCode } from "../store/userSlice";
 import { useCookies } from 'react-cookie';
+import InviteCodeAlert from "../components/common/InviteCodeAlert";
 
 const avatars = [
   {
@@ -44,6 +45,8 @@ const SignupPage = () => {
   const inviteCode = searchParams.get('invite-code');
   const [companyInfo, setCompanyInfo] = useState(null);
   const [inviteCodeError, setInviteCodeError] = useState("");
+  const [showInviteAlert, setShowInviteAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const dispatch = useDispatch();
@@ -64,7 +67,12 @@ const SignupPage = () => {
 
   useEffect(() => {
     const verifyInviteCode = async () => {
-      if (!inviteCode) return;
+      if (!inviteCode) {
+        const message = "No invite code provided. You need a valid company invite code to access Thryve.";
+        setAlertMessage(message);
+        setShowInviteAlert(true);
+        return;
+      }
 
       try {
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/companies/verify-key`, {
@@ -78,20 +86,31 @@ const SignupPage = () => {
         const data = await response.json();
 
         if (!response.ok) {
-          setInviteCodeError(data.error || 'Invalid invite code');
+          const message = data.error || 'Invalid invite code. Please contact your organization\'s administrator for a valid code.';
+          setAlertMessage(message);
+          setShowInviteAlert(true);
+         
           return;
         }
 
         setCompanyInfo(data.company);
         dispatch(updateCompanyCode(inviteCode));
+      
       } catch (error) {
         console.error('Error verifying invite code:', error);
-        setInviteCodeError('Failed to verify invite code');
+        const message = 'Failed to verify invite code. Please check your connection and try again.';
+        setAlertMessage(message);
+        setShowInviteAlert(true);
       }
     };
 
     verifyInviteCode();
   }, [inviteCode, dispatch]);
+
+  const handleCloseAlert = () => {
+    setShowInviteAlert(false);
+    navigate("/");
+  };
 
   const validateField = (field, value) => {
     let error = "";
@@ -209,7 +228,7 @@ const SignupPage = () => {
       } else {
         const { token, user: { id, email, firstName } } = data;
 
-           // Set the auth token cookie
+        // Set the auth token cookie
         setCookie('authToken', token, {
           path: '/',
           maxAge: 7 * 24 * 60 * 60, // 7 days
@@ -592,6 +611,11 @@ const SignupPage = () => {
           </Link>
         </div>
       </motion.div>
+      <InviteCodeAlert
+        isVisible={showInviteAlert}
+        onClose={handleCloseAlert}
+        message={alertMessage}
+      />
     </WarpBackground>
   );
 };
