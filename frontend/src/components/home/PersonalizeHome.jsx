@@ -576,7 +576,7 @@ function PersonalizeHomePage({ setPointAdded }) {
     }
   }, [token]);
 
-  let visibleItems = learningData?.learning_plan?.slice(0, visibleCount);
+  const visibleItems = learningData?.learning_plan?.slice(0, visibleCount);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
