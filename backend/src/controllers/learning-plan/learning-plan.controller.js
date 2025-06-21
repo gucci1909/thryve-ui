@@ -10,26 +10,86 @@ export const learningPlanController = async (req, res) => {
     // Get all required collections
     const leadershipReportsCollection = db.collection('leadership-reports');
     const chatsCollection = db.collection('chats');
+    const rolePlayChatCollection = db.collection('role-play-chats');
     const teamMembersCollection = db.collection('team_members');
     const reflectionsCollection = db.collection('reflections');
     const learningPlansCollection = db.collection('learning-plans');
 
+    // checking learning_plan exists for today or not
+    const now = new Date();
+    const startOfToday = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    );
+    const endOfToday = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1),
+    );
+
+    const alreadyExistLearningPlan = await learningPlansCollection.findOne({
+      userId,
+      created_at: {
+        $gte: startOfToday,
+        $lt: endOfToday,
+      },
+    });
+
+    if (alreadyExistLearningPlan) {
+      return res.status(200).json({
+        status: 'OK',
+        data: {
+          already_exists:
+            'Your learning plan for today is ready! Feel free to review or continue with your existing plan.',
+        },
+      });
+    }
+
+    // end checking learning_plan exists for today or not
+
     // Fetch all required data
-    const leadershipReport = await leadershipReportsCollection.findOne({ userId });
-    const existingLearningPlans = await learningPlansCollection.findOne({ userId });
-    const chats = await chatsCollection.findOne({ user_id: userId });
-    const teamMembers = await teamMembersCollection.find({ userId }).toArray();
-    const reflections = await reflectionsCollection.find({ userId }).toArray();
+    const leadershipReport = await leadershipReportsCollection.findOne({
+      userId,
+    });
+
+    const existingChat = await chatsCollection
+      .find({ user_id: userId })
+      .sort({ updated_at: -1 })
+      .toArray();
+    const existingRolePlayChat = await rolePlayChatCollection
+      .find({ user_id: userId })
+      .sort({ updated_at: -1 })
+      .toArray();
+    const teamMembers = await teamMembersCollection.find({ userId: userId }).toArray();
+    const reflections = await reflectionsCollection.find({ userId: userId }).toArray();
+    const existingLearningPlans = await learningPlansCollection
+      .find({ userId: userId })
+      .sort({ updated_at: -1 })
+      .toArray();
+
+    const mergedLearningPlan = existingLearningPlans?.reduce((acc, existingLearningPlan) => {
+      return acc.concat(existingLearningPlan?.learning_plan);
+    }, []);
 
     const past_learning_cards = [
-      ...(existingLearningPlans?.learning_plan || []),
+      ...(mergedLearningPlan || []),
       ...(leadershipReport?.assessment?.learning_plan || []),
     ];
 
-    const team_feedback = teamMembers.map((feedback) => feedback.feedbackData);
+    const mergedExistingChat = existingChat?.reduce((acc, chat) => {
+      return acc.concat(chat.chat_context);
+    }, []);
 
-    const coaching_history = chats?.chat_context || [];
+    const mergedExistingRolePlayChat = existingRolePlayChat?.reduce((acc, chat) => {
+      return acc.concat(chat?.chat_context);
+    }, []);
 
+    const team_feedback = teamMembers
+      .filter((member) => member.feedbackData !== undefined)
+      .map((member) => member.feedbackData);
+    const coaching_history = {
+      chat_context: [
+        ...(Array.isArray(mergedExistingChat) ? mergedExistingChat : []),
+        ...(Array.isArray(mergedExistingRolePlayChat) ? mergedExistingRolePlayChat : []),
+      ],
+    };
     const reflections_of_context = reflections.map((reflection) => ({
       content: reflection.content,
     }));
@@ -45,10 +105,11 @@ export const learningPlanController = async (req, res) => {
     );
 
     // Save the generated plan
-    const result = await learningPlansCollection.insertOne({
-      userId,
+    await learningPlansCollection.insertOne({
+      userId: userId,
       userEmail: req.user.email,
-      learning_plan: generatedPlan,
+      learning_plan: generatedPlan?.learningPlan,
+      ...(generatedPlan?.openAICollection || {}),
       created_at: new Date(),
       updated_at: new Date(),
     });
@@ -57,7 +118,6 @@ export const learningPlanController = async (req, res) => {
     const logMetadata = {
       userId,
       userEmail: req.user.email,
-      learningPlanId: result.insertedId,
       timestamp: new Date().toISOString(),
     };
 
@@ -66,7 +126,9 @@ export const learningPlanController = async (req, res) => {
 
     return res.status(200).json({
       status: 'OK',
-      data: generatedPlan,
+      data: {
+        learning_plan: generatedPlan?.learningPlan,
+      },
     });
   } catch (error) {
     console.error('Learning Plan Generation Error:', error);
@@ -111,12 +173,37 @@ export const learningPlanGetController = async (req, res) => {
     //   return acc;
     // }, []);
 
-    return res.status(200).json({
-      status: 'OK',
-      data: {
-        learning_plan: mergedLearningPlan,
-      },
-    });
+    if (plans.length === 1 && plans[0].coming_from_leadership_report) {
+      const now = new Date();
+      const startOfToday = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+      );
+      const endOfToday = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1),
+      );
+
+      const alreadyExistLearningPlan = await learningPlansCollection.findOne({
+        userId,
+        created_at: {
+          $gte: startOfToday,
+          $lt: endOfToday,
+        },
+      });
+      return res.status(200).json({
+        status: 'OK',
+        data: {
+          learning_plan: mergedLearningPlan,
+          coming_from_leadership_report: alreadyExistLearningPlan ? true : false,
+        },
+      });
+    } else {
+      return res.status(200).json({
+        status: 'OK',
+        data: {
+          learning_plan: mergedLearningPlan,
+        },
+      });
+    }
   } catch (error) {
     console.error('Get Learning Plan Error:', error);
     return res.status(400).json({

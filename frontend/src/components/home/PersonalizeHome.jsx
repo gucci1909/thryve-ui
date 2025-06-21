@@ -2,7 +2,11 @@
 import { useEffect, useState, memo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router";
-import { logout } from "../../store/userSlice";
+import {
+  logout,
+  updateCreateLoading,
+  updateLearningPlanDate,
+} from "../../store/userSlice";
 import { motion } from "framer-motion";
 import { FiBookmark } from "react-icons/fi";
 import { useDebounce } from "../hook/useDebounce";
@@ -10,11 +14,16 @@ import LearningPlanCard from "./PersonalizeHome/LearningPlanCard";
 import SinglePlanView from "./PersonalizeHome/SinglePlanView";
 import LoadingSpinner from "./PersonalizeHome/LoadingSpinner";
 import LeadershipReport from "./PersonalizeHome/LeadershipReport";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 function PersonalizeHomePage({ setPointAdded }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector((state) => state.user.token);
+  const pastLearningPlanDate = useSelector(
+    (state) => state.user.pastLearningPlanDate,
+  );
+  const createIsLoading = useSelector((state) => state.user.createIsLoading);
   const location = useLocation();
   const showLearningPlan = location.state?.showLearningPlan || false;
 
@@ -38,10 +47,12 @@ function PersonalizeHomePage({ setPointAdded }) {
   const [clickedCards, setClickedCards] = useState({});
   const [reactionLoading, setReactionLoading] = useState({});
   const [isClickedStates, setIsClickedStates] = useState({});
+
   const playerRefs = useRef({});
   const contentRef = useRef(null);
-
   const loaderRef = useRef(null);
+
+  const TODAY_DATE = new Date().toISOString().split("T")[0];
 
   const opts = {
     height: "100%",
@@ -102,6 +113,8 @@ function PersonalizeHomePage({ setPointAdded }) {
     }
     return null;
   };
+
+  console.log({ c: createIsLoading });
 
   const getYouTubeThumbnail = (url) => {
     const videoId = getYouTubeVideoId(url);
@@ -451,10 +464,55 @@ function PersonalizeHomePage({ setPointAdded }) {
     }
   };
 
+  const handleAddMoreLearningPlan = async () => {
+    try {
+      if (!createIsLoading) {
+        dispatch(updateCreateLoading(true));
+        const newLearningPlan = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/personalizeLearning/create-learning-plan`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        const statusCode = newLearningPlan.status;
+        if (statusCode === 401) {
+          dispatch(logout());
+          navigate("/");
+          return;
+        }
+
+        const learningPlanData = await newLearningPlan.json();
+
+        setLearningData((prev) => ({
+          ...prev,
+          learning_plan: [
+            ...(learningPlanData?.data?.learning_plan || []),
+            ...(prev.learning_plan || []),
+          ],
+        }));
+
+        dispatch(updateLearningPlanDate(TODAY_DATE));
+        dispatch(updateCreateLoading(false));
+      }
+    } catch (error) {
+      dispatch(updateCreateLoading(false));
+      console.error(
+        "Error fetching leadership report and learning Plan:",
+        error,
+      );
+    }
+  };
+
   useEffect(() => {
     const fetchLeadershipReportAndLearningPlan = async () => {
       try {
         setLoading(true);
+
         const learningPlanResponse = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/personalizeLearning/learning-plans`,
           {
@@ -496,6 +554,13 @@ function PersonalizeHomePage({ setPointAdded }) {
         setLearningData(learningPlanData.data);
 
         setLoading(false);
+
+        if (
+          pastLearningPlanDate !== TODAY_DATE &&
+          !learningPlanData?.data?.coming_from_leadership_report
+        ) {
+          await handleAddMoreLearningPlan();
+        }
       } catch (error) {
         console.error(
           "Error fetching leadership report and learning Plan:",
@@ -511,7 +576,7 @@ function PersonalizeHomePage({ setPointAdded }) {
     }
   }, [token]);
 
-  const visibleItems = learningData?.learning_plan?.slice(0, visibleCount);
+  let visibleItems = learningData?.learning_plan?.slice(0, visibleCount);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -533,7 +598,7 @@ function PersonalizeHomePage({ setPointAdded }) {
       {
         root: null,
         rootMargin: "0px",
-        threshold: 0.1, // Trigger when 10% of the element is visible
+        threshold: 0.1,
       },
     );
 
@@ -572,7 +637,10 @@ function PersonalizeHomePage({ setPointAdded }) {
   }
 
   return (
-    <main className="flex-1 overflow-y-auto px-[12px] pb-[50px]" ref={contentRef}>
+    <main
+      className="flex-1 overflow-y-auto px-[12px] pb-[50px]"
+      ref={contentRef}
+    >
       {activeActionView === "single_feed" ? (
         <>
           <SinglePlanView
@@ -650,6 +718,23 @@ function PersonalizeHomePage({ setPointAdded }) {
                 <span className="mx-auto mt-2 mb-4 block h-1 w-16 rounded-full bg-[var(--primary-color)]"></span>
               </h2>
             </div>
+            {createIsLoading && (
+              <div className="mb-2 flex w-full flex-col items-center justify-center gap-6">
+                <div className="relative h-35 w-35">
+                  <div className="absolute inset-0 animate-[spin_1.5s_linear_infinite] rounded-full border-4 border-transparent border-t-[#0029ff] border-r-[#0029ff]"></div>
+                  <div className="absolute inset-4 h-30 w-30 animate-[pulse_2s_ease-in-out_infinite] rounded-full opacity-20">
+                    <DotLottieReact
+                      src="https://lottie.host/5b099e98-f82f-406d-a8f7-82e726dfbd25/F7h1juBAV4.lottie"
+                      loop
+                      autoplay
+                    />
+                  </div>
+                </div>
+                <p className="text-md font-medium text-gray-700">
+                  Generating New Learning Plans...
+                </p>
+              </div>
+            )}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {visibleItems?.filter((plan) => !showSavedOnly || plan.saved)
                 ?.length === 0 &&

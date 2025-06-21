@@ -8,6 +8,9 @@ const initialState = {
   reportData: JSON.parse(localStorage.getItem("reportData")) || null,
   personalize: JSON.parse(localStorage.getItem("personalize")) || null,
   companyCode: JSON.parse(localStorage.getItem("companyCode")) || null,
+  pastLearningPlanDate:
+    JSON.parse(localStorage.getItem("pastLearningPlanDate")) || null,
+  createIsLoading: false,
   points: parseInt(localStorage.getItem("points")) || 0,
   chatMode: "none",
 };
@@ -23,7 +26,7 @@ const userSlice = createSlice({
       state.firstName = action.payload.firstName;
       state.personalize = action.payload.personalized;
       state.points = action.payload.points || 0;
-      state.chatMode = 'none';
+      state.chatMode = "none";
 
       localStorage.setItem("token", action.payload.token);
       localStorage.setItem("_id", JSON.stringify(action.payload._id));
@@ -55,10 +58,14 @@ const userSlice = createSlice({
       localStorage.removeItem("reportData");
       localStorage.removeItem("personalize");
       localStorage.removeItem("points");
+      localStorage.removeItem("pastLearningPlanDate");
     },
     updatePoints: (state, action) => {
       state.points = action.payload;
       localStorage.setItem("points", action.payload);
+    },
+    updateCreateLoading: (state, action) => {
+      state.createIsLoading = action.payload;
     },
     reportDatafunc: (state, action) => {
       state.reportData = action.payload;
@@ -71,6 +78,13 @@ const userSlice = createSlice({
       state.companyCode = action.payload;
       localStorage.setItem("companyCode", JSON.stringify(action.payload));
     },
+    updateLearningPlanDate: (state, action) => {
+      state.pastLearningPlanDate = action.payload;
+      localStorage.setItem(
+        "pastLearningPlanDate",
+        JSON.stringify(action.payload),
+      );
+    },
     updateProfile: (state, action) => {
       state.profile = action.payload;
     },
@@ -80,13 +94,15 @@ const userSlice = createSlice({
   },
 });
 
-export const { 
-  login, 
-  logout, 
-  updateProfile, 
-  reportDatafunc, 
+export const {
+  login,
+  logout,
+  updateProfile,
+  reportDatafunc,
   updateCompanyCode,
   updatePoints,
-  setChatMode
+  setChatMode,
+  updateLearningPlanDate,
+  updateCreateLoading,
 } = userSlice.actions;
 export default userSlice.reducer;

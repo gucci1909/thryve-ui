@@ -18,8 +18,6 @@ export const leadershipReportControllers = async (req, res) => {
     // 2. Generate leadership assessment
     const leadershipAssessment = await generateLeadershipAssessment(req.body?.formData, req);
 
-    console.dir(leadershipAssessment, { depth: null, colors: true });
-
     // 3. Destructure learning_plan from assessment
     const { learning_plan, ...restOfAssessment } = leadershipAssessment?.outputJson;
 
@@ -31,8 +29,8 @@ export const leadershipReportControllers = async (req, res) => {
         learning_plan: learning_plan,
         coming_from_leadership_report: true,
         ...(leadershipAssessment?.openAICollection || {}),
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
       });
     }
 

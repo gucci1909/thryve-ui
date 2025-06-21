@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.use(apiLimiter, authenticate);
 
-router.post('/learning-plan', learningPlanController);
+router.post('/create-learning-plan', learningPlanController);
 
 router.get('/learning-plans', learningPlanGetController);
 
