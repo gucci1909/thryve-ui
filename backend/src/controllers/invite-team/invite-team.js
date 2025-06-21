@@ -462,6 +462,27 @@ export const addTeamMembers = async (req, res) => {
       createdAt: new Date(),
       updatedAt: new Date(),
     }));
+    
+    const emailsToInsert = feedbackRequests.map((member) => member.email);
+
+    // Query existing emails in DB for same company
+    const existingMembers = await teamMembersCollection
+      .find({
+        email: { $in: emailsToInsert },
+        companyCode: companyCode,
+      })
+      .toArray();
+
+    if (existingMembers.length > 0) {
+      const duplicateEmails = existingMembers.map((member) => member.email);
+      return res.status(409).json({
+        status: 'Not OK',
+        error: "Duplicate email(s) detected. Please remove the already registered email addresses before submitting.",
+        duplicates: duplicateEmails,
+      });
+    }
+
+    // end duplicate email ids
 
     // Insert all team members
     const result = await teamMembersCollection.insertMany(teamMemberDocuments);
