@@ -108,6 +108,24 @@ function AllRoutes() {
           />
 
           <Route
+            path="/personalize-add-team-members"
+            element={
+              <PrivateRoute>
+                <PersonalizeHome />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/personalize-send-mail-to-existing-team-members"
+            element={
+              <PrivateRoute>
+                <PersonalizeHome />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
             path="/personalize-home"
             element={
               <PrivateRoute>

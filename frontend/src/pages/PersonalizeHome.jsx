@@ -9,6 +9,8 @@ import CheckIn from "../components/home/CheckIn";
 import PersonalizeDashboard from "../components/home/PersonalizeDashboard";
 import ChangePassword from "../components/home/ChangePassword";
 import SavedPost from "../components/home/SavedPost";
+import AddTeamMembers from "../components/home/AddTeamMembers";
+import SendMailToExistingTeamMembers from "../components/home/SendMailToExistingTeamMembers";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -48,6 +50,12 @@ export default function PersonalizeHome() {
       {location.pathname === "/personalize-saved-post" && <SavedPost />}
       {location.pathname === "/personalize-change-password" && (
         <ChangePassword />
+      )}
+      {location.pathname === "/personalize-add-team-members" && (
+        <AddTeamMembers />
+      )}
+      {location.pathname === "/personalize-send-mail-to-existing-team-members" && (
+        <SendMailToExistingTeamMembers />
       )}
       {location.pathname === "/personalize-chat-box" && (
         <ChatBox

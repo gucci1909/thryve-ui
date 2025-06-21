@@ -689,3 +689,131 @@ export const saveFeedbackData = async (req, res) => {
     });
   }
 };
+
+export const getExistingTeamMembers = async (req, res) => {
+  try {
+    const db = getDb();
+    const teamMembersCollection = db.collection('team_members');
+
+    // Get all team members for the current user
+    const teamMembers = await teamMembersCollection
+      .find({ userId: req.user.id })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    return res.status(200).json({
+      status: 'OK',
+      data: {
+        teamMembers: teamMembers.map(member => ({
+          _id: member._id,
+          name: member.name,
+          email: member.email,
+          status: member.status,
+          assessment: member.assessment,
+          createdAt: member.createdAt,
+          updatedAt: member.updatedAt,
+        })),
+      },
+    });
+  } catch (error) {
+    console.error('Get Existing Team Members Error:', error);
+    return res.status(500).json({
+      status: 'Not OK',
+      error: 'Failed to fetch team members',
+    });
+  }
+};
+
+export const resendEmailsToTeamMembers = async (req, res) => {
+  try {
+    const { teamMemberIds } = req.body;
+
+    if (!teamMemberIds || !Array.isArray(teamMemberIds) || teamMemberIds.length === 0) {
+      return res.status(400).json({
+        status: 'Not OK',
+        error: 'Team member IDs are required',
+      });
+    }
+
+    const db = getDb();
+    const teamMembersCollection = db.collection('team_members');
+    const companiesCollection = db.collection('companies');
+
+    // Get team members by IDs
+    const teamMembers = await teamMembersCollection
+      .find({
+        _id: { $in: teamMemberIds.map(id => new ObjectId(id)) },
+        userId: req.user.id,
+      })
+      .toArray();
+
+    if (teamMembers.length === 0) {
+      return res.status(404).json({
+        status: 'Not OK',
+        error: 'No team members found',
+      });
+    }
+
+    // Get company details (assuming all team members belong to the same company)
+    const company = await companiesCollection.findOne({ INVITE_CODE: teamMembers[0].companyCode });
+
+    if (!company) {
+      return res.status(404).json({
+        status: 'Not OK',
+        error: 'Company not found',
+      });
+    }
+
+    // Resend emails to selected team members
+    const emailPromises = teamMembers.map(async (teamMember) => {
+      const emailTemplate = generateEmailTemplate(teamMember, req.user, company);
+      const emailResult = await sendEmail(
+        { name: teamMember.name, email: teamMember.email },
+        'Help Your Manager Grow – Share Feedback via Thryve',
+        emailTemplate,
+      );
+
+      // Update team member status based on email sending result
+      if (emailResult.success) {
+        await teamMembersCollection.updateOne(
+          { _id: teamMember._id },
+          { $set: { status: 'email_sent', updatedAt: new Date() } },
+        );
+      } else {
+        await teamMembersCollection.updateOne(
+          { _id: teamMember._id },
+          { $set: { status: 'email_failed', updatedAt: new Date() } },
+        );
+      }
+
+      return {
+        teamMemberId: teamMember._id,
+        email: teamMember.email,
+        success: emailResult.success,
+      };
+    });
+
+    // Wait for all emails to be sent
+    const emailResults = await Promise.all(emailPromises);
+
+    const successfulEmails = emailResults.filter(result => result.success);
+    const failedEmails = emailResults.filter(result => !result.success);
+
+    return res.status(200).json({
+      status: 'OK',
+      data: {
+        totalSent: emailResults.length,
+        successful: successfulEmails.length,
+        failed: failedEmails.length,
+        emailResults,
+      },
+      message: `Successfully sent ${successfulEmails.length} out of ${emailResults.length} emails`,
+    });
+  } catch (error) {
+    console.error('Resend Emails Error:', error);
+    return res.status(500).json({
+      status: 'Not OK',
+      error: 'Failed to resend emails',
+    });
+  }
+};
