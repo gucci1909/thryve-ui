@@ -13,6 +13,7 @@ import AddTeamMembers from "../components/home/AddTeamMembers";
 import SendMailToExistingTeamMembers from "../components/home/SendMailToExistingTeamMembers";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Toaster } from "react-hot-toast";
 
 export default function PersonalizeHome() {
   const location = useLocation();
@@ -54,15 +55,43 @@ export default function PersonalizeHome() {
       {location.pathname === "/personalize-add-team-members" && (
         <AddTeamMembers />
       )}
-      {location.pathname === "/personalize-send-mail-to-existing-team-members" && (
+      {location.pathname ===
+        "/personalize-send-mail-to-existing-team-members" && (
         <SendMailToExistingTeamMembers />
       )}
       {location.pathname === "/personalize-chat-box" && (
-        <ChatBox
-          pointAdded={pointAdded}
-          setPointAdded={setPointAdded}
-        />
+        <ChatBox pointAdded={pointAdded} setPointAdded={setPointAdded} />
       )}
+
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 2000,
+          style: {
+            background: "#fff",
+            color: "#333",
+            border: "1px solid #e5e7eb",
+            borderRadius: "8px",
+            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+          },
+          success: {
+            iconTheme: {
+              primary: "#0029ff",
+              secondary: "#fff",
+            },
+            style: {
+              border: "1px solid #0029ff",
+              background: "#f0f4ff",
+            },
+          },
+          error: {
+            duration: 0, // Disable error toasts
+          },
+          loading: {
+            duration: 0, // Disable loading toasts
+          },
+        }}
+      />
 
       <AnimatePresence>
         {!isChatView && (

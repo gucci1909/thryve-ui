@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, memo, useRef } from "react";
+import { useEffect, useState, memo, useRef, use } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router";
 import {
@@ -10,6 +10,7 @@ import {
 import { motion } from "framer-motion";
 import { FiBookmark } from "react-icons/fi";
 import { useDebounce } from "../hook/useDebounce";
+import { showSuccessToast, showInfoToast } from "../../utils/toast";
 import LearningPlanCard from "./PersonalizeHome/LearningPlanCard";
 import SinglePlanView from "./PersonalizeHome/SinglePlanView";
 import LoadingSpinner from "./PersonalizeHome/LoadingSpinner";
@@ -28,7 +29,6 @@ function PersonalizeHomePage({ setPointAdded }) {
   const showLearningPlan = location.state?.showLearningPlan || false;
 
   const [visibleCount, setVisibleCount] = useState(4);
-  const [savedVisibleCount, setSavedVisibleCount] = useState(4);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showSavedOnly, setShowSavedOnly] = useState(false);
 
@@ -113,8 +113,6 @@ function PersonalizeHomePage({ setPointAdded }) {
     }
     return null;
   };
-
-  console.log({ c: createIsLoading });
 
   const getYouTubeThumbnail = (url) => {
     const videoId = getYouTubeVideoId(url);
@@ -468,6 +466,7 @@ function PersonalizeHomePage({ setPointAdded }) {
     try {
       if (!createIsLoading) {
         dispatch(updateCreateLoading(true));
+
         const newLearningPlan = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/personalizeLearning/create-learning-plan`,
           {
@@ -487,6 +486,13 @@ function PersonalizeHomePage({ setPointAdded }) {
         }
 
         const learningPlanData = await newLearningPlan.json();
+        dispatch(updateLearningPlanDate(TODAY_DATE));
+        dispatch(updateCreateLoading(false));
+
+        if (learningPlanData?.data?.already_exists) {
+          showInfoToast(learningPlanData?.data?.already_exists);
+          return;
+        }
 
         setLearningData((prev) => ({
           ...prev,
@@ -496,8 +502,9 @@ function PersonalizeHomePage({ setPointAdded }) {
           ],
         }));
 
-        dispatch(updateLearningPlanDate(TODAY_DATE));
-        dispatch(updateCreateLoading(false));
+        await fetchLeadershipReportAndLearningPlan();
+
+        showSuccessToast("Your feed has been updated with new learning plans!");
       }
     } catch (error) {
       dispatch(updateCreateLoading(false));
@@ -508,13 +515,24 @@ function PersonalizeHomePage({ setPointAdded }) {
     }
   };
 
-  useEffect(() => {
-    const fetchLeadershipReportAndLearningPlan = async () => {
-      try {
-        setLoading(true);
+  const fetchLeadershipReportAndLearningPlan = async () => {
+    try {
+      setLoading(true);
 
-        const learningPlanResponse = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/personalizeLearning/learning-plans`,
+      const learningPlanResponse = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/personalizeLearning/learning-plans`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (showLearningPlan) {
+        const leaderShipReportResponse = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/onboarding/leadership-report`,
           {
             method: "GET",
             headers: {
@@ -523,54 +541,47 @@ function PersonalizeHomePage({ setPointAdded }) {
             },
           },
         );
-
-        if (showLearningPlan) {
-          const leaderShipReportResponse = await fetch(
-            `${import.meta.env.VITE_API_BASE_URL}/onboarding/leadership-report`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-            },
-          );
-          const data = await leaderShipReportResponse.json();
-          setReportData(data.data);
-        }
-
-        const statusCode = learningPlanResponse.status;
-        if (statusCode === 401) {
-          dispatch(logout());
-          navigate("/");
-          return;
-        }
-
-        if (!learningPlanResponse.ok) {
-          throw new Error("Failed to fetch learning Plans");
-        }
-
-        const learningPlanData = await learningPlanResponse.json();
-        setLearningData(learningPlanData.data);
-
-        setLoading(false);
-
-        if (
-          pastLearningPlanDate !== TODAY_DATE &&
-          !learningPlanData?.data?.coming_from_leadership_report
-        ) {
-          await handleAddMoreLearningPlan();
-        }
-      } catch (error) {
-        console.error(
-          "Error fetching leadership report and learning Plan:",
-          error,
-        );
-        setError(error.message);
-        setLoading(false);
+        const data = await leaderShipReportResponse.json();
+        setReportData(data.data);
       }
-    };
 
+      const statusCode = learningPlanResponse.status;
+      if (statusCode === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
+
+      if (!learningPlanResponse.ok) {
+        throw new Error("Failed to fetch learning Plans");
+      }
+
+      const learningPlanData = await learningPlanResponse.json();
+      setLearningData(learningPlanData.data);
+
+      setLoading(false);
+
+      if (
+        pastLearningPlanDate !== TODAY_DATE &&
+        !learningPlanData?.data?.coming_from_leadership_report
+      ) {
+        await handleAddMoreLearningPlan();
+      }
+    } catch (error) {
+      console.error(
+        "Error fetching leadership report and learning Plan:",
+        error,
+      );
+      setError(error.message);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    dispatch(updateCreateLoading(false));
+  }, []);
+
+  useEffect(() => {
     if (token) {
       fetchLeadershipReportAndLearningPlan();
     }
