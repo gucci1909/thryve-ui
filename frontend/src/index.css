@@ -111,6 +111,14 @@
   }
 }
 
+.apexcharts-tooltip.apexcharts-theme-light .apexcharts-tooltip-title {
+  background-color: #0029ff !important;
+  background: #0029ff !important;
+  /* margin: auto; */
+  /* align-items: center; */
+  text-align: center;
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;

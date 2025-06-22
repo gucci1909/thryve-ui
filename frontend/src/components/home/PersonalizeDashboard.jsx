@@ -6,6 +6,8 @@ import { logout } from "../../store/userSlice";
 import SwotAnalysis from "../common/SwotAnalysis";
 import { motion } from "framer-motion";
 import { FaFire } from "react-icons/fa";
+import LeadershipAssessmentScores from "./LeadershipAssessmentScores";
+import NPSScores from "./NPSScores";
 
 function PersonalizeDashboard() {
   const [reportData, setReportData] = useState(null);
@@ -426,6 +428,12 @@ function PersonalizeDashboard() {
               toggleSection={toggleSection}
             />
           </motion.div>
+
+          {/* Leadership Assessment Scores */}
+          <LeadershipAssessmentScores />
+
+          {/* NPS Scores */}
+          <NPSScores />
         </>
 
     </main>
