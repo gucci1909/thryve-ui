@@ -48,45 +48,27 @@ async function generateTeamAndManagerInsights(managerScores, teamScores, req = n
     }
 
     const outputText = data.choices[0].message.content;
-    let outputJson;
-
-    try {
-      const jsonMatch = outputText.match(/```json\n([\s\S]*?)\n```/);
-      const parsableText = jsonMatch ? jsonMatch[1] : outputText;
-      outputJson = JSON.parse(parsableText);
-    } catch (error) {
-      console.error('Failed to parse JSON:', error);
-
-      logger.logOpenAICall(req, {
-        model: 'gpt-4',
-        userInput: 'Team and Manager insights generation request',
-        systemPrompt,
-        response: outputText,
-        error: new Error('Invalid JSON format in response'),
-        responseTime: openAIResponseTime,
-        chatType: 'TEAM_MANAGER_INSIGHTS',
-        tokensUsed: data.usage?.total_tokens,
-        completionToken: data.usage?.completion_tokens,
-        promptToken: data.usage?.prompt_tokens,
-      });
-
-      throw new Error('Invalid JSON format in response');
-    }
 
     logger.logOpenAICall(req, {
       model: 'gpt-4',
       userInput: 'Team and Manager insights generation request',
       systemPrompt,
-      response: JSON.stringify(outputJson),
+      response: outputText,
       responseTime: openAIResponseTime,
       chatType: 'TEAM_MANAGER_INSIGHTS',
       tokensUsed: data.usage?.total_tokens,
       completionToken: data.usage?.completion_tokens,
       promptToken: data.usage?.prompt_tokens,
     });
-    
-    return outputJson;
 
+    const openAICollection = {
+      tokensUsed: data?.usage?.total_tokens || 0,
+      completionToken: data?.usage?.completion_tokens || 0,
+      promptToken: data?.usage?.prompt_tokens || 0,
+      responseTimeMs: openAIResponseTime || 0,
+    };
+
+    return { outputText, openAICollection };
   } catch (error) {
     console.error('Error generating team and manager insights:', error.message);
 
@@ -105,4 +87,4 @@ async function generateTeamAndManagerInsights(managerScores, teamScores, req = n
   }
 }
 
-export default generateTeamAndManagerInsights; 
+export default generateTeamAndManagerInsights;

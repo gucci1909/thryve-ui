@@ -7,6 +7,7 @@ export const createAndGetInsightsOfTeamAndManager = async (req, res) => {
     const db = getDb();
     const leadershipReportInfoCollections = db.collection('leadership-report-info');
     const teamMembersCollection = db.collection('team-members');
+    const managerAndTeamInsightsCollections = db.collection('insights');
 
     const leadershipReport = await leadershipReportInfoCollections.findOne({ userId });
 
@@ -23,29 +24,64 @@ export const createAndGetInsightsOfTeamAndManager = async (req, res) => {
       });
     }
 
-    const feedback_ratings_team_members = teamMembers
-      .filter((member) => member?.feedbackData?.ratingQuestions?.length > 0)
-      .map((member, index) => ({
-        teamMember: `team-member-${index + 1}`,
-        ratingQuestions: member.feedbackData?.ratingQuestions?.map((question) => ({
-          category: question?.category,
-          text: question?.text,
-          response: question?.response,
-        })),
-      }));
+    const managerAndTeamInsights = await managerAndTeamInsightsCollections.findOne({ userId });
 
-    const feedback_ratings_manager = leadershipReport?.fullReport?.leadershipInfo || {};
+    if (
+      !managerAndTeamInsights ||
+      managerAndTeamInsights.teamMembersLength !== teamMembers.length
+    ) {
+      const feedback_ratings_team_members = teamMembers
+        .filter((member) => member?.feedbackData?.ratingQuestions?.length > 0)
+        .map((member, index) => ({
+          teamMember: `team-member-${index + 1}`,
+          ratingQuestions: member.feedbackData?.ratingQuestions?.map((question) => ({
+            category: question?.category,
+            text: question?.text,
+            response: question?.response,
+          })),
+        }));
 
-    const insights = await generateTeamAndManagerInsights(
-      feedback_ratings_manager,
-      feedback_ratings_team_members,
-      req,
-    );
+      const feedback_ratings_manager = leadershipReport?.fullReport?.leadershipInfo || {};
 
-    return res.status(200).json({
-      status: 'OK',
-      insights: insights,
-    });
+      const insights = await generateTeamAndManagerInsights(
+        feedback_ratings_manager,
+        feedback_ratings_team_members,
+        req,
+      );
+
+      const parsedInsights = JSON.parse(insights?.outputText);
+      const now = new Date();
+
+      await managerAndTeamInsightsCollections.updateOne(
+        { userId },
+        {
+          $set: {
+            userId,
+            insightsFromTeamToManager: parsedInsights?.insightsFromTeamToManager,
+            managerInsights: parsedInsights?.managerInsights,
+            ...(insights?.openAICollection || {}),
+            teamMembersLength: teamMembers.length,
+            updatedAt: now,
+          },
+          $setOnInsert: {
+            createdAt: now,
+          },
+        },
+        { upsert: true },
+      );
+
+      return res.status(200).json({
+        status: 'OK',
+        insightsFromTeamToManager: parsedInsights?.insightsFromTeamToManager,
+        managerInsights: parsedInsights?.managerInsights,
+      });
+    } else {
+      return res.status(200).json({
+        status: 'OK',
+        insightsFromTeamToManager: managerAndTeamInsights.insightsFromTeamToManager,
+        managerInsights: managerAndTeamInsights?.managerInsights,
+      });
+    }
   } catch (error) {
     console.error('Create And Get Insights Of Team And Manager Failed:', error);
     return res.status(500).json({

@@ -5,47 +5,22 @@ import { BorderBeam } from "../magicui/border-beam";
 import { logout } from "../../store/userSlice";
 import SwotAnalysis from "../common/SwotAnalysis";
 import { motion } from "framer-motion";
-import {
-  FiArrowLeft,
-  FiBookmark,
-  FiEdit,
-  FiEdit2,
-  FiCheck,
-  FiX,
-  FiPlay,
-  FiTrash2,
-  FiFileText,
-} from "react-icons/fi";
-import { FaFire, FaCalendarAlt, FaTrophy, FaBolt } from "react-icons/fa";
-import YouTube from "react-youtube";
-import { useDebounce } from "../hook/useDebounce";
-import { useCookies } from "react-cookie";
+import { FaFire } from "react-icons/fa";
 
 function PersonalizeDashboard() {
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeVideo, setActiveVideo] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [cookies, setCookie, removeCookie] = useCookies(["authToken"]);
-  const [activeActionView, setActiveActionView] = useState(null);
-  const [singlePlan, setSinglePlan] = useState({});
-  const [note, setNote] = useState("");
-  const [showNoteInput, setShowNoteInput] = useState(false);
-  const [isEditingNote, setIsEditingNote] = useState(false);
-  const [editedNote, setEditedNote] = useState("");
   const [expandedSections, setExpandedSections] = useState({
     strengths: true,
     weaknesses: true,
     opportunities: true,
     threats: true,
   });
-  const [clickedCards, setClickedCards] = useState({});
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector((state) => state.user.token);
-  const firstName = useSelector((state) => state.user.firstName);
   const points = useSelector((state) => state.user.points);
   const streakDays = Math.floor(points / 20);
   const pointsNeeded = 20 - (points % 20);
@@ -65,239 +40,12 @@ function PersonalizeDashboard() {
       },
     },
   };
-
-  const getYouTubeVideoId = (url) => {
-    if (!url) return null;
-    const regExp =
-      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return match && match[2].length === 11 ? match[2] : null;
-  };
-
-  const getYouTubeThumbnail = (url) => {
-    const videoId = getYouTubeVideoId(url);
-    if (!videoId)
-      return "https://placehold.co/600x400/png?text=Video+Thumbnail";
-    return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
-  };
-
-  const opts = {
-    height: "100%",
-    width: "100%",
-    playerVars: {
-      autoplay: 1,
-      modestbranding: 1,
-      rel: 0,
-      controls: 1,
-      origin: window.location.origin,
-      enablejsapi: 1,
-    },
-  };
-
+  
   const toggleSection = (section) => {
     setExpandedSections((prev) => ({
       ...prev,
       [section]: !prev[section],
     }));
-  };
-
-  const handleVideoClick = (index) => {
-    setActiveVideo(activeVideo === index ? null : index);
-  };
-
-  const handleActionViewClick = (action_view, plan) => {
-    setActiveActionView(action_view);
-    setSinglePlan(plan);
-    setShowNoteInput(false);
-    setNote("");
-  };
-
-  const addNote = async (title, noteText) => {
-    if (!noteText.trim()) return;
-
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/feed/add-notes`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ title, note: noteText }),
-        },
-      );
-
-      if (response.status === 401) {
-        removeCookie("authToken", { path: "/" });
-        dispatch(logout());
-        navigate("/");
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error("Failed to add note");
-      }
-
-      setReportData((prev) => ({
-        ...prev,
-        learning_plan: prev.learning_plan.map((plan) =>
-          plan.title === title
-            ? {
-                ...plan,
-                notes: [noteText],
-              }
-            : plan,
-        ),
-      }));
-
-      setSinglePlan((prev) => ({
-        ...prev,
-        notes: [noteText],
-      }));
-
-      setNote("");
-      setShowNoteInput(false);
-    } catch (error) {
-      console.error("Error adding note:", error);
-    }
-  };
-
-  const handleSaveStatus = async (title, saved) => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/feed/change-status-saved`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ title, saved }),
-        },
-      );
-
-      if (response.status === 401) {
-        removeCookie("authToken", { path: "/" });
-        dispatch(logout());
-        navigate("/");
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error("Failed to update save status");
-      }
-
-      setReportData((prev) => ({
-        ...prev,
-        learning_plan: prev.learning_plan.map((plan) =>
-          plan.title === title ? { ...plan, saved } : plan,
-        ),
-      }));
-
-      setSinglePlan((prev) => ({
-        ...prev,
-        saved: saved,
-      }));
-    } catch (error) {
-      console.error("Error updating save status:", error);
-    }
-  };
-
-  const handleEditNote = async (title, updatedNote) => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/feed/edit-note`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ title, updatedNote }),
-        },
-      );
-
-      if (response.status === 401) {
-        removeCookie("authToken", { path: "/" });
-        dispatch(logout());
-        navigate("/");
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error("Failed to edit note");
-      }
-
-      setReportData((prev) => ({
-        ...prev,
-        learning_plan: prev.learning_plan.map((plan) =>
-          plan.title === title
-            ? {
-                ...plan,
-                notes: [updatedNote],
-              }
-            : plan,
-        ),
-      }));
-
-      setSinglePlan((prev) => ({
-        ...prev,
-        notes: [updatedNote],
-      }));
-
-      setIsEditingNote(false);
-    } catch (error) {
-      console.error("Error editing note:", error);
-    }
-  };
-
-  const handleDeleteNote = async (title) => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/feed/delete-note`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ title }),
-        },
-      );
-
-      if (response.status === 401) {
-        removeCookie("authToken", { path: "/" });
-        dispatch(logout());
-        navigate("/");
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error("Failed to delete note");
-      }
-
-      setReportData((prev) => ({
-        ...prev,
-        learning_plan: prev.learning_plan.map((plan) =>
-          plan.title === title
-            ? {
-                ...plan,
-                notes: [],
-              }
-            : plan,
-        ),
-      }));
-
-      setSinglePlan((prev) => ({
-        ...prev,
-        notes: [],
-      }));
-
-      setShowNoteInput(false);
-    } catch (error) {
-      console.error("Error deleting note:", error);
-    }
   };
 
   useEffect(() => {
@@ -317,7 +65,6 @@ function PersonalizeDashboard() {
 
         const statusCode = response.status;
         if (statusCode === 401) {
-          removeCookie("authToken", { path: "/" });
           dispatch(logout());
           navigate("/");
           return;
@@ -341,16 +88,6 @@ function PersonalizeDashboard() {
       fetchLeadershipReport();
     }
   }, [token]);
-
-  // Create debounced function with 500ms delay
-  const debouncedAddNote = useDebounce(addNote, 500);
-
-  // Handle textarea changes
-  const handleNoteChange = (e) => {
-    const newNote = e.target.value;
-    setNote(newNote);
-    debouncedAddNote(singlePlan.title, newNote);
-  };
 
   if (loading) {
     return (
@@ -376,177 +113,6 @@ function PersonalizeDashboard() {
 
   return (
     <main className="mt-4 flex-1 overflow-y-auto px-5 pb-24">
-      {activeActionView === "single_feed" ? (
-        <motion.div className="relative rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <button
-            onClick={() => handleActionViewClick(null, {})}
-            className="absolute top-6 left-6 flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-200"
-          >
-            <FiArrowLeft className="h-4 w-4" />
-            Back
-          </button>
-
-          <div className="mt-10">
-            <div className="flex items-center justify-between">
-              <h3 className="text-2xl font-bold text-[#0029ff]">
-                {singlePlan.title}
-              </h3>
-              <button
-                onClick={() =>
-                  handleSaveStatus(singlePlan.title, !singlePlan.saved)
-                }
-                className="flex items-center gap-1 rounded-full bg-gray-100 p-2 text-[#0029ff] hover:bg-gray-200"
-              >
-                <FiBookmark
-                  className={`h-5 w-5 ${singlePlan.saved ? "fill-current" : ""}`}
-                />
-              </button>
-            </div>
-            <p className="mt-3 text-gray-600">{singlePlan.content}</p>
-
-            {/* Video Player */}
-            <div className="relative mt-6 overflow-hidden rounded-lg border border-gray-200">
-              {isPlaying ? (
-                <div className="aspect-video w-full">
-                  <YouTube
-                    videoId={getYouTubeVideoId(singlePlan.video)}
-                    opts={opts}
-                    className="h-full w-full"
-                    onError={(e) => console.error("YouTube Error:", e)}
-                  />
-                </div>
-              ) : (
-                <div
-                  className="relative aspect-video w-full cursor-pointer"
-                  onClick={() => setIsPlaying(true)}
-                >
-                  <img
-                    src={getYouTubeThumbnail(singlePlan.video)}
-                    alt={singlePlan.title}
-                    className="h-full w-full object-cover opacity-90 transition-opacity duration-300 hover:opacity-100"
-                    onError={(e) => {
-                      e.target.src =
-                        "https://placehold.co/600x400/png?text=Video+Thumbnail";
-                    }}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                    <FiPlay className="h-10 w-10 text-white" />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Notes Section */}
-            {singlePlan.notes?.length > 0 ? (
-              <motion.div
-                className="mt-6"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              >
-                <div className="mb-2 flex items-center justify-between">
-                  <h4 className="text-sm font-semibold text-gray-700">
-                    Your Note
-                  </h4>
-                  <div className="flex items-center gap-2">
-                    {!isEditingNote ? (
-                      <>
-                        <button
-                          onClick={() => {
-                            setIsEditingNote(true);
-                            setEditedNote(singlePlan.notes[0]);
-                          }}
-                          className="rounded-full p-1.5 text-blue-600 transition-colors hover:bg-blue-50"
-                          title="Edit note"
-                        >
-                          <FiEdit2 className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteNote(singlePlan.title)}
-                          className="rounded-full p-1.5 text-red-500 transition-colors hover:bg-red-50"
-                          title="Delete note"
-                        >
-                          <FiTrash2 className="h-4 w-4" />
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() =>
-                            handleEditNote(singlePlan.title, editedNote)
-                          }
-                          className="rounded-full p-1.5 text-green-600 transition-colors hover:bg-green-50"
-                          title="Save changes"
-                        >
-                          <FiCheck className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setIsEditingNote(false);
-                            setEditedNote("");
-                          }}
-                          className="rounded-full p-1.5 text-gray-500 transition-colors hover:bg-gray-50"
-                          title="Cancel editing"
-                        >
-                          <FiX className="h-4 w-4" />
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-                <motion.div
-                  className="rounded-lg bg-gray-50 p-4"
-                  initial={{ scale: 0.95 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                >
-                  {isEditingNote ? (
-                    <textarea
-                      value={editedNote}
-                      onChange={(e) => setEditedNote(e.target.value)}
-                      className="w-full rounded-md border border-gray-200 bg-white p-2 text-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                      rows={3}
-                    />
-                  ) : (
-                    <p className="text-gray-700">{singlePlan.notes[0]}</p>
-                  )}
-                </motion.div>
-              </motion.div>
-            ) : showNoteInput ? (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                className="mt-6"
-              >
-                <h4 className="mb-2 text-sm font-semibold text-gray-700">
-                  Add Note
-                </h4>
-                <textarea
-                  value={note}
-                  onChange={handleNoteChange}
-                  placeholder="Write your note here..."
-                  className="w-full rounded-lg border border-gray-200 p-3 text-sm text-gray-600 focus:border-[#0029ff] focus:outline-none"
-                  rows={3}
-                />
-              </motion.div>
-            ) : null}
-
-            {/* Action Bar */}
-            <div className="mt-8 flex items-center gap-4">
-              {!singlePlan.notes?.length && !showNoteInput && (
-                <button
-                  onClick={() => setShowNoteInput(true)}
-                  className="flex items-center gap-1 rounded-full bg-gray-100 p-2 text-[#0029ff] hover:bg-gray-200"
-                >
-                  <FiEdit className="h-5 w-5" />
-                </button>
-              )}
-            </div>
-          </div>
-        </motion.div>
-      ) : (
         <>
           {/* Learning Streak Card */}
           <motion.div
@@ -853,8 +419,6 @@ function PersonalizeDashboard() {
             </div>
           </motion.div>
 
-          {/* SWOT Analysis */}
-
           <motion.div className="mt-4">
             <SwotAnalysis
               expandedSections={expandedSections}
@@ -863,7 +427,7 @@ function PersonalizeDashboard() {
             />
           </motion.div>
         </>
-      )}
+
     </main>
   );
 }
