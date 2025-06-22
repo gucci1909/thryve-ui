@@ -432,7 +432,7 @@ const generateEmailTemplate = (teamMember, manager, company) => {
 export const addTeamMembers = async (req, res) => {
   try {
     const db = getDb();
-    const teamMembersCollection = db.collection('team_members');
+    const teamMembersCollection = db.collection('team-members');
     const companiesCollection = db.collection('companies');
 
     // Validate request body
@@ -462,14 +462,14 @@ export const addTeamMembers = async (req, res) => {
       createdAt: new Date(),
       updatedAt: new Date(),
     }));
-    
+
     const emailsToInsert = feedbackRequests.map((member) => member.email);
 
     // Query existing emails in DB for same company
     const existingMembers = await teamMembersCollection
       .find({
         email: { $in: emailsToInsert },
-        companyCode: companyCode,
+        userId: req.user.id,
       })
       .toArray();
 
@@ -477,7 +477,8 @@ export const addTeamMembers = async (req, res) => {
       const duplicateEmails = existingMembers.map((member) => member.email);
       return res.status(409).json({
         status: 'Not OK',
-        error: "Duplicate email(s) detected. Please remove the already registered email addresses before submitting.",
+        error:
+          'Duplicate email(s) detected. Please remove the already registered email addresses before submitting.',
         duplicates: duplicateEmails,
       });
     }
@@ -547,7 +548,7 @@ export const getMemberInfo = async (req, res) => {
     }
 
     const db = getDb();
-    const teamMembersCollection = db.collection('team_members');
+    const teamMembersCollection = db.collection('team-members');
     const companiesCollection = db.collection('companies');
     const usersCollection = db.collection('users');
 
@@ -631,7 +632,7 @@ export const saveFeedbackData = async (req, res) => {
     }
 
     const db = getDb();
-    const teamMembersCollection = db.collection('team_members');
+    const teamMembersCollection = db.collection('team-members');
 
     // Find team member by invite code
     const teamMember = await teamMembersCollection.findOne({ INVITE_CODE: inviteCode });
@@ -651,6 +652,21 @@ export const saveFeedbackData = async (req, res) => {
       });
     }
 
+    const categoryResults = {};
+
+    feedbackData?.ratingQuestions?.forEach((item) => {
+      if (!categoryResults[item.category]) {
+        categoryResults[item.category] = { sum: 0, count: 0 };
+      }
+      categoryResults[item.category].sum += item.response;
+      categoryResults[item.category].count += 1;
+    });
+
+    const finalAverages = {};
+    for (const [category, { sum, count }] of Object.entries(categoryResults)) {
+      finalAverages[category] = sum / count;
+    }
+
     // Update team member document with feedback data and mark assessment as completed
     const result = await teamMembersCollection.updateOne(
       { INVITE_CODE: inviteCode },
@@ -665,6 +681,7 @@ export const saveFeedbackData = async (req, res) => {
             overallProgress: feedbackData.overallProgress,
             categoryProgress: feedbackData.categoryProgress,
           },
+          scores_of_manager_feedback: finalAverages,
           updatedAt: new Date(),
         },
       },
@@ -693,7 +710,7 @@ export const saveFeedbackData = async (req, res) => {
 export const getExistingTeamMembers = async (req, res) => {
   try {
     const db = getDb();
-    const teamMembersCollection = db.collection('team_members');
+    const teamMembersCollection = db.collection('team-members');
 
     // Get all team members for the current user
     const teamMembers = await teamMembersCollection
@@ -704,7 +721,7 @@ export const getExistingTeamMembers = async (req, res) => {
     return res.status(200).json({
       status: 'OK',
       data: {
-        teamMembers: teamMembers.map(member => ({
+        teamMembers: teamMembers.map((member) => ({
           _id: member._id,
           name: member.name,
           email: member.email,
@@ -736,13 +753,13 @@ export const resendEmailsToTeamMembers = async (req, res) => {
     }
 
     const db = getDb();
-    const teamMembersCollection = db.collection('team_members');
+    const teamMembersCollection = db.collection('team-members');
     const companiesCollection = db.collection('companies');
 
     // Get team members by IDs
     const teamMembers = await teamMembersCollection
       .find({
-        _id: { $in: teamMemberIds.map(id => new ObjectId(id)) },
+        _id: { $in: teamMemberIds.map((id) => new ObjectId(id)) },
         userId: req.user.id,
       })
       .toArray();
@@ -796,8 +813,8 @@ export const resendEmailsToTeamMembers = async (req, res) => {
     // Wait for all emails to be sent
     const emailResults = await Promise.all(emailPromises);
 
-    const successfulEmails = emailResults.filter(result => result.success);
-    const failedEmails = emailResults.filter(result => !result.success);
+    const successfulEmails = emailResults.filter((result) => result.success);
+    const failedEmails = emailResults.filter((result) => !result.success);
 
     return res.status(200).json({
       status: 'OK',

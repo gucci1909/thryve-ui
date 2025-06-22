@@ -6,22 +6,20 @@ import { ObjectId } from 'mongodb';
 export const leadershipReportControllers = async (req, res) => {
   try {
     const db = getDb();
-    const { userId } = req.body;
     const leadershipReportsCollection = db.collection('leadership-reports');
     const leadershipReportInfoCollections = db.collection('leadership-report-info');
     const learningPlanCollection = db.collection('learning-plans');
     const usersCollection = db.collection('users');
-
     // 1. Validate request body
     leadershipReportSchema.parse(req.body?.formData);
 
     // 2. Generate leadership assessment
     const leadershipAssessment = await generateLeadershipAssessment(req.body?.formData, req);
 
-    // 3. Destructure learning_plan from assessment
+    // // 3. Destructure learning_plan from assessment
     const { learning_plan, ...restOfAssessment } = leadershipAssessment?.outputJson;
 
-    // 4. Insert learning_plan into `learning-plans` collection
+    // // 4. Insert learning_plan into `learning-plans` collection
     if (learning_plan && Array.isArray(learning_plan) && learning_plan.length > 0) {
       await learningPlanCollection.insertOne({
         userId: req.user.id,
@@ -44,11 +42,21 @@ export const leadershipReportControllers = async (req, res) => {
       updatedAt: new Date(),
     });
 
+    const categoryAverages = {};
+
+    for (const [category, questions] of Object.entries(req.body?.fullReport?.leadershipInfo)) {
+      const scores = Object.values(questions);
+      const sum = scores.reduce((acc, score) => acc + score, 0);
+      const average = sum / scores.length;
+      categoryAverages[category] = average;
+    }
+
     await leadershipReportInfoCollections.insertOne({
       userId: req.user.id,
       userEmail: req.user.email,
       formData: req.body?.formData,
       fullReport: req.body?.fullReport,
+      scores_of_leadership_assessment: categoryAverages,
       createdAt: new Date(),
       updatedAt: new Date(),
     });

@@ -3,11 +3,11 @@ import { z } from 'zod';
 const leadershipSubSectionSchema = z.record(z.string(), z.number());
 
 const leadershipSchema = z.object({
-  DecisionMakingDelegation: leadershipSubSectionSchema,
-  EmotionalIntelligenceEmpathy: leadershipSubSectionSchema,
-  VisionStrategy: leadershipSubSectionSchema,
-  TeamDevelopmentCoaching: leadershipSubSectionSchema,
-  AdaptabilityInfluence: leadershipSubSectionSchema
+  CommunicationClarity: leadershipSubSectionSchema,
+  SupportDevelopment: leadershipSubSectionSchema,
+  DecisionMakingFairness: leadershipSubSectionSchema,
+  RecognitionTeamCulture: leadershipSubSectionSchema,
+  EmpowermentMotivation: leadershipSubSectionSchema
 });
 
 const roleInfoSchema = z.object({

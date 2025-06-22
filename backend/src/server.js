@@ -18,6 +18,7 @@ import inviteTeamRoutes from './api/invite-team/invite-team.js';
 import learningPlanRoutes from './api/learning-plan/learning-plan.js';
 import feedRoutes from './api/feed/explore.js';
 import feedbackConfigRoutes from './api/feedback/config.js';
+import teamManagerScoreRoutes from './api/team-and-manager-scrore/team-and-manager-score.js';
 import { connectToDb } from './config/db.js';
 import { v4 as uuidv4 } from 'uuid';
 import cookieParser from 'cookie-parser';
@@ -148,6 +149,7 @@ app.use('/api/invite-team', inviteTeamRoutes);
 
 app.use('/api/personalizeLearning', learningPlanRoutes);
 app.use('/api/feedback', feedbackConfigRoutes);
+app.use('/api/team-and-manager-score', teamManagerScoreRoutes);
 
 app.use('/api/feed', feedRoutes);
 

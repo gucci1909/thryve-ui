@@ -1,5 +1,5 @@
 export const getLeadershipPrompt = (inputJson) => {
-    return `Assume that you are a Leadership Coach and are an expert at evaluating and providing a managers DISC profile based on inputs.
+  return `Assume that you are a Leadership Coach and are an expert at evaluating and providing a managers DISC profile based on inputs.
 
 Hence, can you please help provide a Leadership Assessment report in the JSON format "leadership_assessment_report_template" given below for the JSON input as defined in "leadership_assessment_input_template".
 
@@ -15,36 +15,35 @@ The description and instructions of each field, its type and content is provided
   "meta": //You can ignore this field as this is not part of the context you should add for generating output
   "sections": {
     "leadership": {
-      "DecisionMakingDelegation": { //These are the group of questions that are captured from the manager to understand how they make decision and how they delegate. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree). Each question in this template is represented as an N which will be between 1 and 5
-
-        "independentDecisions": N, // The question is: "I prefer to make decisions independently without consulting others" 
-        "seekTeamInput": N, // The question is: "I regularly seek team input before making final decisions." 
-        "delegateTasks": N, // The question is: "I enjoy delegating tasks and trust others to handle them." 
-        "struggleDelegation": N // The question is: "I struggle to delegate important responsibilities." 
+      "CommunicationClarity": { //These are the group of questions that are captured from the manager to understand how they make Communication & Clarity. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree). Each question in this template is represented as an N which will be between 1 and 5
+        "clearLongTermVision": N, // The question is: "I frequently communicate a clear, long-term vision." 
+        "focusShortTermTasks": N, // The question is: "I focus more on short-term tasks than strategic goals." 
+        "preferTestedApproaches": N, // The question is: "I prefer tried-and-tested approaches over experimentation." 
       },
-      "EmotionalIntelligenceEmpathy": { //These are the group of questions that are captured from the manager to understand their levels of Emotional Intelligence & Empathy. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree) Each question in this template is represented as an N which will be between 1 and 5
-        "tuneIntoTeam": N, // The question is: I often tune into my team’s emotional state and adjust accordingly.
-        "constructiveFeedback": N, // The question is: I give regular, constructive feedback with empathy.
-        "resultsOverRelationships": N, // The question is: I prioritize results over relationships when needed.
-        "stayCalmInConflict": N // The question is: I stay calm and composed during conflict.
+      "SupportDevelopment": { //These are the group of questions that are captured from the manager to understand their levels of Support & Development. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree) Each question in this template is represented as an N which will be between 1 and 5
+        "mentorOrCoachTeam": N, // The question is: "I actively mentor or coach members of my team."
+        "createGrowthOpportunities": N, // The question is: "I design opportunities for others to grow and stretch."
+        "helpOthersRealizePotential": N, // The question is: "I feel energized by helping others realize their potential."
+        "adjustToTeamsEmotionalState": N // The question is: "I often tune into my team’s emotional state and adjust accordingly."
       },
-      "VisionStrategy": { //These are the group of questions that are captured from the manager to understand their skills and directions on Vision and Strategy. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree). Each question in this template is represented as an N which will be between 1 and 5
-        "communicateVision": N, // The question is: I frequently communicate a clear, long-term vision.
-        "shortTermFocus": N, // The question is: I focus more on short-term tasks than strategic goals.
-        "encourageInnovation": N, // The question is: I encourage innovation even when it involves risk.
-        "preferTestedApproaches": N // The question is: I prefer tried-and-tested approaches over experimentation.
+      "DecisionMakingFairness": { //These are the group of questions that are captured from the manager to understand their skills and directions on Decision-Making & Fairness. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree). Each question in this template is represented as an N which will be between 1 and 5
+        "makeIndependentDecisions": N, // The question is: "I prefer to make decisions independently without consulting others."
+        "seekTeamInputBeforeDeciding": N, // The question is: "I regularly seek team input before making final decisions."
+        "struggleWithDelegation": N, // The question is: "I struggle to delegate important responsibilities."
+        "prioritizeResultsOverRelationships": N // The question is: "I prioritize results over relationships when needed."
+        "stayCalmDuringConflict": N // The question is: "I stay calm and composed during conflict."
       },
-      "TeamDevelopmentCoaching": { //These are the group of questions that are captured from the manager to understand how they develop their team and how they coach their team. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree). Each question in this template is represented as an N which will be between 1 and 5
-        "mentoring": N, // The question is: I actively mentor or coach members of my team.
-        "designGrowthOpportunities": N, // The question is:  I design opportunities for others to grow and stretch.
-        "energizedByHelping": N, // The question is: I am energized by helping others realize their potential.
-        "solveInsteadEnable": N // The question is: I often find myself solving problems rather than enabling others.
+      "RecognitionTeamCulture": { //These are the group of questions that are captured from the manager to understand how they Recognition & Team Culture. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree). Each question in this template is represented as an N which will be between 1 and 5
+        "giveConstructiveFeedbackWithEmpathy": N, // The question is: "I give regular, constructive feedback with empathy."
+        "influenceWithoutAuthority": N, // The question is: "I can influence others even without formal authority."
+        "preferStructuredLeadershipRoutines": N, // The question is: "I prefer structured, consistent leadership routines."
       },
-      "AdaptabilityInfluence": { //These are the group of questions that are captured from the manager to understand how they adapt to situations and also how they are able to influence their team and leadership. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree). Each question in this template is represented as an N which will be between 1 and 5
-        "changeApproach": N, // The question is: I change my leadership approach based on who I’m working with.
-        "influenceWithoutAuthority": N, // The question is: I can influence others even without formal authority.
-        "adaptToChange": N, // The question is: I adapt quickly when things don’t go as planned.
-        "preferStructure": N // The question is: I prefer a structured, consistent leadership routine.
+      "EmpowermentMotivation": { //These are the group of questions that are captured from the manager to understand how they Empowerment & Motivation for the team. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree). Each question in this template is represented as an N which will be between 1 and 5
+        "delegateAndTrustOthers": N, // The question is: "I enjoy delegating tasks and trust others to handle them."
+        "encourageInnovationWithRisk": N, // The question is: "I encourage innovation even when it involves risk."
+        "problemSolverRatherThanEnabler": N, // The question is: "I often find myself solving problems rather than enabling others."
+        "adjustLeadershipBasedOnTeam": N // The question is: "I can change my leadership approach based on who I'm working with."
+        "adaptEasilyToUnexpectedChanges": N // The question is: "I adapt easily when things don’t go as planned."
       }
     },
     "roleInfo": {

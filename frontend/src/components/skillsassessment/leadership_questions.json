@@ -3,74 +3,17 @@
   "instructions": "Each question maps to behavioral dimensions that influence leadership style (based on well-established frameworks like Lewin's styles, Goleman's emotional intelligence styles, and situational leadership).",
   "assessment": [
     {
-      "category": "Decision-Making & Delegation",
-      "categoryID": "DecisionMakingDelegation",
+      "category": "Communication & Clarity",
+      "categoryID": "CommunicationClarity",
       "questions": [
         {
-          "id": "independentDecisions",
-          "text": "I prefer to make decisions independently without consulting others.",
-          "response": null
-        },
-        {
-          "id": "seekTeamInput",
-          "text": "I regularly seek team input before making final decisions.",
-          "response": null
-        },
-        {
-          "id": "delegateTasks",
-          "text": "I enjoy delegating tasks and trust others to handle them.",
-          "response": null
-        },
-        {
-          "id": "struggleDelegation",
-          "text": "I struggle to delegate important responsibilities.",
-          "response": null
-        }
-      ]
-    },
-    {
-      "category": "Emotional Intelligence & Empathy",
-      "categoryID": "EmotionalIntelligenceEmpathy",
-      "questions": [
-        {
-          "id": "tuneIntoTeam",
-          "text": "I often tune into my team's emotional state and adjust accordingly.",
-          "response": null
-        },
-        {
-          "id": "constructiveFeedback",
-          "text": "I give regular, constructive feedback with empathy.",
-          "response": null
-        },
-        {
-          "id": "resultsOverRelationships",
-          "text": "I prioritize results over relationships when needed.",
-          "response": null
-        },
-        {
-          "id": "stayCalmInConflict",
-          "text": "I stay calm and composed during conflict.",
-          "response": null
-        }
-      ]
-    },
-    {
-      "category": "Vision & Strategy",
-      "categoryID": "VisionStrategy",
-      "questions": [
-        {
-          "id": "communicateVision",
+          "id": "clearLongTermVision",
           "text": "I frequently communicate a clear, long-term vision.",
           "response": null
         },
         {
-          "id": "shortTermFocus",
+          "id": "focusShortTermTasks",
           "text": "I focus more on short-term tasks than strategic goals.",
-          "response": null
-        },
-        {
-          "id": "encourageInnovation",
-          "text": "I encourage innovation even when it involves risk.",
           "response": null
         },
         {
@@ -81,38 +24,69 @@
       ]
     },
     {
-      "category": "Team Development & Coaching",
-      "categoryID": "TeamDevelopmentCoaching",
+      "category": "Support & Development",
+      "categoryID": "SupportDevelopment",
       "questions": [
         {
-          "id": "mentoring",
+          "id": "mentorOrCoachTeam",
           "text": "I actively mentor or coach members of my team.",
           "response": null
         },
         {
-          "id": "designGrowthOpportunities",
+          "id": "createGrowthOpportunities",
           "text": "I design opportunities for others to grow and stretch.",
           "response": null
         },
         {
-          "id": "energizedByHelping",
-          "text": "I am energized by helping others realize their potential.",
+          "id": "helpOthersRealizePotential",
+          "text": "I feel energized by helping others realize their potential.",
           "response": null
         },
         {
-          "id": "solveInsteadEnable",
-          "text": "I often find myself solving problems rather than enabling others.",
+          "id": "adjustToTeamsEmotionalState",
+          "text": "I often tune into my team’s emotional state and adjust accordingly.",
           "response": null
         }
       ]
     },
     {
-      "category": "Adaptability & Influence",
-      "categoryID": "AdaptabilityInfluence",
+      "category": "Decision-Making & Fairness",
+      "categoryID": "DecisionMakingFairness",
       "questions": [
         {
-          "id": "changeApproach",
-          "text": "I change my leadership approach based on who I'm working with.",
+          "id": "makeIndependentDecisions",
+          "text": "I prefer to make decisions independently without consulting others.",
+          "response": null
+        },
+        {
+          "id": "seekTeamInputBeforeDeciding",
+          "text": "I regularly seek team input before making final decisions.",
+          "response": null
+        },
+        {
+          "id": "struggleWithDelegation",
+          "text": "I struggle to delegate important responsibilities.",
+          "response": null
+        },
+        {
+          "id": "prioritizeResultsOverRelationships",
+          "text": "I prioritize results over relationships when needed.",
+          "response": null
+        },
+        {
+          "id": "stayCalmDuringConflict",
+          "text": "I stay calm and composed during conflict.",
+          "response": null
+        }
+      ]
+    },
+    {
+      "category": "Recognition & Team Culture",
+      "categoryID": "RecognitionTeamCulture",
+      "questions": [
+        {
+          "id": "giveConstructiveFeedbackWithEmpathy",
+          "text": "I give regular, constructive feedback with empathy.",
           "response": null
         },
         {
@@ -121,13 +95,39 @@
           "response": null
         },
         {
-          "id": "adaptToChange",
-          "text": "I adapt quickly when things don't go as planned.",
+          "id": "preferStructuredLeadershipRoutines",
+          "text": "I prefer structured, consistent leadership routines.",
+          "response": null
+        }
+      ]
+    },
+    {
+      "category": "Empowerment & Motivation",
+      "categoryID": "EmpowermentMotivation",
+      "questions": [
+        {
+          "id": "delegateAndTrustOthers",
+          "text": "I enjoy delegating tasks and trust others to handle them.",
           "response": null
         },
         {
-          "id": "preferStructure",
-          "text": "I prefer a structured, consistent leadership routine.",
+          "id": "encourageInnovationWithRisk",
+          "text": "I encourage innovation even when it involves risk.",
+          "response": null
+        },
+        {
+          "id": "problemSolverRatherThanEnabler",
+          "text": "I often find myself solving problems rather than enabling others.",
+          "response": null
+        },
+        {
+          "id": "adjustLeadershipBasedOnTeam",
+          "text": "I can change my leadership approach based on who I'm working with.",
+          "response": null
+        },
+        {
+          "id": "adaptEasilyToUnexpectedChanges",
+          "text": "I adapt easily when things don’t go as planned.",
           "response": null
         }
       ]

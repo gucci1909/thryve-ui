@@ -11,7 +11,7 @@ export const learningPlanController = async (req, res) => {
     const leadershipReportsCollection = db.collection('leadership-reports');
     const chatsCollection = db.collection('chats');
     const rolePlayChatCollection = db.collection('role-play-chats');
-    const teamMembersCollection = db.collection('team_members');
+    const teamMembersCollection = db.collection('team-members');
     const reflectionsCollection = db.collection('reflections');
     const learningPlansCollection = db.collection('learning-plans');
 

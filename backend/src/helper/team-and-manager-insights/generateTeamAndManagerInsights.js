@@ -1,29 +1,14 @@
-import dotenv from 'dotenv'; 
-import yargs from 'yargs/yargs';
-import { hideBin } from 'yargs/helpers';
-import fetch from 'node-fetch';
-import { getLeadershipPrompt } from './leadershipPromptTemplate.js';
+import { getTeamAndManagerInsightsPrompt } from './teamAndManagerInsightsPromptTemplate.js';
 import logger from '../../utils/logger.js';
+import fetch from 'node-fetch';
 
-const argv = yargs(hideBin(process.argv))
-  .option('envFilePath', {
-    alias: 'e',
-    describe: 'Path to the .env file',
-    type: 'string',
-    demandOption: true,
-  })
-  .parse();
-
-dotenv.config({ path: argv.envFilePath });
-
-async function generateLeadershipAssessment(inputJson, req = null) {
+async function generateTeamAndManagerInsights(managerScores, teamScores, req = null) {
   const openaiEndpoint = process.env.OpenAIAPI;
   const startTime = Date.now();
 
-  const systemPrompt = getLeadershipPrompt(inputJson);
+  const systemPrompt = getTeamAndManagerInsightsPrompt(managerScores, teamScores);
 
   try {
-    // Make OpenAI API call with timing
     const openAIStartTime = Date.now();
     const response = await fetch(openaiEndpoint, {
       method: 'POST',
@@ -46,16 +31,15 @@ async function generateLeadershipAssessment(inputJson, req = null) {
     const data = await response.json();
     const openAIResponseTime = Date.now() - openAIStartTime;
 
-    // Log OpenAI API call
     if (!response.ok || !data.choices || !data.choices[0]) {
       const error = new Error(data.error?.message || 'Invalid response from OpenAI');
       logger.logOpenAICall(req, {
         model: 'gpt-4',
-        userInput: 'Leadership assessment generation request',
+        userInput: 'Team and Manager insights generation request',
         systemPrompt,
         error,
         responseTime: openAIResponseTime,
-        chatType: 'LEADERSHIP_ASSESSMENT',
+        chatType: 'TEAM_MANAGER_INSIGHTS',
         tokensUsed: data.usage?.total_tokens,
         completionToken: data.usage?.completion_tokens,
         promptToken: data.usage?.prompt_tokens,
@@ -67,19 +51,20 @@ async function generateLeadershipAssessment(inputJson, req = null) {
     let outputJson;
 
     try {
-      outputJson = JSON.parse(outputText);
+      const jsonMatch = outputText.match(/```json\n([\s\S]*?)\n```/);
+      const parsableText = jsonMatch ? jsonMatch[1] : outputText;
+      outputJson = JSON.parse(parsableText);
     } catch (error) {
       console.error('Failed to parse JSON:', error);
 
-      // Log parsing error
       logger.logOpenAICall(req, {
         model: 'gpt-4',
-        userInput: 'Leadership assessment generation request',
+        userInput: 'Team and Manager insights generation request',
         systemPrompt,
         response: outputText,
         error: new Error('Invalid JSON format in response'),
         responseTime: openAIResponseTime,
-        chatType: 'LEADERSHIP_ASSESSMENT',
+        chatType: 'TEAM_MANAGER_INSIGHTS',
         tokensUsed: data.usage?.total_tokens,
         completionToken: data.usage?.completion_tokens,
         promptToken: data.usage?.prompt_tokens,
@@ -88,39 +73,31 @@ async function generateLeadershipAssessment(inputJson, req = null) {
       throw new Error('Invalid JSON format in response');
     }
 
-    // Log successful OpenAI API call
     logger.logOpenAICall(req, {
       model: 'gpt-4',
-      userInput: 'Leadership assessment generation request',
+      userInput: 'Team and Manager insights generation request',
       systemPrompt,
       response: JSON.stringify(outputJson),
       responseTime: openAIResponseTime,
-      chatType: 'LEADERSHIP_ASSESSMENT',
+      chatType: 'TEAM_MANAGER_INSIGHTS',
       tokensUsed: data.usage?.total_tokens,
       completionToken: data.usage?.completion_tokens,
       promptToken: data.usage?.prompt_tokens,
     });
+    
+    return outputJson;
 
-    const openAICollection = {
-      tokensUsed: data?.usage?.total_tokens || 0,
-      completionToken: data?.usage?.completion_tokens || 0,
-      promptToken: data?.usage?.prompt_tokens || 0,
-      responseTimeMs: openAIResponseTime || 0,
-    };
-
-    return { outputJson, openAICollection };
   } catch (error) {
-    console.error('Error generating leadership assessment:', error.message);
+    console.error('Error generating team and manager insights:', error.message);
 
-    // Log any other errors
     if (!error.message.includes('OpenAI') && !error.message.includes('Invalid JSON format')) {
       logger.logOpenAICall(req, {
         model: 'gpt-4',
-        userInput: 'Leadership assessment generation request',
+        userInput: 'Team and Manager insights generation request',
         systemPrompt,
         error,
         responseTime: Date.now() - startTime,
-        chatType: 'LEADERSHIP_ASSESSMENT',
+        chatType: 'TEAM_MANAGER_INSIGHTS',
       });
     }
 
@@ -128,4 +105,4 @@ async function generateLeadershipAssessment(inputJson, req = null) {
   }
 }
 
-export default generateLeadershipAssessment;
+export default generateTeamAndManagerInsights; 
