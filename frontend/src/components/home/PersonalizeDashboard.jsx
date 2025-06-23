@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { FaFire } from "react-icons/fa";
 import LeadershipAssessmentScores from "./LeadershipAssessmentScores";
 import NPSScores from "./NPSScores";
+import TeamManagerInsights from "./TeamManagerInsights";
 
 function PersonalizeDashboard() {
   const [reportData, setReportData] = useState(null);
@@ -434,6 +435,9 @@ function PersonalizeDashboard() {
 
           {/* NPS Scores */}
           <NPSScores />
+
+          {/* Team Manager Insights */}
+          <TeamManagerInsights />
         </>
 
     </main>

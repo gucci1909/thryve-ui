@@ -166,7 +166,6 @@ export const getNPSScoresOfTeamAndCompany = async (req, res) => {
     }
 
     // start manager score average calculation
-
     let totalMembers = managerTeamMembers.length;
     let totalNpsScore = 0;
 
@@ -184,6 +183,7 @@ export const getNPSScoresOfTeamAndCompany = async (req, res) => {
         {
           $match: {
             assessment: true,
+            INVITE_CODE: managerTeamMembers[0]?.INVITE_CODE,
           },
         },
         {
