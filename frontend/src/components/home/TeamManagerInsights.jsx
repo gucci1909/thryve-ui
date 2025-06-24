@@ -5,18 +5,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BorderBeam } from "../magicui/border-beam";
 import { logout } from "../../store/userSlice";
 import {
-  FiUsers,
-  FiTrendingUp,
   FiMessageSquare,
   FiChevronDown,
   FiChevronUp,
-  FiTarget,
-  FiHeart,
-  FiZap,
-  FiStar,
-  FiAward,
+  FiZap as FiLightning,
 } from "react-icons/fi";
-import { FaBrain, FaHandshake, FaRocket } from "react-icons/fa";
+import {
+  FaBrain,
+  FaComments,
+  FaGraduationCap,
+  FaBalanceScale,
+  FaTrophy,
+  FaLightbulb,
+} from "react-icons/fa";
 
 function TeamManagerInsights() {
   const [insightsData, setInsightsData] = useState(null);
@@ -31,6 +32,55 @@ function TeamManagerInsights() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector((state) => state.user.token);
+
+  // Category configuration with icons and colors
+  const categoryConfig = {
+    "Communication & Clarity": {
+      icon: FaComments,
+      color: "blue",
+      gradient: "from-blue-500 to-blue-600",
+      bgGradient: "from-blue-50 to-blue-100",
+      borderColor: "border-blue-200",
+      textColor: "text-blue-800",
+      lightTextColor: "text-blue-600",
+    },
+    "Support & Development": {
+      icon: FaGraduationCap,
+      color: "emerald",
+      gradient: "from-emerald-500 to-emerald-600",
+      bgGradient: "from-emerald-50 to-emerald-100",
+      borderColor: "border-emerald-200",
+      textColor: "text-emerald-800",
+      lightTextColor: "text-emerald-600",
+    },
+    "Decision-Making & Fairness": {
+      icon: FaBalanceScale,
+      color: "purple",
+      gradient: "from-purple-500 to-purple-600",
+      bgGradient: "from-purple-50 to-purple-100",
+      borderColor: "border-purple-200",
+      textColor: "text-purple-800",
+      lightTextColor: "text-purple-600",
+    },
+    "Recognition & Team Culture": {
+      icon: FaTrophy,
+      color: "amber",
+      gradient: "from-amber-500 to-amber-600",
+      bgGradient: "from-amber-50 to-amber-100",
+      borderColor: "border-amber-200",
+      textColor: "text-amber-800",
+      lightTextColor: "text-amber-600",
+    },
+    "Empowerment & Motivation": {
+      icon: FaLightbulb,
+      color: "rose",
+      gradient: "from-rose-500 to-rose-600",
+      bgGradient: "from-rose-50 to-rose-100",
+      borderColor: "border-rose-200",
+      textColor: "text-rose-800",
+      lightTextColor: "text-rose-600",
+    },
+  };
 
   const cardVariants = {
     offscreen: {
@@ -49,7 +99,7 @@ function TeamManagerInsights() {
   };
 
   const containerVariants = {
-    hidden: { opacity: 0 },
+    // hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
@@ -67,6 +117,38 @@ function TeamManagerInsights() {
         type: "spring",
         bounce: 0.4,
         duration: 0.6,
+      },
+    },
+  };
+
+  const insightCardVariants = {
+    visible: {
+      scale: 1,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        bounce: 0.3,
+        duration: 0.5,
+      },
+    },
+  };
+
+  const sectionVariants = {
+    collapsed: {
+      height: 0,
+      opacity: 0,
+      transition: {
+        duration: 0.4,
+        ease: "easeInOut",
+      },
+    },
+    expanded: {
+      height: "auto",
+      opacity: 1,
+      transition: {
+        duration: 0.4,
+        ease: "easeInOut",
+        staggerChildren: 0.1,
       },
     },
   };
@@ -128,27 +210,54 @@ function TeamManagerInsights() {
   };
 
   const renderInsightCard = (insight, index, type) => {
-    const icons = {
-      team: [FiUsers, FiMessageSquare, FiHeart, FiStar],
-      manager: [FiTrendingUp, FiTarget, FiZap],
-    };
-    const IconComponent = icons[type][index % icons[type].length];
+    const config = categoryConfig[insight.category];
+    const IconComponent = config.icon;
 
     return (
       <motion.div
-        key={index}
-        variants={itemVariants}
-        className="group relative overflow-hidden rounded-xl border border-gray-100 bg-gradient-to-br from-white to-gray-50 p-4 shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
+        key={`${type}-${index}`}
+        variants={insightCardVariants}
+        className="group relative overflow-hidden rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-purple-50/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-        <div className="relative flex items-start gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-purple-100">
-            <IconComponent className="h-5 w-5 text-blue-600" />
+        {/* Background gradient overlay */}
+        <div
+          className={`absolute inset-0 bg-gradient-to-br ${config.bgGradient} opacity-0 transition-opacity duration-300 group-hover:opacity-10`}
+        />
+
+        {/* Category header */}
+        <div className="relative mb-3 flex items-center gap-3">
+          <div
+            className={`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br ${config.gradient} shadow-lg`}
+          >
+            <IconComponent className="h-5 w-5 text-white" />
           </div>
           <div className="flex-1">
-            <p className="text-sm leading-relaxed text-gray-700">{insight}</p>
+            <h4 className={`font-semibold ${config.textColor}`}>
+              {insight.category}
+            </h4>
+            <div className="flex items-center gap-2">
+              {/* <div className={`h-1.5 w-1.5 rounded-full bg-${config.color}-400`} /> */}
+              <span className={`text-xs font-medium ${config.lightTextColor}`}>
+                {type === "team" ? "Team Feedback" : "Self Assessment"}
+              </span>
+            </div>
           </div>
         </div>
+
+        {/* Insight content */}
+        <div className="relative">
+          <p className="text-sm leading-relaxed text-gray-700">
+            {insight.insights}
+          </p>
+        </div>
+
+        {/* Decorative elements */}
+        <div
+          className={`absolute -top-2 -right-2 h-8 w-8 rounded-full bg-gradient-to-br ${config.gradient} opacity-20 blur-sm`}
+        />
+        <div
+          className={`absolute -bottom-1 -left-1 h-6 w-6 rounded-full bg-gradient-to-br ${config.gradient} opacity-15 blur-sm`}
+        />
       </motion.div>
     );
   };
@@ -239,6 +348,26 @@ function TeamManagerInsights() {
     );
   }
 
+  const ToggleButton = ({ isExpanded, color }) => {
+    const colorClasses = {
+      blue: "text-blue-600",
+      purple: "text-purple-600",
+    };
+
+    return (
+      <motion.div
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="flex h-8 w-14 items-center justify-center rounded-full bg-white/80 shadow-sm transition-all duration-300 group-hover:bg-white group-hover:shadow-md"
+      >
+        {isExpanded ? (
+          <FiChevronUp className={`h-4 w-4 ${colorClasses[color]}`} />
+        ) : (
+          <FiChevronDown className={`h-4 w-4 ${colorClasses[color]}`} />
+        )}
+      </motion.div>
+    );
+  };
+
   return (
     <motion.div
       initial="offscreen"
@@ -247,7 +376,7 @@ function TeamManagerInsights() {
       variants={cardVariants}
       className="mt-4"
     >
-      <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-white/95 p-4 shadow-[0_10px_40px_-15px_rgba(0,41,255,0.15)] backdrop-blur-md">
+      <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-white/95 p-6 shadow-[0_10px_40px_-15px_rgba(0,41,255,0.15)] backdrop-blur-md">
         <BorderBeam
           size={150}
           duration={10}
@@ -257,71 +386,61 @@ function TeamManagerInsights() {
         />
 
         <div className="relative z-10">
-          <div className="mb-6 flex items-center gap-3">
-            <div>
-              <h2 className="bg-gradient-to-r from-[#0029ff] to-blue-600 bg-clip-text text-xl font-bold text-transparent">
-                Team & Manager Insights
-              </h2>
-              <p className="text-sm text-gray-600">
-                AI-powered analysis of your team feedback and leadership
-                insights
-              </p>
-            </div>
+          {/* Header */}
+          <div className="mb-8">
+            <h2 className="bg-gradient-to-r from-[#0029ff] to-blue-600 bg-clip-text text-2xl font-bold text-transparent">
+              Team & Manager Insights
+            </h2>
+            <p className="text-sm text-gray-600">
+              AI-powered analysis of your team feedback and leadership insights
+            </p>
           </div>
 
           <motion.div
             variants={containerVariants}
-            initial="hidden"
+            // initial="hidden"
             animate="visible"
-            className="space-y-4"
+            className="space-y-8"
           >
             {/* Team Insights Section */}
-            <motion.div
-              variants={itemVariants}
-              className="overflow-hidden rounded-xl border border-gray-100 bg-gradient-to-br from-blue-50 to-white shadow-sm"
-            >
+            <motion.div variants={itemVariants}>
+              {/* Section Header - Non-card structure */}
               <button
                 onClick={() => toggleSection("teamInsights")}
-                className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-blue-50/50"
+                className="group mb-6 flex w-full items-center justify-between rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 p-4 text-left transition-all duration-300 hover:from-blue-100 hover:to-blue-200 focus:ring-2 focus:ring-blue-200 focus:ring-offset-2 focus:outline-none"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                    <FiUsers className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-blue-800">
+                  <div className="w-[210px]">
+                    <h3 className="text-lg font-semibold text-blue-800">
                       Team Feedback Insights
                     </h3>
                     <p className="text-sm text-blue-600">
-                      How your team perceives your leadership
+                      How your team perceives your leadership across key areas
                     </p>
                   </div>
                 </div>
-                <motion.div
-                  animate={{ rotate: expandedSections.teamInsights ? 180 : 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {expandedSections.teamInsights ? (
-                    <FiChevronUp className="h-5 w-5 text-blue-600" />
-                  ) : (
-                    <FiChevronDown className="h-5 w-5 text-blue-600" />
-                  )}
-                </motion.div>
+
+                <ToggleButton
+                  isExpanded={expandedSections.teamInsights}
+                  color="blue"
+                />
               </button>
 
+              {/* Team Insights Content */}
               <AnimatePresence>
                 {expandedSections.teamInsights && (
                   <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    variants={sectionVariants}
+                    initial="collapsed"
+                    animate="expanded"
+                    exit="collapsed"
                     className="overflow-hidden"
                   >
-                    <div className="border-t border-blue-100 bg-white p-4">
-                      <div className="space-y-3 text-gray-600">
-                        {insightsData?.insightsFromTeamToManager}
-                      </div>
+                    <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+                      {insightsData?.insightsFromTeamToManager?.map(
+                        (insight, index) =>
+                          renderInsightCard(insight, index, "team"),
+                      )}
                     </div>
                   </motion.div>
                 )}
@@ -329,54 +448,42 @@ function TeamManagerInsights() {
             </motion.div>
 
             {/* Manager Insights Section */}
-            <motion.div
-              variants={itemVariants}
-              className="overflow-hidden rounded-xl border border-gray-100 bg-gradient-to-br from-purple-50 to-white shadow-sm"
-            >
+            <motion.div variants={itemVariants}>
+              {/* Section Header - Non-card structure */}
               <button
                 onClick={() => toggleSection("managerInsights")}
-                className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-purple-50/50"
+                className="group mb-6 flex w-full items-center justify-between rounded-xl bg-gradient-to-r from-purple-50 to-purple-100 p-4 text-left transition-all duration-300 hover:from-purple-100 hover:to-purple-200 focus:ring-2 focus:ring-purple-200 focus:ring-offset-2 focus:outline-none"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100">
-                    <FiTrendingUp className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-purple-800">
+                  <div className="w-[210px]">
+                    <h3 className="text-lg font-semibold text-purple-800">
                       Manager Development Insights
                     </h3>
                     <p className="text-sm text-purple-600">
-                      Personalized recommendations for growth
+                      Your self-assessment and growth opportunities
                     </p>
                   </div>
                 </div>
-                <motion.div
-                  animate={{
-                    rotate: expandedSections.managerInsights ? 180 : 0,
-                  }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {expandedSections.managerInsights ? (
-                    <FiChevronUp className="h-5 w-5 text-purple-600" />
-                  ) : (
-                    <FiChevronDown className="h-5 w-5 text-purple-600" />
-                  )}
-                </motion.div>
+                <ToggleButton
+                  isExpanded={expandedSections.managerInsights}
+                  color="purple"
+                />
               </button>
 
+              {/* Manager Insights Content */}
               <AnimatePresence>
                 {expandedSections.managerInsights && (
                   <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    variants={sectionVariants}
+                    initial="collapsed"
+                    animate="expanded"
+                    exit="collapsed"
                     className="overflow-hidden"
                   >
-                    <div className="border-t border-purple-100 bg-white p-4">
-                      <div className="space-y-3 text-gray-600">
-                        {insightsData?.managerInsights}
-                      </div>
+                    <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+                      {insightsData?.managerInsights?.map((insight, index) =>
+                        renderInsightCard(insight, index, "manager"),
+                      )}
                     </div>
                   </motion.div>
                 )}
@@ -389,19 +496,17 @@ function TeamManagerInsights() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
-            className="mt-6 rounded-xl border border-green-100 bg-gradient-to-br from-green-50 to-white p-4"
+            className="mt-8 rounded-xl border border-green-100 bg-gradient-to-br from-green-50 to-white p-6"
           >
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
-                <FaRocket className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <h4 className="font-semibold text-green-800">
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <h4 className="text-lg font-semibold text-green-800">
                   Ready to Take Action?
                 </h4>
                 <p className="text-sm text-green-700">
                   Use these insights to enhance your leadership effectiveness
-                  and team collaboration.
+                  and team collaboration. Focus on the areas that need
+                  improvement and leverage your strengths.
                 </p>
               </div>
             </div>

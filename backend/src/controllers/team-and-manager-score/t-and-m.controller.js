@@ -51,7 +51,7 @@ export const createAndGetInsightsOfTeamAndManager = async (req, res) => {
 
       const parsedInsights = JSON.parse(insights?.outputText);
       const now = new Date();
-
+  
       await managerAndTeamInsightsCollections.updateOne(
         { userId },
         {
