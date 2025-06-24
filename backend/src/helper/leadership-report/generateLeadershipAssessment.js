@@ -45,9 +45,9 @@ async function generateLeadershipAssessment(inputJson, req = null) {
 
     const data = await response.json();
 
-    // Comprehensive logging of the entire response data
+    // Comprehensive logging of the entire response data with pretty printing
     console.log('=== FULL OPENAI RESPONSE DATA ===');
-    console.dir(data, { depth: null, colors: true });
+    console.log(JSON.stringify(data, null, 2));
     console.log('=== END FULL OPENAI RESPONSE DATA ===');
 
     // Also log with the logger for file logging

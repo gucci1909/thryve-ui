@@ -42,24 +42,31 @@ export const leadershipReportControllers = async (req, res) => {
       updatedAt: new Date(),
     });
 
-    const categoryAverages = {};
+    if (
+      req.body &&
+      req.body.fullReport &&
+      req.body.fullReport.leadershipInfo &&
+      typeof req.body.fullReport.leadershipInfo === 'object'
+    ) {
+      const categoryAverages = {};
 
-    for (const [category, questions] of Object.entries(req.body?.fullReport?.leadershipInfo)) {
-      const scores = Object.values(questions);
-      const sum = scores.reduce((acc, score) => acc + score, 0);
-      const average = sum / scores.length;
-      categoryAverages[category] = average;
+      for (const [category, questions] of Object.entries(req.body?.fullReport?.leadershipInfo)) {
+        const scores = Object.values(questions);
+        const sum = scores.reduce((acc, score) => acc + score, 0);
+        const average = sum / scores.length;
+        categoryAverages[category] = average;
+      }
+
+      await leadershipReportInfoCollections.insertOne({
+        userId: req.user.id,
+        userEmail: req.user.email,
+        formData: req.body?.formData || {},
+        fullReport: req.body?.fullReport || {},
+        scores_of_leadership_assessment: categoryAverages || {},
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
     }
-
-    await leadershipReportInfoCollections.insertOne({
-      userId: req.user.id,
-      userEmail: req.user.email,
-      formData: req.body?.formData,
-      fullReport: req.body?.fullReport,
-      scores_of_leadership_assessment: categoryAverages,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
 
     const updateResult = await usersCollection.updateOne(
       { _id: new ObjectId(req.user.id) },
