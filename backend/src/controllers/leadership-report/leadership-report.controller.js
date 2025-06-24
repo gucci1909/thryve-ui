@@ -42,12 +42,12 @@ export const leadershipReportControllers = async (req, res) => {
       updatedAt: new Date(),
     });
 
-    if (
-      req.body &&
-      req.body.fullReport &&
-      req.body.fullReport.leadershipInfo &&
-      typeof req.body.fullReport.leadershipInfo === 'object'
-    ) {
+    // if (
+    //   req.body &&
+    //   req.body.fullReport &&
+    //   req.body.fullReport.leadershipInfo &&
+    //   typeof req.body.fullReport.leadershipInfo === 'object'
+    // ) {
       const categoryAverages = {};
 
       for (const [category, questions] of Object.entries(req.body?.fullReport?.leadershipInfo)) {
@@ -66,7 +66,7 @@ export const leadershipReportControllers = async (req, res) => {
         createdAt: new Date(),
         updatedAt: new Date(),
       });
-    }
+    // }
 
     const updateResult = await usersCollection.updateOne(
       { _id: new ObjectId(req.user.id) },
