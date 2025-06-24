@@ -135,7 +135,7 @@ function WaitingScreen() {
 
           setTimeout(() => {
             navigate("/leadership-swot-analysis", {
-              state: { formData, reportData },
+              state: { formData, reportData, fullReport },
             });
           }, 1000); // Add a small delay before navigation
           return 100;

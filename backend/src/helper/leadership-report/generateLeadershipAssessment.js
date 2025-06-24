@@ -44,6 +44,33 @@ async function generateLeadershipAssessment(inputJson, req = null) {
     });
 
     const data = await response.json();
+
+    // Comprehensive logging of the entire response data
+    console.log('=== FULL OPENAI RESPONSE DATA ===');
+    console.dir(data, { depth: null, colors: true });
+    console.log('=== END FULL OPENAI RESPONSE DATA ===');
+
+    // Also log with the logger for file logging
+    logger.info('Full OpenAI API response data', {
+      metadata: {
+        fullResponse: JSON.stringify(data, null, 2),
+        responseStatus: response.status,
+        responseHeaders: Object.fromEntries(response.headers.entries()),
+        hasChoices: !!data.choices,
+        choicesCount: data.choices?.length || 0,
+        hasUsage: !!data.usage,
+        hasError: !!data.error,
+        model: data.model,
+        id: data.id,
+        object: data.object,
+        created: data.created,
+        finishReason: data.choices?.[0]?.finish_reason,
+        promptTokens: data.usage?.prompt_tokens,
+        completionTokens: data.usage?.completion_tokens,
+        totalTokens: data.usage?.total_tokens,
+      }
+    });
+
     const openAIResponseTime = Date.now() - openAIStartTime;
 
     // Log OpenAI API call
