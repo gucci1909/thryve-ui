@@ -10,20 +10,20 @@ manager_assessment_input_template: This is the JSON template that captures the i
 The description and instructions of each field, its type and content is provided after a // delimiter
 
 {
-  "Communication & Clarity": { //These are the group of questions that are captured from the manager to understand how they make Communication & Clarity. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree). Each question in this template is represented as an N which will be between 1 and 5
+  "CommunicationClarity": { //These are the group of questions that are captured from the manager to understand how they make Communication & Clarity. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree). Each question in this template is represented as an N which will be between 1 and 5
         
     "clearLongTermVision": N, // The question is: "I frequently communicate a clear, long-term vision." 
     "focusShortTermTasks": N, // The question is: "I focus more on short-term tasks than strategic goals." 
     "preferTestedApproaches": N, // The question is: "I prefer tried-and-tested approaches over experimentation." 
   },
-  "Support & Development": { //These are the group of questions that are captured from the manager to understand their levels of Support & Development. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree) Each question in this template is represented as an N which will be between 1 and 5
+  "SupportDevelopment": { //These are the group of questions that are captured from the manager to understand their levels of Support & Development. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree) Each question in this template is represented as an N which will be between 1 and 5
         
     "mentorOrCoachTeam": N, // The question is: "I actively mentor or coach members of my team."
     "createGrowthOpportunities": N, // The question is: "I design opportunities for others to grow and stretch."
     "helpOthersRealizePotential": N, // The question is: "I feel energized by helping others realize their potential."
     "adjustToTeamsEmotionalState": N // The question is: "I often tune into my team’s emotional state and adjust accordingly."
   },
-  "Decision-Making & Fairness": { //These are the group of questions that are captured from the manager to understand their skills and directions on Decision-Making & Fairness. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree). Each question in this template is represented as an N which will be between 1 and 5
+  "DecisionMakingFairness": { //These are the group of questions that are captured from the manager to understand their skills and directions on Decision-Making & Fairness. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree). Each question in this template is represented as an N which will be between 1 and 5
         
     "makeIndependentDecisions": N, // The question is: "I prefer to make decisions independently without consulting others."
     "seekTeamInputBeforeDeciding": N, // The question is: "I regularly seek team input before making final decisions."
@@ -31,12 +31,12 @@ The description and instructions of each field, its type and content is provided
     "prioritizeResultsOverRelationships": N // The question is: "I prioritize results over relationships when needed."
     "stayCalmDuringConflict": N // The question is: "I stay calm and composed during conflict."
   },
-  "Recognition & Team Culture": { //These are the group of questions that are captured from the manager to understand how they Recognition & Team Culture. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree). Each question in this template is represented as an N which will be between 1 and 5
+  "RecognitionTeamCulture": { //These are the group of questions that are captured from the manager to understand how they Recognition & Team Culture. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree). Each question in this template is represented as an N which will be between 1 and 5
     "giveConstructiveFeedbackWithEmpathy": N, // The question is: "I give regular, constructive feedback with empathy."
     "influenceWithoutAuthority": N, // The question is: "I can influence others even without formal authority."
     "preferStructuredLeadershipRoutines": N, // The question is: "I prefer structured, consistent leadership routines."
   },
- "Empowerment & Motivation": { //These are the group of questions that are captured from the manager to understand how they Empowerment & Motivation for the team. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree). Each question in this template is represented as an N which will be between 1 and 5
+ "EmpowermentMotivation": { //These are the group of questions that are captured from the manager to understand how they Empowerment & Motivation for the team. Each of the questions under this grouping is answered on a scale of 1 - 5 (1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 Strongly Agree). Each question in this template is represented as an N which will be between 1 and 5
     "delegateAndTrustOthers": N, // The question is: "I enjoy delegating tasks and trust others to handle them."
     "encourageInnovationWithRisk": N, // The question is: "I encourage innovation even when it involves risk."
     "problemSolverRatherThanEnabler": N, // The question is: "I often find myself solving problems rather than enabling others."
@@ -58,27 +58,27 @@ team_feedback_input_template:
     "teamMember": "team-member-1", // The unique identifier for each team member.
     "ratingQuestions": [
       {
-        "category": "Communication & Clarity", // Leadership category maps to the key in manager_assessment_input_actual: ("Communication & Clarity")
+        "category": "Communication & Clarity", // Leadership category maps to the key in manager_assessment_input_actual: ("CommunicationClarity")
         "text": // This is a string which is the question asked to the team member based on category - "Communication & Clarity" - the category string maps to the key in manager_assessment_input_actual.
         "response": N // Numerical response score (integer between 1-5).
       },
       {
-        "category": "Support & Development", // Leadership category maps to the key in manager_assessment_input_actual: ("Support & Development")
+        "category": "Support & Development", // Leadership category maps to the key in manager_assessment_input_actual: ("SupportDevelopment")
         "text": // This is a string which is the question asked to the team member based on category - "Support & Development" - the category string maps to the key in manager_assessment_input_actual.
         "response": N // Numerical response score (integer between 1-5).
       },
       {
-        "category": "Decision-Making & Fairness", // Leadership category maps to the key in manager_assessment_input_actual: ("Decision-Making & Fairness")
+        "category": "Decision-Making & Fairness", // Leadership category maps to the key in manager_assessment_input_actual: ("DecisionMakingFairness")
         "text": // This is a string which is the question asked to the team member based on category - "Decision-Making & Fairness" - the category string maps to the key in manager_assessment_input_actual.
         "response": N // Numerical response score (integer between 1-5).
       },
       {
-        "category": "Recognition & Team Culture", // Leadership category maps to the key in manager_assessment_input_actual: ("Recognition & Team Culture")
+        "category": "Recognition & Team Culture", // Leadership category maps to the key in manager_assessment_input_actual: ("RecognitionTeamCulture")
         "text":  // This is a string which is the question asked to the team member based on category - "Recognition & Team Culture" - the category string maps to the key in manager_assessment_input_actual.
         "response": N // Numerical response score (integer between 1-5).
       },
       {
-        "category": "Empowerment & Motivation", // Leadership category maps to the key in manager_assessment_input_actual: ("Empowerment & Motivation")
+        "category": "Empowerment & Motivation", // Leadership category maps to the key in manager_assessment_input_actual: ("EmpowermentMotivation")
         "text":  // This is a string which is the question asked to the team member based on category - "Empowerment & Motivation" - the category string maps to the key in manager_assessment_input_actual.
         "response": N // Numerical response score (integer between 1-5).
       }

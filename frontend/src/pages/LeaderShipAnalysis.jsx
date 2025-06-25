@@ -9,7 +9,7 @@ import SwotAnalysis from "../components/common/SwotAnalysis";
 function LeadershipAnalysis() {
   const reportData = useSelector((state) => state.user.reportData);
   const firstName = useSelector((state) => state.user.firstName);
-  const fullReport = useSelector((state) => state.user.fullReport);
+  // const fullReport = useSelector((state) => state.user.fullReport);
   const navigate = useNavigate();
   const location = useLocation();
   const formData = location.state?.formData;
@@ -61,7 +61,7 @@ function LeadershipAnalysis() {
               </p>
 
               <RainbowButton
-                onClick={() => navigate("/waiting", { state: { formData, fullReport } })}
+                onClick={() => navigate("/waiting", { state: { formData } })}
                 className="focus:ring-opacity-50 w-full max-w-xs bg-[var(--primary-color)] px-6 py-2 text-sm font-medium transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-[var(--primary-color)] focus:outline-none"
               >
                 Retry Analysis

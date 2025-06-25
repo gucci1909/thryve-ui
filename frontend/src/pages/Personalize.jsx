@@ -73,9 +73,9 @@ function Personalize() {
                 psychographic: normalizedFormData.psychographic,
               },
             },
-            fullReport: {
-              ...allDataPayload,
-            },
+            // fullReport: {
+            //   ...allDataPayload,
+            // },
           },
         });
       }, 1000);

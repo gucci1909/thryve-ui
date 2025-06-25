@@ -42,18 +42,29 @@ export const leadershipReportControllers = async (req, res) => {
       updatedAt: new Date(),
     });
 
-    // if (
-    //   req.body &&
-    //   req.body.fullReport &&
-    //   req.body.fullReport.leadershipInfo &&
-    //   typeof req.body.fullReport.leadershipInfo === 'object'
-    // ) {
+    if (req.body?.formData?.sections?.leadership) {
       const categoryAverages = {};
 
-      for (const [category, questions] of Object.entries(req.body?.fullReport?.leadershipInfo)) {
-        const scores = Object.values(questions);
+      for (const [category, questions] of Object.entries(
+        req.body?.formData?.sections?.leadership,
+      )) {
+        if (!questions || typeof questions !== 'object') {
+          console.warn(`Skipping invalid questions for category: ${category}`);
+          continue;
+        }
+
+        // Extract only numeric scores
+        const scores = Object.values(questions).filter((val) => typeof val === 'number');
+
+        if (scores.length === 0) {
+          console.warn(`No valid scores found for category: ${category}`);
+          categoryAverages[category] = 0;
+          continue;
+        }
+
         const sum = scores.reduce((acc, score) => acc + score, 0);
         const average = sum / scores.length;
+
         categoryAverages[category] = average;
       }
 
@@ -61,12 +72,15 @@ export const leadershipReportControllers = async (req, res) => {
         userId: req.user.id,
         userEmail: req.user.email,
         formData: req.body?.formData || {},
-        fullReport: req.body?.fullReport || {},
         scores_of_leadership_assessment: categoryAverages || {},
         createdAt: new Date(),
         updatedAt: new Date(),
       });
-    // }
+    } else {
+      console.warn(
+        'No leadership section found in formData, skipping category averages calculation',
+      );
+    }
 
     const updateResult = await usersCollection.updateOne(
       { _id: new ObjectId(req.user.id) },

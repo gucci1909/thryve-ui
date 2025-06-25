@@ -1,4 +1,4 @@
-import dotenv from 'dotenv'; 
+import dotenv from 'dotenv';
 import yargs from 'yargs/yargs';
 import { hideBin } from 'yargs/helpers';
 import fetch from 'node-fetch';
@@ -43,6 +43,16 @@ async function generateLeadershipAssessment(inputJson, req = null) {
       }),
     });
 
+    if (!response.ok) {
+      // Optionally, try to read as text to see if it's HTML
+      console.log('Response is not OK', response);
+      const text = await response.text();
+      if (text.startsWith('<')) {
+        throw new Error('Received HTML error page from API');
+      }
+      throw new Error(`API error: ${response.status} - ${text}`);
+    }
+
     const data = await response.json();
 
     // Comprehensive logging of the entire response data with pretty printing
@@ -70,7 +80,7 @@ async function generateLeadershipAssessment(inputJson, req = null) {
         promptTokens: data.usage?.prompt_tokens,
         completionTokens: data.usage?.completion_tokens,
         totalTokens: data.usage?.total_tokens,
-      }
+      },
     });
 
     const openAIResponseTime = Date.now() - openAIStartTime;

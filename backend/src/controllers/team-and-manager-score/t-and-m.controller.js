@@ -41,7 +41,7 @@ export const createAndGetInsightsOfTeamAndManager = async (req, res) => {
           })),
         }));
 
-      const feedback_ratings_manager = leadershipReport?.fullReport?.leadershipInfo || {};
+      const feedback_ratings_manager = leadershipReport?.formData?.sections?.leadership || {};
 
       const insights = await generateTeamAndManagerInsights(
         feedback_ratings_manager,
@@ -51,7 +51,7 @@ export const createAndGetInsightsOfTeamAndManager = async (req, res) => {
 
       const parsedInsights = JSON.parse(insights?.outputText);
       const now = new Date();
-  
+
       await managerAndTeamInsightsCollections.updateOne(
         { userId },
         {
@@ -133,9 +133,27 @@ export const getScoresOfTeamAndManager = async (req, res) => {
       categoryAverages[category] = total / totalMembers;
     }
 
+    // Define the key mapping
+    const keyMapping = {
+      CommunicationClarity: 'Communication & Clarity',
+      SupportDevelopment: 'Support & Development',
+      DecisionMakingFairness: 'Decision-Making & Fairness',
+      RecognitionTeamCulture: 'Recognition & Team Culture',
+      EmpowermentMotivation: 'Empowerment & Motivation',
+    };
+
+    // Map manager scores keys to match team scores keys
+    const mappedManagerScores = {};
+    const managerScores = leadershipReport?.scores_of_leadership_assessment || {};
+
+    for (const [key, value] of Object.entries(managerScores)) {
+      const mappedKey = keyMapping[key] || key; // fallback if any unmapped key appears
+      mappedManagerScores[mappedKey] = value;
+    }
+
     return res.status(200).json({
       status: 'OK',
-      scores_from_manager: leadershipReport?.scores_of_leadership_assessment || {},
+      scores_from_manager: mappedManagerScores || {},
       scores_from_team: categoryAverages,
     });
   } catch (error) {
