@@ -32,7 +32,7 @@ async function generateLeadershipAssessment(inputJson, req = null) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4-turbo',
         messages: [
           {
             role: 'system',
