@@ -84,8 +84,7 @@ function TeamManagerInsights() {
 
   const cardVariants = {
     offscreen: {
-      y: 50,
-      opacity: 0,
+      y: 50
     },
     onscreen: {
       y: 0,
@@ -109,7 +108,7 @@ function TeamManagerInsights() {
   };
 
   const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
+    hidden: { y: 20 },
     visible: {
       y: 0,
       opacity: 1,
@@ -136,7 +135,6 @@ function TeamManagerInsights() {
   const sectionVariants = {
     collapsed: {
       height: 0,
-      opacity: 0,
       transition: {
         duration: 0.4,
         ease: "easeInOut",
@@ -221,7 +219,7 @@ function TeamManagerInsights() {
       >
         {/* Background gradient overlay */}
         <div
-          className={`absolute inset-0 bg-gradient-to-br ${config.bgGradient} opacity-0 transition-opacity duration-300 group-hover:opacity-10`}
+          className={`absolute inset-0 bg-gradient-to-br ${config.bgGradient} transition-opacity duration-300 group-hover:opacity-10`}
         />
 
         {/* Category header */}
@@ -265,7 +263,6 @@ function TeamManagerInsights() {
   if (loading) {
     return (
       <motion.div
-        initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="flex h-64 items-center justify-center"
       >
@@ -290,7 +287,6 @@ function TeamManagerInsights() {
   if (error) {
     return (
       <motion.div
-        initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="flex h-64 items-center justify-center"
       >
@@ -493,7 +489,7 @@ function TeamManagerInsights() {
 
           {/* Action Call */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
             className="mt-8 rounded-xl border border-green-100 bg-gradient-to-br from-green-50 to-white p-6"
