@@ -82,28 +82,46 @@ function NPSScores() {
     }
   }, [token, dispatch, navigate]);
 
-  // Updated score category for NPS (-100 to +100)
   const getScoreCategory = (score) => {
     const numericScore = parseFloat(score);
-    if (numericScore >= 30)
+    if (numericScore >= 50)
       return {
         category: "Excellent",
-        color: "#10B981", // Green
+        color: "#10B981",
         bgColor: "#D1FAE5",
         gradient: ["#10B981", "#059669"],
+        emoji: "😍",
+      };
+    if (numericScore >= 30)
+      return {
+        category: "Great",
+        color: "#22C55E",
+        bgColor: "#BBF7D0",
+        gradient: ["#22C55E", "#16A34A"],
+        emoji: "😊",
       };
     if (numericScore >= 0)
       return {
         category: "Good",
-        color: "#3B82F6", // Blue
-        bgColor: "#DBEAFE",
+        color: "#3B82F6",
+        bgColor: "#BFDBFE",
         gradient: ["#3B82F6", "#2563EB"],
+        emoji: "🙂",
+      };
+    if (numericScore >= -30)
+      return {
+        category: "Needs Work",
+        color: "#F59E0B",
+        bgColor: "#FEF3C7",
+        gradient: ["#F59E0B", "#D97706"],
+        emoji: "😕",
       };
     return {
-      category: "Needs Improvement",
-      color: "#EF4444", // Red
+      category: "Poor",
+      color: "#EF4444",
       bgColor: "#FEE2E2",
       gradient: ["#EF4444", "#DC2626"],
+      emoji: "😞",
     };
   };
 
@@ -114,37 +132,42 @@ function NPSScores() {
     npsData?.scores_from_company_nps || 0,
   );
 
-  // Updated mobile-optimized chart options for NPS (-100 to +100)
   const chartOptions = {
     chart: {
       type: "bar",
-      height: 350,
-      toolbar: {
-        show: false,
-      },
+      parentHeightOffset: 0,
+      width: "100%",
+      toolbar: { show: false },
+
       animations: {
         enabled: true,
-        easing: "easeinout",
-        speed: 800,
+        easing: "easeOutElastic",
+        speed: 1200,
+        animateGradually: {
+          enabled: true,
+          delay: 200,
+        },
+        dynamicAnimation: {
+          enabled: true,
+          speed: 500,
+        },
       },
       fontFamily: "Inter, sans-serif",
-      background: "transparent",
-      sparkline: {
-        enabled: false,
-      },
+
       dropShadow: {
         enabled: true,
-        top: 0,
+        top: 6,
         left: 0,
-        blur: 3,
-        opacity: 0.1,
+        blur: 16,
+        opacity: 0.25,
       },
+      foreColor: "#1F2937",
     },
     plotOptions: {
       bar: {
         horizontal: false,
         columnWidth: "55%",
-        borderRadius: 12,
+        borderRadius: 24,
         borderRadiusApplication: "end",
         borderRadiusWhenStacked: "last",
         dataLabels: {
@@ -155,65 +178,83 @@ function NPSScores() {
     },
     dataLabels: {
       enabled: true,
-      formatter: function (val) {
-        if (val === 0) return "";
-        return val > 0 ? `+${val.toFixed(0)}` : val.toFixed(0);
+      formatter: function (val, opts) {
+        const emoji =
+          opts.dataPointIndex === 0
+            ? teamScoreCategory.emoji
+            : companyScoreCategory.emoji;
+        if (val === 0) return `0 ${emoji}`;
+        return `${val > 0 ? "+" : ""}${Math.round(val)} ${emoji}`;
       },
       style: {
-        fontSize: "14px",
-        fontWeight: 700,
+        fontSize: "24px",
+        fontWeight: 800,
         colors: ["#111827"],
+        textShadow: "0 4px 12px rgba(0,0,0,0.12)",
       },
-      offsetY: -20,
+      offsetY: -36,
       dropShadow: {
         enabled: true,
-        top: 1,
-        left: 1,
-        blur: 1,
-        opacity: 0.45,
+        top: 2,
+        left: 2,
+        blur: 6,
+        opacity: 0.35,
+      },
+      background: {
+        enabled: true,
+        foreColor: "#fff",
+        padding: 12,
+        borderRadius: 20,
+        borderWidth: 2,
+        borderColor: "#e5e7eb",
+        opacity: 0.98,
+        dropShadow: {
+          enabled: true,
+          top: 1,
+          left: 1,
+          blur: 3,
+          opacity: 0.2,
+        },
       },
     },
     stroke: {
       show: true,
-      width: 2,
+      width: 6,
       colors: ["transparent"],
     },
     xaxis: {
-      categories: ["Your Team NPS", "Company Avg NPS"],
+      categories: ["Team", "Company"],
       labels: {
         style: {
-          fontSize: "14px",
-          fontWeight: 600,
-          colors: "#4B5563",
+          fontSize: "20px",
+          fontWeight: 800,
+          colors: [teamScoreCategory.color, companyScoreCategory.color],
         },
-        maxWidth: 120,
+        maxWidth: 200,
         trim: true,
       },
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: false,
-      },
+      axisBorder: { show: false },
+      axisTicks: { show: false },
     },
     yaxis: {
       title: {
         text: "NPS Score",
         style: {
           color: "#6B7280",
-          fontSize: "12px",
+          fontSize: "18px",
           fontFamily: "Inter, sans-serif",
-          fontWeight: "600",
+          fontWeight: "800",
         },
+        offsetX: 12,
       },
       labels: {
         style: {
-          fontSize: "12px",
-          fontWeight: 600,
-          colors: "#6b7280",
+          fontSize: "16px",
+          fontWeight: 700,
+          colors: ["#6b7280"],
         },
         formatter: function (val) {
-          return val > 0 ? `+${val.toFixed(0)}` : val.toFixed(0);
+          return val > 0 ? `+${Math.round(val)}` : Math.round(val);
         },
       },
       min: -100,
@@ -224,20 +265,20 @@ function NPSScores() {
     fill: {
       type: "gradient",
       gradient: {
-        shade: "light",
+        shade: "dark",
         type: "vertical",
-        shadeIntensity: 0.5,
-        gradientToColors: [teamScoreCategory.gradient[1], companyScoreCategory.gradient[1]],
+        shadeIntensity: 0.8,
+        gradientToColors: [
+          teamScoreCategory.gradient[1],
+          companyScoreCategory.gradient[1],
+        ],
         inverseColors: false,
-        opacityFrom: 0.9,
+        opacityFrom: 1,
         opacityTo: 0.9,
         stops: [0, 100],
       },
     },
-    colors: [
-      teamScoreCategory.gradient[0], 
-      companyScoreCategory.gradient[0]
-    ],
+    colors: [teamScoreCategory.gradient[0], companyScoreCategory.gradient[0]],
     tooltip: {
       enabled: true,
       shared: false,
@@ -245,14 +286,19 @@ function NPSScores() {
       fillSeriesColor: true,
       theme: "light",
       style: {
-        fontSize: "14px",
+        fontSize: "20px",
         fontFamily: "Inter, sans-serif",
+        fontWeight: 800,
       },
       y: {
         formatter: function (val, { dataPointIndex }) {
-          const categories = ["Your Team NPS", "Company Avg NPS"];
+          const categories = ["Your Team NPS", "Company Average"];
           const category = categories[dataPointIndex];
-          return `${category}: ${val > 0 ? `+${val.toFixed(0)}` : val.toFixed(0)}`;
+          const emoji =
+            dataPointIndex === 0
+              ? teamScoreCategory.emoji
+              : companyScoreCategory.emoji;
+          return `${emoji} ${category}: ${val > 0 ? "+" : ""}${Math.round(val)}`;
         },
         title: {
           formatter: function () {
@@ -260,72 +306,117 @@ function NPSScores() {
           },
         },
       },
-      marker: {
-        show: true,
+      marker: { show: true },
+      onDatasetHover: { highlightDataSeries: true },
+      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+        const val = series[seriesIndex][dataPointIndex];
+        const emoji =
+          dataPointIndex === 0
+            ? teamScoreCategory.emoji
+            : companyScoreCategory.emoji;
+        const color =
+          dataPointIndex === 0
+            ? teamScoreCategory.color
+            : companyScoreCategory.color;
+        return `<div style='padding:12px 18px;border-radius:16px;background:rgba(255,255,255,0.98);box-shadow:0 4px 12px rgba(0,0,0,0.12);color:${color};font-size:20px;font-weight:800;'>${emoji} <span style='color:${color}'>${val > 0 ? "+" : ""}${Math.round(val)}</span></div>`;
       },
     },
-    legend: {
-      show: false,
-    },
+    legend: { show: false },
     grid: {
       borderColor: "#e5e7eb",
-      strokeDashArray: 5,
-      xaxis: {
-        lines: {
-          show: false,
-        },
-      },
+      strokeDashArray: 8,
+      xaxis: { lines: { show: false } },
       yaxis: {
         lines: {
           show: true,
           color: "#e5e7eb",
         },
       },
-      padding: {
-        top: 15,
-        right: 10,
-        bottom: 0,
-        left: 10,
-      },
+      padding: { top: 40, right: 40, bottom: 0, left: 40 },
     },
     responsive: [
       {
+        breakpoint: 1280,
+        options: {
+          chart: { height: 450 },
+          dataLabels: {
+            style: { fontSize: "20px" },
+            offsetY: -28,
+            background: {
+              padding: 10,
+              borderRadius: 18,
+            },
+          },
+          xaxis: { labels: { style: { fontSize: "18px" } } },
+          yaxis: {
+            labels: { style: { fontSize: "14px" } },
+            title: { style: { fontSize: "16px" } },
+          },
+          plotOptions: { bar: { columnWidth: "60%", borderRadius: 20 } },
+          grid: { padding: { left: 24, right: 24, top: 24 } },
+        },
+      },
+      {
+        breakpoint: 1024,
+        options: {
+          chart: { height: 450 },
+          dataLabels: {
+            style: { fontSize: "18px" },
+            offsetY: -24,
+            background: {
+              padding: 8,
+              borderRadius: 16,
+            },
+          },
+          xaxis: { labels: { style: { fontSize: "16px" } } },
+          yaxis: {
+            labels: { style: { fontSize: "12px" } },
+            title: { style: { fontSize: "14px" } },
+          },
+          plotOptions: { bar: { columnWidth: "65%", borderRadius: 18 } },
+          grid: { padding: { left: 20, right: 20, top: 20 } },
+        },
+      },
+      {
+        breakpoint: 768,
+        options: {
+          chart: { height: 450 },
+          dataLabels: {
+            style: { fontSize: "16px" },
+            offsetY: -20,
+            background: {
+              padding: 6,
+              borderRadius: 14,
+            },
+          },
+          xaxis: { labels: { style: { fontSize: "14px" } } },
+          yaxis: {
+            labels: { style: { fontSize: "11px" } },
+            title: { style: { fontSize: "12px" } },
+          },
+          plotOptions: { bar: { columnWidth: "70%", borderRadius: 16 } },
+          grid: { padding: { left: 16, right: 16, top: 16 } },
+        },
+      },
+      {
         breakpoint: 640,
         options: {
-          chart: {
-            height: 320,
-          },
-          plotOptions: {
-            bar: {
-              columnWidth: "60%",
-              borderRadius: 10,
-            },
-          },
+          chart: { height: 450 },
           dataLabels: {
-            style: {
-              fontSize: "12px",
-            },
-            offsetY: -15,
-          },
-          xaxis: {
-            labels: {
-              style: {
-                fontSize: "12px",
-              },
+            style: { fontSize: "14px" },
+            offsetY: -16,
+            background: {
+              padding: 5,
+              borderRadius: 12,
             },
           },
+          xaxis: { labels: { style: { fontSize: "12px" } } },
           yaxis: {
-            labels: {
-              style: {
-                fontSize: "11px",
-              },
-            },
-            title: {
-              style: {
-                fontSize: "11px",
-              },
-            },
+            labels: { style: { fontSize: "10px" } },
+            title: { style: { fontSize: "11px" } },
           },
+          plotOptions: { bar: { columnWidth: "75%", borderRadius: 14 } },
+          grid: { padding: { left: 12, right: 12, top: 12 } },
         },
       },
     ],
@@ -429,51 +520,52 @@ function NPSScores() {
       variants={cardVariants}
       className="mt-4"
     >
-      <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-white/95 p-4 shadow-[0_10px_40px_-15px_rgba(0,41,255,0.15)] backdrop-blur-md">
+      <div className="relative overflow-hidden rounded-3xl border border-white/30 bg-white/80 p-4 shadow-[0_10px_40px_-15px_rgba(0,41,255,0.10)] backdrop-blur-lg">
         <BorderBeam
-          size={150}
-          duration={10}
+          size={180}
+          duration={12}
           colorFrom="#0029ff"
-          colorTo="color-mix(in_srgb,#0029ff,white_50%)"
+          colorTo="color-mix(in_srgb,#0029ff,white_60%)"
           className="z-0"
         />
-
         <div className="relative z-10">
           <div className="mb-6 flex items-center gap-3">
             <div>
-              <h2 className="bg-gradient-to-r from-[#0029ff] to-blue-600 bg-clip-text text-xl font-bold text-transparent">
+              <h2 className="bg-gradient-to-r from-[#0029ff] to-blue-600 bg-clip-text text-2xl font-extrabold text-transparent">
                 Net Promoter Score (NPS)
               </h2>
-              <p className="text-sm text-gray-600">
-                Measures how likely your team would recommend you as a manager (-100 to +100)
+              <p className="text-base text-gray-700">
+                Measures how likely your team would recommend you as a manager
+                (-100 to +100)
               </p>
             </div>
           </div>
-
-          {/* Summary Cards */}
           <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-4"
+              className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50/80 to-white/80 p-4 shadow"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                  <FiUsers className="h-5 w-5 text-blue-600" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+                  <FiUsers className="h-6 w-6 text-blue-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-blue-600">
+                  <p className="text-base font-semibold text-blue-600">
                     Your Team NPS
                   </p>
-                  <p className="text-lg font-bold text-blue-800">
-                    {npsData?.scores_from_team_nps > 0 
-                      ? `+${parseFloat(npsData.scores_from_team_nps).toFixed(0)}` 
+                  <p className="text-2xl font-extrabold text-blue-800">
+                    {npsData?.scores_from_team_nps > 0
+                      ? `+${parseFloat(npsData.scores_from_team_nps).toFixed(0)}`
                       : parseFloat(npsData?.scores_from_team_nps).toFixed(0)}
+                    <span className="ml-2 text-xl">
+                      {teamScoreCategory.emoji}
+                    </span>
                   </p>
                   <div className="mt-1 flex items-center gap-2">
                     <span
-                      className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
+                      className="inline-flex items-center rounded-full px-2 py-1 text-xs font-bold"
                       style={{
                         backgroundColor: teamScoreCategory.bgColor,
                         color: teamScoreCategory.color,
@@ -485,29 +577,31 @@ function NPSScores() {
                 </div>
               </div>
             </motion.div>
-
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
-              className="rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-4"
+              className="rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50/80 to-white/80 p-4 shadow"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
-                  <FiGlobe className="h-5 w-5 text-emerald-600" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
+                  <FiGlobe className="h-6 w-6 text-emerald-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-emerald-600">
+                  <p className="text-base font-semibold text-emerald-600">
                     Company Avg NPS
                   </p>
-                  <p className="text-lg font-bold text-emerald-800">
-                    {npsData?.scores_from_company_nps > 0 
-                      ? `+${parseFloat(npsData.scores_from_company_nps).toFixed(0)}` 
+                  <p className="text-2xl font-extrabold text-emerald-800">
+                    {npsData?.scores_from_company_nps > 0
+                      ? `+${parseFloat(npsData.scores_from_company_nps).toFixed(0)}`
                       : parseFloat(npsData?.scores_from_company_nps).toFixed(0)}
+                    <span className="ml-2 text-xl">
+                      {companyScoreCategory.emoji}
+                    </span>
                   </p>
                   <div className="mt-1 flex items-center gap-2">
                     <span
-                      className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
+                      className="inline-flex items-center rounded-full px-2 py-1 text-xs font-bold"
                       style={{
                         backgroundColor: companyScoreCategory.bgColor,
                         color: companyScoreCategory.color,
@@ -520,30 +614,48 @@ function NPSScores() {
               </div>
             </motion.div>
           </div>
-
-          {/* Chart */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="rounded-xl border border-gray-100 bg-white p-4 shadow-lg"
+            className="rounded-3xl border border-gray-100 bg-white/95 shadow-xl backdrop-blur-sm"
           >
-            <div className="relative w-full">
+            <div
+              className="apexcharts-container relative w-full"
+            >
               <ReactApexChart
                 options={chartOptions}
                 series={chartSeries}
                 type="bar"
-                height={350}
                 width="100%"
               />
             </div>
           </motion.div>
-          {/* Score Explanation */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
+            <div className="flex items-center gap-2">
+              <span
+                className="h-3 w-3 rounded-full"
+                style={{ background: teamScoreCategory.gradient[0] }}
+              ></span>
+              <span className="font-semibold text-gray-700">
+                Your Team NPS {teamScoreCategory.emoji}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span
+                className="h-3 w-3 rounded-full"
+                style={{ background: companyScoreCategory.gradient[0] }}
+              ></span>
+              <span className="font-semibold text-gray-700">
+                Company Avg {companyScoreCategory.emoji}
+              </span>
+            </div>
+          </div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="mt-6 rounded-xl border border-gray-100 bg-gray-50 p-4"
+            className="mt-6 rounded-xl border border-gray-100 bg-gray-50/80 p-4"
           >
             <h4 className="mb-3 font-semibold text-gray-800">
               NPS Score Categories
@@ -552,47 +664,57 @@ function NPSScores() {
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-green-500"></div>
                 <span>
-                  <strong>+30 to +100:</strong> Excellent
+                  <strong>+50 to +100:</strong> Excellent 😍
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-lime-500"></div>
+                <span>
+                  <strong>+30 to +49:</strong> Great 😊
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-blue-500"></div>
                 <span>
-                  <strong>0 to +29:</strong> Good
+                  <strong>0 to +29:</strong> Good 🙂
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
+                <span>
+                  <strong>-1 to -30:</strong> Needs Work 😕
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-red-500"></div>
                 <span>
-                  <strong>-100 to -1:</strong> Needs Improvement
+                  <strong>-31 to -100:</strong> Poor 😞
                 </span>
               </div>
             </div>
             <p className="mt-3 text-xs text-gray-500">
-              NPS scores range from -100 to +100. Higher scores indicate stronger team
-              satisfaction and likelihood to recommend.
+              NPS scores range from -100 to +100. Higher scores indicate
+              stronger team satisfaction and likelihood to recommend.
             </p>
           </motion.div>
-
-          {/* Performance Comparison */}
           {npsData && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className="mt-4 rounded-xl border border-gray-100 bg-white p-4"
+              className="mt-4 rounded-xl border border-gray-100 bg-white/90 p-4"
             >
               <h4 className="mb-3 font-semibold text-gray-800">
                 Performance Comparison
               </h4>
-              <div className="space-y-2 text-sm">
+              <div className="space-y-2 text-base">
                 {parseFloat(npsData.scores_from_team_nps) >
                 parseFloat(npsData.scores_from_company_nps) ? (
                   <div className="flex items-center gap-2 text-green-700">
                     <div className="h-2 w-2 rounded-full bg-green-500"></div>
                     <span>
-                      Your team NPS is{" "}
                       <strong>
+                        🎉 Your team NPS is{" "}
                         {(
                           parseFloat(npsData.scores_from_team_nps) -
                           parseFloat(npsData.scores_from_company_nps)
@@ -607,8 +729,8 @@ function NPSScores() {
                   <div className="flex items-center gap-2 text-amber-700">
                     <div className="h-2 w-2 rounded-full bg-amber-500"></div>
                     <span>
-                      Your team NPS is{" "}
                       <strong>
+                        ⚠️ Your team NPS is{" "}
                         {(
                           parseFloat(npsData.scores_from_company_nps) -
                           parseFloat(npsData.scores_from_team_nps)
@@ -622,7 +744,9 @@ function NPSScores() {
                   <div className="flex items-center gap-2 text-blue-700">
                     <div className="h-2 w-2 rounded-full bg-blue-500"></div>
                     <span>
-                      Your team NPS matches the company average exactly.
+                      <strong>
+                        🤝 Your team NPS matches the company average exactly.
+                      </strong>
                     </span>
                   </div>
                 )}

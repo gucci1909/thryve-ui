@@ -8,7 +8,9 @@
 /* index.css or global.css */
 :root {
   --primary-color: #0029ff;
-   --primary: var(--primary-color); /* Add this line to match ShinyButton's variable */
+  --primary: var(
+    --primary-color
+  ); /* Add this line to match ShinyButton's variable */
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -48,6 +50,18 @@
   --color-5: oklch(90.7% 0.231 133);
 }
 
+.apexcharts-data-labels {
+  background-color: blue !important;
+}
+
+.apexcharts-container > div {
+  min-height: unset !important;
+}
+
+.apexcharts-container {
+  border: 2px solid white !important;
+}
+
 @keyframes float-up {
   0% {
     transform: translateY(0) scale(var(--scale, 1));
@@ -57,6 +71,13 @@
     transform: translateY(-100vh) scale(calc(var(--scale, 1) * 0.8));
     opacity: 0;
   }
+}
+.apexcharts-canvas,
+.apexcharts-inner,
+.apexcharts-svg {
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: 100% !important;
 }
 
 .animate-float-up {
@@ -265,29 +286,29 @@
     }
   }
   @keyframes rippling {
-  0% {
-    opacity: 1;
+    0% {
+      opacity: 1;
     }
-  100% {
-    transform: scale(2);
-    opacity: 0;
+    100% {
+      transform: scale(2);
+      opacity: 0;
     }
   }
-  --animate-meteor: meteor 5s linear infinite
-;
+  --animate-meteor: meteor 5s linear infinite;
   @keyframes meteor {
-  0% {
-    transform: rotate(var(--angle)) translateX(0);
-    opacity: 1;
+    0% {
+      transform: rotate(var(--angle)) translateX(0);
+      opacity: 1;
     }
-  70% {
-    opacity: 1;
+    70% {
+      opacity: 1;
     }
-  100% {
-    transform: rotate(var(--angle)) translateX(-500px);
-    opacity: 0;
+    100% {
+      transform: rotate(var(--angle)) translateX(-500px);
+      opacity: 0;
     }
-  }}
+  }
+}
 
 .dark {
   --background: oklch(0.145 0 0);
@@ -379,7 +400,8 @@
 }
 
 @keyframes bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
     opacity: 1;
   }
@@ -390,7 +412,8 @@
 }
 
 @keyframes fadeInOut {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.6;
   }
   50% {
