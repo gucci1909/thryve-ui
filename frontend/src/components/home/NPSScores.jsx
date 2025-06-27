@@ -82,28 +82,22 @@ function NPSScores() {
     }
   }, [token, dispatch, navigate]);
 
-  // Enhanced score category with more vibrant colors
+  // Updated score category for NPS (-100 to +100)
   const getScoreCategory = (score) => {
-    if (score >= 8)
+    const numericScore = parseFloat(score);
+    if (numericScore >= 30)
       return {
         category: "Excellent",
         color: "#10B981", // Green
         bgColor: "#D1FAE5",
         gradient: ["#10B981", "#059669"],
       };
-    if (score >= 6)
+    if (numericScore >= 0)
       return {
         category: "Good",
         color: "#3B82F6", // Blue
         bgColor: "#DBEAFE",
         gradient: ["#3B82F6", "#2563EB"],
-      };
-    if (score >= 4)
-      return {
-        category: "Average",
-        color: "#F59E0B", // Orange
-        bgColor: "#FEF3C7",
-        gradient: ["#F59E0B", "#D97706"],
       };
     return {
       category: "Needs Improvement",
@@ -120,7 +114,7 @@ function NPSScores() {
     npsData?.scores_from_company_nps || 0,
   );
 
-  // Enhanced mobile-optimized chart options
+  // Updated mobile-optimized chart options for NPS (-100 to +100)
   const chartOptions = {
     chart: {
       type: "bar",
@@ -163,7 +157,7 @@ function NPSScores() {
       enabled: true,
       formatter: function (val) {
         if (val === 0) return "";
-        return val.toFixed(1);
+        return val > 0 ? `+${val.toFixed(0)}` : val.toFixed(0);
       },
       style: {
         fontSize: "14px",
@@ -185,7 +179,7 @@ function NPSScores() {
       colors: ["transparent"],
     },
     xaxis: {
-      categories: ["Your Team Score", "Company Average"],
+      categories: ["Your Team NPS", "Company Avg NPS"],
       labels: {
         style: {
           fontSize: "14px",
@@ -204,7 +198,7 @@ function NPSScores() {
     },
     yaxis: {
       title: {
-        text: "Score (out of 10)",
+        text: "NPS Score",
         style: {
           color: "#6B7280",
           fontSize: "12px",
@@ -219,11 +213,11 @@ function NPSScores() {
           colors: "#6b7280",
         },
         formatter: function (val) {
-          return val.toFixed(0);
+          return val > 0 ? `+${val.toFixed(0)}` : val.toFixed(0);
         },
       },
-      min: 0,
-      max: 10,
+      min: -100,
+      max: 100,
       tickAmount: 5,
       forceNiceScale: true,
     },
@@ -256,9 +250,9 @@ function NPSScores() {
       },
       y: {
         formatter: function (val, { dataPointIndex }) {
-          const categories = ["Your Team Score", "Company Average"];
+          const categories = ["Your Team NPS", "Company Avg NPS"];
           const category = categories[dataPointIndex];
-          return `${category}: ${val.toFixed(1)}/10`;
+          return `${category}: ${val > 0 ? `+${val.toFixed(0)}` : val.toFixed(0)}`;
         },
         title: {
           formatter: function () {
@@ -339,10 +333,10 @@ function NPSScores() {
 
   const chartSeries = [
     {
-      name: "Scores",
+      name: "NPS Scores",
       data: [
-        npsData?.scores_from_team_nps || 0,
-        npsData?.scores_from_company_nps || 0,
+        parseFloat(npsData?.scores_from_team_nps) || 0,
+        parseFloat(npsData?.scores_from_company_nps) || 0,
       ],
     },
   ];
@@ -413,9 +407,8 @@ function NPSScores() {
 
             <p className="mb-6 leading-relaxed text-amber-700">
               Your team members haven't provided feedback yet. Once they
-              complete their assessments, your score comparison will appear
-              here, showing how your team rates you compared to the company
-              average.
+              complete their assessments, your NPS score will appear here,
+              showing how your team rates you compared to the company average.
             </p>
 
             <div className="flex items-center justify-center gap-2 text-sm text-amber-600">
@@ -452,8 +445,7 @@ function NPSScores() {
                 Net Promoter Score (NPS)
               </h2>
               <p className="text-sm text-gray-600">
-                How likely your team would recommend you as a manager (out of
-                10)
+                Measures how likely your team would recommend you as a manager (-100 to +100)
               </p>
             </div>
           </div>
@@ -472,10 +464,12 @@ function NPSScores() {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-blue-600">
-                    Your Team Score
+                    Your Team NPS
                   </p>
                   <p className="text-lg font-bold text-blue-800">
-                    {npsData?.scores_from_team_nps?.toFixed(1) || "0.0"} / 10
+                    {npsData?.scores_from_team_nps > 0 
+                      ? `+${parseFloat(npsData.scores_from_team_nps).toFixed(0)}` 
+                      : parseFloat(npsData?.scores_from_team_nps).toFixed(0)}
                   </p>
                   <div className="mt-1 flex items-center gap-2">
                     <span
@@ -504,10 +498,12 @@ function NPSScores() {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-emerald-600">
-                    Company Average
+                    Company Avg NPS
                   </p>
                   <p className="text-lg font-bold text-emerald-800">
-                    {npsData?.scores_from_company_nps?.toFixed(1) || "0.0"} / 10
+                    {npsData?.scores_from_company_nps > 0 
+                      ? `+${parseFloat(npsData.scores_from_company_nps).toFixed(0)}` 
+                      : parseFloat(npsData?.scores_from_company_nps).toFixed(0)}
                   </p>
                   <div className="mt-1 flex items-center gap-2">
                     <span
@@ -550,37 +546,31 @@ function NPSScores() {
             className="mt-6 rounded-xl border border-gray-100 bg-gray-50 p-4"
           >
             <h4 className="mb-3 font-semibold text-gray-800">
-              Score Categories
+              NPS Score Categories
             </h4>
             <div className="grid grid-cols-1 gap-3 text-sm text-gray-600 md:grid-cols-2">
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-green-500"></div>
                 <span>
-                  <strong>8-10:</strong> Excellent
+                  <strong>+30 to +100:</strong> Excellent
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-blue-500"></div>
                 <span>
-                  <strong>6-7.9:</strong> Good
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
-                <span>
-                  <strong>4-5.9:</strong> Average
+                  <strong>0 to +29:</strong> Good
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-red-500"></div>
                 <span>
-                  <strong>0-3.9:</strong> Needs Improvement
+                  <strong>-100 to -1:</strong> Needs Improvement
                 </span>
               </div>
             </div>
             <p className="mt-3 text-xs text-gray-500">
-              Scores range from 0 to 10. Higher scores indicate stronger team
-              satisfaction and positive feedback.
+              NPS scores range from -100 to +100. Higher scores indicate stronger team
+              satisfaction and likelihood to recommend.
             </p>
           </motion.div>
 
@@ -596,33 +586,33 @@ function NPSScores() {
                 Performance Comparison
               </h4>
               <div className="space-y-2 text-sm">
-                {npsData.scores_from_team_nps >
-                npsData.scores_from_company_nps ? (
+                {parseFloat(npsData.scores_from_team_nps) >
+                parseFloat(npsData.scores_from_company_nps) ? (
                   <div className="flex items-center gap-2 text-green-700">
                     <div className="h-2 w-2 rounded-full bg-green-500"></div>
                     <span>
-                      Your team score is{" "}
+                      Your team NPS is{" "}
                       <strong>
                         {(
-                          npsData.scores_from_team_nps -
-                          npsData.scores_from_company_nps
-                        ).toFixed(1)}{" "}
+                          parseFloat(npsData.scores_from_team_nps) -
+                          parseFloat(npsData.scores_from_company_nps)
+                        ).toFixed(0)}{" "}
                         points higher
                       </strong>{" "}
                       than the company average!
                     </span>
                   </div>
-                ) : npsData.scores_from_team_nps <
-                  npsData.scores_from_company_nps ? (
+                ) : parseFloat(npsData.scores_from_team_nps) <
+                  parseFloat(npsData.scores_from_company_nps) ? (
                   <div className="flex items-center gap-2 text-amber-700">
                     <div className="h-2 w-2 rounded-full bg-amber-500"></div>
                     <span>
-                      Your team score is{" "}
+                      Your team NPS is{" "}
                       <strong>
                         {(
-                          npsData.scores_from_company_nps -
-                          npsData.scores_from_team_nps
-                        ).toFixed(1)}{" "}
+                          parseFloat(npsData.scores_from_company_nps) -
+                          parseFloat(npsData.scores_from_team_nps)
+                        ).toFixed(0)}{" "}
                         points lower
                       </strong>{" "}
                       than the company average.
@@ -632,7 +622,7 @@ function NPSScores() {
                   <div className="flex items-center gap-2 text-blue-700">
                     <div className="h-2 w-2 rounded-full bg-blue-500"></div>
                     <span>
-                      Your team score matches the company average exactly.
+                      Your team NPS matches the company average exactly.
                     </span>
                   </div>
                 )}

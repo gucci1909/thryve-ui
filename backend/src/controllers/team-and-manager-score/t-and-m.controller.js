@@ -172,7 +172,7 @@ export const getNPSScoresOfTeamAndCompany = async (req, res) => {
     const teamMembersCollection = db.collection('team-members');
 
     const managerTeamMembers = await teamMembersCollection
-      .find({ userId: userId, assessment: true })
+      .find({ userId, assessment: true })
       .toArray();
 
     if (managerTeamMembers.length === 0) {
@@ -183,18 +183,24 @@ export const getNPSScoresOfTeamAndCompany = async (req, res) => {
       });
     }
 
-    // start manager score average calculation
-    let totalMembers = managerTeamMembers.length;
-    let totalNpsScore = 0;
+    // Compute manager's NPS
+    let promoters = 0;
+    let detractors = 0;
+    let validResponses = 0;
 
     managerTeamMembers.forEach((member) => {
-      const npsScore = member?.feedbackData?.npsScore ?? 0;
-      totalNpsScore += npsScore;
+      const score = member?.feedbackData?.npsScore;
+      if (typeof score === 'number') {
+        validResponses++;
+        if (score >= 9) promoters++;
+        else if (score <= 6) detractors++;
+      }
     });
 
-    const averageManagerNpsScore = totalMembers > 0 ? totalNpsScore / totalMembers : 0;
-    // end manager score average calculations
+    const averageManagerNpsScore =
+      validResponses > 0 ? ((promoters - detractors) / validResponses) * 100 : 0;
 
+    // Compute company-wide NPS
     const companyTeamMembers = await teamMembersCollection
       .aggregate([
         {
@@ -212,29 +218,30 @@ export const getNPSScoresOfTeamAndCompany = async (req, res) => {
       ])
       .toArray();
 
-    let totalManagers = companyTeamMembers.length;
-    let totalManagersNpsSum = 0;
+    let companyPromoters = 0;
+    let companyDetractors = 0;
+    let companyValidResponses = 0;
 
     companyTeamMembers.forEach((managerGroup) => {
-      const teamMembers = managerGroup.teamMembers;
-      let teamTotalNps = 0;
-      let teamMemberCount = teamMembers.length;
-
-      teamMembers.forEach((member) => {
-        const nps = member?.feedbackData?.npsScore ?? 0;
-        teamTotalNps += nps;
+      managerGroup.teamMembers.forEach((member) => {
+        const score = member?.feedbackData?.npsScore;
+        if (typeof score === 'number') {
+          companyValidResponses++;
+          if (score >= 9) companyPromoters++;
+          else if (score <= 6) companyDetractors++;
+        }
       });
-
-      const managerAverageNps = teamMemberCount > 0 ? teamTotalNps / teamMemberCount : 0;
-      totalManagersNpsSum += managerAverageNps;
     });
 
-    const companyAverageNps = totalManagers > 0 ? totalManagersNpsSum / totalManagers : 0;
+    const companyAverageNps =
+      companyValidResponses > 0
+        ? ((companyPromoters - companyDetractors) / companyValidResponses) * 100
+        : 0;
 
     return res.status(200).json({
       status: 'OK',
-      scores_from_team_nps: averageManagerNpsScore,
-      scores_from_company_nps: companyAverageNps,
+      scores_from_team_nps: averageManagerNpsScore.toFixed(2),
+      scores_from_company_nps: companyAverageNps.toFixed(2),
     });
   } catch (error) {
     console.error('Get NPS Scores Of Team And Company Failed:', error);
