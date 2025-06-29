@@ -1,35 +1,41 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import {
-  ArrowLeft,
-  Mail,
   Users,
-  Target,
-  MessageSquare,
-  TrendingUp,
   Star,
-  Plus,
-  X,
-  Calendar,
-  Activity,
-  Award,
+  MessageSquare,
+  Target,
   BookOpen,
+  Award,
+  Flame,
+  BarChart2,
+  Clock,
+  Zap,
+  Lightbulb,
+  ArrowLeft,
+  ThumbsUp,
+  ChevronRight,
+  Trophy,
+  Target as TargetIcon,
+  BookOpen as BookOpenIcon,
+  Users as UsersIcon,
+  Star as StarIcon,
+  Calendar,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { Toaster } from "react-hot-toast";
+import ReactApexChart from "react-apexcharts";
 
 const SingleManager = () => {
   const [manager, setManager] = useState(null);
   const [learningPlans, setLearningPlans] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showInviteModal, setShowInviteModal] = useState(false);
-  const [inviteForm, setInviteForm] = useState({ name: "", email: "" });
-  const [inviteLoading, setInviteLoading] = useState(false);
+  const [npsScore, setNPSScore] = useState(0);
 
   const navigate = useNavigate();
   const { managerId } = useParams();
   const { token } = useSelector((state) => state.user);
-
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   // Fetch manager details
@@ -45,8 +51,15 @@ const SingleManager = () => {
           },
         },
       );
+
+      if (response.status === 401) {
+        navigate("/");
+        return;
+      }
+
       const data = await response.json();
       if (data.success) {
+        setNPSScore(data.scores_from_team_nps || 0);
         setManager(data.manager);
       }
     } catch (error) {
@@ -68,74 +81,246 @@ const SingleManager = () => {
           },
         },
       );
+
+      if (response.status === 401) {
+        navigate("/");
+        return;
+      }
+
       const data = await response.json();
       if (data.success) {
-        setLearningPlans(data.learningPlans || []);
+        setLearningPlans(data.learningPlans);
       }
     } catch (error) {
       console.error("Error fetching learning plans:", error);
     }
   };
 
-  // Invite team members
-  const inviteTeamMembers = async (e) => {
-    e.preventDefault();
-    setInviteLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/invite-team`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          companyCode: manager?.companyId,
-          feedbackRequests: [inviteForm],
-        }),
-      });
-      const data = await response.json();
-      if (data.status === "OK") {
-        setShowInviteModal(false);
-        setInviteForm({ name: "", email: "" });
-        alert("Team member invited successfully!");
-      } else {
-        alert(data.error || "Failed to invite team member");
-      }
-    } catch (error) {
-      console.error("Error inviting team member:", error);
-      alert("Failed to invite team member");
-    } finally {
-      setInviteLoading(false);
-    }
+  useEffect(() => {
+    fetchManagerDetails();
+    fetchLearningPlans();
+  }, [managerId]);
+
+  const getScoreCategory = (score) => {
+    const numericScore = parseFloat(score);
+    if (numericScore >= 50)
+      return {
+        category: "Excellent",
+        color: "#10B981",
+        bgColor: "#D1FAE5",
+        emoji: "😍",
+        gradient: ["#10B981", "#059669"],
+      };
+    if (numericScore >= 30)
+      return {
+        category: "Great",
+        color: "#22C55E",
+        bgColor: "#BBF7D0",
+        emoji: "😊",
+        gradient: ["#22C55E", "#16A34A"],
+      };
+    if (numericScore >= 0)
+      return {
+        category: "Good",
+        color: "#3B82F6",
+        bgColor: "#BFDBFE",
+        emoji: "🙂",
+        gradient: ["#3B82F6", "#2563EB"],
+      };
+    if (numericScore >= -30)
+      return {
+        category: "Needs Work",
+        color: "#F59E0B",
+        bgColor: "#FEF3C7",
+        emoji: "😕",
+        gradient: ["#F59E0B", "#D97706"],
+      };
+    return {
+      category: "Poor",
+      color: "#EF4444",
+      bgColor: "#FEE2E2",
+      emoji: "😞",
+      gradient: ["#EF4444", "#DC2626"],
+    };
   };
 
-  useEffect(() => {
-    if (managerId) {
-      fetchManagerDetails();
-      fetchLearningPlans();
-    }
-  }, [managerId]);
+  const npsCategory = getScoreCategory(npsScore || 0);
+  const chartOptions = {
+    chart: {
+      type: "bar",
+      height: 200,
+      toolbar: { show: false },
+      animations: {
+        enabled: true,
+        easing: "easeOutElastic",
+        speed: 1200,
+        animateGradually: {
+          enabled: true,
+          delay: 200,
+        },
+        dynamicAnimation: {
+          enabled: true,
+          speed: 500,
+        },
+      },
+      fontFamily: "Inter, sans-serif",
+      dropShadow: {
+        enabled: true,
+        top: 4,
+        left: 0,
+        blur: 12,
+        opacity: 0.2,
+      },
+      foreColor: "#1F2937",
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: "100%",
+        borderRadius: 8,
+        dataLabels: {
+          position: "top",
+        },
+      },
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: function (val) {
+        return `${val > 0 ? "+" : ""}${Math.round(val)} ${npsCategory.emoji}`;
+      },
+      style: {
+        fontSize: "16px",
+        fontWeight: 700,
+        colors: ["#111827"],
+      },
+      offsetY: -8,
+      background: {
+        enabled: true,
+        foreColor: "#fff",
+        padding: 8,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: "#e5e7eb",
+        opacity: 0.95,
+      },
+    },
+    stroke: {
+      show: true,
+      width: 4,
+      colors: ["transparent"],
+    },
+    xaxis: {
+      categories: ["Manager NPS"],
+      labels: {
+        style: {
+          fontSize: "14px",
+          fontWeight: 600,
+          colors: [npsCategory.color],
+        },
+      },
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+    },
+    yaxis: {
+      title: {
+        text: "Score",
+        style: {
+          color: "#6B7280",
+          fontSize: "12px",
+          fontFamily: "Inter, sans-serif",
+          fontWeight: "600",
+        },
+      },
+      min: -100,
+      max: 100,
+      labels: {
+        style: {
+          fontSize: "12px",
+          fontWeight: 600,
+          colors: ["#6b7280"],
+        },
+        formatter: function (val) {
+          return val > 0 ? `+${Math.round(val)}` : Math.round(val);
+        },
+      },
+    },
+    fill: {
+      type: "gradient",
+      gradient: {
+        shade: "dark",
+        type: "vertical",
+        shadeIntensity: 0.6,
+        gradientToColors: [npsCategory.gradient[1]],
+        inverseColors: false,
+        opacityFrom: 1,
+        opacityTo: 0.9,
+        stops: [0, 100],
+      },
+    },
+    colors: [npsCategory.gradient[0]],
+    tooltip: {
+      enabled: true,
+      shared: false,
+      followCursor: true,
+      theme: "blue",
+      style: {
+        fontSize: "14px",
+        fontFamily: "Inter, sans-serif",
+        fontWeight: 600,
+      },
+      y: {
+        formatter: function (val) {
+          return `${npsCategory.emoji} Manager NPS: ${val > 0 ? "+" : ""}${Math.round(val)}`;
+        },
+        title: {
+          formatter: function () {
+            return "";
+          },
+        },
+      },
+    },
+    legend: { show: false },
+    grid: {
+      borderColor: "#e5e7eb",
+      strokeDashArray: 4,
+      xaxis: { lines: { show: false } },
+      yaxis: {
+        lines: {
+          show: true,
+          color: "#e5e7eb",
+        },
+      },
+      padding: { top: 20, right: 20, bottom: 0, left: 20 },
+    },
+  };
+
+  const chartSeries = [
+    {
+      name: "NPS Score",
+      data: [parseFloat(npsScore || 0)],
+    },
+  ];
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="flex h-screen items-center justify-center bg-gray-50">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="h-16 w-16 rounded-full border-4 border-[#0029ff] border-t-transparent"
-        ></motion.div>
+          className="h-12 w-12 rounded-full border-4 border-[#0029ff] border-t-transparent"
+        />
       </div>
     );
   }
 
   if (!manager) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="flex h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gray-100">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
             <Users className="text-gray-400" size={32} />
           </div>
-          <h2 className="mb-4 text-3xl font-bold text-gray-900">
+          <h2 className="mb-4 text-2xl font-bold text-gray-900">
             Manager Not Found
           </h2>
           <p className="mb-6 text-gray-600">
@@ -145,7 +330,7 @@ const SingleManager = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/admin-dashboard")}
-            className="rounded-xl bg-gradient-to-r from-[#0029ff] to-[#1a4bff] px-6 py-3 font-semibold text-white transition-all duration-200 hover:shadow-lg"
+            className="rounded-lg bg-[#0029ff] px-5 py-2.5 font-medium text-white shadow-sm transition-all hover:shadow-md"
           >
             Back to Dashboard
           </motion.button>
@@ -155,40 +340,56 @@ const SingleManager = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="p-8">
+    <div className="min-h-screen bg-gray-50">
+      <Toaster position="top-right" />
+
+      <div className="p-5">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-8"
+          transition={{ duration: 0.4 }}
+          className="mb-6"
         >
-          <motion.button
-            whileHover={{ x: -5 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => navigate("/admin-dashboard")}
-            className="mb-6 flex items-center gap-3 text-gray-600 transition-colors duration-200 hover:text-[#0029ff]"
-          >
-            <ArrowLeft size={20} />
-            <span className="font-semibold">Back to Dashboard</span>
-          </motion.button>
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="mb-2 text-4xl font-bold text-gray-900">
-                {manager.name}
-              </h1>
-              <p className="text-lg text-gray-600">{manager.email}</p>
+            <div className="flex items-center gap-3">
+              <motion.button
+                whileHover={{ x: -3 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate("/admin-dashboard")}
+                className="flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-sm text-gray-600 shadow-sm transition-all hover:bg-gray-50 hover:text-[#0029ff]"
+              >
+                <ArrowLeft size={16} />
+                <span>Back</span>
+              </motion.button>
+
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#0029ff] to-[#1a4bff]">
+                  <span className="text-lg font-bold text-white">
+                    {manager.name?.charAt(0)?.toUpperCase()}
+                  </span>
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900">
+                    {manager.name}
+                  </h1>
+                  <p className="text-xs text-gray-500">{manager.email}</p>
+                </div>
+              </div>
             </div>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setShowInviteModal(true)}
-              className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-[#0029ff] to-[#1a4bff] px-6 py-3 font-semibold text-white transition-all duration-200 hover:shadow-lg"
-            >
-              <Plus size={20} />
-              Invite Team Member
-            </motion.button>
+
+            <div className="border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#0029ff] to-[#1a4bff] shadow-lg">
+                  <img
+                    src="/logo-thryve.png"
+                    alt="Thryve Logo"
+                    className="h-8 w-auto"
+                  />
+                </div>
+                <h1 className="text-2xl font-bold text-[#0029ff]">thryve</h1>
+              </div>
+            </div>
           </div>
         </motion.div>
 
@@ -196,195 +397,308 @@ const SingleManager = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4"
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4"
         >
+          {/* Points Card */}
           <motion.div
-            whileHover={{ y: -8, scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 300 }}
-            className="relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-xl"
+            whileHover={{ y: -4 }}
+            transition={{ type: "spring", stiffness: 400 }}
+            className="relative overflow-hidden rounded-xl border border-blue-100 bg-gradient-to-br from-white to-blue-50 p-4 shadow-sm"
           >
-            <div className="absolute top-0 right-0 h-32 w-32 translate-x-16 -translate-y-16 rounded-full bg-gradient-to-br from-[#0029ff]/10 to-transparent"></div>
-            <div className="relative z-10 flex items-center justify-between">
+            <div className="absolute -top-4 -right-4 h-20 w-20 rounded-full bg-blue-200 opacity-20"></div>
+            <div className="flex items-start justify-between">
               <div>
-                <p className="mb-1 text-sm font-medium text-gray-600">
-                  Total Points
-                </p>
-                <p className="text-4xl font-bold text-gray-900">
+                <div className="flex items-center gap-2">
+                  <Award className="text-blue-500" size={18} />
+                  <p className="text-sm font-medium text-blue-600">Points</p>
+                </div>
+                <p className="mt-1 text-2xl font-bold text-blue-500">
                   {manager.points || 0}
                 </p>
-                <p className="mt-1 text-sm text-gray-500">Earned points</p>
+                <p className="mt-1 text-xs text-blue-500">
+                  <span className="inline-block h-2 w-2 rounded-full bg-blue-500"></span>
+                  <span className="ml-1">Earned from activities</span>
+                </p>
               </div>
-              <div className="rounded-2xl bg-gradient-to-br from-[#0029ff] to-[#1a4bff] p-4 shadow-lg">
-                <TrendingUp className="text-white" size={28} />
-              </div>
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  duration: 3,
+                }}
+                className="rounded-lg bg-blue-100 p-2 text-blue-600"
+              >
+                <Award size={20} />
+              </motion.div>
             </div>
           </motion.div>
 
+          {/* Streak Card */}
           <motion.div
-            whileHover={{ y: -8, scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 300 }}
-            className="relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-xl"
+            whileHover={{ y: -4 }}
+            transition={{ type: "spring", stiffness: 400 }}
+            className="relative overflow-hidden rounded-xl border border-amber-100 bg-gradient-to-br from-white to-amber-50 p-4 shadow-sm"
           >
-            <div className="absolute top-0 right-0 h-32 w-32 translate-x-16 -translate-y-16 rounded-full bg-gradient-to-br from-[#0029ff]/10 to-transparent"></div>
-            <div className="relative z-10 flex items-center justify-between">
+            <div className="absolute -top-4 -right-4 h-20 w-20 rounded-full bg-amber-200 opacity-20"></div>
+            <div className="flex items-start justify-between">
               <div>
-                <p className="mb-1 text-sm font-medium text-gray-600">
-                  Current Streak
-                </p>
-                <p className="text-4xl font-bold text-gray-900">
+                <div className="flex items-center gap-2">
+                  <Flame className="text-amber-500" size={18} />
+                  <p className="text-sm font-medium text-amber-600">
+                    Current Streak
+                  </p>
+                </div>
+                <p className="mt-1 text-2xl font-bold text-amber-600">
                   {manager.streak || 0}
+                  <span className="ml-1 text-sm font-normal text-gray-500">
+                    {manager.streak > 1 ? "days" : "day"}
+                  </span>
                 </p>
-                <p className="mt-1 text-sm text-gray-500">days</p>
+                <p className="mt-1 text-xs text-amber-500">
+                  <span className="ml-1">Daily engagement</span>
+                </p>
               </div>
-              <div className="rounded-2xl bg-gradient-to-br from-[#0029ff] to-[#1a4bff] p-4 shadow-lg">
-                <Award className="text-white" size={28} />
-              </div>
+              <motion.div
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+                className="rounded-lg bg-amber-100 p-2 text-amber-600"
+              >
+                <Flame size={20} />
+              </motion.div>
             </div>
           </motion.div>
 
+          {/* Team Members Card */}
           <motion.div
-            whileHover={{ y: -8, scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 300 }}
-            className="relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-xl"
+            whileHover={{ y: -4 }}
+            transition={{ type: "spring", stiffness: 400 }}
+            className="relative overflow-hidden rounded-xl border border-green-100 bg-gradient-to-br from-white to-green-50 p-4 shadow-sm"
           >
-            <div className="absolute top-0 right-0 h-32 w-32 translate-x-16 -translate-y-16 rounded-full bg-gradient-to-br from-[#0029ff]/10 to-transparent"></div>
-            <div className="relative z-10 flex items-center justify-between">
+            <div className="absolute -top-4 -right-4 h-20 w-20 rounded-full bg-green-200 opacity-20"></div>
+            <div className="flex items-start justify-between">
               <div>
-                <p className="mb-1 text-sm font-medium text-gray-600">
-                  Team Members
-                </p>
-                <p className="text-4xl font-bold text-gray-900">
+                <div className="flex items-center gap-2">
+                  <Users className="text-green-500" size={18} />
+                  <p className="text-sm font-medium text-green-600">
+                    Team Members
+                  </p>
+                </div>
+                <p className="mt-1 text-2xl font-bold text-green-600">
                   {manager.teamMembers || 0}
                 </p>
-                <p className="mt-1 text-sm text-gray-500">Active members</p>
+                <p className="mt-1 text-xs text-green-500">
+                  <span className="inline-block h-2 w-2 rounded-full bg-green-500"></span>
+                  <span className="ml-1">Providing feedback</span>
+                </p>
               </div>
-              <div className="rounded-2xl bg-gradient-to-br from-[#0029ff] to-[#1a4bff] p-4 shadow-lg">
-                <Users className="text-white" size={28} />
-              </div>
+              <motion.div
+                animate={{ y: [0, -3, 0] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+                className="rounded-lg bg-green-100 p-2 text-green-600"
+              >
+                <Users size={20} />
+              </motion.div>
             </div>
           </motion.div>
 
+          {/* NPS Card */}
           <motion.div
-            whileHover={{ y: -8, scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 300 }}
-            className="relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-xl"
+            whileHover={{ y: -4 }}
+            transition={{ type: "spring", stiffness: 400 }}
+            className="relative overflow-hidden rounded-xl border border-purple-100 bg-gradient-to-br from-white to-purple-50 p-4 shadow-sm"
           >
-            <div className="absolute top-0 right-0 h-32 w-32 translate-x-16 -translate-y-16 rounded-full bg-gradient-to-br from-[#0029ff]/10 to-transparent"></div>
-            <div className="relative z-10 flex items-center justify-between">
+            <div className="absolute -top-4 -right-4 h-20 w-20 rounded-full bg-purple-200 opacity-20"></div>
+            <div className="flex items-start justify-between">
               <div>
-                <p className="mb-1 text-sm font-medium text-gray-600">
-                  NPS Score
+                <div className="flex items-center gap-2">
+                  <BarChart2 className="text-purple-500" size={18} />
+                  <p className="text-sm font-medium text-purple-600">
+                    Manager NPS
+                  </p>
+                </div>
+                <p className="mt-1 text-2xl font-bold text-purple-600">
+                  {npsScore || 0} %
+                  <span className="ml-1">{npsCategory.emoji}</span>
                 </p>
-                <p className="text-4xl font-bold text-gray-900">
-                  {manager.scores_from_team_nps || 0}
+                <p className="mt-1 text-xs text-purple-500">
+                  <span className="font-medium">{npsCategory.category}</span>
+                  <span className="mx-1">•</span>
+                  <span>From feedback</span>
                 </p>
-                <p className="mt-1 text-sm text-gray-500">Team rating</p>
               </div>
-              <div className="rounded-2xl bg-gradient-to-br from-[#0029ff] to-[#1a4bff] p-4 shadow-lg">
-                <Star className="text-white" size={28} />
-              </div>
+              <motion.div
+                animate={{ rotate: [0, 15, -15, 0] }}
+                transition={{ repeat: Infinity, duration: 2.5 }}
+                className="rounded-lg bg-purple-100 p-2 text-purple-600"
+              >
+                <BarChart2 size={20} />
+              </motion.div>
             </div>
           </motion.div>
         </motion.div>
 
-        {/* Activity Stats */}
+        {/* Main Content Grid - NPS Graph, Activity & Feedback */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mb-8 grid grid-cols-1 gap-8 lg:grid-cols-2"
+          transition={{ duration: 0.4, delay: 0.2 }}
+          className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3"
         >
-          <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-xl">
-            <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#0029ff] to-[#1a4bff]">
-                <Activity className="text-white" size={24} />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900">
-                Activity Overview
-              </h3>
-            </div>
-            <div className="space-y-6">
-              <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-gradient-to-r from-gray-50 to-white p-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100">
-                    <MessageSquare className="text-[#0029ff]" size={20} />
+          {/* NPS Graph - Left Side */}
+          <div className="lg:col-span-1">
+            <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0029ff] text-white">
+                    <BarChart2 size={16} />
                   </div>
-                  <span className="font-medium text-gray-700">Chats</span>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    Net Promoter Score
+                  </h3>
                 </div>
-                <span className="text-xl font-bold text-gray-900">
-                  {manager.chats || 0}
+                <span
+                  className="rounded-full px-2.5 py-1 text-xs font-medium"
+                  style={{
+                    backgroundColor: `${npsCategory.color}20`,
+                    color: npsCategory.color,
+                  }}
+                >
+                  {npsCategory.category}
                 </span>
               </div>
-              <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-gradient-to-r from-gray-50 to-white p-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100">
-                    <Target className="text-green-600" size={20} />
-                  </div>
-                  <span className="font-medium text-gray-700">Goals</span>
-                </div>
-                <span className="text-xl font-bold text-gray-900">
-                  {manager.goals || 0}
-                </span>
+              <div className="h-[200px]">
+                <ReactApexChart
+                  options={chartOptions}
+                  series={chartSeries}
+                  type="bar"
+                  height="100%"
+                />
               </div>
-              <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-gradient-to-r from-gray-50 to-white p-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100">
-                    <Users className="text-purple-600" size={20} />
-                  </div>
-                  <span className="font-medium text-gray-700">Role Plays</span>
-                </div>
-                <span className="text-xl font-bold text-gray-900">
-                  {manager.rolePlays || 0}
-                </span>
-              </div>
-              <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-gradient-to-r from-gray-50 to-white p-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100">
-                    <TrendingUp className="text-orange-600" size={20} />
-                  </div>
-                  <span className="font-medium text-gray-700">
-                    Learning Interactions
-                  </span>
-                </div>
-                <span className="text-xl font-bold text-gray-900">
-                  {manager.learningInteractions || 0}
-                </span>
+              <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
+                <span>-100 (Poor)</span>
+                <span>0 (Neutral)</span>
+                <span>+100 (Excellent)</span>
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-xl">
-            <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#0029ff] to-[#1a4bff]">
-                <Star className="text-white" size={24} />
+          {/* Activity & Feedback - Right Side */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:col-span-2">
+            {/* Activity */}
+            <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+              <div className="mb-4 flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0029ff] text-white">
+                  <Zap size={16} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">
+                  Activity Overview
+                </h3>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">
-                Feedback Summary
-              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="text-blue-500" size={16} />
+                    <span className="text-sm font-medium text-blue-500">
+                      Chat Sessions
+                    </span>
+                  </div>
+                  <span className="font-bold text-blue-500">
+                    {manager.chats || 0}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+                  <div className="flex items-center gap-2">
+                    <Users className="text-purple-500" size={16} />
+                    <span className="text-sm font-medium text-purple-500">
+                      Role Play Sessions
+                    </span>
+                  </div>
+                  <span className="font-bold text-purple-500">
+                    {manager.rolePlays || 0}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="text-green-500" size={16} />
+                    <span className="text-sm font-medium text-green-500">
+                      Learning Cards Read
+                    </span>
+                  </div>
+                  <span className="font-bold text-green-500">
+                    {manager.learningInteractions || 0}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+                  <div className="flex items-center gap-2">
+                    <Target className="text-orange-500" size={16} />
+                    <span className="text-sm font-medium text-orange-500">
+                      Goals Set
+                    </span>
+                  </div>
+                  <span className="font-bold text-orange-500">
+                    {manager.goals?.length || 0}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="space-y-6">
-              <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-gradient-to-r from-gray-50 to-white p-4">
-                <span className="font-medium text-gray-700">
-                  Coaching Feedback
-                </span>
-                <span className="text-xl font-bold text-gray-900">
-                  {manager.chatFeedbackCoaching || 0}
-                </span>
+
+            {/* Feedback */}
+            <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+              <div className="mb-4 flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0029ff] text-white">
+                  <Star size={16} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">
+                  Feedback & Insights
+                </h3>
               </div>
-              <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-gradient-to-r from-gray-50 to-white p-4">
-                <span className="font-medium text-gray-700">
-                  Role Play Feedback
-                </span>
-                <span className="text-xl font-bold text-gray-900">
-                  {manager.chatFeedbackRolePlay || 0}
-                </span>
-              </div>
-              <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-gradient-to-r from-gray-50 to-white p-4">
-                <span className="font-medium text-gray-700">Reflections</span>
-                <span className="text-xl font-bold text-gray-900">
-                  {manager.reflections || 0}
-                </span>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+                  <div className="flex items-center gap-2">
+                    <ThumbsUp className="text-blue-500" size={16} />
+                    <span className="text-sm font-medium text-blue-500">
+                      Coaching Feedback ("Yes, Got it")
+                    </span>
+                  </div>
+                  <span className="font-bold text-blue-500">
+                    {manager.chatFeedbackCoaching || 0}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+                  <div className="flex items-center gap-2">
+                    <ThumbsUp className="text-green-500" size={16} />
+                    <span className="text-sm font-medium text-green-500">
+                      Role Play Feedback ("Yes, Got it")
+                    </span>
+                  </div>
+                  <span className="font-bold text-green-500">
+                    {manager.chatFeedbackRolePlay || 0}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+                  <div className="flex items-center gap-2">
+                    <Lightbulb className="text-purple-500" size={16} />
+                    <span className="text-sm font-medium text-purple-500">
+                      Reflections Added
+                    </span>
+                  </div>
+                  <span className="font-bold text-purple-500">
+                    {manager.reflections?.length || 0}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+                  <div className="flex items-center gap-2">
+                    <Users className="text-amber-500" size={16} />
+                    <span className="text-sm font-medium text-amber-500">
+                      Team Members Feedback Received
+                    </span>
+                  </div>
+                  <span className="font-bold text-amber-500">
+                    {manager.teamMembers || 0}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -395,123 +709,210 @@ const SingleManager = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="rounded-2xl border border-gray-100 bg-white p-8 shadow-xl"
+            transition={{ duration: 0.4, delay: 0.3 }}
+            className="mb-6 rounded-xl border border-gray-100 bg-white p-4 shadow-sm"
           >
-            <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#0029ff] to-[#1a4bff]">
-                <BookOpen className="text-white" size={24} />
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0029ff] text-white">
+                  <BookOpen size={16} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">
+                  Learning Plans & Development
+                </h3>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">
-                Learning Plans
-              </h3>
+              <span className="text-sm text-gray-500">
+                {learningPlans.reduce(
+                  (acc, plan) => acc + (plan.notes?.length || 0),
+                  0,
+                )}{" "}
+                notes
+              </span>
             </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-3">
               {learningPlans.slice(0, 3).map((plan, index) => (
                 <motion.div
                   key={index}
-                  whileHover={{ y: -5, scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                  className="rounded-xl border border-gray-200 bg-gradient-to-r from-gray-50 to-white p-6 transition-all duration-200 hover:shadow-lg"
+                  whileHover={{ y: -2 }}
+                  className="rounded-lg border border-gray-100 bg-gray-50 p-3"
                 >
-                  <h4 className="mb-3 text-lg font-bold text-gray-900">
-                    {plan.title || `Learning Plan ${index + 1}`}
-                  </h4>
-                  <p className="text-sm leading-relaxed text-gray-600">
-                    {plan.description || "No description available"}
-                  </p>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-600">
+                        {plan.title}
+                      </h4>
+                      <p className="mt-1 line-clamp-2 text-xs text-gray-600">
+                        {plan.content}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        <span className="rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-800">
+                          {plan.focus_area}
+                        </span>
+                        <span className="rounded-full bg-green-100 px-2 py-1 text-xs text-green-800">
+                          {plan.difficulty}
+                        </span>
+                        {plan.notes?.length > 0 && (
+                          <span className="rounded-full bg-purple-100 px-2 py-1 text-xs text-purple-800">
+                            {plan.notes.length} notes
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <ChevronRight className="text-gray-400" size={16} />
+                  </div>
                 </motion.div>
               ))}
             </div>
           </motion.div>
         )}
-      </div>
 
-      {/* Invite Team Member Modal */}
-      <AnimatePresence>
-        {showInviteModal && (
+        {/* Goals & Reflections */}
+        {(manager.goals?.length > 0 || manager.reflections?.length > 0) && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.4 }}
+            className="grid grid-cols-1 gap-5 md:grid-cols-2"
           >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300 }}
-              className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl"
-            >
-              <div className="mb-6 flex items-center justify-between">
-                <h3 className="text-2xl font-bold text-gray-900">
-                  Invite Team Member
-                </h3>
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setShowInviteModal(false)}
-                  className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-                >
-                  <X size={24} />
-                </motion.button>
-              </div>
-              <form onSubmit={inviteTeamMembers} className="space-y-6">
-                <div>
-                  <label className="mb-3 block text-sm font-semibold text-gray-700">
-                    Team Member Name
-                  </label>
-                  <input
-                    type="text"
-                    value={inviteForm.name}
-                    onChange={(e) =>
-                      setInviteForm({ ...inviteForm, name: e.target.value })
-                    }
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[#0029ff]"
-                    placeholder="Enter team member name"
-                    required
-                  />
+            {/* Goals */}
+            {manager.goals?.length > 0 && (
+              <motion.div
+                whileHover={{ y: -3 }}
+                className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+              >
+                <div className="mb-5 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#0029ff] to-[#1a4bff] shadow">
+                      <Target className="text-white" size={18} />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">
+                        Goals & Objectives
+                      </h3>
+                      <p className="text-xs text-gray-500">
+                        {manager.goals.length} active goals
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronRight className="text-gray-400" size={20} />
                 </div>
-                <div>
-                  <label className="mb-3 block text-sm font-semibold text-gray-700">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    value={inviteForm.email}
-                    onChange={(e) =>
-                      setInviteForm({ ...inviteForm, email: e.target.value })
-                    }
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[#0029ff]"
-                    placeholder="Enter email address"
-                    required
-                  />
+
+                <div className="space-y-3">
+                  {manager.goals.slice(0, 3).map((goal) => (
+                    <motion.div
+                      key={goal._id}
+                      whileHover={{ x: 3 }}
+                      className="group relative overflow-hidden rounded-lg border border-gray-100 bg-white p-4 shadow-xs transition-all hover:shadow-sm"
+                    >
+                      <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-[#0029ff] to-[#1a4bff]"></div>
+                      <div className="pl-3">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h4 className="text-sm font-semibold text-gray-900 group-hover:text-[#0029ff]">
+                              {goal.title}
+                            </h4>
+                            <p className="mt-1 text-xs text-gray-600">
+                              {goal.value}
+                            </p>
+                          </div>
+                          <span
+                            className={`ml-2 rounded-full px-2 py-1 text-xs font-medium ${
+                              goal.current_status === "completed"
+                                ? "bg-green-100 text-green-800"
+                                : goal.current_status === "in-progress"
+                                  ? "bg-amber-100 text-amber-800"
+                                  : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {goal.current_status}
+                          </span>
+                        </div>
+                        <div className="mt-3 flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <Calendar size={12} />
+                            <span>
+                              Due:{" "}
+                              {new Date(goal.deadline).toLocaleDateString()}
+                            </span>
+                          </div>
+                          {goal.current_status !== "completed" && (
+                            <div className="h-2 w-20 rounded-full bg-gray-200">
+                              <div
+                                className={`h-2 rounded-full ${
+                                  goal.current_status === "in-progress"
+                                    ? "w-1/2 bg-amber-500"
+                                    : "w-1/4 bg-gray-400"
+                                }`}
+                              ></div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
-                <div className="flex space-x-4">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="button"
-                    onClick={() => setShowInviteModal(false)}
-                    className="flex-1 rounded-xl border-2 border-gray-300 px-6 py-3 font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50"
-                  >
-                    Cancel
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="submit"
-                    disabled={inviteLoading}
-                    className="flex-1 rounded-xl bg-gradient-to-r from-[#0029ff] to-[#1a4bff] px-6 py-3 font-semibold text-white transition-all duration-200 hover:shadow-lg disabled:opacity-50"
-                  >
-                    {inviteLoading ? "Sending..." : "Send Invitation"}
-                  </motion.button>
+              </motion.div>
+            )}
+
+            {/* Reflections */}
+            {manager.reflections?.length > 0 && (
+              <motion.div
+                whileHover={{ y: -3 }}
+                className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+              >
+                <div className="mb-5 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#0029ff] to-[#1a4bff] shadow">
+                      <Lightbulb className="text-white" size={18} />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">
+                        Reflections & Insights
+                      </h3>
+                      <p className="text-xs text-gray-500">
+                        {manager.reflections.length} recent reflections
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronRight className="text-gray-400" size={20} />
                 </div>
-              </form>
-            </motion.div>
+
+                <div className="space-y-3">
+                  {manager.reflections.slice(0, 3).map((reflection) => (
+                    <motion.div
+                      key={reflection._id}
+                      whileHover={{ x: 3 }}
+                      className="group relative overflow-hidden rounded-lg border border-gray-100 bg-white p-4 shadow-xs transition-all hover:shadow-sm"
+                    >
+                      <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-[#0029ff] to-[#1a4bff]"></div>
+                      <div className="pl-3">
+                        <p className="line-clamp-3 text-sm text-gray-700 group-hover:text-gray-900">
+                          {reflection.content}
+                        </p>
+                        <div className="mt-3 flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <Clock size={12} />
+                            <span>
+                              {new Date(reflection.date).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {reflection.content.length > 100 && (
+                              <span className="rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-600">
+                                Detailed
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
           </motion.div>
         )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 };

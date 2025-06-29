@@ -317,7 +317,7 @@ const Home = () => {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={isLoading}
-              className="w-full rounded-lg bg-[var(--primary-color)] px-5 py-3 text-center text-sm font-medium text-white hover:bg-[color-mix(in_srgb,var(--primary-color),black_10%)] focus:ring-4 focus:ring-[var(--primary-color)]/50 focus:outline-none disabled:opacity-50"
+              className="w-full rounded-lg bg-[var(--primary-color)] px-5 py-3 text-center text-sm font-medium text-white hover:bg-[color-mix(in_srgb,var(--primary-color),black_10%)] focus:ring-4 focus:ring-[var(--primary-color)]/50 focus:outline-none disabled:opacity-50 cursor-pointer"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center gap-2">

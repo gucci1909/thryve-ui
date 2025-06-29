@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
@@ -6,16 +6,10 @@ import {
   Building,
   LogOut,
   Search,
-  Filter,
   Mail,
-  TrendingUp,
   Star,
   Eye,
-  Plus,
-  ArrowLeft,
   ChevronRight,
-  Calendar,
-  Activity,
   X,
   MessageSquare,
   Target,
@@ -23,12 +17,27 @@ import {
   MessageCircle,
   Flame,
   BarChart2,
+  User,
+  CheckCircle,
+  AlertCircle,
+  Sparkles,
+  Shield,
+  Zap,
+  ArrowRight,
+  Phone,
+  Briefcase,
+  Globe,
+  Calendar,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/userSlice";
 import { useDebounce } from "../../hooks/useDebounce";
-import { showSuccessToast, showInfoToast } from "../../utils/toast";
+import {
+  showSuccessToast,
+  showInfoToast,
+  showErrorToast,
+} from "../../utils/toast";
 import { Toaster } from "react-hot-toast";
 
 const Dashboard = () => {
@@ -41,11 +50,18 @@ const Dashboard = () => {
   const [sortBy, setSortBy] = useState("new");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [selectedManager, setSelectedManager] = useState(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [inviteForm, setInviteForm] = useState({ name: "", email: "" });
+  const [inviteForm, setInviteForm] = useState({
+    name: "",
+    email: "",
+    // phone: "",
+    // department: "",
+    // position: "",
+  });
   const [inviteLoading, setInviteLoading] = useState(false);
   const [invitingManagerId, setInvitingManagerId] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -59,6 +75,100 @@ const Dashboard = () => {
   // Show loading indicator when search term is different from debounced term
   const isSearching = searchTerm !== debouncedSearchTerm;
 
+  // Email validation function
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) return "Email is required";
+    if (!emailRegex.test(email)) return "Please enter a valid email address";
+    if (email.length > 254) return "Email is too long";
+    return "";
+  };
+
+  // Name validation function
+  const validateName = (name) => {
+    if (!name) return "Name is required";
+    if (name.length < 2) return "Name must be at least 2 characters";
+    if (name.length > 50) return "Name is too long";
+    if (!/^[a-zA-Z\s]+$/.test(name))
+      return "Name can only contain letters and spaces";
+    return "";
+  };
+
+  // Validate form
+  const validateForm = () => {
+    const errors = {
+      name: validateName(inviteForm.name),
+      email: validateEmail(inviteForm.email),
+    };
+
+    setFormErrors(errors);
+    const isValid = Object.values(errors).every((error) => error === "");
+    setIsFormValid(isValid);
+    return isValid;
+  };
+
+  // Handle form field changes
+  const handleFormChange = (field, value) => {
+    setInviteForm((prev) => ({ ...prev, [field]: value }));
+
+    // Clear error when user starts typing
+    if (formErrors[field]) {
+      setFormErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  // Handle form submission
+  const handleInviteSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      showErrorToast("Please fix the errors in the form");
+      return;
+    }
+
+    setInviteLoading(true);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/invite-managers/new-manager`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(inviteForm),
+        },
+      );
+
+      if (response.status === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        showSuccessToast("Manager invitation sent successfully! 🎉");
+        setInviteForm({
+          name: "",
+          email: "",
+          // phone: "",
+          // department: "",
+          // position: "",
+        });
+        setFormErrors({});
+        setIsFormValid(false);
+      } else {
+        showErrorToast(data.error || "Failed to send invitation");
+      }
+    } catch (error) {
+      console.error("Error inviting manager:", error);
+      showErrorToast("Failed to send invitation. Please try again.");
+    } finally {
+      setInviteLoading(false);
+    }
+  };
+
   // Fetch dashboard data
   const fetchDashboardData = async () => {
     try {
@@ -71,6 +181,12 @@ const Dashboard = () => {
           },
         },
       );
+
+      if (response.status === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
       const data = await response.json();
       if (data.success) {
         setDashboardData(data);
@@ -93,6 +209,12 @@ const Dashboard = () => {
           },
         },
       );
+
+      if (response.status === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
       const data = await response.json();
       if (data.success) {
         setTotalUsers(data.total);
@@ -103,39 +225,6 @@ const Dashboard = () => {
       console.error("Error fetching managers:", error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Invite new manager
-  const inviteNewManager = async (e) => {
-    e.preventDefault();
-    setInviteLoading(true);
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/invite-managers/new-manager`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(inviteForm),
-        },
-      );
-      const data = await response.json();
-      if (data.success) {
-        setShowInviteModal(false);
-        setInviteForm({ name: "", email: "" });
-        fetchManagers();
-        showSuccessToast("Manager invited successfully!");
-      } else {
-        showInfoToast(data.error || "Failed to invite manager");
-      }
-    } catch (error) {
-      console.error("Error inviting manager:", error);
-      showInfoToast("Failed to invite manager");
-    } finally {
-      setInviteLoading(false);
     }
   };
 
@@ -154,6 +243,13 @@ const Dashboard = () => {
           body: JSON.stringify({ manager_id: managerId }),
         },
       );
+
+      if (response.status === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
+
       const data = await response.json();
       if (data.success) {
         showSuccessToast("Invitation sent successfully!");
@@ -188,8 +284,6 @@ const Dashboard = () => {
     navigate("/");
   };
 
-  console.log("Dashboard Data:", dashboardData);
-
   const sidebarItems = [
     { id: "all-managers", label: "All Managers", icon: <Users size={20} /> },
     {
@@ -215,7 +309,7 @@ const Dashboard = () => {
       <motion.div
         whileHover={{ y: -4 }}
         transition={{ type: "spring", stiffness: 400 }}
-        className="relative overflow-hidden cursor-pointer rounded-xl border border-blue-100 bg-gradient-to-br from-white to-blue-50 p-5 shadow-sm"
+        className="relative cursor-pointer overflow-hidden rounded-xl border border-blue-100 bg-gradient-to-br from-white to-blue-50 p-5 shadow-sm"
       >
         <div className="absolute -top-4 -right-4 h-24 w-24 rounded-full bg-blue-200 opacity-20"></div>
         <div className="flex items-start justify-between">
@@ -252,7 +346,7 @@ const Dashboard = () => {
       <motion.div
         whileHover={{ y: -4 }}
         transition={{ type: "spring", stiffness: 400 }}
-        className="relative overflow-hidden rounded-xl cursor-pointer border border-amber-100 bg-gradient-to-br from-white to-amber-50 p-5 shadow-sm"
+        className="relative cursor-pointer overflow-hidden rounded-xl border border-amber-100 bg-gradient-to-br from-white to-amber-50 p-5 shadow-sm"
       >
         <div className="absolute -top-4 -right-4 h-24 w-24 rounded-full bg-amber-200 opacity-20"></div>
         <div className="flex items-start justify-between">
@@ -293,7 +387,7 @@ const Dashboard = () => {
       <motion.div
         whileHover={{ y: -4 }}
         transition={{ type: "spring", stiffness: 400 }}
-        className="relative overflow-hidden rounded-xl border cursor-pointer border-green-100 bg-gradient-to-br from-white to-green-50 p-5 shadow-sm"
+        className="relative cursor-pointer overflow-hidden rounded-xl border border-green-100 bg-gradient-to-br from-white to-green-50 p-5 shadow-sm"
       >
         <div className="absolute -top-4 -right-4 h-24 w-24 rounded-full bg-green-200 opacity-20"></div>
         <div className="flex items-start justify-between">
@@ -398,7 +492,7 @@ const Dashboard = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="rounded-xl border border-gray-200 bg-white p-1 text-gray-600 shadow-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[#0029ff]"
+              className="cursor-pointer rounded-xl border border-gray-200 bg-white p-1 text-gray-600 shadow-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[#0029ff]"
             >
               <option value="new">Newest First</option>
               <option value="old">Oldest First</option>
@@ -494,7 +588,7 @@ const Dashboard = () => {
                                 <div className="text-xs font-medium text-gray-500">
                                   Chats
                                 </div>
-                                <div className="text-lg font-semibold text-[#0029ff]">
+                                <div className="text-lg font-semibold text-blue-600">
                                   {manager.chats || 0}
                                 </div>
                               </div>
@@ -510,7 +604,7 @@ const Dashboard = () => {
                                 <div className="text-xs font-medium text-gray-500">
                                   Role Plays
                                 </div>
-                                <div className="text-lg font-semibold text-[#0029ff]">
+                                <div className="text-lg font-semibold text-purple-600">
                                   {manager.rolePlays || 0}
                                 </div>
                               </div>
@@ -526,7 +620,7 @@ const Dashboard = () => {
                                 <div className="text-xs font-medium text-gray-500">
                                   Goals
                                 </div>
-                                <div className="text-lg font-semibold text-[#0029ff]">
+                                <div className="text-lg font-semibold text-green-600">
                                   {manager.goals || 0}
                                 </div>
                               </div>
@@ -542,7 +636,7 @@ const Dashboard = () => {
                                 <div className="text-xs font-medium text-gray-500">
                                   Points
                                 </div>
-                                <div className="text-lg font-semibold text-[#0029ff]">
+                                <div className="text-lg font-semibold text-amber-600">
                                   {manager.points || 0}
                                 </div>
                               </div>
@@ -707,78 +801,344 @@ const Dashboard = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="rounded-2xl border border-gray-100 bg-white p-8 shadow-xl"
+      className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/30"
     >
-      <div className="mx-auto max-w-2xl">
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0029ff] to-[#1a4bff] shadow-lg">
-            <UserPlus className="text-white" size={32} />
-          </div>
-          <h2 className="mb-2 text-3xl font-bold text-gray-900">
-            Add New Manager
-          </h2>
-          <p className="text-gray-600">
-            Invite a new manager to join your team
-          </p>
-        </div>
-
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setShowInviteModal(true);
-          }}
-          className="space-y-6"
+      <div className="mx-auto max-w-4xl">
+        {/* Header Section */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="mb-4 text-center"
         >
-          <div>
-            <label className="mb-3 block text-sm font-semibold text-gray-700">
-              Manager Name
-            </label>
-            <input
-              type="text"
-              value={inviteForm.name}
-              onChange={(e) =>
-                setInviteForm({ ...inviteForm, name: e.target.value })
-              }
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[#0029ff]"
-              placeholder="Enter manager name"
-              required
+          <div className="relative mx-auto mb-6 flex h-24 w-24 items-center justify-center">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0 rounded-full border-4 border-blue-200 border-t-[#0029ff]"
             />
+            <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#0029ff] to-[#1a4bff] shadow-2xl">
+              <UserPlus className="text-white" size={32} />
+            </div>
           </div>
-          <div>
-            <label className="mb-3 block text-sm font-semibold text-gray-700">
-              Email Address
-            </label>
-            <input
-              type="email"
-              value={inviteForm.email}
-              onChange={(e) =>
-                setInviteForm({ ...inviteForm, email: e.target.value })
-              }
-              className="w-full rounded-xl border border-gray-200 px-4 py-3 transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[#0029ff]"
-              placeholder="Enter email address"
-              required
-            />
-          </div>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            type="submit"
-            className="w-full rounded-xl bg-gradient-to-r from-[#0029ff] to-[#1a4bff] px-6 py-3 font-semibold text-white transition-all duration-200 hover:shadow-lg"
+          <h1 className="mb-3 bg-gradient-to-r from-[#0029ff] to-[#1a4bff] bg-clip-text text-4xl font-bold text-transparent">
+            Add New Manager
+          </h1>
+          <p className="text-lg text-gray-600">
+            Invite a talented manager to join your team and boost productivity
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          {/* Main Form Section */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="lg:col-span-2"
           >
-            {inviteLoading ? (
-              <div className="flex items-center justify-center gap-2">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  className="h-4 w-4 rounded-full border-2 border-white border-t-transparent"
-                />
-                <span>Sending...</span>
+            <div className="relative overflow-hidden rounded-2xl border border-white/50 bg-white/80 p-8 shadow-2xl backdrop-blur-sm">
+              {/* Animated background elements */}
+              <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 opacity-50"></div>
+              <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 opacity-50"></div>
+
+              <div className="relative z-10">
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#0029ff] to-[#1a4bff] shadow-lg">
+                    <User className="text-white" size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">
+                      Manager Information
+                    </h2>
+                    <p className="text-sm text-gray-500">
+                      Fill in the details below
+                    </p>
+                  </div>
+                </div>
+
+                <form onSubmit={handleInviteSubmit} className="space-y-6">
+                  {/* Name Field */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.3 }}
+                  >
+                    <label className="mb-2 block text-sm font-semibold text-gray-700">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                        <User className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        type="text"
+                        value={inviteForm.name}
+                        onChange={(e) =>
+                          handleFormChange("name", e.target.value)
+                        }
+                        className={`w-full rounded-xl border ${
+                          formErrors.name
+                            ? "border-red-300 bg-red-50"
+                            : "border-gray-200 bg-white"
+                        } px-4 py-3 pl-12 text-gray-600 transition-all duration-200 focus:border-[#0029ff] focus:ring-2 focus:ring-[#0029ff]/20 focus:outline-none`}
+                        placeholder="Enter manager's full name"
+                        required
+                      />
+                      {/* {!formErrors.name && inviteForm.name && (
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                        </div>
+                      )} */}
+                    </div>
+                    {formErrors.name && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-2 flex items-center gap-1 text-sm text-red-500"
+                      >
+                        <AlertCircle className="h-4 w-4" />
+                        {formErrors.name}
+                      </motion.p>
+                    )}
+                  </motion.div>
+
+                  {/* Email Field */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.4 }}
+                  >
+                    <label className="mb-2 block text-sm font-semibold text-gray-700">
+                      Email Address <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                        <Mail className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        type="email"
+                        value={inviteForm.email}
+                        onChange={(e) =>
+                          handleFormChange("email", e.target.value)
+                        }
+                        className={`w-full rounded-xl border ${
+                          formErrors.email
+                            ? "border-red-300 bg-red-50"
+                            : "border-gray-200 bg-white"
+                        } px-4 py-3 pl-12 text-gray-600 transition-all duration-200 focus:border-[#0029ff] focus:ring-2 focus:ring-[#0029ff]/20 focus:outline-none`}
+                        placeholder="Enter email address"
+                        required
+                      />
+                      {/* {!formErrors.email && inviteForm.email && (
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                        </div>
+                      )} */}
+                    </div>
+                    {formErrors.email && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-2 flex items-center gap-1 text-sm text-red-500"
+                      >
+                        <AlertCircle className="h-4 w-4" />
+                        {formErrors.email}
+                      </motion.p>
+                    )}
+                  </motion.div>
+
+                  {/* Phone Field */}
+                  {/* <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.5 }}
+                  >
+                    <label className="mb-2 block text-sm font-semibold text-gray-700">
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                        <Phone className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        type="tel"
+                        value={inviteForm.phone}
+                        onChange={(e) => handleFormChange("phone", e.target.value)}
+                        className={`w-full rounded-xl border ${
+                          formErrors.phone ? "border-red-300 bg-red-50" : "border-gray-200 bg-white"
+                        } px-4 py-3 pl-12 transition-all duration-200 focus:border-[#0029ff] focus:ring-2 focus:ring-[#0029ff]/20 focus:outline-none`}
+                        placeholder="Enter phone number"
+                        required
+                      />
+                      {!formErrors.phone && inviteForm.phone && (
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                        </div>
+                      )}
+                    </div>
+                    {formErrors.phone && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-2 flex items-center gap-1 text-sm text-red-500"
+                      >
+                        <AlertCircle className="h-4 w-4" />
+                        {formErrors.phone}
+                      </motion.p>
+                    )}
+                  </motion.div> */}
+
+                  {/* Submit Button */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.8 }}
+                    className="pt-4"
+                  >
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      type="submit"
+                      disabled={inviteLoading}
+                      className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-[#0029ff] to-[#1a4bff] px-8 py-4 font-semibold text-white transition-all duration-300 hover:shadow-2xl hover:shadow-[#0029ff]/25 disabled:opacity-50"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#1a4bff] to-[#0029ff] opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                      <div className="relative flex items-center justify-center gap-3">
+                        {inviteLoading ? (
+                          <>
+                            <motion.div
+                              animate={{ rotate: 360 }}
+                              transition={{
+                                duration: 1,
+                                repeat: Infinity,
+                                ease: "linear",
+                              }}
+                              className="h-5 w-5 rounded-full border-2 border-white border-t-transparent"
+                            />
+                            <span>Sending Invitation...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-5 w-5" />
+                            <span>Send Manager Invitation</span>
+                            <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                          </>
+                        )}
+                      </div>
+                    </motion.button>
+                  </motion.div>
+                </form>
               </div>
-            ) : (
-              "Send Invitation"
-            )}
-          </motion.button>
-        </form>
+            </div>
+          </motion.div>
+
+          {/* Sidebar Information */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="space-y-6"
+          >
+            {/* Benefits Card */}
+            <div className="rounded-2xl border border-white/50 bg-white/80 p-6 shadow-xl backdrop-blur-sm">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg">
+                  <Zap className="text-white" size={20} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Benefits</h3>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="mt-1 h-2 w-2 rounded-full bg-[#0029ff]"></div>
+                  <p className="text-sm text-gray-600">
+                    Enhanced team collaboration
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="mt-1 h-2 w-2 rounded-full bg-[#0029ff]"></div>
+                  <p className="text-sm text-gray-600">
+                    Improved productivity tracking
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="mt-1 h-2 w-2 rounded-full bg-[#0029ff]"></div>
+                  <p className="text-sm text-gray-600">
+                    Better performance insights
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="mt-1 h-2 w-2 rounded-full bg-[#0029ff]"></div>
+                  <p className="text-sm text-gray-600">
+                    Streamlined communication
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Process Card */}
+            <div className="rounded-2xl border border-white/50 bg-white/80 p-6 shadow-xl backdrop-blur-sm">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg">
+                  <Shield className="text-white" size={20} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Process</h3>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0029ff] text-sm font-bold text-white">
+                    1
+                  </div>
+                  <p className="text-sm text-gray-600">Fill manager details</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0029ff] text-sm font-bold text-white">
+                    2
+                  </div>
+                  <p className="text-sm text-gray-600">Send invitation email</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0029ff] text-sm font-bold text-white">
+                    3
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Manager joins platform
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats Card */}
+            <div className="rounded-2xl border border-white/50 bg-white/80 p-6 shadow-xl backdrop-blur-sm">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg">
+                  <BarChart2 className="text-white" size={20} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Quick Stats</h3>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Total Managers</span>
+                  <span className="font-bold text-[#0029ff]">{totalUsers}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Active Today</span>
+                  <span className="font-bold text-green-600">
+                    {dashboardData?.totalUsers
+                      ? Math.floor(dashboardData.totalUsers * 0.8)
+                      : 0}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">
+                    Avg. Performance
+                  </span>
+                  <span className="font-bold text-purple-600">85%</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </motion.div>
   );
@@ -847,7 +1207,7 @@ const Dashboard = () => {
                 className="h-8 w-auto"
               />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">thryve</h1>
+            <h1 className="text-2xl font-bold text-[#0029ff]">thryve</h1>
           </div>
         </div>
 
@@ -858,7 +1218,7 @@ const Dashboard = () => {
               whileHover={{ x: 8 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setActiveTab(item.id)}
-              className={`flex w-full items-center gap-4 rounded-xl px-6 py-4 text-left transition-all duration-200 ${
+              className={`flex w-full cursor-pointer items-center gap-4 rounded-xl px-6 py-4 text-left transition-all duration-200 ${
                 activeTab === item.id
                   ? "bg-gradient-to-r from-[#0029ff] to-[#1a4bff] text-white shadow-lg"
                   : "text-gray-600 hover:bg-gray-50 hover:text-[#0029ff]"
@@ -878,7 +1238,7 @@ const Dashboard = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleLogout}
-            className="flex w-full items-center gap-4 rounded-xl px-6 py-4 text-left text-gray-600 transition-all duration-200 hover:bg-red-50 hover:text-red-600"
+            className="flex w-full cursor-pointer items-center gap-4 rounded-xl px-6 py-4 text-left text-gray-600 transition-all duration-200 hover:bg-red-50 hover:text-red-600"
           >
             <LogOut size={20} />
             <span className="font-semibold">Logout</span>
@@ -943,107 +1303,6 @@ const Dashboard = () => {
           </AnimatePresence>
         </div>
       </div>
-
-      {/* Invite Modal */}
-      <AnimatePresence>
-        {showInviteModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300 }}
-              className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl"
-            >
-              <div className="mb-6 flex items-center justify-between">
-                <h3 className="text-2xl font-bold text-gray-900">
-                  Send Invitation
-                </h3>
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setShowInviteModal(false)}
-                  className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-                >
-                  <X size={24} />
-                </motion.button>
-              </div>
-              <form onSubmit={inviteNewManager} className="space-y-6">
-                <div>
-                  <label className="mb-3 block text-sm font-semibold text-gray-700">
-                    Manager Name
-                  </label>
-                  <input
-                    type="text"
-                    value={inviteForm.name}
-                    onChange={(e) =>
-                      setInviteForm({ ...inviteForm, name: e.target.value })
-                    }
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[#0029ff]"
-                    placeholder="Enter manager name"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="mb-3 block text-sm font-semibold text-gray-700">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    value={inviteForm.email}
-                    onChange={(e) =>
-                      setInviteForm({ ...inviteForm, email: e.target.value })
-                    }
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-[#0029ff]"
-                    placeholder="Enter email address"
-                    required
-                  />
-                </div>
-                <div className="flex space-x-4">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="button"
-                    onClick={() => setShowInviteModal(false)}
-                    className="flex-1 rounded-xl border-2 border-gray-300 px-6 py-3 font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50"
-                  >
-                    Cancel
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="submit"
-                    disabled={inviteLoading}
-                    className="flex-1 rounded-xl bg-gradient-to-r from-[#0029ff] to-[#1a4bff] px-6 py-3 font-semibold text-white transition-all duration-200 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {inviteLoading ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{
-                            duration: 1,
-                            repeat: Infinity,
-                            ease: "linear",
-                          }}
-                          className="h-4 w-4 rounded-full border-2 border-white border-t-transparent"
-                        />
-                        <span>Sending...</span>
-                      </div>
-                    ) : (
-                      "Send Invitation"
-                    )}
-                  </motion.button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };

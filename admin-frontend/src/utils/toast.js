@@ -26,5 +26,19 @@ export const showSuccessToast = (message) => {
   });
 };
 
+export const showErrorToast = (message) => {
+  return toast.error(message, {
+    iconTheme: {
+      primary: "#ef4444",
+      secondary: "#fff",
+    },
+    style: {
+      border: "1px solid #ef4444",
+      background: "#fef2f2",
+      color: "#dc2626",
+    },
+  });
+};
+
 // Export the default toast for other use cases
 export { toast };
