@@ -404,6 +404,7 @@ export const existingManagerController = async (req, res) => {
     const db = getDb();
     const userCollection = db.collection('users');
     const companyCollection = db.collection('companies');
+    const inviteSentCollection = db.collection('invite-sent');
 
     const { manager_id } = req.body;
 
@@ -441,7 +442,7 @@ export const existingManagerController = async (req, res) => {
 
     // Send invitation email
     const emailTemplate = generateManagerInviteEmailTemplate(
-      manager,
+      { name: manager.firstName, email: manager.email },
       company,
       company?.INVITE_CODE,
     );
@@ -451,6 +452,24 @@ export const existingManagerController = async (req, res) => {
       "You've Been Invited to Join Thryve as a Manager",
       emailTemplate,
     );
+
+    // Store invitation details in invite-sent collection
+    const inviteRecord = {
+      managerId: manager._id,
+      managerName: manager.firstName,
+      managerEmail: manager.email,
+      companyCode: req.user.companyId,
+      companyName: company.COMPANY_NAME,
+      invitedBy: req.user.id,
+      invitedByEmail: req.user.email,
+      inviteType: 'existing_manager',
+      emailStatus: emailResult.success ? 'sent' : 'failed',
+      inviteCode: company?.INVITE_CODE,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    await inviteSentCollection.insertOne(inviteRecord);
 
     if (emailResult.success) {
       res.json({
@@ -480,6 +499,7 @@ export const newManagerInviteController = async (req, res) => {
     const db = getDb();
     const userCollection = db.collection('users');
     const companyCollection = db.collection('companies');
+    const inviteSentCollection = db.collection('invite-sent');
 
     const { name, email } = req.body;
 
@@ -515,66 +535,49 @@ export const newManagerInviteController = async (req, res) => {
       });
     }
 
-    // Create new manager user
-    const newManager = {
-      firstName: name,
-      email: email,
-      companyId: req.user.companyId,
-      status: 'active',
-      totalPoints: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    const result = await userCollection.insertOne(newManager);
-
-    if (!result.insertedId) {
-      return res.status(500).json({
-        success: false,
-        error: 'Failed to create manager account',
-      });
-    }
-
-    // Generate invite code for the new manager
-    const managerWithId = { ...newManager, _id: result.insertedId };
-    const inviteCode = generateInviteCode(managerWithId, req.user.id, company, req);
-
     // Send invitation email
-    const emailTemplate = generateManagerInviteEmailTemplate(managerWithId, company, inviteCode);
+    const emailTemplate = generateManagerInviteEmailTemplate(
+      { name, email },
+      company,
+      company?.INVITE_CODE,
+    );
     const emailResult = await sendEmail(
       { name: name, email: email },
       "You've Been Invited to Join Thryve as a Manager",
       emailTemplate,
     );
 
-    if (emailResult.success) {
-      // Update user status to email sent
-      await userCollection.updateOne(
-        { _id: result.insertedId },
-        { $set: { status: 'email_sent', updatedAt: new Date() } },
-      );
+    // Store invitation details in invite-sent collection
+    const inviteRecord = {
+      managerName: name,
+      managerEmail: email.toLowerCase(),
+      companyCode: req.user.companyId,
+      companyName: company.COMPANY_NAME,
+      invitedBy: req.user.id,
+      invitedByEmail: req.user.email,
+      inviteType: 'new_manager',
+      emailStatus: emailResult.success ? 'sent' : 'failed',
+      inviteCode: company?.INVITE_CODE,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
 
+    await inviteSentCollection.insertOne(inviteRecord);
+
+    if (emailResult.success) {
       res.json({
         success: true,
-        message: 'Manager created and invitation email sent successfully',
+        message: 'Manager invitation email sent successfully',
         manager: {
-          id: result.insertedId,
           name: name,
           email: email,
         },
       });
     } else {
-      // Update user status to email failed
-      await userCollection.updateOne(
-        { _id: result.insertedId },
-        { $set: { status: 'email_failed', updatedAt: new Date() } },
-      );
-
       res.status(500).json({
         success: false,
-        error: 'Manager created but failed to send invitation email',
+        error: 'Failed to send invitation email',
         manager: {
-          id: result.insertedId,
           name: name,
           email: email,
         },
