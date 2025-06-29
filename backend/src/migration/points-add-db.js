@@ -1,4 +1,4 @@
-import { connectToDb, getDb } from "../config/db.js";
+import { connectToDb, getDb } from '../config/db.js';
 
 async function runMigration() {
   try {
@@ -11,10 +11,7 @@ async function runMigration() {
       { COMPANY_NAME: 'Appsfactory' },
       {
         $set: {
-          LearningPlanInteractionPoint: 2,
-          CoachingChatInteractionPoint: 1,
-          RoleplayInteractionPoint: 5,
-          ReflectionInteractionPoint: 5,
+          POINTSSTREAKPERDAY: 20,
         },
       },
     );
@@ -24,10 +21,7 @@ async function runMigration() {
       { COMPANY_NAME: 'Doyensys' },
       {
         $set: {
-          LearningPlanInteractionPoint: 2,
-          CoachingChatInteractionPoint: 1,
-          RoleplayInteractionPoint: 5,
-          ReflectionInteractionPoint: 5,
+          POINTSSTREAKPERDAY: 20,
         },
       },
     );
@@ -41,7 +35,6 @@ async function runMigration() {
 }
 
 runMigration();
-
 
 // db.companies.updateOne(
 //   { COMPANY_NAME: 'Appsfactory' },

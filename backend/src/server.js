@@ -9,6 +9,7 @@ import leaderShipRoutes from './api/leadership-report/leadership-report.js';
 import userRoutes from './api/register/signup.js';
 import authRoutes from './api/register/login.js';
 import { hideBin } from 'yargs/helpers';
+import managerLoginRoutes from './api/admin-manager/managerLoginRoute.js';
 import swaggerUi from 'swagger-ui-express';
 import logger from './utils/logger.js';
 import chatBoxRoutes from './api/chat-box/chat-box.js';
@@ -18,6 +19,8 @@ import inviteTeamRoutes from './api/invite-team/invite-team.js';
 import learningPlanRoutes from './api/learning-plan/learning-plan.js';
 import feedRoutes from './api/feed/explore.js';
 import feedbackConfigRoutes from './api/feedback/config.js';
+import managerDetailsRoutes from './api/admin-manager/managerDetailsRoute.js';
+import adminDashboardRoutes from "./api/admin-manager/adminDashboardRoute.js";
 import teamManagerScoreRoutes from './api/team-and-manager-scrore/team-and-manager-score.js';
 import { connectToDb } from './config/db.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -152,6 +155,13 @@ app.use('/api/feedback', feedbackConfigRoutes);
 app.use('/api/team-and-manager-score', teamManagerScoreRoutes);
 
 app.use('/api/feed', feedRoutes);
+
+// admin routes
+app.use('/api/admin/managers/login', managerLoginRoutes);
+app.use("/api/admin/managers", managerDetailsRoutes);
+app.use("/api/admin/dashboard", adminDashboardRoutes);
+app.use("/api/admin/invite-managers", inviteManagerRoutes);
+// app.use("/api/admin/company-details", managerCompanyDetailsRoutes)
 
 app.listen(PORT, async () => {
   await connectToDb();

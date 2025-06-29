@@ -4,33 +4,25 @@ import crypto from 'crypto';
 import { ObjectId } from 'mongodb';
 import { sendEmail } from '../../helper/email/sendEmail.js';
 
-// Validation schema for team member
 const teamMemberSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   email: z.string().email('Invalid email format'),
 });
 
-// Validation schema for request body
 const requestSchema = z.object({
   companyCode: z.string().min(1, 'Company invite code is required'),
   feedbackRequests: z.array(teamMemberSchema),
 });
 
 function generateInviteCode(teamMember, userId, company, req) {
-  // Combine multiple unique identifiers
   const timestamp = new Date().toISOString();
   const ipAddress = req.ip || req.connection.remoteAddress;
 
-  // Create a unique string combining all parameters
   const uniqueString = `${userId}-${company._id}-${timestamp}-${teamMember.name}-${teamMember.email}-${ipAddress}`;
-
-  // Generate SHA1 hash
   const hash = crypto.createHash('sha1').update(uniqueString).digest('hex');
 
-  // Format the code to be more readable: THR-XXXXX-XXXXX-XXXXX
-  // return `THR-${hash.slice(0, 5)}-${hash.slice(5, 10)}-${hash.slice(10, 15)}`;
   return hash;
-}
+};
 
 const generateEmailTemplate = (teamMember, manager, company) => {
   const assessmentLink = `${process.env.FRONTEND_URL}/feedback-assessment?inviteCode=${teamMember.INVITE_CODE}`;
@@ -435,11 +427,9 @@ export const addTeamMembers = async (req, res) => {
     const teamMembersCollection = db.collection('team-members');
     const companiesCollection = db.collection('companies');
 
-    // Validate request body
     requestSchema.parse(req.body);
     const { companyCode, feedbackRequests } = req.body;
 
-    // Verify company invite code
     const company = await companiesCollection.findOne({ INVITE_CODE: companyCode });
     if (!company) {
       return res.status(404).json({
@@ -448,7 +438,6 @@ export const addTeamMembers = async (req, res) => {
       });
     }
 
-    // Generate random invite codes and create documents for each team member
     const teamMemberDocuments = feedbackRequests.map((member) => ({
       userId: req.user.id,
       userEmail: req.user.email,
@@ -465,7 +454,6 @@ export const addTeamMembers = async (req, res) => {
 
     const emailsToInsert = feedbackRequests.map((member) => member.email);
 
-    // Query existing emails in DB for same company
     const existingMembers = await teamMembersCollection
       .find({
         email: { $in: emailsToInsert },
@@ -483,12 +471,7 @@ export const addTeamMembers = async (req, res) => {
       });
     }
 
-    // end duplicate email ids
-
-    // Insert all team members
     const result = await teamMembersCollection.insertMany(teamMemberDocuments);
-
-    // Send emails to each team member
     const emailPromises = teamMemberDocuments.map(async (teamMember) => {
       const emailTemplate = generateEmailTemplate(teamMember, req.user, company);
       const emailResult = await sendEmail(
@@ -497,7 +480,6 @@ export const addTeamMembers = async (req, res) => {
         emailTemplate,
       );
 
-      // Update team member status based on email sending result
       if (emailResult.success) {
         await teamMembersCollection.updateOne(
           { _id: teamMember._id },
@@ -513,7 +495,6 @@ export const addTeamMembers = async (req, res) => {
       return emailResult;
     });
 
-    // Wait for all emails to be sent
     const emailResults = await Promise.all(emailPromises);
 
     return res.status(200).json({

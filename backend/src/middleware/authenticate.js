@@ -37,4 +37,14 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
+export const adminCompanyMiddleware = (req, res, next) => {
+  if (req.user.role !== "company-admin") {
+    logger.warn(`Unauthorized admin access attempt - ${req.method} ${req.url}`);
+    return res.status(403).json({
+      message: "🚫 You do not have permission to access this resource. 🔒",
+    });
+  }
+  next();
+};
+
 export default authMiddleware;
