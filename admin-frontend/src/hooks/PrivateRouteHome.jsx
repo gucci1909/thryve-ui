@@ -8,12 +8,8 @@ const PrivateRouteHome = () => {
     return <Navigate to="/" />;
   }
 
-  if (!personalize) {
-    return <Navigate to="/personalize" />;
-  }
-
   if (personalize) {
-    return <Navigate to="/personalize-home" />;
+    return <Navigate to="/admin-dashboard" />;
   }
 };
 

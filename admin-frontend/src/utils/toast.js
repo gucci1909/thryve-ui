@@ -8,7 +8,6 @@ export const showInfoToast = (message) => {
       border: "1px solid #0029ff",
       background: "#f0f4ff",
       color: "#0029ff",
-      marginTop: "100px",
     },
   });
 };
@@ -18,7 +17,6 @@ export const showSuccessToast = (message) => {
     iconTheme: {
       primary: "#0029ff",
       secondary: "#fff",
-      marginTop: "100px",
     },
     style: {
       border: "1px solid #0029ff",
