@@ -14,6 +14,7 @@ import swaggerUi from 'swagger-ui-express';
 import logger from './utils/logger.js';
 import chatBoxRoutes from './api/chat-box/chat-box.js';
 import companyRoutes from './api/companies/companies.js';
+import inviteCompanyRoutes from './api/admin-manager/inviteCompanyRoute.js';
 import goalRoutes from './api/goals/goals.js';
 import inviteTeamRoutes from './api/invite-team/invite-team.js';
 import learningPlanRoutes from './api/learning-plan/learning-plan.js';
@@ -164,7 +165,12 @@ app.use('/api/admin/managers/login', managerLoginRoutes);
 app.use("/api/admin/managers", managerDetailsRoutes);
 app.use("/api/admin/dashboard", adminDashboardRoutes);
 app.use("/api/admin/invite-managers", inviteManagerRoutes);
-app.use("/api/admin/company-details", managerCompanyDetailsRoutes)
+app.use("/api/admin/company-details", managerCompanyDetailsRoutes);
+
+// founder-admin routes
+app.use('/api/admin/invite-companies', inviteCompanyRoutes);
+// app.use('/api/admin/all-companies', allCompaniesDetailsRoutes);
+// app.use('/api/admin/founder-profile', founderProfileRoutes);
 
 // founder-admin routes
 app.use('/api/admin/founder', managerDetailsRoutes);
