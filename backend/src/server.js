@@ -13,6 +13,7 @@ import managerLoginRoutes from './api/admin-manager/managerLoginRoute.js';
 import swaggerUi from 'swagger-ui-express';
 import logger from './utils/logger.js';
 import chatBoxRoutes from './api/chat-box/chat-box.js';
+import allCompaniesDetailsRoutes from './api/admin-manager/allCompaniesRoute.js';
 import companyRoutes from './api/companies/companies.js';
 import inviteCompanyRoutes from './api/admin-manager/inviteCompanyRoute.js';
 import goalRoutes from './api/goals/goals.js';
@@ -169,11 +170,7 @@ app.use("/api/admin/company-details", managerCompanyDetailsRoutes);
 
 // founder-admin routes
 app.use('/api/admin/invite-companies', inviteCompanyRoutes);
-// app.use('/api/admin/all-companies', allCompaniesDetailsRoutes);
-// app.use('/api/admin/founder-profile', founderProfileRoutes);
-
-// founder-admin routes
-app.use('/api/admin/founder', managerDetailsRoutes);
+app.use('/api/admin/all-companies', allCompaniesDetailsRoutes);
 
 app.listen(PORT, async () => {
   await connectToDb();

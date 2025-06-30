@@ -6,10 +6,11 @@ export const adminDashboardController = async (req, res) => {
     const userCollection = db.collection('users');
     const companyCollection = db.collection('companies');
     const teamMembersCollection = db.collection('team-members');
+    const { companyId } = req.query;
 
     // Fetch company info for streak calculation
     const companyDetails = await companyCollection.findOne({
-      INVITE_CODE: req.user.companyId,
+      INVITE_CODE: companyId || req.user?.companyId,
     });
     const streakDivider = companyDetails?.POINTSSTREAKPERDAY || 20;
 
@@ -17,7 +18,7 @@ export const adminDashboardController = async (req, res) => {
     const highestStreakPipeline = [
       {
         $match: {
-          companyId: req.user.companyId,
+          companyId: companyId || req.user?.companyId,
         },
       },
       {
@@ -54,7 +55,7 @@ export const adminDashboardController = async (req, res) => {
         {
           $match: {
             assessment: true,
-            companyCode: req.user.companyId,
+            companyCode: companyId || req.user?.companyId,
           },
         },
         {

@@ -9,7 +9,7 @@ function generateInviteCode(companyName) {
 }
 
 const generateEmailTemplate = (hrDetails, companyDetails, loginCredentials) => {
-  const joiningLink = `http://localhost:5173/`;
+  const joiningLink = `${process.env.ADMIN_FRONTEND_URL}`;
 
   return `
 <!DOCTYPE html>
@@ -378,14 +378,13 @@ const generateEmailTemplate = (hrDetails, companyDetails, loginCredentials) => {
         <h1>thryve</h1>
       </div>
       <div class="content">
-        <h2><i class="fas fa-user-tie" style="margin-right: 10px;"></i>HR Onboarding Invitation</h2>
+        <h2>HR Onboarding Invitation</h2>
         
         <p class="greeting">Dear <strong>${hrDetails.name}</strong>,</p>
         
         <div class="icon-text">
-          <i class="fas fa-building icon"></i>
           <div>
-            <strong>${companyDetails.name}</strong> has invited you to join our HR portal as an administrator. 
+          We Invite  <strong>${companyDetails.name}</strong> to join our thryve Manager's AI Coaching portal as an administrator. 
             You'll be responsible for onboarding managers and overseeing our leadership development program.
             ${companyDetails.about ? `<p style="margin-top: 10px; margin-bottom: 0;">${companyDetails.about}</p>` : ''}
           </div>
@@ -393,45 +392,37 @@ const generateEmailTemplate = (hrDetails, companyDetails, loginCredentials) => {
 
         <div class="highlight-box">
           <h3 style="color: #0029ff; margin-bottom: 20px; text-align: center;">
-            <i class="fas fa-user-shield" style="margin-right: 10px;"></i>Your Administrator Access
+           our Administrator Access
           </h3>
          <div class="credentials-box">
   <h3 style="color: #0029ff; margin-top: 0; margin-bottom: 15px; display: flex; align-items: center;">
-    <i class="fas fa-key" style="margin-right: 10px;"></i> Login Credentials
+     Login Credentials
   </h3>
   
   <div class="credential-item">
     <span class="credential-label">
-      <i class="fas fa-link" style="margin-right: 8px;"></i> Dashboard URL:
+       Dashboard URL:
     </span>
     <a href="${joiningLink}" style="color: #0029ff; text-decoration: none; font-weight: 500;">${joiningLink}</a>
   </div>
   
   <div class="credential-item" style="margin-top: 12px;">
     <span class="credential-label">
-      <i class="fas fa-envelope" style="margin-right: 8px;"></i> Email:
+       Email:
     </span>
     <strong style="color: #0029ff;">${loginCredentials.email}</strong>
   </div>
   
   <div class="credential-item" style="margin-top: 12px;">
     <span class="credential-label">
-      <i class="fas fa-lock" style="margin-right: 8px;"></i> Password:
+      Password:
     </span>
     <strong style="color: #0029ff;">${loginCredentials.password}</strong>
-  </div>
-  
-  <div style="margin-top: 20px; padding: 12px; background: rgba(0, 41, 255, 0.05); border-radius: 8px; border-left: 3px solid #0029ff;">
-    <i class="fas fa-exclamation-circle" style="color: #ff9800; margin-right: 8px;"></i>
-    <span style="font-size: 14px; color: #555;">
-      For security reasons, please change your password after first login
-    </span>
   </div>
 </div>
         </div>
 
         <div class="icon-text">
-          <i class="fas fa-user-plus icon"></i>
           <div>
             <strong style="display: block; margin-bottom: 8px;">Your Manager Invite Code: ${companyDetails.inviteCode}</strong>
             Use this unique code when onboarding managers to our platform. You can:
@@ -445,20 +436,17 @@ const generateEmailTemplate = (hrDetails, companyDetails, loginCredentials) => {
 
         <div class="button-container">
           <a href="${joiningLink}" class="button">
-            <i class="fas fa-tachometer-alt" style="margin-right: 10px;"></i> Go to HR Dashboard
+            Go to Admin Dashboard
           </a>
         </div>
 
         <div class="divider"></div>
 
         <div class="icon-text">
-          <i class="fas fa-info-circle icon"></i>
           <div>
             <h3 style="color: #0029ff; margin-top: 0;">Getting Started Guide</h3>
             <ol style="padding-left: 20px;">
               <li>Log in using the credentials above</li>
-              <li>Set up your profile and security settings</li>
-              <li>Review the manager onboarding tutorial</li>
               <li>Begin adding managers using your invite code</li>
               <li>Monitor progress through your dashboard</li>
             </ol>
@@ -466,16 +454,15 @@ const generateEmailTemplate = (hrDetails, companyDetails, loginCredentials) => {
         </div>
 
         <p class="signature">
-          <i class="fas fa-headset" style="color: #0029ff; margin-right: 8px;"></i>
+         
           For any assistance, contact our support team at 
           <a href="mailto:support@thryve.com" style="color: #0029ff; text-decoration: none;">support@thryve.com</a>
         </p>
       </div>
       <div class="footer">
-        <p><i class="fas fa-copyright" style="margin-right: 8px; color: #0029ff;"></i> 2025 Thryve. All rights reserved.</p>
+        <p> 2025 Thryve. All rights reserved.</p>
         <p style="margin-top: 10px; font-size: 12px; color: #999;">
-          <i class="fas fa-lock" style="margin-right: 5px;"></i>Secure HR Portal | 
-          <i class="fas fa-shield-alt" style="margin-left: 10px; margin-right: 5px;"></i>GDPR Compliant
+         Secure Admin Portal 
         </p>
       </div>
     </div>

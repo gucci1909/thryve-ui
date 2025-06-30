@@ -405,6 +405,7 @@ export const existingManagerController = async (req, res) => {
     const userCollection = db.collection('users');
     const companyCollection = db.collection('companies');
     const inviteSentCollection = db.collection('invite-sent');
+    const { companyId } = req.query;
 
     const { manager_id } = req.body;
 
@@ -418,7 +419,7 @@ export const existingManagerController = async (req, res) => {
     // Find the existing manager
     const manager = await userCollection.findOne({
       _id: new ObjectId(manager_id),
-      companyId: req.user.companyId,
+      companyId: companyId || req.user?.companyId,
     });
 
     if (!manager) {
@@ -430,7 +431,7 @@ export const existingManagerController = async (req, res) => {
 
     // Get company details
     const company = await companyCollection.findOne({
-      INVITE_CODE: req.user.companyId,
+      INVITE_CODE: companyId || req.user?.companyId,
     });
 
     if (!company) {
@@ -458,7 +459,7 @@ export const existingManagerController = async (req, res) => {
       managerId: manager._id,
       managerName: manager.firstName,
       managerEmail: manager.email,
-      companyCode: req.user.companyId,
+      companyCode:companyId || req.user?.companyId,
       companyName: company.COMPANY_NAME,
       invitedBy: req.user.id,
       invitedByEmail: req.user.email,
@@ -500,6 +501,7 @@ export const newManagerInviteController = async (req, res) => {
     const userCollection = db.collection('users');
     const companyCollection = db.collection('companies');
     const inviteSentCollection = db.collection('invite-sent');
+    const { companyId } = req.query;
 
     const { name, email } = req.body;
 
@@ -513,7 +515,7 @@ export const newManagerInviteController = async (req, res) => {
     // Check if user already exists
     const existingUser = await userCollection.findOne({
       email: email.toLowerCase(),
-      companyId: req.user.companyId,
+      companyId:companyId || req.user?.companyId,
     });
 
     if (existingUser) {
@@ -525,7 +527,7 @@ export const newManagerInviteController = async (req, res) => {
 
     // Get company details
     const company = await companyCollection.findOne({
-      INVITE_CODE: req.user.companyId,
+      INVITE_CODE: companyId || req.user?.companyId,
     });
 
     if (!company) {
@@ -551,7 +553,7 @@ export const newManagerInviteController = async (req, res) => {
     const inviteRecord = {
       managerName: name,
       managerEmail: email.toLowerCase(),
-      companyCode: req.user.companyId,
+      companyCode: companyId || req.user?.companyId,
       companyName: company.COMPANY_NAME,
       invitedBy: req.user.id,
       invitedByEmail: req.user.email,

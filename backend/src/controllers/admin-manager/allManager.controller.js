@@ -10,10 +10,11 @@ export const allManagerController = async (req, res) => {
     const { search = '', page = 1, limit = 6, sort = 'new' } = req.query;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
+    const { companyId } = req.query;
 
     // Fetch company info for streak calculation
     const companyDetails = await companyCollection.findOne({
-      INVITE_CODE: req.user.companyId,
+      INVITE_CODE: companyId || req.user?.companyId,
     });
     const streakDivider = companyDetails?.POINTSSTREAKPERDAY || 20;
 
@@ -23,7 +24,7 @@ export const allManagerController = async (req, res) => {
     const pipeline = [
       {
         $match: {
-          companyId: req.user.companyId,
+          companyId: companyId || req.user?.companyId,
           $or: [
             { firstName: { $regex: search, $options: 'i' } },
             { email: { $regex: search, $options: 'i' } },
@@ -190,7 +191,7 @@ export const allManagerController = async (req, res) => {
 
     const usersWithCounts = await userCollection.aggregate(pipeline).toArray();
     const total = await userCollection.countDocuments({
-      companyId: req.user.companyId,
+      companyId: companyId || req.user?.companyId,
       $or: [
         { firstName: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },
@@ -219,10 +220,11 @@ export const singleManagerController = async (req, res) => {
     const teamMembersCollection = db.collection('team-members');
 
     const { manager_id = '' } = req.query;
+    const { companyId } = req.query;
     if (!manager_id) return res.status(400).json({ error: 'Manager ID is required' });
 
     const companyDetails = await companyCollection.findOne({
-      INVITE_CODE: req.user.companyId,
+      INVITE_CODE: companyId || req.user?.companyId,
     });
 
     const streakDivider = companyDetails?.POINTSSTREAKPERDAY || 20;
@@ -231,7 +233,7 @@ export const singleManagerController = async (req, res) => {
       {
         $match: {
           _id: new ObjectId(manager_id),
-          companyId: req.user.companyId,
+          companyId: companyId || req.user?.companyId,
         },
       },
       {
@@ -480,7 +482,7 @@ export const singleManagerLearningPlanController = async (req, res) => {
     }, []);
 
     const filteredLearningPlans = mergedLearningPlan?.filter(
-      (plan) => Array.isArray(plan?.notes) && plan?.notes?.length > 0
+      (plan) => Array.isArray(plan?.notes) && plan?.notes?.length > 0,
     );
 
     res.json({

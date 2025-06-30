@@ -19,7 +19,7 @@ const userSlice = createSlice({
       state.email = action.payload.email;
       state.firstName = action.payload.firstName;
       state.role = action.payload.role;
-      state.companyId = action.payload.companyId;
+      state.companyId = action.payload?.companyId || null;
 
       localStorage.setItem("token", action.payload.token);
       localStorage.setItem("_id", JSON.stringify(action.payload._id));
@@ -29,10 +29,13 @@ const userSlice = createSlice({
         JSON.stringify(action.payload.firstName),
       );
       localStorage.setItem("role", JSON.stringify(action.payload.role));
-      localStorage.setItem(
-        "companyId",
-        JSON.stringify(action.payload.companyId),
-      );
+
+      if (action.payload.companyId) {
+        localStorage.setItem(
+          "companyId",
+          JSON.stringify(action.payload.companyId),
+        );
+      }
     },
     logout: (state) => {
       state.token = null;
