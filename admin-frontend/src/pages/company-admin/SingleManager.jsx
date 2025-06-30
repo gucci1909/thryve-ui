@@ -15,7 +15,6 @@ import {
   ArrowLeft,
   ThumbsUp,
   ChevronRight,
-  Trophy,
   Target as TargetIcon,
   BookOpen as BookOpenIcon,
   Users as UsersIcon,
@@ -357,7 +356,7 @@ const SingleManager = () => {
                 whileHover={{ x: -3 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate("/admin-dashboard")}
-                className="flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-sm text-gray-600 shadow-sm transition-all hover:bg-gray-50 hover:text-[#0029ff]"
+                className="flex items-center gap-2 cursor-pointer rounded-lg bg-white px-3 py-1.5 text-sm text-gray-600 shadow-sm transition-all hover:bg-gray-50 hover:text-[#0029ff]"
               >
                 <ArrowLeft size={16} />
                 <span>Back</span>
@@ -705,7 +704,7 @@ const SingleManager = () => {
         </motion.div>
 
         {/* Learning Plans */}
-        {learningPlans.length > 0 && (
+        {/* {learningPlans.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -764,7 +763,7 @@ const SingleManager = () => {
               ))}
             </div>
           </motion.div>
-        )}
+        )} */}
 
         {/* Goals & Reflections */}
         {(manager.goals?.length > 0 || manager.reflections?.length > 0) && (
