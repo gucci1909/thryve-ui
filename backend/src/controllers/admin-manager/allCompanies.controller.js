@@ -76,30 +76,7 @@ export const allCompaniesDetailsController = async (req, res) => {
   }
 };
 
-export const companyDetailByIdController = async (req, res) => {
-  try {
-    const db = getDb();
-    const { companyId } = req.params;
 
-    if (!companyId) {
-      return res.status(400).json({ message: 'Company ID is required.' });
-    }
-
-    const company = await db.collection('companies').findOne({ _id: new ObjectId(companyId) });
-
-    if (!company) {
-      return res.status(404).json({ message: 'Company not found.' });
-    }
-
-    res.status(200).json({
-      message: 'Company details retrieved successfully.',
-      company,
-    });
-  } catch (error) {
-    console.error('Error retrieving company details:', error);
-    res.status(500).json({ message: 'Internal server error while retrieving company details.' });
-  }
-};
 
 export const companyChangePasswordController = async (req, res) => {
   try {
@@ -113,7 +90,7 @@ export const companyChangePasswordController = async (req, res) => {
     const userCollection = db.collection('admin-users');
 
     const adminUser = await userCollection.findOne({
-      companyId: company_id,
+      companyId: new ObjectId(company_id),
       role: 'company-admin',
     });
 
@@ -136,6 +113,71 @@ export const companyChangePasswordController = async (req, res) => {
     );
 
     res.status(200).json({ message: 'Password updated successfully.' });
+  } catch (error) {
+    console.error('Error updating password:', error);
+    res.status(500).json({ message: 'Internal server error while updating password.' });
+  }
+};
+
+
+export const companyDetailByIdController = async (req, res) => {
+  try {
+    const db = getDb();
+    const { companyId } = req.params;
+
+    if (!companyId) {
+      return res.status(400).json({ message: 'Company ID is required.' });
+    }
+
+    const company = await db.collection('companies').findOne({ _id: new ObjectId(companyId) });
+
+    const adminUser = await userCollection.findOne({
+      companyId: new ObjectId(companyId),
+      role: 'company-admin',
+    });
+
+    if (!company) {
+      return res.status(404).json({ message: 'Company not found.' });
+    }
+
+    res.status(200).json({
+      message: 'Company details retrieved successfully.',
+      company,
+      ...adminUser
+    });
+  } catch (error) {
+    console.error('Error retrieving company details:', error);
+    res.status(500).json({ message: 'Internal server error while retrieving company details.' });
+  }
+};
+
+export const companyEditTextController = async (req, res) => {
+  try {
+    const db = getDb();
+    const { company_id, newText } = req.body;
+
+    if (!company_id || !newText) {
+      return res.status(400).json({ message: 'Invite code and newText are required.' });
+    }
+
+    const companyCollection = db.collection('companies');
+
+    const companyDetails = await companyCollection.findOne({
+      _id: new ObjectId(company_id),
+    });
+
+    // Update the password
+    await companyCollection.updateOne(
+      { _id: new ObjectId(company_id) },
+      {
+        $set: {
+          ABOUT_TEXT: newText,
+          updatedAt: new Date(),
+        },
+      },
+    );
+
+    res.status(200).json({ message: 'About Text updated successfully.' });
   } catch (error) {
     console.error('Error updating password:', error);
     res.status(500).json({ message: 'Internal server error while updating password.' });
