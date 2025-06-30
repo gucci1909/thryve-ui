@@ -8,6 +8,7 @@ import { showSuccessToast, showErrorToast } from "../../utils/toast";
 import { useDebounce } from "../../hooks/useDebounce";
 import ChangePassword from "./ChangePassword";
 import CompanyTable from "./CompanyTable";
+import CompanyDetailsModal from "./CompanyDetailsModal";
 
 const CompanyProfiles = () => {
   const { token } = useSelector((state) => state.user);
@@ -22,6 +23,7 @@ const CompanyProfiles = () => {
 
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showCompanyDetails, setShowCompanyDetails] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     newPassword: "",
     confirmPassword: "",
@@ -185,132 +187,23 @@ const CompanyProfiles = () => {
       <CompanyTable
         loading={loading}
         companies={companies}
-        setSelectedCompany={setSelectedCompany}
-        currentPage={currentPage} 
+        setSelectedCompany={(company) => {
+          setSelectedCompany(company);
+        }}
+        setShowCompanyDetails={setShowCompanyDetails}
+        currentPage={currentPage}
         setCurrentPage={setCurrentPage}
         setShowChangePassword={setShowChangePassword}
       />
+      {/* Company Details Modal */}
+      <CompanyDetailsModal
+        isOpen={showCompanyDetails}
+        onClose={() => setShowCompanyDetails(false)}
+        company={selectedCompany}
+        token={token}
+      />
 
-      {/* Company Detail Modal */}
-      {/* <AnimatePresence>
-        {selectedCompany && !showChangePassword && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 overflow-y-auto"
-          >
-            <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-              <div
-                className="fixed inset-0 transition-opacity"
-                aria-hidden="true"
-              >
-                <div
-                  className="absolute inset-0 bg-gray-500 opacity-75"
-                  onClick={() => setSelectedCompany(null)}
-                ></div>
-              </div>
-              <span
-                className="hidden sm:inline-block sm:align-middle sm:h-screen"
-                aria-hidden="true"
-              >
-                &#8203;
-              </span>
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -20, opacity: 0 }}
-                className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full"
-              >
-                <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                  <div className="sm:flex sm:items-start">
-                    <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
-                      <Building className="h-6 w-6 text-blue-600" />
-                    </div>
-                    <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                      <h3 className="text-lg leading-6 font-medium text-gray-900">
-                        {selectedCompany.COMPANY_NAME}
-                      </h3>
-                      <div className="mt-2">
-                        <div className="grid grid-cols-1 gap-y-4 gap-x-8 sm:grid-cols-2">
-                          <div>
-                            <p className="text-sm text-gray-500">Invite Code</p>
-                            <p className="mt-1 text-sm font-medium text-gray-900">
-                              {selectedCompany.INVITE_CODE}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">Company ID</p>
-                            <p className="mt-1 text-sm font-medium text-gray-900">
-                              {selectedCompany._id}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">
-                              Daily Points Streak
-                            </p>
-                            <p className="mt-1 text-sm font-medium text-gray-900">
-                              {selectedCompany.POINTSSTREAKPERDAY}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">
-                              Coaching Points
-                            </p>
-                            <p className="mt-1 text-sm font-medium text-gray-900">
-                              {selectedCompany.CoachingChatInteractionPoint}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">
-                              Learning Points
-                            </p>
-                            <p className="mt-1 text-sm font-medium text-gray-900">
-                              {selectedCompany.LearningPlanInteractionPoint}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">
-                              Reflection Points
-                            </p>
-                            <p className="mt-1 text-sm font-medium text-gray-900">
-                              {selectedCompany.ReflectionInteractionPoint}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">
-                              Roleplay Points
-                            </p>
-                            <p className="mt-1 text-sm font-medium text-gray-900">
-                              {selectedCompany.RoleplayInteractionPoint}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="mt-4">
-                          <p className="text-sm text-gray-500">About Company</p>
-                          <p className="mt-1 text-sm text-gray-900">
-                            {selectedCompany.ABOUT_TEXT}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                  <button
-                    type="button"
-                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
-                    onClick={() => setSelectedCompany(null)}
-                  >
-                    Close
-                  </button>
-                </div>
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence> */}
-
+      {/* Change Password Modal */}
       <AnimatePresence>
         {showChangePassword && selectedCompany && (
           <ChangePassword

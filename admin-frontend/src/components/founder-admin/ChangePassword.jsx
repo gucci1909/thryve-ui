@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Lock, RefreshCw } from "lucide-react";
 import PasswordInput from "../common/PasswordInput";
 
-function ChangePassword({
+const ChangePassword = ({
   setShowChangePassword,
   selectedCompany,
   handlePasswordSubmit,
@@ -10,7 +10,7 @@ function ChangePassword({
   handlePasswordChange,
   passwordErrors,
   isPasswordLoading,
-}) {
+}) => {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -113,6 +113,6 @@ function ChangePassword({
       </div>
     </motion.div>
   );
-}
+};
 
 export default ChangePassword;

@@ -19,7 +19,7 @@ router.get('/details', allCompaniesDetailsController);
 
 router.get('/details/:companyId', companyDetailByIdController);
 
-router.post('/edit-company-text', companyEditTextController)
+router.post('/edit-company-text', companyEditTextController);
 
 router.post('/change-password', companyChangePasswordController);
 

@@ -1,16 +1,17 @@
 import { motion } from "framer-motion";
-import { Building, ChevronDown, Eye, Lock, RefreshCw } from "lucide-react";
-import { useState } from "react";
+import { Building, Eye, Lock, RefreshCw, ChevronDown } from "lucide-react";
 
-function CompanyTable({
+const CompanyTable = ({
   loading,
   companies,
   setSelectedCompany,
-  setShowChangePassword,
-  currentPage = 1,
+  currentPage,
   setCurrentPage,
-}) {
-  const [itemsPerPage] = useState(5);
+  setShowCompanyDetails,
+  setShowChangePassword,
+}) => {
+  const itemsPerPage = 5;
+
   return (
     <div className="overflow-hidden rounded-xl bg-white shadow-sm">
       <div className="overflow-x-auto">
@@ -114,7 +115,10 @@ function CompanyTable({
                   <td className="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
                     <div className="flex flex-col gap-2 space-x-2">
                       <button
-                        onClick={() => setSelectedCompany(company)}
+                        onClick={() => {
+                          setSelectedCompany(company);
+                          setShowCompanyDetails(true);
+                        }}
                         className="flex cursor-pointer items-center text-blue-600 hover:text-blue-900"
                       >
                         <Eye className="mr-1 h-4 w-4" />
@@ -163,7 +167,7 @@ function CompanyTable({
                   disabled={currentPage === 1}
                   className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Previous
+                  <span className="sr-only">Previous</span>
                   <ChevronDown className="h-5 w-5 rotate-90 transform" />
                 </button>
                 <button
@@ -171,7 +175,7 @@ function CompanyTable({
                   disabled={companies.length < itemsPerPage}
                   className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Next
+                  <span className="sr-only">Next</span>
                   <ChevronDown className="h-5 w-5 -rotate-90 transform" />
                 </button>
               </nav>
@@ -181,6 +185,6 @@ function CompanyTable({
       )}
     </div>
   );
-}
+};
 
 export default CompanyTable;

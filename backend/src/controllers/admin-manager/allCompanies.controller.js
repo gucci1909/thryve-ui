@@ -76,8 +76,6 @@ export const allCompaniesDetailsController = async (req, res) => {
   }
 };
 
-
-
 export const companyChangePasswordController = async (req, res) => {
   try {
     const db = getDb();
@@ -119,7 +117,6 @@ export const companyChangePasswordController = async (req, res) => {
   }
 };
 
-
 export const companyDetailByIdController = async (req, res) => {
   try {
     const db = getDb();
@@ -131,6 +128,7 @@ export const companyDetailByIdController = async (req, res) => {
 
     const company = await db.collection('companies').findOne({ _id: new ObjectId(companyId) });
 
+    const userCollection = db.collection('admin-users');
     const adminUser = await userCollection.findOne({
       companyId: new ObjectId(companyId),
       role: 'company-admin',
@@ -143,7 +141,7 @@ export const companyDetailByIdController = async (req, res) => {
     res.status(200).json({
       message: 'Company details retrieved successfully.',
       company,
-      ...adminUser
+      ...adminUser,
     });
   } catch (error) {
     console.error('Error retrieving company details:', error);
@@ -161,10 +159,6 @@ export const companyEditTextController = async (req, res) => {
     }
 
     const companyCollection = db.collection('companies');
-
-    const companyDetails = await companyCollection.findOne({
-      _id: new ObjectId(company_id),
-    });
 
     // Update the password
     await companyCollection.updateOne(

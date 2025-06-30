@@ -1,0 +1,435 @@
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Building,
+  X,
+  Edit3,
+  Save,
+  Calendar,
+  User,
+  Target,
+  TrendingUp,
+  MessageCircle,
+  BookOpen,
+  Lightbulb,
+  Users,
+  RefreshCw,
+} from "lucide-react";
+import { showSuccessToast, showErrorToast } from "../../utils/toast";
+
+const CompanyDetailsModal = ({ isOpen, onClose, company, token }) => {
+  const [companyDetails, setCompanyDetails] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [aboutText, setAboutText] = useState("");
+  const [originalAboutText, setOriginalAboutText] = useState("");
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  useEffect(() => {
+    if (isOpen && company?._id) {
+      fetchCompanyDetails();
+    }
+  }, [isOpen, company?._id]);
+
+  const fetchCompanyDetails = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/all-companies/details/${company._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (response.status === 401) {
+        showErrorToast("Session expired. Please login again.");
+        return;
+      }
+
+      const data = await response.json();
+      if (data.company) {
+        setCompanyDetails(data);
+        setAboutText(data.company.ABOUT_TEXT || "");
+        setOriginalAboutText(data.company.ABOUT_TEXT || "");
+      }
+    } catch (error) {
+      console.error("Error fetching company details:", error);
+      showErrorToast("Failed to fetch company details");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditText = async () => {
+    if (!aboutText.trim()) {
+      showErrorToast("About text cannot be empty");
+      return;
+    }
+
+    setEditLoading(true);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/all-companies/edit-company-text`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            company_id: company._id,
+            newText: aboutText,
+          }),
+        },
+      );
+
+      if (response.status === 401) {
+        showErrorToast("Session expired. Please login again.");
+        return;
+      }
+
+      const data = await response.json();
+      if (data.message) {
+        showSuccessToast("About text updated successfully! 🎉");
+        setOriginalAboutText(aboutText);
+        setIsEditing(false);
+        // Update the company details with new text
+        setCompanyDetails((prev) => ({
+          ...prev,
+          company: {
+            ...prev.company,
+            ABOUT_TEXT: aboutText,
+          },
+        }));
+      }
+    } catch (error) {
+      console.error("Error updating about text:", error);
+      showErrorToast("Failed to update about text");
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setAboutText(originalAboutText);
+    setIsEditing(false);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const interactionIcons = {
+    CoachingChatInteractionPoint: MessageCircle,
+    LearningPlanInteractionPoint: BookOpen,
+    ReflectionInteractionPoint: Lightbulb,
+    RoleplayInteractionPoint: Users,
+  };
+
+  const interactionLabels = {
+    CoachingChatInteractionPoint: "Coaching",
+    LearningPlanInteractionPoint: "Learning",
+    ReflectionInteractionPoint: "Reflection",
+    RoleplayInteractionPoint: "Roleplay",
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.9, opacity: 0, y: 20 }}
+          transition={{ type: "spring", damping: 25, stiffness: 300 }}
+          className="relative mx-auto flex h-[90vh] w-full max-w-6xl flex-col rounded-2xl bg-white shadow-2xl" // Changed here
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="relative bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-white">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="rounded-xl bg-white/20 p-3 backdrop-blur-sm"
+                >
+                  <Building className="h-8 w-8" />
+                </motion.div>
+                <div>
+                  <motion.h2
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-2xl font-bold"
+                  >
+                    {company?.COMPANY_NAME || "Company Details"}
+                  </motion.h2>
+                  <motion.p
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-sm text-blue-100"
+                  >
+                    Comprehensive company information and analytics
+                  </motion.p>
+                </div>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={onClose}
+                className="cursor-pointer rounded-full p-2 transition-colors hover:bg-white/20"
+              >
+                <X className="h-6 w-6" />
+              </motion.button>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="h-full overflow-y-auto">
+            {loading ? (
+              <div className="flex h-64 items-center justify-center">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                >
+                  <RefreshCw className="h-8 w-8 text-blue-600" />
+                </motion.div>
+              </div>
+            ) : companyDetails ? (
+              <div className="space-y-6 p-6">
+                {/* Basic Info Cards */}
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-4"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="rounded-lg bg-blue-600 p-2">
+                        <Target className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-blue-600">
+                          Invite Code
+                        </p>
+                        <p className="text-lg font-bold text-gray-900">
+                          {companyDetails.company?.INVITE_CODE || "N/A"}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="rounded-xl border border-green-200 bg-gradient-to-br from-green-50 to-green-100 p-4"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="rounded-lg bg-green-600 p-2">
+                        <TrendingUp className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-green-600">
+                          Daily Points
+                        </p>
+                        <p className="text-lg font-bold text-gray-900">
+                          {companyDetails.company?.POINTSSTREAKPERDAY || "0"}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100 p-4"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="rounded-lg bg-purple-600 p-2">
+                        <User className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-purple-600">
+                          HR Manager
+                        </p>
+                        <p className="text-lg font-bold text-gray-900">
+                          {companyDetails.firstName} {companyDetails.lastName}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-orange-100 p-4"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="rounded-lg bg-orange-600 p-2">
+                        <Calendar className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-orange-600">
+                          Created
+                        </p>
+                        <p className="text-sm font-bold text-gray-900">
+                          {formatDate(companyDetails.createdAt)}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+
+                {/* About Text Section */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className="rounded-xl border border-gray-200 bg-white p-6"
+                >
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="flex items-center text-lg font-semibold text-gray-900">
+                      <BookOpen className="mr-2 h-5 w-5 text-blue-600" />
+                      About Company
+                    </h3>
+                    {!isEditing ? (
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setIsEditing(true)}
+                        className="flex cursor-pointer items-center space-x-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
+                      >
+                        <Edit3 className="h-4 w-4" />
+                        <span>Edit</span>
+                      </motion.button>
+                    ) : (
+                      <div className="flex space-x-2">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={handleCancelEdit}
+                          className="cursor-pointer rounded-lg bg-gray-500 px-4 py-2 text-white transition-colors hover:bg-gray-600"
+                        >
+                          Cancel
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={handleEditText}
+                          disabled={editLoading}
+                          className="transition-color flex cursor-pointer items-center space-x-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {editLoading ? (
+                            <>
+                              <RefreshCw className="h-4 w-4 animate-spin" />
+                              <span>Saving...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Save className="h-4 w-4" />
+                              <span>Save</span>
+                            </>
+                          )}
+                        </motion.button>
+                      </div>
+                    )}
+                  </div>
+
+                  {isEditing ? (
+                    <motion.textarea
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      value={aboutText}
+                      onChange={(e) => setAboutText(e.target.value)}
+                      className="h-32 w-full resize-none rounded-lg border border-gray-300 p-4 text-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter company description..."
+                    />
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="min-h-[8rem] rounded-lg bg-gray-50 p-4"
+                    >
+                      <p className="leading-relaxed text-gray-700">
+                        {companyDetails.company?.ABOUT_TEXT ||
+                          "No description available."}
+                      </p>
+                    </motion.div>
+                  )}
+                </motion.div>
+
+                {/* Interaction Points */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                  className="rounded-xl border border-gray-200 bg-white p-6"
+                >
+                  <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900">
+                    <Target className="mr-2 h-5 w-5 text-blue-600" />
+                    Interaction Points
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                    {Object.entries(interactionIcons).map(
+                      ([key, Icon], index) => (
+                        <motion.div
+                          key={key}
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 0.6 + index * 0.1 }}
+                          className="cursor-pointer rounded-lg bg-gray-50 p-4 text-center transition-colors hover:bg-gray-100"
+                        >
+                          <Icon className="mx-auto mb-2 h-8 w-8 text-blue-600" />
+                          <p className="text-sm font-medium text-gray-700">
+                            {interactionLabels[key]}
+                          </p>
+                          <p className="text-lg font-bold text-gray-900">
+                            {companyDetails.company?.[key] || "0"}
+                          </p>
+                        </motion.div>
+                      ),
+                    )}
+                  </div>
+                </motion.div>
+              </div>
+            ) : (
+              <div className="flex h-64 items-center justify-center">
+                <div className="text-center">
+                  <X className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                  <p className="text-gray-500">No company details available</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
+export default CompanyDetailsModal;
