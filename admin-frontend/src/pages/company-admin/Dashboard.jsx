@@ -21,6 +21,7 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [totalUsers, setTotalUsers] = useState(0);
   const [sortBy, setSortBy] = useState("new");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [inviteForm, setInviteForm] = useState({
@@ -250,10 +251,11 @@ const Dashboard = () => {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         handleLogout={handleLogout}
+        setIsDropdownOpen={setIsDropdownOpen}
       />
 
       <div className="flex-1 overflow-auto">
-        <div className="p-8">
+        <div className="p-5">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -292,6 +294,7 @@ const Dashboard = () => {
                   totalPages={totalPages}
                   currentPage={currentPage}
                   setCurrentPage={setCurrentPage}
+                  activeTab={activeTab}
                 />
               </motion.div>
             )}

@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { LogOut, ChevronRight } from "lucide-react";
 
-function Sidebar({ sidebarItems, activeTab, setActiveTab, handleLogout }) {
+function Sidebar({ sidebarItems, activeTab, setActiveTab, handleLogout, setIsDropdownOpen }) {
   return (
     <motion.div
       initial={{ x: -300 }}
@@ -28,7 +28,10 @@ function Sidebar({ sidebarItems, activeTab, setActiveTab, handleLogout }) {
             key={item.id}
             whileHover={{ x: 8 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setActiveTab(item.id)}
+            onClick={() => {
+              setIsDropdownOpen(false);
+              setActiveTab(item.id);
+            }}
             className={`flex w-full cursor-pointer items-center gap-4 rounded-xl px-3 py-4 text-left transition-all duration-200 ${
               activeTab === item.id
                 ? "bg-gradient-to-r from-[#0029ff] to-[#1a4bff] text-white shadow-lg"

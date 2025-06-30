@@ -392,7 +392,7 @@ const generateEmailTemplate = (hrDetails, companyDetails, loginCredentials) => {
 
         <div class="highlight-box">
           <h3 style="color: #0029ff; margin-bottom: 20px; text-align: center;">
-           our Administrator Access
+           Administrator Access
           </h3>
          <div class="credentials-box">
   <h3 style="color: #0029ff; margin-top: 0; margin-bottom: 15px; display: flex; align-items: center;">
@@ -492,6 +492,11 @@ export const adminHRInviteController = async (req, res) => {
       COMPANY_NAME: companyName,
       INVITE_CODE: inviteCode,
       ABOUT_TEXT: aboutText,
+      CoachingChatInteractionPoint: 1,
+      LearningPlanInteractionPoint: 2,
+      ReflectionInteractionPoint: 5,
+      RoleplayInteractionPoint: 5,
+      POINTSSTREAKPERDAY: 20,
       createdAt: new Date(),
       updatedAt: new Date(),
     };

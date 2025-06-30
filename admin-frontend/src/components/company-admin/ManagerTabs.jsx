@@ -22,6 +22,8 @@ function ManagerTabs({
   totalPages,
   currentPage,
   setCurrentPage,
+  activeTab,
+  companyId,
 }) {
   const navigate = useNavigate();
   return (
@@ -283,7 +285,15 @@ function ManagerTabs({
                           <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            onClick={() => navigate(`/manager/${manager._id}`)}
+                            onClick={() =>
+                              activeTab === "all-managers"
+                                ? navigate(`/manager/${manager._id}`)
+                                : navigate(`/founder-manager/${manager._id}`, {
+                                    state: {
+                                      companyId: companyId,
+                                    },
+                                  })
+                            }
                             className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:shadow-md"
                           >
                             <Eye size={16} />
@@ -324,7 +334,7 @@ function ManagerTabs({
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
-                    className="rounded-xl border border-gray-300 px-4 py-2 text-sm transition-colors hover:bg-gray-50 disabled:opacity-50"
+                    className="cursor-pointer rounded-xl border border-gray-300 px-4 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50"
                   >
                     Previous
                   </motion.button>
@@ -335,7 +345,7 @@ function ManagerTabs({
                       setCurrentPage(Math.min(totalPages, currentPage + 1))
                     }
                     disabled={currentPage === totalPages}
-                    className="rounded-xl border border-gray-300 px-4 py-2 text-sm transition-colors hover:bg-gray-50 disabled:opacity-50"
+                    className="cursor-pointer rounded-xl border border-gray-300 px-4 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50"
                   >
                     Next
                   </motion.button>

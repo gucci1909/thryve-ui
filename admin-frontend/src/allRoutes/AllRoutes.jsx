@@ -14,6 +14,9 @@ const PrivateRoute = lazy(() => import("../hooks/PrivateRoute.jsx"));
 const FounderDashboard = lazy(
   () => import("../pages/founder-admin/Dashboard.jsx"),
 );
+const FounderSingleManager = lazy(
+  () => import("../pages/founder-admin/FounderSingleManager.jsx"),
+);
 
 function AllRoutes() {
   return (
@@ -43,6 +46,15 @@ function AllRoutes() {
             element={
               <PrivateRoute>
                 <SingleManager />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/founder-manager/:managerId"
+            element={
+              <PrivateRoute>
+                <FounderSingleManager />
               </PrivateRoute>
             }
           />
