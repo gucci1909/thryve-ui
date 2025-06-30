@@ -114,7 +114,7 @@ const Home = () => {
         if (role === "company-admin") {
           navigate("/admin-dashboard");
         } else if (role === "super-admin") {
-          navigate("/super-admin-dashboard");
+          navigate("/founder-dashboard");
         }
       }
     } catch (error) {

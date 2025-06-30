@@ -29,7 +29,7 @@ export const loginManagerController = async (req, res) => {
       });
     }
 
-    if (user.role !== 'company-admin') {
+    if (user.role !== 'company-admin' && user.role !== 'super-admin') {
       return res.status(401).json({
         message: 'Account is not having admin-access. Please contact support.',
       });

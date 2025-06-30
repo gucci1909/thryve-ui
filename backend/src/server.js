@@ -18,6 +18,7 @@ import goalRoutes from './api/goals/goals.js';
 import inviteTeamRoutes from './api/invite-team/invite-team.js';
 import learningPlanRoutes from './api/learning-plan/learning-plan.js';
 import feedRoutes from './api/feed/explore.js';
+import managerCompanyDetailsRoutes from './api/admin-manager/managerCompanyDetailsRoute.js';
 import inviteManagerRoutes from "./api/admin-manager/inviteManageRoute.js";
 import feedbackConfigRoutes from './api/feedback/config.js';
 import managerDetailsRoutes from './api/admin-manager/managerDetailsRoute.js';
@@ -157,12 +158,16 @@ app.use('/api/team-and-manager-score', teamManagerScoreRoutes);
 
 app.use('/api/feed', feedRoutes);
 
-// admin routes
 app.use('/api/admin/managers/login', managerLoginRoutes);
+
+// company-admin routes
 app.use("/api/admin/managers", managerDetailsRoutes);
 app.use("/api/admin/dashboard", adminDashboardRoutes);
 app.use("/api/admin/invite-managers", inviteManagerRoutes);
-// app.use("/api/admin/company-details", managerCompanyDetailsRoutes)
+app.use("/api/admin/company-details", managerCompanyDetailsRoutes)
+
+// founder-admin routes
+app.use('/api/admin/founder', managerDetailsRoutes);
 
 app.listen(PORT, async () => {
   await connectToDb();

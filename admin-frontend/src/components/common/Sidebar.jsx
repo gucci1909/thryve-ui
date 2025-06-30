@@ -29,7 +29,7 @@ function Sidebar({ sidebarItems, activeTab, setActiveTab, handleLogout }) {
             whileHover={{ x: 8 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setActiveTab(item.id)}
-            className={`flex w-full cursor-pointer items-center gap-4 rounded-xl px-6 py-4 text-left transition-all duration-200 ${
+            className={`flex w-full cursor-pointer items-center gap-4 rounded-xl px-3 py-4 text-left transition-all duration-200 ${
               activeTab === item.id
                 ? "bg-gradient-to-r from-[#0029ff] to-[#1a4bff] text-white shadow-lg"
                 : "text-gray-600 hover:bg-gray-50 hover:text-[#0029ff]"

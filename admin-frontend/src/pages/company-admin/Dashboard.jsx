@@ -324,7 +324,7 @@ const Dashboard = () => {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.4 }}
               >
-                <CompanyProfile dashboardData={dashboardData} />
+                <CompanyProfile />
               </motion.div>
             )}
           </AnimatePresence>

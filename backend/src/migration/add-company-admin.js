@@ -11,10 +11,9 @@ async function runMigration() {
 
     const newUser = {
       firstName: "umang",
-      email: "umangarora0134@gmail.com",
-      role: "company-admin",
+      email: "umangarora370@gmail.com",
+      role: "super-admin",
       password: hashedPassword,
-      companyId: "MD5-9CC-4D8",
       createdAt: new Date(),
       updatedAt: new Date(),
     };
