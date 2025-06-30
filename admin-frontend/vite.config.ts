@@ -3,16 +3,23 @@ import path from "path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import flowbiteReact from "flowbite-react/plugin/vite";
-import fs from 'fs';
+import fs from "fs";
+import { resolve } from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     {
       name: "generate-version",
-      buildEnd() {
+      // Use closeBundle to make sure dist is available
+      closeBundle() {
+        const distDir = resolve(__dirname, "dist");
+        if (!fs.existsSync(distDir)) {
+          fs.mkdirSync(distDir, { recursive: true });
+        }
+
         fs.writeFileSync(
-          "dist/version.json",
+          resolve(distDir, "version.json"),
           JSON.stringify({
             version: Date.now(),
           }),
@@ -21,7 +28,7 @@ export default defineConfig({
     },
     react(),
     tailwindcss(),
-    flowbiteReact()
+    flowbiteReact(),
   ],
   resolve: {
     alias: {
