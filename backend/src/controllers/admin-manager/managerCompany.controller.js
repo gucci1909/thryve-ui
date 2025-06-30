@@ -1,4 +1,5 @@
-import { getDb } from "../../config/db.js";
+import { ObjectId } from 'mongodb';
+import { getDb } from '../../config/db.js';
 
 export const adminCompanyDetails = async (req, res) => {
   try {
@@ -11,7 +12,7 @@ export const adminCompanyDetails = async (req, res) => {
       return res.status(400).json({ error: 'Company ID is required' });
     }
 
-    const companyDetails = await companiesCollection.findOne({ INVITE_CODE: companyId });
+    const companyDetails = await companiesCollection.findOne({ _id: new ObjectId(companyId) });
 
     return res.json({
       companyDetails: {

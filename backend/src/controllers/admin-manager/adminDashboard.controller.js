@@ -1,4 +1,5 @@
 import { getDb } from '../../config/db.js';
+import { ObjectId } from 'mongodb';
 
 export const adminDashboardController = async (req, res) => {
   try {
@@ -8,9 +9,11 @@ export const adminDashboardController = async (req, res) => {
     const teamMembersCollection = db.collection('team-members');
     const { companyId } = req.query;
 
+    const companyIdToUse = companyId || req.user?.companyId;
+
     // Fetch company info for streak calculation
     const companyDetails = await companyCollection.findOne({
-      INVITE_CODE: companyId || req.user?.companyId,
+      _id: new ObjectId(companyIdToUse),
     });
     const streakDivider = companyDetails?.POINTSSTREAKPERDAY || 20;
 
@@ -18,7 +21,7 @@ export const adminDashboardController = async (req, res) => {
     const highestStreakPipeline = [
       {
         $match: {
-          companyId: companyId || req.user?.companyId,
+          companyId: companyDetails?.INVITE_CODE || '',
         },
       },
       {
@@ -55,7 +58,7 @@ export const adminDashboardController = async (req, res) => {
         {
           $match: {
             assessment: true,
-            companyCode: companyId || req.user?.companyId,
+            companyCode: companyDetails?.INVITE_CODE || '',
           },
         },
         {

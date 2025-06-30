@@ -1,12 +1,13 @@
 import bcrypt from 'bcryptjs';
 import { getDb } from '../../config/db.js';
+import { ObjectId } from 'mongodb';
 
 export const allCompaniesIDsController = async (req, res) => {
   try {
     const db = getDb();
     const companies = await db
       .collection('companies')
-      .find({}, { projection: { COMPANY_NAME: 1, INVITE_CODE: 1 } })
+      .find({}, { projection: { COMPANY_NAME: 1, INVITE_CODE: 1, _id: 1 } })
       .toArray();
     if (companies.length === 0) {
       return res.status(404).json({ message: 'No companies found.' });
@@ -16,7 +17,8 @@ export const allCompaniesIDsController = async (req, res) => {
       message: 'Companies retrieved successfully.',
       companies: companies.map((company) => ({
         name: company.COMPANY_NAME,
-        code: company.INVITE_CODE,
+        invite_code: company.INVITE_CODE,
+        _id: company._id.toString(),
       })),
     });
   } catch (error) {
@@ -46,6 +48,7 @@ export const allCompaniesDetailsController = async (req, res) => {
       .collection('companies')
       .find(query, {
         projection: {
+          _id: 1,
           COMPANY_NAME: 1,
           INVITE_CODE: 1,
           ABOUT_TEXT: 1,
@@ -82,7 +85,7 @@ export const companyDetailByIdController = async (req, res) => {
       return res.status(400).json({ message: 'Company ID is required.' });
     }
 
-    const company = await db.collection('companies').findOne({ INVITE_CODE: companyId });
+    const company = await db.collection('companies').findOne({ _id: new ObjectId(companyId) });
 
     if (!company) {
       return res.status(404).json({ message: 'Company not found.' });
@@ -101,17 +104,16 @@ export const companyDetailByIdController = async (req, res) => {
 export const companyChangePasswordController = async (req, res) => {
   try {
     const db = getDb();
-    const { inviteCode, newPassword } = req.body;
+    const { company_id, newPassword } = req.body;
 
-    if (!inviteCode || !newPassword) {
+    if (!company_id || !newPassword) {
       return res.status(400).json({ message: 'Invite code and new password are required.' });
     }
 
-    // Find the admin user with matching companyId (which is the invite code)
     const userCollection = db.collection('admin-users');
 
     const adminUser = await userCollection.findOne({
-      companyId: inviteCode,
+      companyId: company_id,
       role: 'company-admin',
     });
 

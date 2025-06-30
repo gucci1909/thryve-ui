@@ -12,10 +12,11 @@ export const allManagerController = async (req, res) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const { companyId } = req.query;
 
-    // Fetch company info for streak calculation
+    const companyIdToUse = companyId || req.user?.companyId;
     const companyDetails = await companyCollection.findOne({
-      INVITE_CODE: companyId || req.user?.companyId,
+      _id: new ObjectId(companyIdToUse),
     });
+
     const streakDivider = companyDetails?.POINTSSTREAKPERDAY || 20;
 
     const sortOption = sort === 'old' ? { createdAt: 1 } : { createdAt: -1 };
@@ -24,7 +25,7 @@ export const allManagerController = async (req, res) => {
     const pipeline = [
       {
         $match: {
-          companyId: companyId || req.user?.companyId,
+          companyId: companyDetails.INVITE_CODE || '',
           $or: [
             { firstName: { $regex: search, $options: 'i' } },
             { email: { $regex: search, $options: 'i' } },
@@ -191,7 +192,7 @@ export const allManagerController = async (req, res) => {
 
     const usersWithCounts = await userCollection.aggregate(pipeline).toArray();
     const total = await userCollection.countDocuments({
-      companyId: companyId || req.user?.companyId,
+      companyId: companyCollection.INVITE_CODE || '',
       $or: [
         { firstName: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },
@@ -223,8 +224,10 @@ export const singleManagerController = async (req, res) => {
     const { companyId } = req.query;
     if (!manager_id) return res.status(400).json({ error: 'Manager ID is required' });
 
+    const companyIdToUse = companyId || req.user?.companyId;
+
     const companyDetails = await companyCollection.findOne({
-      INVITE_CODE: companyId || req.user?.companyId,
+      _id: new ObjectId(companyIdToUse),
     });
 
     const streakDivider = companyDetails?.POINTSSTREAKPERDAY || 20;
@@ -233,7 +236,7 @@ export const singleManagerController = async (req, res) => {
       {
         $match: {
           _id: new ObjectId(manager_id),
-          companyId: companyId || req.user?.companyId,
+          companyId: companyDetails?.INVITE_CODE || '',
         },
       },
       {

@@ -10,11 +10,10 @@ async function runMigration() {
     const hashedPassword = await bcrypt.hash("123456", 10);
 
     const newUser = {
-      firstName: "sunil",
-      email: "sunilbhatia79@gmail.com",
-      role: "company-admin",
+      firstName: "umang",
+      email: "umangarora370@gmail.com",
+      role: "super-admin",
       password: hashedPassword,
-      companyId: "MD5-9CC-4D8",
       createdAt: new Date(),
       updatedAt: new Date(),
     };

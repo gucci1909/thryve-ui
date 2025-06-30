@@ -403,7 +403,7 @@ export const existingManagerController = async (req, res) => {
   try {
     const db = getDb();
     const userCollection = db.collection('users');
-    const companyCollection = db.collection('companies');
+    // const companyCollection = db.collection('companies');
     const inviteSentCollection = db.collection('invite-sent');
     const { companyId } = req.query;
 
@@ -416,10 +416,16 @@ export const existingManagerController = async (req, res) => {
       });
     }
 
+    const companyIdToUse = companyId || req.user?.companyId;
+
+    const companyDetails = await companyCollection.findOne({
+      _id: new ObjectId(companyIdToUse),
+    });
+
     // Find the existing manager
     const manager = await userCollection.findOne({
       _id: new ObjectId(manager_id),
-      companyId: companyId || req.user?.companyId,
+      companyId: companyDetails.INVITE_CODE || '',
     });
 
     if (!manager) {
@@ -429,23 +435,11 @@ export const existingManagerController = async (req, res) => {
       });
     }
 
-    // Get company details
-    const company = await companyCollection.findOne({
-      INVITE_CODE: companyId || req.user?.companyId,
-    });
-
-    if (!company) {
-      return res.status(404).json({
-        success: false,
-        error: 'Company not found',
-      });
-    }
-
     // Send invitation email
     const emailTemplate = generateManagerInviteEmailTemplate(
       { name: manager.firstName, email: manager.email },
-      company,
-      company?.INVITE_CODE,
+      companyDetails,
+      companyDetails?.INVITE_CODE,
     );
 
     const emailResult = await sendEmail(
@@ -459,7 +453,7 @@ export const existingManagerController = async (req, res) => {
       managerId: manager._id,
       managerName: manager.firstName,
       managerEmail: manager.email,
-      companyCode:companyId || req.user?.companyId,
+      companyCode: companyId || req.user?.companyId,
       companyName: company.COMPANY_NAME,
       invitedBy: req.user.id,
       invitedByEmail: req.user.email,
@@ -512,10 +506,17 @@ export const newManagerInviteController = async (req, res) => {
       });
     }
 
+    const companyIdToUse = companyId || req.user?.companyId;
+
+    // Get company details
+    const company = await companyCollection.findOne({
+      _id: new ObjectId(companyIdToUse),
+    });
+
     // Check if user already exists
     const existingUser = await userCollection.findOne({
       email: email.toLowerCase(),
-      companyId:companyId || req.user?.companyId,
+      companyId: companyId || req.user?.companyId,
     });
 
     if (existingUser) {
@@ -524,11 +525,6 @@ export const newManagerInviteController = async (req, res) => {
         error: 'User with this email already exists in the company',
       });
     }
-
-    // Get company details
-    const company = await companyCollection.findOne({
-      INVITE_CODE: companyId || req.user?.companyId,
-    });
 
     if (!company) {
       return res.status(404).json({
