@@ -88,7 +88,7 @@ export const companyChangePasswordController = async (req, res) => {
     const userCollection = db.collection('admin-users');
 
     const adminUser = await userCollection.findOne({
-      companyId: new ObjectId(company_id),
+      companyId: company_id.toString(),
       role: 'company-admin',
     });
 
@@ -130,7 +130,7 @@ export const companyDetailByIdController = async (req, res) => {
 
     const userCollection = db.collection('admin-users');
     const adminUser = await userCollection.findOne({
-      companyId: new ObjectId(companyId),
+      companyId: companyId.toString(),
       role: 'company-admin',
     });
 

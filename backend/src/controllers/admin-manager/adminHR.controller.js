@@ -511,7 +511,7 @@ export const adminHRInviteController = async (req, res) => {
       email: hrEmail,
       role: 'company-admin',
       password: hashedPassword,
-      companyId: companyResult.insertedId,
+      companyId: companyResult?.insertedId?.toString(),
       createdAt: new Date(),
       updatedAt: new Date(),
     };
