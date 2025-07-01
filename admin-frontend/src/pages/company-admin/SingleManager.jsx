@@ -20,6 +20,7 @@ import {
   Users as UsersIcon,
   Star as StarIcon,
   Calendar,
+  CheckCircle2,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -175,7 +176,7 @@ const SingleManager = () => {
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: "100%",
+        columnWidth: "60%",
         borderRadius: 8,
         dataLabels: {
           position: "top",
@@ -188,7 +189,7 @@ const SingleManager = () => {
         return `${val > 0 ? "+" : ""}${Math.round(val)} ${npsCategory.emoji}`;
       },
       style: {
-        fontSize: "16px",
+        fontSize: "14px",
         fontWeight: 700,
         colors: ["#111827"],
       },
@@ -196,16 +197,16 @@ const SingleManager = () => {
       background: {
         enabled: true,
         foreColor: "#fff",
-        padding: 8,
-        borderRadius: 12,
+        padding: 6,
+        borderRadius: 8,
         borderWidth: 1,
         borderColor: "#e5e7eb",
-        opacity: 0.95,
+        opacity: 1,
       },
     },
     stroke: {
       show: true,
-      width: 4,
+      width: 2,
       colors: ["transparent"],
     },
     xaxis: {
@@ -261,7 +262,7 @@ const SingleManager = () => {
       enabled: true,
       shared: false,
       followCursor: true,
-      theme: "blue",
+      theme: "light",
       style: {
         fontSize: "14px",
         fontFamily: "Inter, sans-serif",
@@ -276,6 +277,41 @@ const SingleManager = () => {
             return "";
           },
         },
+      },
+      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+        const value = series[seriesIndex][dataPointIndex];
+        const category = getScoreCategory(value);
+        return `
+          <div style="
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            font-family: Inter, sans-serif;
+          ">
+            <div style="
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              margin-bottom: 4px;
+            ">
+              <span style="font-size: 16px;">${category.emoji}</span>
+              <span style="
+                font-weight: 600;
+                color: ${category.color};
+                font-size: 14px;
+              ">${category.category}</span>
+            </div>
+            <div style="
+              font-size: 18px;
+              font-weight: 700;
+              color: #111827;
+            ">
+              ${value > 0 ? "+" : ""}${Math.round(value)} NPS Score
+            </div>
+          </div>
+        `;
       },
     },
     legend: { show: false },
@@ -356,7 +392,7 @@ const SingleManager = () => {
                 whileHover={{ x: -3 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate("/admin-dashboard")}
-                className="flex items-center gap-2 cursor-pointer rounded-lg bg-white px-3 py-1.5 text-sm text-gray-600 shadow-sm transition-all hover:bg-gray-50 hover:text-[#0029ff]"
+                className="flex cursor-pointer items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-sm text-gray-600 shadow-sm transition-all hover:bg-gray-50 hover:text-[#0029ff]"
               >
                 <ArrowLeft size={16} />
                 <span>Back</span>
@@ -703,212 +739,128 @@ const SingleManager = () => {
           </div>
         </motion.div>
 
-        {/* Learning Plans */}
-        {/* {learningPlans.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.3 }}
-            className="mb-6 rounded-xl border border-gray-100 bg-white p-4 shadow-sm"
-          >
-            <div className="mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0029ff] text-white">
-                  <BookOpen size={16} />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900">
-                  Learning Plans & Development
-                </h3>
-              </div>
-              <span className="text-sm text-gray-500">
-                {learningPlans.reduce(
-                  (acc, plan) => acc + (plan.notes?.length || 0),
-                  0,
-                )}{" "}
-                notes
-              </span>
-            </div>
-            <div className="space-y-3">
-              {learningPlans.slice(0, 3).map((plan, index) => (
-                <motion.div
-                  key={index}
-                  whileHover={{ y: -2 }}
-                  className="rounded-lg border border-gray-100 bg-gray-50 p-3"
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="text-sm font-semibold text-gray-600">
-                        {plan.title}
-                      </h4>
-                      <p className="mt-1 line-clamp-2 text-xs text-gray-600">
-                        {plan.content}
-                      </p>
-                      <div className="mt-2 flex flex-wrap gap-1">
-                        <span className="rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-800">
-                          {plan.focus_area}
-                        </span>
-                        <span className="rounded-full bg-green-100 px-2 py-1 text-xs text-green-800">
-                          {plan.difficulty}
-                        </span>
-                        {plan.notes?.length > 0 && (
-                          <span className="rounded-full bg-purple-100 px-2 py-1 text-xs text-purple-800">
-                            {plan.notes.length} notes
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <ChevronRight className="text-gray-400" size={16} />
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )} */}
-
-        {/* Goals & Reflections */}
-        {(manager.goals?.length > 0 || manager.reflections?.length > 0) && (
+        {manager.goals?.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.4 }}
-            className="grid grid-cols-1 gap-5 md:grid-cols-2"
+            className="mb-6"
           >
-            {/* Goals */}
-            {manager.goals?.length > 0 && (
-              <motion.div
-                whileHover={{ y: -3 }}
-                className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
-              >
-                <div className="mb-5 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#0029ff] to-[#1a4bff] shadow">
-                      <Target className="text-white" size={18} />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-900">
-                        Goals & Objectives
-                      </h3>
-                      <p className="text-xs text-gray-500">
-                        {manager.goals.length} active goals
-                      </p>
-                    </div>
+            <motion.div
+              whileHover={{ y: -2 }}
+              className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+            >
+              <div className="mb-6 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-blue-500 shadow-lg">
+                    <Target className="text-white" size={20} />
                   </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">
+                      Goals & Objectives
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      {manager.goals.length} active{" "}
+                      {manager.goals.length === 1 ? "goal" : "goals"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-600">
+                    Scroll to view all
+                  </span>
                   <ChevronRight className="text-gray-400" size={20} />
                 </div>
+              </div>
 
-                <div className="space-y-3">
-                  {manager.goals.slice(0, 3).map((goal) => (
-                    <motion.div
+              <div className="scrollbar-hide max-h-96 overflow-y-auto pr-2">
+                <div className="space-y-4 pr-2">
+                  {manager.goals.map((goal) => (
+                    <div
                       key={goal._id}
-                      whileHover={{ x: 3 }}
-                      className="group relative overflow-hidden rounded-lg border border-gray-100 bg-white p-4 shadow-xs transition-all hover:shadow-sm"
+                      className="group relative overflow-hidden rounded-xl border border-gray-100 bg-gradient-to-r from-white to-gray-50 p-5 shadow-sm"
                     >
-                      <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-[#0029ff] to-[#1a4bff]"></div>
-                      <div className="pl-3">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <h4 className="text-sm font-semibold text-gray-900 group-hover:text-[#0029ff]">
+                      <div className="absolute inset-y-0 left-0 w-1.5 rounded-r-full bg-gradient-to-b from-blue-600 to-blue-500"></div>
+                      <div className="pl-4">
+                        <div className="mb-3 flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="text-base font-semibold text-gray-900">
                               {goal.title}
                             </h4>
-                            <p className="mt-1 text-xs text-gray-600">
+                            <p className="mt-2 text-sm leading-relaxed text-gray-600">
                               {goal.value}
                             </p>
                           </div>
                           <span
-                            className={`ml-2 rounded-full px-2 py-1 text-xs font-medium ${
+                            className={`ml-4 rounded-full px-3 py-1.5 text-xs font-semibold whitespace-nowrap ${
                               goal.current_status === "completed"
-                                ? "bg-green-100 text-green-800"
+                                ? "border border-green-200 bg-green-100 text-green-800"
                                 : goal.current_status === "in-progress"
-                                  ? "bg-amber-100 text-amber-800"
-                                  : "bg-gray-100 text-gray-800"
+                                  ? "border border-amber-200 bg-amber-100 text-amber-800"
+                                  : "border border-gray-200 bg-gray-100 text-gray-800"
                             }`}
                           >
-                            {goal.current_status}
+                            {goal.current_status.replace("-", " ")}
                           </span>
                         </div>
-                        <div className="mt-3 flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-xs text-gray-500">
-                            <Calendar size={12} />
-                            <span>
-                              Due:{" "}
-                              {new Date(goal.deadline).toLocaleDateString()}
-                            </span>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3 text-sm text-gray-500">
+                            <div className="flex items-center gap-1">
+                              <Calendar size={14} />
+                              <span>
+                                Due:{" "}
+                                {new Date(goal.deadline).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  },
+                                )}
+                              </span>
+                            </div>
+                            {goal.current_status === "completed" && (
+                              <div className="flex items-center gap-1 text-green-600">
+                                <CheckCircle2
+                                  size={14}
+                                  className="text-green-500"
+                                />
+                                <span className="text-xs font-medium">
+                                  Completed
+                                </span>
+                              </div>
+                            )}
                           </div>
+
                           {goal.current_status !== "completed" && (
-                            <div className="h-2 w-20 rounded-full bg-gray-200">
-                              <div
-                                className={`h-2 rounded-full ${
-                                  goal.current_status === "in-progress"
-                                    ? "w-1/2 bg-amber-500"
-                                    : "w-1/4 bg-gray-400"
-                                }`}
-                              ></div>
+                            <div className="flex items-center gap-3">
+                              <div className="text-xs text-gray-500">
+                                Progress
+                              </div>
+                              <div className="h-2 w-24 overflow-hidden rounded-full bg-gray-200">
+                                <div
+                                  className={`h-full rounded-full transition-all duration-500 ${
+                                    goal.current_status === "in-progress"
+                                      ? "w-2/3 bg-gradient-to-r from-amber-400 to-amber-500"
+                                      : "w-1/4 bg-gradient-to-r from-gray-400 to-gray-500"
+                                  }`}
+                                ></div>
+                              </div>
+                              <span className="text-xs font-medium text-gray-600">
+                                {goal.current_status === "in-progress"
+                                  ? "66%"
+                                  : "25%"}
+                              </span>
                             </div>
                           )}
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
-              </motion.div>
-            )}
-
-            {/* Reflections */}
-            {manager.reflections?.length > 0 && (
-              <motion.div
-                whileHover={{ y: -3 }}
-                className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
-              >
-                <div className="mb-5 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#0029ff] to-[#1a4bff] shadow">
-                      <Lightbulb className="text-white" size={18} />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-900">
-                        Reflections & Insights
-                      </h3>
-                      <p className="text-xs text-gray-500">
-                        {manager.reflections.length} recent reflections
-                      </p>
-                    </div>
-                  </div>
-                  <ChevronRight className="text-gray-400" size={20} />
-                </div>
-
-                <div className="space-y-3">
-                  {manager.reflections.slice(0, 3).map((reflection) => (
-                    <motion.div
-                      key={reflection._id}
-                      whileHover={{ x: 3 }}
-                      className="group relative overflow-hidden rounded-lg border border-gray-100 bg-white p-4 shadow-xs transition-all hover:shadow-sm"
-                    >
-                      <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-[#0029ff] to-[#1a4bff]"></div>
-                      <div className="pl-3">
-                        <p className="line-clamp-3 text-sm text-gray-700 group-hover:text-gray-900">
-                          {reflection.content}
-                        </p>
-                        <div className="mt-3 flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-xs text-gray-500">
-                            <Clock size={12} />
-                            <span>
-                              {new Date(reflection.date).toLocaleDateString()}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            {reflection.content.length > 100 && (
-                              <span className="rounded-full bg-blue-50 px-2 py-1 text-xs text-blue-600">
-                                Detailed
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </div>

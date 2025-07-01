@@ -96,7 +96,6 @@
     transform: translateY(0);
   }
 }
-
 /* For WebKit browsers (Chrome, Safari) */
 ::-webkit-scrollbar {
   width: 6px;
