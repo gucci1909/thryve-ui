@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { FaTrophy } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
-import { useCookies } from "react-cookie";
 import { updatePoints } from "../../store/userSlice";
 
 function Header({ pointAdded, setPointAdded }) {

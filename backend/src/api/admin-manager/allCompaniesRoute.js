@@ -1,6 +1,6 @@
 import express from 'express';
 import apiLimiter from '../../middleware/rateLimiter.js';
-import authMiddleware, { adminCompanyMiddleware } from '../../middleware/authenticate.js';
+import { adminCompanyMiddleware, authAdminMiddleware } from '../../middleware/authenticate.js';
 import {
   allCompaniesDetailsController,
   allCompaniesIDsController,
@@ -11,7 +11,7 @@ import {
 
 const router = express.Router();
 
-router.use(apiLimiter, authMiddleware, adminCompanyMiddleware);
+router.use(apiLimiter, authAdminMiddleware, adminCompanyMiddleware);
 
 router.get('/list', allCompaniesIDsController);
 

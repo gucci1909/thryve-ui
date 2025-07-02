@@ -10,18 +10,19 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { useDispatch } from "react-redux";
 import { login, updateCompanyCode } from "../store/userSlice";
-import { useCookies } from "react-cookie";
 import InviteCodeAlert from "../components/common/InviteCodeAlert";
 import countriesData from "./countriesWithCode.json";
 
 // Create a map of country codes for easy lookup
 const countryCodeMap = new Map();
-countriesData.countries.forEach(country => {
+countriesData.countries.forEach((country) => {
   countryCodeMap.set(country.callingCode, country.countryCode);
 });
 
 // Get all unique calling codes
-const allCallingCodes = [...new Set(countriesData.countries.map(country => country.callingCode))];
+const allCallingCodes = [
+  ...new Set(countriesData.countries.map((country) => country.callingCode)),
+];
 
 const avatars = [
   {
@@ -65,7 +66,6 @@ const SignupPage = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [cookies, setCookie] = useCookies(["authToken"]);
   const [apiError, setApiError] = useState("");
   const [errors, setErrors] = useState({
     firstName: "",
@@ -245,13 +245,6 @@ const SignupPage = () => {
           token,
           user: { id, email, firstName },
         } = data;
-
-        // Set the auth token cookie
-        setCookie("authToken", token, {
-          path: "/",
-          maxAge: 7 * 24 * 60 * 60, // 7 days
-          sameSite: "strict",
-        });
 
         dispatch(login({ token, _id: id, email, firstName }));
         navigate("/personalize");

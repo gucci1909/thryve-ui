@@ -47,6 +47,7 @@ export const loginController = async (req, res) => {
       {
         id: user._id,
         email: user.email,
+        status: user.status,
         firstName: user.firstName,
       },
       process.env.JWT_SECRET,

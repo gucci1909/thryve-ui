@@ -5,11 +5,11 @@ import {
   singleManagerController,
   singleManagerLearningPlanController,
 } from '../../controllers/admin-manager/allManager.controller.js';
-import authMiddleware, { adminCompanyMiddleware } from '../../middleware/authenticate.js';
+import { adminCompanyMiddleware, authAdminMiddleware } from '../../middleware/authenticate.js';
 
 const router = express.Router();
 
-router.use(apiLimiter, authMiddleware, adminCompanyMiddleware);
+router.use(apiLimiter, authAdminMiddleware, adminCompanyMiddleware);
 
 router.get('/all-managers', allManagerController);
 

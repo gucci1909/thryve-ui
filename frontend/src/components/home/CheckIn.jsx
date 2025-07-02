@@ -55,8 +55,7 @@ const CheckIn = ({ pointAdded, setPointAdded }) => {
       );
 
       if (response.status === 401) {
-        // Clear the authToken cookie
-        removeCookie("authToken", { path: "/" });
+      
         dispatch(logout());
 
         navigate("/");
@@ -92,7 +91,7 @@ const CheckIn = ({ pointAdded, setPointAdded }) => {
       );
 
       if (response.status === 401) {
-        removeCookie("authToken", { path: "/" });
+        // removeCookie("authToken", { path: "/" });
         dispatch(logout());
         navigate("/");
         return;
@@ -132,7 +131,7 @@ const CheckIn = ({ pointAdded, setPointAdded }) => {
         );
 
         if (response.status === 401) {
-          removeCookie("authToken", { path: "/" });
+          // removeCookie("authToken", { path: "/" });
           dispatch(logout());
           navigate("/");
           return;
@@ -176,7 +175,7 @@ const CheckIn = ({ pointAdded, setPointAdded }) => {
       );
 
       if (response.status === 401) {
-        removeCookie("authToken", { path: "/" });
+        // removeCookie("authToken", { path: "/" });
         dispatch(logout());
         navigate("/");
         return;
@@ -214,7 +213,7 @@ const CheckIn = ({ pointAdded, setPointAdded }) => {
       );
 
       if (response.status === 401) {
-        removeCookie("authToken", { path: "/" });
+        // removeCookie("authToken", { path: "/" });
         dispatch(logout());
         navigate("/");
         return;
@@ -250,7 +249,7 @@ const CheckIn = ({ pointAdded, setPointAdded }) => {
       );
 
       if (response.status === 401) {
-        removeCookie("authToken", { path: "/" });
+        // removeCookie("authToken", { path: "/" });
         dispatch(logout());
         navigate("/");
         return;
