@@ -6,12 +6,22 @@ import { useState, useEffect } from "react";
 import { WarpBackground } from "../components/magicui/warp-background";
 import { AvatarCircles } from "../components/magicui/avatar-circles";
 import { RainbowButton } from "../components/magicui/rainbow-button";
-import PhoneInput from 'react-phone-number-input';
-import 'react-phone-number-input/style.css';
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 import { useDispatch } from "react-redux";
 import { login, updateCompanyCode } from "../store/userSlice";
-import { useCookies } from 'react-cookie';
+import { useCookies } from "react-cookie";
 import InviteCodeAlert from "../components/common/InviteCodeAlert";
+import countriesData from "./countriesWithCode.json";
+
+// Create a map of country codes for easy lookup
+const countryCodeMap = new Map();
+countriesData.countries.forEach(country => {
+  countryCodeMap.set(country.callingCode, country.countryCode);
+});
+
+// Get all unique calling codes
+const allCallingCodes = [...new Set(countriesData.countries.map(country => country.callingCode))];
 
 const avatars = [
   {
@@ -42,7 +52,7 @@ const avatars = [
 
 const SignupPage = () => {
   const [searchParams] = useSearchParams();
-  const inviteCode = searchParams.get('invite-code');
+  const inviteCode = searchParams.get("invite-code");
   const [companyInfo, setCompanyInfo] = useState(null);
   const [inviteCodeError, setInviteCodeError] = useState("");
   const [showInviteAlert, setShowInviteAlert] = useState(false);
@@ -55,50 +65,56 @@ const SignupPage = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [cookies, setCookie] = useCookies(['authToken']);
+  const [cookies, setCookie] = useCookies(["authToken"]);
   const [apiError, setApiError] = useState("");
   const [errors, setErrors] = useState({
     firstName: "",
     email: "",
     password: "",
-    phone: ""
+    phone: "",
   });
   const navigate = useNavigate();
 
   useEffect(() => {
     const verifyInviteCode = async () => {
       if (!inviteCode) {
-        const message = "No invite code provided. You need a valid company invite code to access Thryve.";
+        const message =
+          "No invite code provided. You need a valid company invite code to access Thryve.";
         setAlertMessage(message);
         setShowInviteAlert(true);
         return;
       }
 
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/companies/verify-key`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/companies/verify-key`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ inviteCode }),
           },
-          body: JSON.stringify({ inviteCode }),
-        });
+        );
 
         const data = await response.json();
 
         if (!response.ok) {
-          const message = data.error || 'Invalid invite code. Please contact your organization\'s administrator for a valid code.';
+          const message =
+            data.error ||
+            "Invalid invite code. Please contact your organization's administrator for a valid code.";
           setAlertMessage(message);
           setShowInviteAlert(true);
-         
+
           return;
         }
 
         setCompanyInfo(data.company);
         dispatch(updateCompanyCode(inviteCode));
-      
       } catch (error) {
-        console.error('Error verifying invite code:', error);
-        const message = 'Failed to verify invite code. Please check your connection and try again.';
+        console.error("Error verifying invite code:", error);
+        const message =
+          "Failed to verify invite code. Please check your connection and try again.";
         setAlertMessage(message);
         setShowInviteAlert(true);
       }
@@ -148,24 +164,23 @@ const SignupPage = () => {
   const handlePhoneChange = (value) => {
     const digitsOnly = value?.replace(/\D/g, "") || "";
 
-    // Extract national digits (without country code)
-    let nationalDigits;
-    if (digitsOnly.startsWith("1")) {
-      nationalDigits = digitsOnly.slice(1); // US/Canada
-    } else if (digitsOnly.startsWith("91")) {
-      nationalDigits = digitsOnly.slice(2); // India
-    } else {
-      nationalDigits = digitsOnly;
+    // Extract country code from the full value
+    let countryCode = "";
+    let nationalDigits = digitsOnly;
+
+    // Find the matching country code from our list
+    for (const callingCode of allCallingCodes) {
+      const codeDigits = callingCode.replace("+", "");
+      if (digitsOnly.startsWith(codeDigits)) {
+        countryCode = callingCode;
+        nationalDigits = digitsOnly.slice(codeDigits.length);
+        break;
+      }
     }
 
-    // Extract country code
-    let countryCode = "";
-    if (value?.startsWith("+1")) {
-      countryCode = "+1";
-    } else if (value?.startsWith("+91")) {
-      countryCode = "+91";
-    } else {
-      const match = value?.match(/^\+\d{1,3}/);
+    // If no country code found, try to extract it from the original value
+    if (!countryCode && value) {
+      const match = value.match(/^\+\d{1,3}/);
       countryCode = match ? match[0] : "";
     }
 
@@ -173,9 +188,9 @@ const SignupPage = () => {
     setPhone(nationalDigits);
 
     // Only validate phone field
-    setErrors(prev => ({
+    setErrors((prev) => ({
       ...prev,
-      phone: validateField("phone", nationalDigits)
+      phone: validateField("phone", nationalDigits),
     }));
   };
 
@@ -184,11 +199,11 @@ const SignupPage = () => {
       firstName: validateField("firstName", firstName),
       email: validateField("email", email),
       password: validateField("password", password),
-      phone: validateField("phone", phone)
+      phone: validateField("phone", phone),
     };
 
     setErrors(newErrors);
-    return Object.values(newErrors).every(error => error === "");
+    return Object.values(newErrors).every((error) => error === "");
   };
 
   const handleSubmit = async (e) => {
@@ -207,7 +222,7 @@ const SignupPage = () => {
       phoneCountryCode,
       phoneNumber: phone,
       password,
-      inviteCode: companyInfo?.inviteCode || null
+      inviteCode: companyInfo?.inviteCode || null,
     };
 
     try {
@@ -217,7 +232,7 @@ const SignupPage = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
-          credentials: 'include',
+          credentials: "include",
         },
       );
 
@@ -226,15 +241,17 @@ const SignupPage = () => {
       if (!response.ok) {
         setApiError("Email is already registered");
       } else {
-        const { token, user: { id, email, firstName } } = data;
+        const {
+          token,
+          user: { id, email, firstName },
+        } = data;
 
         // Set the auth token cookie
-        setCookie('authToken', token, {
-          path: '/',
+        setCookie("authToken", token, {
+          path: "/",
           maxAge: 7 * 24 * 60 * 60, // 7 days
-          sameSite: 'strict'
+          sameSite: "strict",
         });
-
 
         dispatch(login({ token, _id: id, email, firstName }));
         navigate("/personalize");
@@ -413,7 +430,6 @@ const SignupPage = () => {
 
         {/* Signup Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-
           {apiError && (
             <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
               <AlertCircle className="h-5 w-5 text-red-600" />
@@ -439,13 +455,14 @@ const SignupPage = () => {
                 value={firstName}
                 onChange={(e) => {
                   setFirstName(e.target.value);
-                  setErrors(prev => ({
+                  setErrors((prev) => ({
                     ...prev,
-                    firstName: validateField("firstName", e.target.value)
+                    firstName: validateField("firstName", e.target.value),
                   }));
                 }}
-                className={`block w-full rounded-lg border ${errors.firstName ? 'border-red-500' : 'border-gray-300'
-                  } bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
+                className={`block w-full rounded-lg border ${
+                  errors.firstName ? "border-red-500" : "border-gray-300"
+                } bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
                 placeholder="John"
               />
             </div>
@@ -472,13 +489,14 @@ const SignupPage = () => {
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-                  setErrors(prev => ({
+                  setErrors((prev) => ({
                     ...prev,
-                    email: validateField("email", e.target.value)
+                    email: validateField("email", e.target.value),
                   }));
                 }}
-                className={`block w-full rounded-lg border ${errors.email ? 'border-red-500' : 'border-gray-300'
-                  } bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
+                className={`block w-full rounded-lg border ${
+                  errors.email ? "border-red-500" : "border-gray-300"
+                } bg-gray-50 p-2.5 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
                 placeholder="name@company.com"
               />
             </div>
@@ -505,13 +523,14 @@ const SignupPage = () => {
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
-                  setErrors(prev => ({
+                  setErrors((prev) => ({
                     ...prev,
-                    password: validateField("password", e.target.value)
+                    password: validateField("password", e.target.value),
                   }));
                 }}
-                className={`block w-full rounded-lg border ${errors.password ? 'border-red-500' : 'border-gray-300'
-                  } bg-gray-50 p-2.5 pl-10 pr-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
+                className={`block w-full rounded-lg border ${
+                  errors.password ? "border-red-500" : "border-gray-300"
+                } bg-gray-50 p-2.5 pr-10 pl-10 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
                 placeholder="••••••••"
               />
               <button
@@ -547,8 +566,9 @@ const SignupPage = () => {
                 limitMaxLength={true}
                 onChange={handlePhoneChange}
                 countryCallingCodeEditable={false}
-                className={`block w-full rounded-lg border ${errors.phone ? 'border-red-500' : 'border-gray-300'
-                  } bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
+                className={`block w-full rounded-lg border ${
+                  errors.phone ? "border-red-500" : "border-gray-300"
+                } bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)]`}
               />
             </div>
             {errors.phone && (
@@ -561,12 +581,12 @@ const SignupPage = () => {
             <RainbowButton
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 text-sm font-medium relative"
+              className="relative w-full py-3 text-sm font-medium"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center gap-2">
                   <svg
-                    className="animate-spin h-5 w-5 text-white"
+                    className="h-5 w-5 animate-spin text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
