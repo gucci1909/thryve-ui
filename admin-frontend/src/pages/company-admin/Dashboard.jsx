@@ -295,6 +295,7 @@ const Dashboard = () => {
                   currentPage={currentPage}
                   setCurrentPage={setCurrentPage}
                   activeTab={activeTab}
+                  onStatusChange={fetchManagers}
                 />
               </motion.div>
             )}

@@ -193,6 +193,7 @@ export const allManagerController = async (req, res) => {
     const usersWithCounts = await userCollection.aggregate(pipeline).toArray();
     const total = await userCollection.countDocuments({
       companyId: companyDetails.INVITE_CODE || '',
+      status: "active",
       $or: [
         { firstName: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },

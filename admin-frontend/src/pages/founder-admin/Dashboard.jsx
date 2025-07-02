@@ -369,6 +369,7 @@ const Dashboard = () => {
                   setCurrentPage={setCurrentPage}
                   activeTab={activeTab}
                   companyId={selectedCompany?._id}
+                  onStatusChange={fetchManagers}
                 />
               </motion.div>
             )}

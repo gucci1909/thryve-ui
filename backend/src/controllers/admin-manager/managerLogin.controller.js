@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { getDb } from '../../config/db.js';
+import { ObjectId } from 'mongodb';
 
 export const loginManagerController = async (req, res) => {
   try {
@@ -66,5 +67,55 @@ export const loginManagerController = async (req, res) => {
     console.error('Database Error:', error);
     res.status(500).json({ error: 'Failed to connect to the database' });
     return;
+  }
+};
+
+export const changeStatusManagerController = async (req, res) => {
+  try {
+    const db = getDb();
+    const usersCollection = db.collection('users');
+
+    const { status } = req.body;
+    const { id } = req.params;
+
+    // Validate ObjectId
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid user ID format' });
+    }
+
+    // Validate status input
+    if (typeof status !== 'boolean') {
+      return res.status(400).json({ message: 'Status must be a boolean value' });
+    }
+
+    const user = await usersCollection.findOne({ _id: new ObjectId(id) });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const updatedStatus = status ? 'active' : 'inactive';
+
+    const updateResult = await usersCollection.updateOne(
+      { _id: user._id },
+      { $set: { status: updatedStatus } },
+    );
+
+    if (updateResult.modifiedCount === 0) {
+      return res.status(500).json({ message: 'Failed to update user status' });
+    }
+
+    res.status(200).json({
+      message: 'Status updated successfully',
+      user: {
+        _id: user._id,
+        email: user.email,
+        status: updatedStatus,
+        name: user.name,
+      },
+    });
+  } catch (error) {
+    console.error('Error updating status:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };

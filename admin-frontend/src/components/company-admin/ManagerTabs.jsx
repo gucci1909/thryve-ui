@@ -8,8 +8,14 @@ import {
   Target,
   BookOpen,
   MessageCircle,
+  Lock,
+  Unlock,
 } from "lucide-react";
 import { useNavigate } from "react-router";
+import ChangeStatus from "./ChangeStatus";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { showSuccessToast } from "../../utils/toast";
 
 function ManagerTabs({
   searchTerm,
@@ -24,8 +30,63 @@ function ManagerTabs({
   setCurrentPage,
   activeTab,
   companyId,
+  onStatusChange,
 }) {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { token } = useSelector((state) => state.user);
+  const [openChangeStatusModal, setOpenChangeStatusModal] = useState(false);
+  const [selectedManager, setSelectedManager] = useState(null);
+  const [isStatusLoading, setIsStatusLoading] = useState(false);
+
+  const handleChangeStatus = async (managerId, newStatus) => {
+    setIsStatusLoading(true);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/managers/login/change-status/${managerId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: newStatus }),
+        },
+      );
+
+      if (response.status === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
+
+      const data = await response.json();
+      setIsStatusLoading(false);
+      setOpenChangeStatusModal(false);
+
+      if (selectedManager?.status === "active") {
+        showSuccessToast(
+          `${selectedManager.name} has been deactivated. They will no longer have access.`,
+        );
+      } else {
+        showSuccessToast(
+          `${selectedManager.name} has been reactivated. Access has been restored.`,
+        );
+      }
+      if (onStatusChange) onStatusChange();
+      console.log(data.message);
+    } catch (error) {
+      setIsStatusLoading(false);
+      console.error("Error changing status:", error);
+    }
+  };
+
+  const handleOpenModal = (manager) => {
+    setSelectedManager(manager);
+    setOpenChangeStatusModal(true);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -285,6 +346,27 @@ function ManagerTabs({
                           <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
+                            onClick={() => {
+                              handleOpenModal(manager);
+                            }}
+                            className={`flex cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:shadow-md ${
+                              manager.status === "active"
+                                ? "bg-gradient-to-r from-red-600 to-red-500" // Red for deactivate
+                                : "bg-gradient-to-r from-green-600 to-green-500" // Green for reactivate
+                            }`}
+                          >
+                            {manager.status === "active" ? (
+                              <Lock size={16} />
+                            ) : (
+                              <Unlock size={16} />
+                            )}
+                            {manager.status === "active"
+                              ? "Deactivate"
+                              : "Reactivate"}
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
                             onClick={() =>
                               activeTab === "all-managers"
                                 ? navigate(`/manager/${manager._id}`)
@@ -353,6 +435,17 @@ function ManagerTabs({
               </div>
             </div>
           )}
+
+          {/* Change Password Modal */}
+          <AnimatePresence>
+            <ChangeStatus
+              openModal={openChangeStatusModal}
+              setOpenModal={setOpenChangeStatusModal}
+              manager={selectedManager}
+              handleChangeStatus={handleChangeStatus}
+              isLoading={isStatusLoading}
+            />
+          </AnimatePresence>
         </>
       )}
     </motion.div>
