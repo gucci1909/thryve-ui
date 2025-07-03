@@ -23,8 +23,6 @@ const authMiddleware = async (req, res, next) => {
       _id: new ObjectId(req.user.id),
     });
 
-    console.log({ d: userDetails });
-
     if (userDetails.status !== 'active') {
       return res.status(401).json({
         message:
