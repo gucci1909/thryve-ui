@@ -5,6 +5,8 @@ import {
   chatBoxController,
   chatBoxGetAllTextController,
   saveFeedback,
+  pastChatAllController,
+  sessionChatAllController
 } from '../../controllers/chat-box/chat-box.js';
 import { rolePlayController } from '../../controllers/role-play/role-play.js';
 
@@ -110,6 +112,10 @@ router.get('/get-message', chatBoxGetAllTextController);
 router.post('/send-role-play-message', rolePlayController);
 
 router.post('/save-feedback', saveFeedback);
+
+router.get('/past-chats', pastChatAllController)
+
+router.get('/past-chats/:session_id', sessionChatAllController)
 
 // Add SSE endpoint
 // router.get('/events', authenticate, sseController);

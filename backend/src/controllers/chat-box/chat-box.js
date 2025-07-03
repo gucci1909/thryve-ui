@@ -435,3 +435,94 @@ export const saveFeedback = async (req, res) => {
     });
   }
 };
+
+export const pastChatAllController = async (req, res) => {
+  try {
+    const db = getDb();
+    const chatCollection = db.collection('chats');
+    const rolePlayChatCollection = db.collection('role-play-chats');
+
+    const user_id = req.user.id;
+
+    // Fetch all chats and role-play chats
+    const [chats, rolePlayChats] = await Promise.all([
+      chatCollection.find({ user_id }).toArray(),
+      rolePlayChatCollection.find({ user_id }).toArray(),
+    ]);
+
+    // Helper to extract the projected data
+    function projectChatData(chatDoc) {
+      const session_id = chatDoc.session_id;
+      const created_at = chatDoc.created_at;
+      const chat_context = chatDoc.chat_context || [];
+
+      // Find the first user message
+      const firstUserMessage = chat_context.find((c) => c.from === 'user');
+
+      return {
+        session_id,
+        chatType: firstUserMessage?.chatType || 'unknown',
+        created_at,
+        first_question: firstUserMessage?.chat_text || '',
+      };
+    }
+
+    // Combine and project both chat types
+    const combinedChats = [...chats.map(projectChatData), ...rolePlayChats.map(projectChatData)];
+
+    // Optional: sort by latest first
+    combinedChats.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    return res.status(200).json({
+      status: 'OK',
+      chats: combinedChats,
+    });
+  } catch (error) {
+    console.error('pastChatAllController Error:', error);
+    return res.status(500).json({
+      status: 'Not OK',
+      error: 'Failed to get chats',
+    });
+  }
+};
+
+export const sessionChatAllController = async (req, res) => {
+  try {
+    const db = getDb();
+    const chatCollection = db.collection('chats');
+    const rolePlayChatCollection = db.collection('role-play-chats');
+
+    const session_id = req.params.session_id;
+    const user_id = req.user.id;
+
+    // Look in both collections
+    const [chat, rolePlayChat] = await Promise.all([
+      chatCollection.findOne({ session_id, user_id }),
+      rolePlayChatCollection.findOne({ session_id, user_id }),
+    ]);
+
+    const result = chat || rolePlayChat;
+
+    if (!result) {
+      return res.status(404).json({
+        status: 'NOT_FOUND',
+        message: 'No chat found for the given session_id.',
+      });
+    }
+
+    return res.status(200).json({
+      status: 'OK',
+      session_id: result.session_id,
+      chatType: result.chat_context?.[0]?.chatType || 'unknown',
+      chat_context: result.chat_context || [],
+      created_at: result.created_at,
+      updated_at: result.updated_at,
+    });
+  } catch (error) {
+    console.error('Error fetching chat by session_id:', error);
+    return res.status(500).json({
+      status: 'ERROR',
+      message: 'Something went wrong while fetching the chat.',
+    });
+  }
+};
