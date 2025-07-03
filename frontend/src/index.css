@@ -424,3 +424,9 @@
   font-size: 0.75rem;
   font-weight: 600;
 }
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
