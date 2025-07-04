@@ -92,7 +92,7 @@ function ChatHistory({ loading, error, chatHistory, handleSelectChatHistory }) {
 
   return (
     <motion.div
-      className="grid max-h-[calc(100vh-300px)] grid-cols-1 gap-4 overflow-y-auto py-2 pr-2 md:grid-cols-2"
+      className="grid max-h-[calc(100vh)] grid-cols-1 gap-4 overflow-y-auto py-2 pr-2 md:grid-cols-2"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ staggerChildren: 0.1 }}

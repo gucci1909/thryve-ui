@@ -758,12 +758,12 @@ export default function ChatBox({ setPointAdded }) {
             className="relative mx-auto h-[calc(100vh-100px)] max-w-4xl flex-col px-4 py-8"
           >
             {/* Animated background elements */}
-            <CoachingBubbles
+            {/* <CoachingBubbles
               number={20}
               delayBetween={1}
               minDuration={10}
               maxDuration={25}
-            />
+            /> */}
 
             {/* Header section */}
             <motion.div
