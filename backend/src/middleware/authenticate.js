@@ -6,6 +6,7 @@ import { ObjectId } from 'mongodb';
 const authMiddleware = async (req, res, next) => {
   const db = getDb();
   const userCollection = db.collection('users');
+  const companyCollection = db.collection('companies');
   const token = req.headers.authorization?.split(' ')[1];
 
   if (!token) {
@@ -22,8 +23,11 @@ const authMiddleware = async (req, res, next) => {
     const userDetails = await userCollection.findOne({
       _id: new ObjectId(req.user.id),
     });
+    const companyDetails = await companyCollection.findOne({
+      INVITE_CODE: userDetails.companyId,
+    });
 
-    if (userDetails.status !== 'active') {
+    if (userDetails.status !== 'active' || companyDetails.status !== 'active') {
       return res.status(401).json({
         message:
           '🛑 Access Denied! You need a valid token to proceed. Please log in and try again. 🔐',

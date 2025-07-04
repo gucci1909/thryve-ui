@@ -57,6 +57,7 @@ export const allCompaniesDetailsController = async (req, res) => {
           ReflectionInteractionPoint: 1,
           RoleplayInteractionPoint: 1,
           POINTSSTREAKPERDAY: 1,
+          status: 1
         },
       })
       .sort(sort)
@@ -175,5 +176,53 @@ export const companyEditTextController = async (req, res) => {
   } catch (error) {
     console.error('Error updating password:', error);
     res.status(500).json({ message: 'Internal server error while updating password.' });
+  }
+};
+
+export const companyChangeStatusController = async (req, res) => {
+  try {
+    const db = getDb();
+    const companyCollection = db.collection('companies');
+
+    const { status } = req.body;
+    const { id } = req.params;
+
+    // Validate ObjectId
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid company ID format' });
+    }
+
+    // Validate status input
+    if (typeof status !== 'boolean') {
+      return res.status(400).json({ message: 'Status must be a boolean value' });
+    }
+
+    const company = await companyCollection.findOne({ _id: new ObjectId(id) });
+
+    if (!company) {
+      return res.status(404).json({ message: 'Company not found' });
+    }
+
+    const updatedStatus = status ? 'active' : 'inactive';
+
+    const updateResult = await companyCollection.updateOne(
+      { _id: company._id },
+      { $set: { status: updatedStatus } },
+    );
+
+    if (updateResult.modifiedCount === 0) {
+      return res.status(500).json({ message: 'Failed to update user status' });
+    }
+
+    res.status(200).json({
+      message: 'Status updated successfully',
+      company: {
+        _id: company._id,
+        status: updatedStatus,
+      },
+    });
+  } catch (error) {
+    console.error('Error updating status:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };

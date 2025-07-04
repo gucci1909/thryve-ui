@@ -6,7 +6,8 @@ import {
   allCompaniesIDsController,
   companyChangePasswordController,
   companyDetailByIdController,
-  companyEditTextController
+  companyEditTextController,
+  companyChangeStatusController
 } from '../../controllers/admin-manager/allCompanies.controller.js';
 
 const router = express.Router();
@@ -22,5 +23,7 @@ router.get('/details/:companyId', companyDetailByIdController);
 router.post('/edit-company-text', companyEditTextController);
 
 router.post('/change-password', companyChangePasswordController);
+
+router.post('/change-status/:id', companyChangeStatusController)
 
 export default router;

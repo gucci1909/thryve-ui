@@ -1,5 +1,12 @@
 import { motion } from "framer-motion";
-import { Building, Eye, Lock, RefreshCw, ChevronDown } from "lucide-react";
+import {
+  Building,
+  Eye,
+  Lock,
+  RefreshCw,
+  ChevronDown,
+  Unlock,
+} from "lucide-react";
 
 const CompanyTable = ({
   loading,
@@ -9,6 +16,9 @@ const CompanyTable = ({
   setCurrentPage,
   setShowCompanyDetails,
   setShowChangePassword,
+
+  setSelectedCompanyStatus,
+  setOpenChangeStatusModal,
 }) => {
   const itemsPerPage = 5;
 
@@ -112,28 +122,55 @@ const CompanyTable = ({
                       {company.POINTSSTREAKPERDAY}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
-                    <div className="flex flex-col gap-2 space-x-2">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex flex-col gap-1">
+                      {/* Top option (right-aligned) */}
                       <button
                         onClick={() => {
                           setSelectedCompany(company);
                           setShowCompanyDetails(true);
                         }}
-                        className="flex cursor-pointer items-center text-blue-600 hover:text-blue-900"
+                        className="flex cursor-pointer items-center text-sm text-blue-600 hover:text-blue-900"
                       >
                         <Eye className="mr-1 h-4 w-4" />
                         View Details
                       </button>
-                      <button
-                        onClick={() => {
-                          setSelectedCompany(company);
-                          setShowChangePassword(true);
-                        }}
-                        className="flex cursor-pointer items-center text-gray-600 hover:text-gray-900"
-                      >
-                        <Lock className="mr-1 h-4 w-4" />
-                        Change Password of HR
-                      </button>
+
+                      {/* Middle options (slightly indented) */}
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => {
+                            setSelectedCompany(company);
+                            setShowChangePassword(true);
+                          }}
+                          className="flex cursor-pointer items-center text-sm text-gray-600 hover:text-gray-900"
+                        >
+                          <Lock className="mr-1 h-4 w-4" />
+                          Change Password
+                        </button>
+
+                        {/* Status toggle - subtle text style */}
+                        <span
+                          onClick={() => {
+                            setSelectedCompanyStatus(company);
+                            setOpenChangeStatusModal(true);
+                          }}
+                          className={`flex cursor-pointer items-center text-sm ${
+                            company.status === "active"
+                              ? "text-red-600 hover:text-red-800"
+                              : "text-green-600 hover:text-green-800"
+                          }`}
+                        >
+                          {company.status === "active" ? (
+                            <Lock className="mr-1 h-4 w-4" />
+                          ) : (
+                            <Unlock className="mr-1 h-4 w-4" />
+                          )}
+                          {company.status === "active"
+                            ? "Deactivate"
+                            : "Reactivate"}
+                        </span>
+                      </div>
                     </div>
                   </td>
                 </motion.tr>

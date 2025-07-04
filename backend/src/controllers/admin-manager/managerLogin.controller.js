@@ -7,6 +7,7 @@ export const loginManagerController = async (req, res) => {
   try {
     const db = getDb();
     const adminUsersCollection = db.collection('admin-users');
+    const companyCollection = db.collection('companies');
 
     const { email, password } = req.body;
 
@@ -34,6 +35,16 @@ export const loginManagerController = async (req, res) => {
       return res.status(401).json({
         message: 'Account is not having admin-access. Please contact support.',
       });
+    }
+
+    if (user.role !== 'super-admin') {
+      const company = await companyCollection.findOne({ _id: new ObjectId(user?.companyId) });
+
+      if (company.status != 'active') {
+        return res.status(401).json({
+          message: 'Company is suspended or inactive. Please contact support.',
+        });
+      } 
     }
 
     await adminUsersCollection.updateOne({ _id: user._id }, { $set: { lastLogin: new Date() } });

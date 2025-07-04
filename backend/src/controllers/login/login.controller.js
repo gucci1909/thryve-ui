@@ -13,6 +13,7 @@ export const loginController = async (req, res) => {
   try {
     const db = getDb();
     const usersCollection = db.collection('users');
+    const companyCollection = db.collection('companies');
 
     // Check if user exists
     const user = await usersCollection.findOne({ email });
@@ -36,6 +37,14 @@ export const loginController = async (req, res) => {
     if (user.status !== 'active') {
       return res.status(401).json({
         message: 'Account is suspended or inactive. Please contact support.',
+      });
+    }
+
+    const company = await companyCollection.findOne({ INVITE_CODE: user?.companyId });
+
+    if (company.status !== 'active') {
+      return res.status(401).json({
+        message: 'Company is suspended or inactive. Please contact support.',
       });
     }
 
@@ -68,7 +77,7 @@ export const loginController = async (req, res) => {
       userResponse.personalized = user.personalized;
     }
 
-     res.cookie('authToken', token, {
+    res.cookie('authToken', token, {
       httpOnly: true, // Prevent XSS attacks
       sameSite: 'strict', // Prevent CSRF attacks
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
@@ -177,7 +186,7 @@ export const forgotPasswordController = async (req, res) => {
     const emailResult = await sendEmail(
       { name: user.firstName, email: user.email },
       'Password Reset OTP - Thryve',
-      emailTemplate
+      emailTemplate,
     );
 
     if (!emailResult.success) {
@@ -186,13 +195,13 @@ export const forgotPasswordController = async (req, res) => {
         { email },
         {
           $unset: {
-            resetPasswordOtp: "",
-            resetPasswordOtpExpiry: "",
-            resetPasswordVerified: "",
+            resetPasswordOtp: '',
+            resetPasswordOtpExpiry: '',
+            resetPasswordVerified: '',
           },
-        }
+        },
       );
-      
+
       return res.status(500).json({
         message: 'Failed to send OTP email. Please try again.',
       });

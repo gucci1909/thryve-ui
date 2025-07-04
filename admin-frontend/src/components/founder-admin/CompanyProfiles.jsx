@@ -9,6 +9,7 @@ import { useDebounce } from "../../hooks/useDebounce";
 import ChangePassword from "./ChangePassword";
 import CompanyTable from "./CompanyTable";
 import CompanyDetailsModal from "./CompanyDetailsModal";
+import ChangeStatusCompany from "./ChangeStatusCompany";
 
 const CompanyProfiles = () => {
   const { token } = useSelector((state) => state.user);
@@ -31,7 +32,52 @@ const CompanyProfiles = () => {
   const [passwordErrors, setPasswordErrors] = useState({});
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
 
+  const [openChangeStatusModal, setOpenChangeStatusModal] = useState(false);
+  const [selectedCompanyStatus, setSelectedCompanyStatus] = useState(null);
+  const [isStatusLoading, setIsStatusLoading] = useState(false);
+
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+  const handleChangeStatus = async (company_id, newStatus) => {
+    setIsStatusLoading(true);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/all-companies/change-status/${company_id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: newStatus }),
+        },
+      );
+
+      if (response.status === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
+
+      const data = await response.json();
+      setIsStatusLoading(false);
+      setOpenChangeStatusModal(false);
+
+      if (selectedCompanyStatus?.status === "active") {
+        showSuccessToast(
+          `${selectedCompanyStatus.COMPANY_NAME} has been deactivated. They will no longer have access.`,
+        );
+      } else {
+        showSuccessToast(
+          `${selectedCompanyStatus.COMPANY_NAME} has been reactivated. Access has been restored.`,
+        );
+      }
+      fetchCompanies();
+    } catch (error) {
+      setIsStatusLoading(false);
+      console.error("Error changing status:", error);
+    }
+  };
 
   const fetchCompanies = async () => {
     try {
@@ -194,6 +240,8 @@ const CompanyProfiles = () => {
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
         setShowChangePassword={setShowChangePassword}
+        setOpenChangeStatusModal={setOpenChangeStatusModal}
+        setSelectedCompanyStatus={setSelectedCompanyStatus}
       />
       {/* Company Details Modal */}
       <CompanyDetailsModal
@@ -216,6 +264,17 @@ const CompanyProfiles = () => {
             isPasswordLoading={isPasswordLoading}
           />
         )}
+      </AnimatePresence>
+
+      {/* Change Password Modal */}
+      <AnimatePresence>
+        <ChangeStatusCompany
+          openModal={openChangeStatusModal}
+          setOpenModal={setOpenChangeStatusModal}
+          company={selectedCompanyStatus}
+          handleChangeStatus={handleChangeStatus}
+          isLoading={isStatusLoading}
+        />
       </AnimatePresence>
     </div>
   );
