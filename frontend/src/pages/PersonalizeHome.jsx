@@ -21,7 +21,10 @@ export default function PersonalizeHome() {
   const isChatView = location.pathname === "/personalize-chat-box";
 
   return (
-    <div className="flex h-screen flex-col bg-gradient-to-b from-[#f0f4ff] to-[#e6ecff]">
+    <div
+      className="flex flex-col bg-gradient-to-b from-[#f0f4ff] to-[#e6ecff]"
+      style={{ height: "100dvh" }}
+    >
       <AnimatePresence>
         {!isChatView && (
           <motion.div

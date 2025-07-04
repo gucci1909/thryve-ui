@@ -1,7 +1,8 @@
 "use client";
+import React from "react";
 import { motion } from "framer-motion";
 import { AnimatePresence } from "framer-motion";
-import { MessageCircle } from "lucide-react";
+import { ChevronDown, ChevronLeft, MessageCircle } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import scenariosData from "./chatbox.json";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,8 +12,8 @@ import { FiPlus } from "react-icons/fi";
 import { logout, setChatMode } from "../../store/userSlice";
 import Chat from "./Chat";
 import FloatingNav from "./FloatingNav";
-import LoadingSpinner from "./PersonalizeHome/LoadingSpinner";
 import { CoachingBubbles } from "../magicui/meteors";
+import ChatHistory from "./PersonalizeHome/ChatHistory";
 
 export default function ChatBox({ setPointAdded }) {
   const token = useSelector((state) => state.user.token);
@@ -34,6 +35,11 @@ export default function ChatBox({ setPointAdded }) {
   const [feedbackConfig, setFeedbackConfig] = useState({});
   const [rolePlayCounter, setRolePlayCounter] = useState(0);
   const [coachingCounter, setCoachingCounter] = useState(0);
+  const [chatHistory, setChatHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [expandedMessages, setExpandedMessages] = useState({});
+  const [chatHistoryMessages, setChatHistoryMessages] = useState([]);
 
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -42,9 +48,46 @@ export default function ChatBox({ setPointAdded }) {
   const animationFrameRef = useRef(null);
   const audioContextRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const topMessageRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const formatMessage = (text) => {
+    // Replace \n\n with <br><br> and \n with <br>
+    const paragraphs = text.split("\n\n");
+    return (
+      <div className="whitespace-pre-wrap">
+        {paragraphs.map((paragraph, i) => (
+          <div key={i} className="mb-2 last:mb-0">
+            {paragraph.split("\n").map((line, j) => (
+              <React.Fragment key={j}>
+                {line}
+                {j < paragraph.split("\n").length - 1 && (
+                  <>
+                    {" "}
+                    {/* Add a space */}
+                    <br /> <br /> {/* Add a br tag */}
+                  </>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const toggleMessageExpand = (messageId) => {
+    setExpandedMessages((prev) => ({
+      ...prev,
+      [messageId]: !prev[messageId],
+    }));
+  };
+
+  const shouldShowReadMore = (text) => {
+    return text.length > 300;
   };
 
   useEffect(() => {
@@ -68,6 +111,13 @@ export default function ChatBox({ setPointAdded }) {
       setMessages([newMessage]);
       setShowFeedback(false);
       setActiveView("chat");
+    } else if (chatMode === "chat-history") {
+      loadChatHistory();
+      setCoachingCounter(0);
+      setRolePlayCounter(0);
+      setMessages([]);
+      setShowFeedback(false);
+      setActiveView("chat-history");
     }
   }, [chatMode]);
 
@@ -82,6 +132,15 @@ export default function ChatBox({ setPointAdded }) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, activeView]);
+
+  useEffect(() => {
+    if (
+      chatHistoryMessages?.chat_context?.length > 0 &&
+      activeView === "single-chat-history"
+    ) {
+      topMessageRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chatHistoryMessages, activeView]);
 
   const getFeedbackConfig = async () => {
     try {
@@ -144,49 +203,76 @@ export default function ChatBox({ setPointAdded }) {
     }
   }, [rolePlayCounter, coachingCounter, feedbackConfig]);
 
-  // const loadChatHistory = async () => {
-  //   setIsLoadingMessage(true);
-  //   try {
-  //     const response = await fetch(
-  //       `${import.meta.env.VITE_API_BASE_URL}/chat-box/get-message`,
-  //       {
-  //         method: "GET",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       },
-  //     );
+  async function loadChatHistory() {
+    try {
+      setLoading(true);
+      setError(null);
 
-  //     const statusCode = response.status;
-  //     if (statusCode === 401) {
-  //       dispatch(logout());
-  //       navigate("/");
-  //       return;
-  //     }
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/chat-box/past-chats`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
-  //     if (!response.ok) {
-  //       throw new Error("Failed to load chat history");
-  //     }
+      const statusCode = response.status;
+      if (statusCode === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
 
-  //     const data = await response.json();
-  //     if (data.success && data.chat_context) {
-  //       const formattedMessages = data.chat_context.map((msg, index) => ({
-  //         id: index + 1,
-  //         text: msg.chat_text,
-  //         sender: msg.from === "user" ? "user" : "bot",
-  //         timestamp: new Date(msg.timestamp),
-  //         sessionId: msg.sessionId,
-  //       }));
+      const data = await response.json();
+      setChatHistory(data.chats);
+    } catch (error) {
+      console.error("Chat error:", err);
+      setError("Failed to load chat history. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  //       // setMessages(formattedMessages);
-  //     }
-  //     setIsLoadingMessage(false);
-  //   } catch (error) {
-  //     setIsLoadingMessage(false);
-  //     console.error("Error loading chat history:", error);
-  //   }
-  // };
+  const handleSelectChatHistory = async (id) => {
+    setActiveView("single-chat-history");
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/chat-box/past-chats/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const statusCode = response.status;
+      if (statusCode === 401) {
+        dispatch(logout());
+        navigate("/");
+        return;
+      }
+
+      const data = await response.json();
+      setChatHistoryMessages(data);
+    } catch (error) {
+      console.error("Chat error:", err);
+      setError("Failed to load chat history. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBackToChatHistory = () => {
+    setActiveView("chat-history");
+  };
 
   const startScenarioChat = (scenario) => {
     setActiveView("chat");
@@ -522,7 +608,12 @@ export default function ChatBox({ setPointAdded }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {activeView === "scenarios" ? "Choose Scenario" : "Coach Chat"}
+            {activeView === "scenarios"
+              ? "Choose Scenario"
+              : activeView === "chat-history" ||
+                  activeView === "single-chat-history"
+                ? "All Chat History"
+                : "Coach Chat"}
           </motion.h2>
         </div>
       </div>
@@ -547,7 +638,7 @@ export default function ChatBox({ setPointAdded }) {
 
             {/* Header section */}
             <motion.div
-              className="mb-8 text-center"
+              className="mb-6 text-center"
               initial={{ y: -20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ type: "spring", stiffness: 300 }}
@@ -655,6 +746,188 @@ export default function ChatBox({ setPointAdded }) {
                   transition={{ duration: 0.3 }}
                 />
               </motion.button>
+            </motion.div>
+          </motion.div>
+        ) : activeView === "chat-history" ? (
+          <motion.div
+            key="scenarios-view"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="relative mx-auto h-[calc(100vh-100px)] max-w-4xl flex-col px-4 py-8"
+          >
+            {/* Animated background elements */}
+            <CoachingBubbles
+              number={20}
+              delayBetween={1}
+              minDuration={10}
+              maxDuration={25}
+            />
+
+            {/* Header section */}
+            <motion.div
+              className="mb-6 text-center"
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <motion.h2
+                className="mb-2 text-3xl font-bold md:text-4xl"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 }}
+              >
+                <span className="bg-gradient-to-r from-[var(--primary-color)] to-purple-600 bg-clip-text text-transparent">
+                  Your Chat History
+                </span>
+              </motion.h2>
+              <motion.p
+                className="text-base text-gray-600 md:text-lg"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                Review past conversations, {firstName}
+              </motion.p>
+              <motion.div
+                className="mx-auto mt-4 h-1 w-24 rounded-full bg-gradient-to-r from-[var(--primary-color)] to-purple-400"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: 0.3, type: "spring" }}
+              />
+            </motion.div>
+            <ChatHistory
+              loading={loading}
+              error={error}
+              chatHistory={chatHistory}
+              handleSelectChatHistory={handleSelectChatHistory}
+            />
+          </motion.div>
+        ) : activeView === "single-chat-history" ? (
+          <motion.div
+            key="chat-view"
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            className="flex h-[calc(100vh-60px)] flex-1 flex-col"
+          >
+            {/* Chat header with back button and metadata */}
+            <motion.div
+              className="flex items-center justify-between border-b border-gray-200 bg-white p-4"
+              initial={{ y: -10 }}
+              animate={{ y: 0 }}
+            >
+              <button
+                onClick={handleBackToChatHistory}
+                className="flex items-center text-[var(--primary-color)] hover:text-[var(--primary-color-dark)]"
+              >
+                <ChevronLeft className="h-5 w-5" />
+                <span className="ml-1">Back</span>
+              </button>
+
+              <div className="flex items-center space-x-3">
+                <div className="rounded-full bg-[var(--primary-color)/10] px-3 py-1 text-sm font-medium text-[var(--primary-color)]">
+                  {chatHistoryMessages?.chatType?.replace("-", " ")}
+                </div>
+                <div className="text-sm text-gray-500">
+                  {new Date(chatHistoryMessages.created_at).toLocaleDateString(
+                    "en-US",
+                    {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    },
+                  )}
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Messages container */}
+            <motion.div
+              className="min-h-0 overflow-y-auto p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+            >
+              <div ref={topMessageRef} />
+              <div className="space-y-4">
+                {chatHistoryMessages?.chat_context?.map((message, index) => (
+                  <motion.div
+                    key={`${message.timestamp}-${index}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ type: "spring", stiffness: 500 }}
+                    className={`flex ${message.from === "user" ? "justify-end" : "justify-start"} mb-3 px-2`}
+                  >
+                    <div
+                      className={`group relative max-w-[85%] rounded-2xl px-4 py-3 ${
+                        message.from === "user"
+                          ? "rounded-tr-none bg-[var(--primary-color)] text-white"
+                          : "rounded-tl-none bg-gray-100 text-gray-800"
+                      }`}
+                      style={{
+                        boxShadow:
+                          message.from === "user"
+                            ? "0 1px 2px rgba(0,0,0,0.1)"
+                            : "0 1px 2px rgba(0,0,0,0.05)",
+                      }}
+                    >
+                      <div className="relative">
+                        <div
+                          className={`${!expandedMessages[index] && shouldShowReadMore(message.chat_text) ? "line-clamp-4" : ""}`}
+                        >
+                          {formatMessage(message.chat_text)}
+                        </div>
+
+                        {/* Message metadata */}
+                        <div className="mt-1 flex items-center justify-end space-x-2">
+                          <div className="flex items-center space-x-2">
+                            {shouldShowReadMore(message.chat_text) && (
+                              <motion.button
+                                onClick={() => toggleMessageExpand(index)}
+                                className={`text-xs font-medium transition-colors ${
+                                  message.from === "user"
+                                    ? "text-white/80 hover:text-white"
+                                    : "text-gray-500 hover:text-gray-700"
+                                }`}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                              >
+                                {expandedMessages[index]
+                                  ? "Show less"
+                                  : "Read more"}
+                                <ChevronDown
+                                  size={14}
+                                  className={`ml-1 inline transition-transform duration-200 ${
+                                    expandedMessages[index] ? "rotate-180" : ""
+                                  }`}
+                                />
+                              </motion.button>
+                            )}
+
+                            <span
+                              className={`text-xs ${
+                                message.from === "user"
+                                  ? "text-white/70"
+                                  : "text-gray-500"
+                              }`}
+                            >
+                              {new Date(message.timestamp).toLocaleTimeString(
+                                [],
+                                {
+                                  hour: "numeric",
+                                  minute: "2-digit",
+                                },
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </motion.div>
           </motion.div>
         ) : (

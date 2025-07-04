@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { FiMessageCircle, FiX } from "react-icons/fi";
-import { Home, Calendar, PieChart, User, MessageCircle } from "lucide-react";
+import { Home, MessageCircle, History } from "lucide-react";
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setChatMode } from "../../store/userSlice";
@@ -13,8 +13,30 @@ const FloatingNav = () => {
   const chatMode = useSelector((state) => state.user.chatMode) || "none";
 
   const getNavItems = () => {
+    if (chatMode === "chat-history") {
+      return [
+        { icon: Home, path: "/personalize-home", label: "Home" },
+        {
+          icon: MessageCircle,
+          action: () => dispatch(setChatMode("roleplay")),
+          label: "Start Roleplay",
+        },
+        {
+          icon: MessageCircle,
+          action: () => dispatch(setChatMode("coaching")),
+          label: "Start Coaching",
+        },
+      ];
+    }
     const baseItems = [
       { icon: Home, path: "/personalize-home", label: "Home" },
+      {
+        icon: History,
+        action: () => {
+          dispatch(setChatMode("chat-history"));
+        },
+        label: "All Chat History",
+      },
     ];
 
     if (chatMode === "none") {

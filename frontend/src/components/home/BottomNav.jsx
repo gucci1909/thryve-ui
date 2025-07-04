@@ -22,7 +22,13 @@ const BottomNav = ({
   ];
 
   return (
-    <div className="right-0 bottom-0 left-0">
+    <div
+      className="fixed right-0 left-0 z-50"
+      style={{
+        bottom: "env(safe-area-inset-bottom)",
+        paddingBottom: "env(safe-area-inset-bottom)",
+      }}
+    >
       {/* Coach Button (centered) */}
       <motion.div
         whileHover={{ scale: 1.05 }}
