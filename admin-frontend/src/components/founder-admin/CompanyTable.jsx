@@ -6,7 +6,11 @@ import {
   RefreshCw,
   ChevronDown,
   Unlock,
+  Copy,
+  Check,
 } from "lucide-react";
+import { useState } from "react";
+import { showSuccessToast, showErrorToast } from "../../utils/toast";
 
 const CompanyTable = ({
   loading,
@@ -21,6 +25,26 @@ const CompanyTable = ({
   setOpenChangeStatusModal,
 }) => {
   const itemsPerPage = 5;
+  const [copiedCompanyId, setCopiedCompanyId] = useState(null);
+  const APP_BASE_URL = import.meta.env.VITE_APP_BASE_URL;
+
+  const handleCopyInviteLink = async (inviteCode) => {
+    const inviteLink = `${APP_BASE_URL}?invite-code=${inviteCode}`;
+    
+    try {
+      await navigator.clipboard.writeText(inviteLink);
+      showSuccessToast("Invite link copied to clipboard! 🎉");
+      setCopiedCompanyId(inviteCode);
+      
+      // Reset the copied state after 2 seconds
+      setTimeout(() => {
+        setCopiedCompanyId(null);
+      }, 2000);
+    } catch (error) {
+      console.error("Failed to copy to clipboard:", error);
+      showErrorToast("Failed to copy invite link");
+    }
+  };
 
   return (
     <div className="overflow-hidden rounded-xl bg-white shadow-sm">
@@ -97,9 +121,24 @@ const CompanyTable = ({
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex rounded-full bg-blue-100 px-2 text-xs leading-5 font-semibold text-blue-800">
-                      {company.INVITE_CODE}
-                    </span>
+                    <div className="flex items-center space-x-2">
+                      <span className="inline-flex rounded-full bg-blue-100 px-2 text-xs leading-5 font-semibold text-blue-800">
+                        {company.INVITE_CODE}
+                      </span>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleCopyInviteLink(company.INVITE_CODE)}
+                        className="flex items-center justify-center cursor-pointer rounded-lg bg-gray-100 p-1.5 text-gray-600 transition-colors hover:bg-gray-200 hover:text-gray-800"
+                        title="Copy invite link"
+                      >
+                        {copiedCompanyId === company.INVITE_CODE ? (
+                          <Check className="h-3 w-3 text-green-600" />
+                        ) : (
+                          <Copy className="h-3 w-3" />
+                        )}
+                      </motion.button>
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="grid grid-cols-2 gap-2">

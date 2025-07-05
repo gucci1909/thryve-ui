@@ -14,6 +14,9 @@ import {
   Lightbulb,
   Users,
   RefreshCw,
+  Mail,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 import { showSuccessToast, showErrorToast } from "../../utils/toast";
 
@@ -21,9 +24,13 @@ const CompanyDetailsModal = ({ isOpen, onClose, company, token }) => {
   const [companyDetails, setCompanyDetails] = useState(null);
   const [loading, setLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
+  const [editEmailLoading, setEditEmailLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [aboutText, setAboutText] = useState("");
   const [originalAboutText, setOriginalAboutText] = useState("");
+  const [hrEmail, setHrEmail] = useState("");
+  const [originalHrEmail, setOriginalHrEmail] = useState("");
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
@@ -55,6 +62,8 @@ const CompanyDetailsModal = ({ isOpen, onClose, company, token }) => {
         setCompanyDetails(data);
         setAboutText(data.company.ABOUT_TEXT || "");
         setOriginalAboutText(data.company.ABOUT_TEXT || "");
+        setHrEmail(data.company.hr_email || "");
+        setOriginalHrEmail(data.company.hr_email || "");
       }
     } catch (error) {
       console.error("Error fetching company details:", error);
@@ -114,9 +123,71 @@ const CompanyDetailsModal = ({ isOpen, onClose, company, token }) => {
     }
   };
 
+  const handleEditHrEmail = async () => {
+    if (!hrEmail.trim()) {
+      showErrorToast("HR email cannot be empty");
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(hrEmail)) {
+      showErrorToast("Please enter a valid email address");
+      return;
+    }
+
+    setEditEmailLoading(true);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/all-companies/edit-hr-email`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_id: companyDetails.company.hr_id,
+            newEmail: hrEmail,
+          }),
+        },
+      );
+
+      if (response.status === 401) {
+        showErrorToast("Session expired. Please login again.");
+        return;
+      }
+
+      const data = await response.json();
+      if (data.message) {
+        showSuccessToast("HR Email updated successfully! 🎉");
+        setOriginalHrEmail(hrEmail);
+        setIsEditingEmail(false);
+        // Update the company details with new email
+        setCompanyDetails((prev) => ({
+          ...prev,
+          company: {
+            ...prev.company,
+            hr_email: hrEmail,
+          },
+        }));
+      }
+    } catch (error) {
+      console.error("Error updating HR email:", error);
+      showErrorToast("Failed to update HR email");
+    } finally {
+      setEditEmailLoading(false);
+    }
+  };
+
   const handleCancelEdit = () => {
     setAboutText(originalAboutText);
     setIsEditing(false);
+  };
+
+  const handleCancelEditEmail = () => {
+    setHrEmail(originalHrEmail);
+    setIsEditingEmail(false);
   };
 
   const formatDate = (dateString) => {
@@ -160,7 +231,7 @@ const CompanyDetailsModal = ({ isOpen, onClose, company, token }) => {
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.9, opacity: 0, y: 20 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="relative mx-auto flex h-[90vh] w-full max-w-6xl flex-col rounded-2xl bg-white shadow-2xl" // Changed here
+          className="relative mx-auto flex h-[90vh] w-full max-w-6xl flex-col rounded-2xl bg-white shadow-2xl"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -277,7 +348,7 @@ const CompanyDetailsModal = ({ isOpen, onClose, company, token }) => {
                           HR Manager
                         </p>
                         <p className="text-lg font-bold text-gray-900">
-                          {companyDetails.firstName} {companyDetails.lastName}
+                          {companyDetails.company.hr_firstName}
                         </p>
                       </div>
                     </div>
@@ -298,19 +369,109 @@ const CompanyDetailsModal = ({ isOpen, onClose, company, token }) => {
                           Created
                         </p>
                         <p className="text-sm font-bold text-gray-900">
-                          {formatDate(companyDetails.createdAt)}
+                          {formatDate(companyDetails.company.createdAt)}
                         </p>
                       </div>
                     </div>
                   </motion.div>
                 </div>
 
+                {/* HR Email Section */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                  className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+                >
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="flex items-center text-lg font-semibold text-gray-900">
+                      <Mail className="mr-2 h-5 w-5 text-blue-600" />
+                      HR Email Address
+                    </h3>
+                    {!isEditingEmail ? (
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setIsEditingEmail(true)}
+                        className="flex cursor-pointer items-center space-x-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
+                      >
+                        <Edit3 className="h-4 w-4" />
+                        <span>Edit Email</span>
+                      </motion.button>
+                    ) : (
+                      <div className="flex space-x-2">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={handleCancelEditEmail}
+                          className="cursor-pointer rounded-lg bg-gray-500 px-4 py-2 text-white transition-colors hover:bg-gray-600"
+                        >
+                          Cancel
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={handleEditHrEmail}
+                          disabled={editEmailLoading}
+                          className="transition-color flex cursor-pointer items-center space-x-2 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {editEmailLoading ? (
+                            <>
+                              <RefreshCw className="h-4 w-4 animate-spin" />
+                              <span>Saving...</span>
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="h-4 w-4" />
+                              <span>Save Email</span>
+                            </>
+                          )}
+                        </motion.button>
+                      </div>
+                    )}
+                  </div>
+
+                  {isEditingEmail ? (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="space-y-3"
+                    >
+                      <div className="relative">
+                        <input
+                          type="email"
+                          value={hrEmail}
+                          onChange={(e) => setHrEmail(e.target.value)}
+                          className="w-full rounded-lg border border-gray-300 p-4 pr-12 text-gray-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                          placeholder="Enter HR email address..."
+                        />
+                        <Mail className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                      </div>
+                      <div className="flex items-center space-x-2 text-sm text-gray-500">
+                        <AlertCircle className="h-4 w-4" />
+                        <span>Please enter a valid email address</span>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="flex items-center space-x-3 rounded-lg bg-gray-50 p-4"
+                    >
+                      <Mail className="h-5 w-5 text-blue-600" />
+                      <span className="font-medium text-gray-700">
+                        {companyDetails.company?.hr_email || "No email available"}
+                      </span>
+                    </motion.div>
+                  )}
+                </motion.div>
+
                 {/* About Text Section */}
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.6 }}
-                  className="rounded-xl border border-gray-200 bg-white p-6"
+                  className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
                 >
                   <div className="mb-4 flex items-center justify-between">
                     <h3 className="flex items-center text-lg font-semibold text-gray-900">
@@ -342,7 +503,7 @@ const CompanyDetailsModal = ({ isOpen, onClose, company, token }) => {
                           whileTap={{ scale: 0.95 }}
                           onClick={handleEditText}
                           disabled={editLoading}
-                          className="transition-color flex cursor-pointer items-center space-x-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="transition-color flex cursor-pointer items-center space-x-2 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           {editLoading ? (
                             <>
@@ -387,8 +548,8 @@ const CompanyDetailsModal = ({ isOpen, onClose, company, token }) => {
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className="rounded-xl border border-gray-200 bg-white p-6"
+                  transition={{ delay: 0.7 }}
+                  className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
                 >
                   <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900">
                     <Target className="mr-2 h-5 w-5 text-blue-600" />
@@ -401,7 +562,7 @@ const CompanyDetailsModal = ({ isOpen, onClose, company, token }) => {
                           key={key}
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          transition={{ delay: 0.6 + index * 0.1 }}
+                          transition={{ delay: 0.8 + index * 0.1 }}
                           className="cursor-pointer rounded-lg bg-gray-50 p-4 text-center transition-colors hover:bg-gray-100"
                         >
                           <Icon className="mx-auto mb-2 h-8 w-8 text-blue-600" />

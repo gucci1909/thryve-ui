@@ -497,6 +497,7 @@ export const adminHRInviteController = async (req, res) => {
       ReflectionInteractionPoint: 5,
       RoleplayInteractionPoint: 5,
       POINTSSTREAKPERDAY: 20,
+      status: 'active',
       createdAt: new Date(),
       updatedAt: new Date(),
     };

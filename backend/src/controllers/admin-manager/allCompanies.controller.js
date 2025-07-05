@@ -57,7 +57,7 @@ export const allCompaniesDetailsController = async (req, res) => {
           ReflectionInteractionPoint: 1,
           RoleplayInteractionPoint: 1,
           POINTSSTREAKPERDAY: 1,
-          status: 1
+          status: 1,
         },
       })
       .sort(sort)
@@ -131,7 +131,7 @@ export const companyDetailByIdController = async (req, res) => {
 
     const userCollection = db.collection('admin-users');
     const adminUser = await userCollection.findOne({
-      companyId: companyId.toString(),
+      companyId: companyId,
       role: 'company-admin',
     });
 
@@ -141,8 +141,12 @@ export const companyDetailByIdController = async (req, res) => {
 
     res.status(200).json({
       message: 'Company details retrieved successfully.',
-      company,
-      ...adminUser,
+      company: {
+        ...company,
+        hr_email: adminUser?.email,
+        hr_id: adminUser?._id,
+        hr_firstName: adminUser?.firstName,
+      },
     });
   } catch (error) {
     console.error('Error retrieving company details:', error);
@@ -173,6 +177,35 @@ export const companyEditTextController = async (req, res) => {
     );
 
     res.status(200).json({ message: 'About Text updated successfully.' });
+  } catch (error) {
+    console.error('Error updating password:', error);
+    res.status(500).json({ message: 'Internal server error while updating password.' });
+  }
+};
+
+export const companyEditHrEmailController = async (req, res) => {
+  try {
+    const db = getDb();
+    const { user_id, newEmail } = req.body;
+
+    if (!user_id || !newEmail) {
+      return res.status(400).json({ message: 'user id and newEmail are required.' });
+    }
+
+    const userCollection = db.collection('admin-users');
+
+    // Update the password
+    await userCollection.updateOne(
+      { _id: new ObjectId(user_id) },
+      {
+        $set: {
+          email: newEmail,
+          updatedAt: new Date(),
+        },
+      },
+    );
+
+    res.status(200).json({ message: 'Email updated successfully.' });
   } catch (error) {
     console.error('Error updating password:', error);
     res.status(500).json({ message: 'Internal server error while updating password.' });
