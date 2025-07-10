@@ -30,7 +30,7 @@ const schema = yup.object().shape({
     .string()
     .required("About company is required")
     .min(20, "Description must be at least 20 characters")
-    .max(500, "Description must not exceed 500 characters"),
+    .max(5000, "Description must not exceed 5000 characters"),
 });
 
 function AddCompanyTab({ onSubmit }) {
@@ -191,7 +191,7 @@ function AddCompanyTab({ onSubmit }) {
                     placeholder="Tell us about the company (mission, culture, etc.)"
                   />
                   <div className="absolute right-2 bottom-2 text-xs text-gray-500">
-                    {watchedValues.aboutText?.length || 0}/500
+                    {watchedValues.aboutText?.length || 0}/5000
                   </div>
                 </div>
                 {errors.aboutText && (
