@@ -17,6 +17,10 @@ import {
   Mail,
   CheckCircle,
   AlertCircle,
+  ChevronDown,
+  ChevronRight,
+  BarChart3,
+  Zap,
 } from "lucide-react";
 import { showSuccessToast, showErrorToast } from "../../utils/toast";
 
@@ -213,6 +217,157 @@ const CompanyDetailsModal = ({ isOpen, onClose, company, token }) => {
     LearningPlanInteractionPoint: "Learning",
     ReflectionInteractionPoint: "Reflection",
     RoleplayInteractionPoint: "Roleplay",
+  };
+
+  // Token Analytics Accordion Component
+  const TokenAnalyticsAccordion = ({ tokenAnalytics }) => {
+    const [openSections, setOpenSections] = useState(['total']);
+
+    const toggleSection = (sectionKey) => {
+      setOpenSections(prev => 
+        prev.includes(sectionKey) 
+          ? prev.filter(key => key !== sectionKey)
+          : [...prev, sectionKey]
+      );
+    };
+
+    const formatNumber = (num) => {
+      return new Intl.NumberFormat().format(num);
+    };
+
+    const getSectionIcon = (key) => {
+      switch (key) {
+        case 'total': return BarChart3;
+        case 'chat': return MessageCircle;
+        case 'roleplay': return Users;
+        case 'learningPlan': return BookOpen;
+        case 'leadershipReport': return Target;
+        case 'insights': return Lightbulb;
+        default: return Zap;
+      }
+    };
+
+    const getSectionColor = (key) => {
+      switch (key) {
+        case 'total': return 'from-blue-500 to-blue-600';
+        case 'chat': return 'from-green-500 to-green-600';
+        case 'roleplay': return 'from-purple-500 to-purple-600';
+        case 'learningPlan': return 'from-orange-500 to-orange-600';
+        case 'leadershipReport': return 'from-red-500 to-red-600';
+        case 'insights': return 'from-indigo-500 to-indigo-600';
+        default: return 'from-gray-500 to-gray-600';
+      }
+    };
+
+    return (
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.8 }}
+        className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+      >
+        <h3 className="mb-4 flex items-center text-lg font-semibold text-gray-900">
+          <BarChart3 className="mr-2 h-5 w-5 text-blue-600" />
+          Token Analytics
+        </h3>
+        
+        <div className="space-y-2">
+          {Object.entries(tokenAnalytics).map(([key, data]) => {
+            const Icon = getSectionIcon(key);
+            const isOpen = openSections.includes(key);
+            
+            return (
+              <motion.div
+                key={key}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="overflow-hidden rounded-lg border border-gray-200 bg-gray-50"
+              >
+                <button
+                  onClick={() => toggleSection(key)}
+                  className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-gray-100"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`rounded-lg bg-gradient-to-r ${getSectionColor(key)} p-2`}>
+                      <Icon className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">{data.title}</h4>
+                      <p className="text-sm text-gray-600">{data.description}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-gray-600">Total Tokens</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        {formatNumber(data.tokensUsed)}
+                      </p>
+                    </div>
+                    <motion.div
+                      animate={{ rotate: isOpen ? 90 : 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {isOpen ? (
+                        <ChevronDown className="h-5 w-5 text-gray-500" />
+                      ) : (
+                        <ChevronRight className="h-5 w-5 text-gray-500" />
+                      )}
+                    </motion.div>
+                  </div>
+                </button>
+                
+                <AnimatePresence>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="border-t border-gray-200 bg-white"
+                    >
+                      <div className="p-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                          <div className="rounded-lg bg-blue-50 p-4">
+                            <div className="flex items-center space-x-2">
+                              <Zap className="h-4 w-4 text-blue-600" />
+                              <span className="text-sm font-medium text-blue-600">Total Tokens</span>
+                            </div>
+                            <p className="mt-1 text-2xl font-bold text-blue-900">
+                              {formatNumber(data.tokensUsed)}
+                            </p>
+                          </div>
+                          
+                          <div className="rounded-lg bg-green-50 p-4">
+                            <div className="flex items-center space-x-2">
+                              <MessageCircle className="h-4 w-4 text-green-600" />
+                              <span className="text-sm font-medium text-green-600">Prompt Tokens</span>
+                            </div>
+                            <p className="mt-1 text-2xl font-bold text-green-900">
+                              {formatNumber(data.promptTokens)}
+                            </p>
+                          </div>
+                          
+                          <div className="rounded-lg bg-purple-50 p-4">
+                            <div className="flex items-center space-x-2">
+                              <BookOpen className="h-4 w-4 text-purple-600" />
+                              <span className="text-sm font-medium text-purple-600">Completion Tokens</span>
+                            </div>
+                            <p className="mt-1 text-2xl font-bold text-purple-900">
+                              {formatNumber(data.completionTokens)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </div>
+      </motion.div>
+    );
   };
 
   if (!isOpen) return null;
@@ -577,6 +732,11 @@ const CompanyDetailsModal = ({ isOpen, onClose, company, token }) => {
                     )}
                   </div>
                 </motion.div>
+
+                {/* Token Analytics Accordion */}
+                {companyDetails.tokenAnalytics && (
+                  <TokenAnalyticsAccordion tokenAnalytics={companyDetails.tokenAnalytics} />
+                )}
               </div>
             ) : (
               <div className="flex h-64 items-center justify-center">
