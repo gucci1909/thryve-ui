@@ -9,6 +9,7 @@ import {
   companyEditTextController,
   companyChangeStatusController,
   companyEditHrEmailController,
+  companyDetailsWithTokenController
 } from '../../controllers/admin-manager/allCompanies.controller.js';
 
 const router = express.Router();
@@ -20,6 +21,8 @@ router.get('/list', allCompaniesIDsController);
 router.get('/details', allCompaniesDetailsController);
 
 router.get('/details/:companyId', companyDetailByIdController);
+
+router.get('/details-with-token', companyDetailsWithTokenController);
 
 router.post('/edit-company-text', companyEditTextController);
 
