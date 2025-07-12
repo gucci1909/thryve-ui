@@ -17,6 +17,9 @@ const FounderDashboard = lazy(
 const FounderSingleManager = lazy(
   () => import("../pages/founder-admin/FounderSingleManager.jsx"),
 );
+const TokenExcelDownload = lazy(
+  () => import("../pages/founder-admin/TokenExcelDownload.jsx"),
+);
 
 function AllRoutes() {
   return (
@@ -30,6 +33,14 @@ function AllRoutes() {
             element={
               <PrivateRoute>
                 <AdminDashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/download-token-excel"
+            element={
+              <PrivateRoute>
+                <TokenExcelDownload />
               </PrivateRoute>
             }
           />
