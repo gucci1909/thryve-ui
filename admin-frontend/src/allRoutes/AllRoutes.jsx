@@ -20,6 +20,10 @@ const FounderSingleManager = lazy(
 const TokenExcelDownload = lazy(
   () => import("../pages/founder-admin/TokenExcelDownload.jsx"),
 );
+const AllSecretChats = lazy(
+  () => import("../pages/founder-admin/AllSecretChats.jsx"),
+);
+
 
 function AllRoutes() {
   return (
@@ -41,6 +45,15 @@ function AllRoutes() {
             element={
               <PrivateRoute>
                 <TokenExcelDownload />
+              </PrivateRoute>
+            }
+          />
+
+           <Route
+            path="/all-chats"
+            element={
+              <PrivateRoute>
+                <AllSecretChats />
               </PrivateRoute>
             }
           />

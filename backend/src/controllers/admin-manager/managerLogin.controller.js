@@ -44,7 +44,7 @@ export const loginManagerController = async (req, res) => {
         return res.status(401).json({
           message: 'Company is suspended or inactive. Please contact support.',
         });
-      } 
+      }
     }
 
     await adminUsersCollection.updateOne({ _id: user._id }, { $set: { lastLogin: new Date() } });
@@ -128,5 +128,129 @@ export const changeStatusManagerController = async (req, res) => {
   } catch (error) {
     console.error('Error updating status:', error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const findByEmailController = async (req, res) => {
+  try {
+    const db = getDb();
+    const adminUsersCollection = db.collection('users');
+
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    const user = await adminUsersCollection.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({
+        message: 'Invalid email or password',
+      });
+    }
+
+    res.json({
+      message: 'User found successful',
+      user: user,
+    });
+  } catch (error) {
+    console.error('Database Error:', error);
+    res.status(500).json({ error: 'Failed to connect to the database' });
+    return;
+  }
+};
+
+export const findAllChatsController = async (req, res) => {
+  try {
+    const db = getDb();
+    const chatsCollection = db.collection('chats');
+    const rolePlayChatsCollection = db.collection('role-play-chats');
+
+    const { user_id } = req.body;
+
+    if (!user_id) {
+      return res.status(400).json({ error: 'User_id required' });
+    }
+
+    // Fetch all chats and role-play chats
+    const [chats, rolePlayChats] = await Promise.all([
+      chatsCollection.find({ user_id }).toArray(),
+      rolePlayChatsCollection.find({ user_id }).toArray(),
+    ]);
+
+    // Helper to extract the projected data
+    function projectChatData(chatDoc) {
+      const session_id = chatDoc.session_id;
+      const created_at = chatDoc.created_at;
+      const chat_context = chatDoc.chat_context || [];
+
+      // Find the first user message
+      const firstUserMessage = chat_context.find((c) => c.from === 'user');
+
+      return {
+        session_id,
+        chatType: firstUserMessage?.chatType || 'unknown',
+        created_at,
+        first_question: firstUserMessage?.chat_text || '',
+      };
+    }
+
+    // Combine and project both chat types
+    const combinedChats = [...chats.map(projectChatData), ...rolePlayChats.map(projectChatData)];
+
+    // Optional: sort by latest first
+    combinedChats.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    return res.status(200).json({
+      status: 'OK',
+      chats: combinedChats,
+    });
+  } catch (error) {
+    console.error('Database Error:', error);
+    res.status(500).json({ error: 'Failed to connect to the database' });
+    return;
+  }
+};
+
+export const findChatByIDController = async (req, res) => {
+  try {
+    const db = getDb();
+    const chatCollection = db.collection('chats');
+    const rolePlayChatCollection = db.collection('role-play-chats');
+
+    const { user_id, session_id } = req.body;
+
+    if (!user_id || !session_id) {
+      return res.status(400).json({ error: 'user_id and session_id required' });
+    }
+
+    // Look in both collections
+    const [chat, rolePlayChat] = await Promise.all([
+      chatCollection.findOne({ session_id, user_id }),
+      rolePlayChatCollection.findOne({ session_id, user_id }),
+    ]);
+
+    const result = chat || rolePlayChat;
+
+    if (!result) {
+      return res.status(404).json({
+        status: 'NOT_FOUND',
+        message: 'No chat found for the given session_id.',
+      });
+    }
+
+    return res.status(200).json({
+      status: 'OK',
+      session_id: result.session_id,
+      chatType: result.chat_context?.[0]?.chatType || 'unknown',
+      chat_context: result.chat_context || [],
+      created_at: result.created_at,
+      updated_at: result.updated_at,
+    });
+  } catch (error) {
+    console.error('Database Error:', error);
+    res.status(500).json({ error: 'Failed to connect to the database' });
+    return;
   }
 };
