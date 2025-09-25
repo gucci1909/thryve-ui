@@ -1,4 +1,10 @@
-export const getCoachPrompt = (question, leadershipReport, company, existingChat, learning_plan) => {
+export const getCoachPrompt = (
+  question,
+  leadershipReport,
+  company,
+  existingChat,
+  learning_plan,
+) => {
   const cleanContext =
     existingChat && typeof existingChat === 'object' && Array.isArray(existingChat.chat_context)
       ? existingChat.chat_context.map((entry) => ({
@@ -12,7 +18,11 @@ export const getCoachPrompt = (question, leadershipReport, company, existingChat
 
   return `Assume that you are a Leadership Coach and are an expert at evaluating and providing guidance to a manager for the questions that are being asked.
 
-**CRITICAL INSTRUCTION: DO NOT ASK ANY FOLLOW-UP QUESTIONS. Provide direct guidance based on the context provided. If any information is missing, make reasonable assumptions based on the leadership assessment report and company values.**
+Please note: Your primary job is to first **understand the full situation** before offering solutions. After each user answer, carefully evaluate whether you have enough details. If you do NOT have enough details, Ask a follow-up question but ask only one question at a time, Ask it like a real human would that is one at a time and hence the follow up question would be based on the response provided by the human. Once you have enough information, summarize the context you have gathered and then provide a complete, well-thought-out solution.
+
+As an example, instead of asking all the questions together "1. Who are you giving feedback to? (e.g., peer, direct report, senior leader); 2. What is the nature of the feedback?, etc". Ask only one question at a time "Who are you giving feedback to? (e.g., peer, direct report, senior leader)?" - and then let the user answer that and then based on the response, ask the follow up question. Keep asking more and more questions to build the context. 
+
+Once you have a clear understanding and can confidently provide tailored, actionable guidance for the manager's situation, summarize the context you've gathered and then provide your solution. This step of gathering context and then providing guidance should happen only once. All details of the communications will be provided in the data labeled as "manager_json_request_actual"
 
 The inputs given to you are the manager's SWOT analysis and their Recommendations along with a lesson plan as given in the leadership_assessment_report_template.
 
