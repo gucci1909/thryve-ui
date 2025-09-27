@@ -19,7 +19,7 @@ const PublicRoute = ({ children }) => {
     if (personalize) {
       return <Navigate to="/personalize-home" />;
     } else {
-      return <Navigate to="/personalize" />;
+      return <Navigate to="/selection" />;
     }
   }
 
@@ -27,7 +27,7 @@ const PublicRoute = ({ children }) => {
     if (personalize) {
       return <Navigate to="/personalize-home" />;
     } else {
-      return <Navigate to="/personalize" />;
+      return <Navigate to="/selection" />;
     }
   } else {
     return children;
