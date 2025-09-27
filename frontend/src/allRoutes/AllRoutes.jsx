@@ -36,6 +36,8 @@ function AllRoutes() {
         <Routes>
           <Route path="/personalize" element={<Personalize />} />
 
+          <Route path="/selection" element={<SelectionPage />} />
+
           <Route path="/feedback-assessment" element={<FeedbackAssessment />} />
           <Route path="/feedback-thank-you" element={<FeedbackThankYou />} />
           <Route
