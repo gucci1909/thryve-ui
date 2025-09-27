@@ -84,7 +84,7 @@ export default function SelectionPage() {
             transition={{ delay: 0.3, duration: 0.5 }}
           >
             <h1 className="mb-4 bg-gradient-to-br from-gray-900 to-gray-700 bg-clip-text text-xl font-black tracking-tight text-transparent">
-              Begin Your Assessment Journey
+              Begin Your Growth Journey
             </h1>
             <p className="mx-auto max-w-2xl text-lg leading-relaxed text-gray-600 font-medium">
               Complete these three assessments to unlock personalized insights
@@ -175,7 +175,7 @@ export default function SelectionPage() {
             to="/personalize"
             className="group flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-[var(--primary-color)] to-[color-mix(in_srgb,var(--primary-color),white_15%)] px-8 py-4 text-lg font-bold text-white shadow-xl transition-all duration-300 hover:shadow-2xl hover:brightness-105 active:scale-[0.99]"
           >
-            <span className="tracking-tight">Begin Assessment Journey</span>
+            <span className="tracking-tight">Begin Growth Journey</span>
             <ArrowRight className="ml-3 h-5 w-5 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
