@@ -62,7 +62,7 @@ const SignupPage = () => {
   const [email, setEmail] = useState("");
   const dispatch = useDispatch();
   const [phone, setPhone] = useState("");
-  const [phoneCountryCode, setPhoneCountryCode] = useState("+91");
+  const [phoneCountryCode, setPhoneCountryCode] = useState("+44");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
