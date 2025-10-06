@@ -7,6 +7,7 @@ import { cn } from "../../lib/utils";
 import { RippleButton } from "../magicui/ripple-button";
 import { ChevronLeft, ChevronRight, ChevronDown, Check } from "lucide-react";
 import { Listbox } from "@headlessui/react";
+import industries from "./industries.json";
 
 const RoleInformationForm = ({ initialData, onNext, onBack }) => {
   const [formData, setFormData] = useState({
@@ -52,7 +53,6 @@ const RoleInformationForm = ({ initialData, onNext, onBack }) => {
     "VP",
   ];
   const teamSizes = ["1-5", "6-20", "20-50", "50+"];
-  const industries = ["Banking", "Finance", "Health Care", "Retail", "Technology", "Professional Services"];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -113,7 +113,7 @@ const RoleInformationForm = ({ initialData, onNext, onBack }) => {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg bg-white py-1 text-base shadow-lg ring-1 ring-gray-200 focus:outline-none sm:text-sm">
+                <Listbox.Options className="absolute z-10 mt-1 max-h-35 w-full overflow-auto rounded-lg bg-white py-1 text-base shadow-lg ring-1 ring-gray-200 focus:outline-none sm:text-sm">
                   {options.map((option) => (
                     <Listbox.Option
                       key={option}
